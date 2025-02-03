@@ -13,6 +13,7 @@
 **/obj/
 *.vsidx
 FileContentIndex/
+*.suo
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
