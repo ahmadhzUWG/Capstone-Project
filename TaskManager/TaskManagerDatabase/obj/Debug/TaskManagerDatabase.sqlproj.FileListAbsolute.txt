@@ -1,6 +1,0 @@
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.dacpac
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.dll
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.pdb
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.sqlproj.AssemblyReference.cache
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.dll
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.pdb
