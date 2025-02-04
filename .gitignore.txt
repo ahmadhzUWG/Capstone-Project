@@ -18,7 +18,7 @@ code/TaskManager/.vs/
 code/TaskManager/.vs/*
 code/TaskManager/.vs/TaskManager/FileContentIndex/
 code/TaskManager/.vs/TaskManager/FileContentIndex/*
-
+ code/TaskManager/.vs/TaskManager/v17/.suo
 *.suo
 
 # User-specific files (MonoDevelop/Xamarin Studio)

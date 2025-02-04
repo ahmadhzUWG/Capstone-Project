@@ -14,4 +14,15 @@ namespace TaskManagerWebsite.Models
         [StringLength(10, MinimumLength = 5)]
         public string Password;
     }
+
+    public class LoginViewModel
+    {
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+    }
+
 }

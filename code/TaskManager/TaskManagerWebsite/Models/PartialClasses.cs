@@ -10,6 +10,7 @@ namespace TaskManagerWebsite.Models
     [MetadataType(typeof(UserMetadata))]
     public partial class User
     {
+
     }
 
 }
