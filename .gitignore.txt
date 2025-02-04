@@ -12,7 +12,13 @@
 **/bin/ 
 **/obj/
 *.vsidx
-FileContentIndex/
+*/FileContentIndex/
+code/TaskManager/TaskManagerDatabase/TaskManagerDatabase.dbmdl
+code/TaskManager/.vs/
+code/TaskManager/.vs/*
+code/TaskManager/.vs/TaskManager/FileContentIndex/
+code/TaskManager/.vs/TaskManager/FileContentIndex/*
+
 *.suo
 
 # User-specific files (MonoDevelop/Xamarin Studio)

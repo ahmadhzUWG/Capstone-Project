@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 18,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,6 +83,23 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "TaskManagerWebsite\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "TaskManagerWebsite\\Views\\Home\\Index.cshtml",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-04T17:30:52.462Z",
+              "EditorCaption": ""
             }
           ]
         }
