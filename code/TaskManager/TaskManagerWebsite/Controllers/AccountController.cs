@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using System.Web.Security;
 using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
@@ -14,14 +15,19 @@ namespace TaskManagerWebsite.Controllers
         // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginViewModel model)
+        public ActionResult Login(LoginViewModel model, string returnUrl)
         {
             if (ModelState.IsValid)
             {
-                // Dummy authentication (replace with actual database validation)
                 if (model.Username == "admin" && model.Password == "password123")
                 {
-                    Session["Username"] = model.Username;
+                    FormsAuthentication.SetAuthCookie(model.Username, false); // Persistent Login
+
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -31,8 +37,10 @@ namespace TaskManagerWebsite.Controllers
             return View(model);
         }
 
-        // GET: Account/Logout
-        public ActionResult Logout()
+
+
+    // GET: Account/Logout
+    public ActionResult Logout()
         {
             Session.Clear();
             return RedirectToAction("Login");

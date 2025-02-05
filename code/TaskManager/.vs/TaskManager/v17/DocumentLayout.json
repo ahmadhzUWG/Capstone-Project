@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerwebsite\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerwebsite\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerwebsite\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\models\\partialclasses.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\models\\metadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\models\\metadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{67381872-E6AB-42AB-97AF-852CA4C9B9E6}|TaskManagerWebsite\\TaskManagerWebsite.csproj|solutionrelative:taskmanagerwebsite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 19,
+          "SelectedChildIndex": 21,
           "Children": [
             {
               "$type": "Bookmark",
@@ -110,19 +114,33 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Web.config",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Web.config",
+              "RelativeDocumentMoniker": "TaskManagerWebsite\\Web.config",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Web.config",
+              "RelativeToolTip": "TaskManagerWebsite\\Web.config",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-02-05T21:35:07.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Controllers\\HomeController.cs",
               "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Controllers\\HomeController.cs",
               "RelativeToolTip": "TaskManagerWebsite\\Controllers\\HomeController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAAAoAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-04T19:23:09.966Z"
+              "WhenOpened": "2025-02-04T19:23:09.966Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Login.cshtml",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Views\\Account\\Login.cshtml",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Views\\Account\\Login.cshtml",
@@ -135,19 +153,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Controllers\\AccountController.cs",
               "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Controllers\\AccountController.cs",
               "RelativeToolTip": "TaskManagerWebsite\\Controllers\\AccountController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAiAAAA",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAAAA4AAAAeAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-04T18:38:14.172Z"
+              "WhenOpened": "2025-02-04T18:38:14.172Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "Metadata.cs",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Models\\Metadata.cs",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Models\\Metadata.cs",
@@ -159,7 +178,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "PartialClasses.cs",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Models\\PartialClasses.cs",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Models\\PartialClasses.cs",
@@ -171,15 +190,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "TaskManagerWebsite\\Views\\Home\\Index.cshtml",
               "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite\\Views\\Home\\Index.cshtml",
               "RelativeToolTip": "TaskManagerWebsite\\Views\\Home\\Index.cshtml",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAHAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-04T17:30:52.462Z"
+              "WhenOpened": "2025-02-04T17:30:52.462Z",
+              "EditorCaption": ""
             }
           ]
         }
