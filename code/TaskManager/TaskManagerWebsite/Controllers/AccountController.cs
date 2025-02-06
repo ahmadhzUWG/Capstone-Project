@@ -1,11 +1,14 @@
-﻿using System.Web.Mvc;
+﻿using System.Linq;
+using System.Web.Mvc;
 using System.Web.Security;
-using TaskManagerWebsite.Models;
+using TaskManagerWebsite.Models; // Assuming this namespace contains your database context and User model
 
 namespace TaskManagerWebsite.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly ApplicationDbContext _db = new ApplicationDbContext(); // Your EF DbContext
+
         // GET: Account/Login
         public ActionResult Login()
         {
@@ -19,9 +22,11 @@ namespace TaskManagerWebsite.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (model.Username == "admin" && model.Password == "password123")
+                var user = _db.Users.SingleOrDefault(u => u.Username == model.Username && u.Password == model.Password);
+
+                if (user != null) // Simple password verification (No Hashing)
                 {
-                    FormsAuthentication.SetAuthCookie(model.Username, false); // Persistent Login
+                    FormsAuthentication.SetAuthCookie(user.Username, false); // Set authentication cookie
 
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
@@ -31,17 +36,16 @@ namespace TaskManagerWebsite.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                ModelState.AddModelError("", "Invalid login attempt.");
+                ModelState.AddModelError("", "Invalid username or password.");
             }
 
             return View(model);
         }
 
-
-
-    // GET: Account/Logout
-    public ActionResult Logout()
+        // GET: Account/Logout
+        public ActionResult Logout()
         {
+            FormsAuthentication.SignOut();
             Session.Clear();
             return RedirectToAction("Login");
         }
