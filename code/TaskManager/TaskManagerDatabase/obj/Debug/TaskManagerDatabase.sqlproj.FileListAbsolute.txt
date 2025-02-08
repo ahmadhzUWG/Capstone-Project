@@ -16,3 +16,13 @@ C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\TaskManagerDatabase\bin\
 C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.sqlproj.AssemblyReference.cache
 C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.dll
 C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.pdb
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.dacpac
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.dll
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\bin\Debug\TaskManagerDatabase.pdb
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.sqlproj.AssemblyReference.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\Model.xml
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\refactor.xml
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\postdeploy.sql
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\predeploy.sql
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.dll
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDatabase\obj\Debug\TaskManagerDatabase.pdb
