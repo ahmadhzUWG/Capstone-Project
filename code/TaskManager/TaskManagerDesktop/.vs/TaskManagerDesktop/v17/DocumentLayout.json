@@ -3,8 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerdesktop\\taskmanagerdesktop\\taskmanagerdesktop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\taskmanagerdesktop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerdesktop\\taskmanagerdesktop\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerdesktop\\taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerdesktop\\taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\tdena1\\source\\repos\\capstone-project\\code\\taskmanager\\taskmanagerdesktop\\taskmanagerdesktop\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{D6DC0837-B00C-4CB1-BE5E-3E9EEAE493C5}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
   ],
   "DocumentGroupContainers": [
@@ -91,6 +107,57 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "TaskManagerDesktop",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "RelativeToolTip": "TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-02-08T21:54:07.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\Form1.Designer.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Form1.Designer.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAAwDYAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-08T21:37:18.498Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\Form1.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.cs",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\Form1.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Form1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-08T21:37:50.091Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "App.config",
+              "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\App.config",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\App.config",
+              "ToolTip": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\App.config",
+              "RelativeToolTip": "TaskManagerDesktop\\App.config",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-02-08T21:29:22.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Form1.cs [Design]",
               "DocumentMoniker": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerDesktop\\TaskManagerDesktop\\Form1.cs",
               "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.cs",
