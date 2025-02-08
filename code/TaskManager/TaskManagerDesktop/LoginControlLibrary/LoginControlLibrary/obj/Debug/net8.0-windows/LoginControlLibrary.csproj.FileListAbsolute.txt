@@ -1,0 +1,14 @@
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\bin\Debug\net8.0-windows\LoginControlLibrary.deps.json
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\bin\Debug\net8.0-windows\LoginControlLibrary.dll
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\bin\Debug\net8.0-windows\LoginControlLibrary.pdb
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.LoginControl.resources
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.csproj.GenerateResource.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.AssemblyInfoInputs.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.AssemblyInfo.cs
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.csproj.CoreCompileInputs.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.sourcelink.json
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.dll
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\refint\LoginControlLibrary.dll
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\LoginControlLibrary.pdb
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\TaskManagerDesktop\LoginControlLibrary\LoginControlLibrary\obj\Debug\net8.0-windows\ref\LoginControlLibrary.dll
