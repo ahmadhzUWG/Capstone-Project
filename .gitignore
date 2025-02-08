@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/code/TaskManager/.vs/TaskManager/FileContentIndex/c7c925b9-8967-41f4-b096-5c43c4e49262.vsidx
+/code/TaskManager/TaskManagerDatabase/TaskManagerDatabase.dbmdl
+/code/TaskManager/TaskManagerDatabase/TaskManagerDatabase.jfm
