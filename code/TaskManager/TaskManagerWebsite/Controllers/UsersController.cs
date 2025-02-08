@@ -92,7 +92,7 @@ namespace TaskManagerWebsite.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(user).State = EntityState.Modified;
+                db.SetModified(user);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
