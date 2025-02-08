@@ -24,7 +24,12 @@ namespace TaskManagerWebsite.Models
         {
             throw new UnintentionalCodeFirstException();
         }
-    
+
+        public virtual void SetModified(object entity)
+        {
+            Entry(entity).State = EntityState.Modified;
+        }
+
         public virtual DbSet<User> Users { get; set; }
     }
 }
