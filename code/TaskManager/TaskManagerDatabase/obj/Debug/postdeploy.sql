@@ -10,6 +10,7 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
+
 MERGE INTO [User] AS Target
 USING (VALUES ('admin', 'admin', 'Admin')) AS Source (Username, Password, Role)
 ON Target.Username = Source.Username
