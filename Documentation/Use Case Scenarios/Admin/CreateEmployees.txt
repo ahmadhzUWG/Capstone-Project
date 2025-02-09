@@ -1,0 +1,18 @@
+Create Employees
+Context:
+		Admin is viewing employees
+	Primary Flow:
+		1. Admin clicks "Add Employee"
+		2. System loads Add Employees Page
+		3. Admin enters new Employee information
+		4. Admin clicks "Add Employee Button"
+	Alternate Flow :
+		Admin provides missing information
+			A1. Admin provides no information
+			A2. Admin clicks "Add Employee Button"
+			A3. System provides Admin with warning stating that no information is provided
+			A4. Resume to step 1
+		Admin cancels adding an employee
+			A1. Admin is viewing add an Employee screen
+			A2. Admin clicks "Cancel" button
+
