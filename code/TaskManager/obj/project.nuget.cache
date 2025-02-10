@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "RejctP1R+8iZ4LS4wD+U2gVSzNZK6R2G6TfJMZqTivTipvO/1goOhjXFcnx2jMtVn/Jxsle7BsGUyZZ9X7T3CQ==",
+  "dgSpecHash": "dzjiNKy+MwecAQ00RD3iwEfH/V02oZnF1WhONC+SW4U3WV/ImAQJ5pvXebcl4vM5RDDRCtn4wsKKSaP/DEMilg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj",
   "expectedPackageFiles": [
@@ -169,7 +169,14 @@
     "C:\\Users\\Nick\\.nuget\\packages\\system.threading.channels\\7.0.0\\system.threading.channels.7.0.0.nupkg.sha512",
     "C:\\Users\\Nick\\.nuget\\packages\\system.threading.tasks.dataflow\\7.0.0\\system.threading.tasks.dataflow.7.0.0.nupkg.sha512",
     "C:\\Users\\Nick\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
-    "C:\\Users\\Nick\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512"
+    "C:\\Users\\Nick\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit\\2.9.3\\xunit.2.9.3.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.abstractions\\2.0.3\\xunit.abstractions.2.0.3.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.analyzers\\1.18.0\\xunit.analyzers.1.18.0.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.assert\\2.9.3\\xunit.assert.2.9.3.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.core\\2.9.3\\xunit.core.2.9.3.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.extensibility.core\\2.9.3\\xunit.extensibility.core.2.9.3.nupkg.sha512",
+    "C:\\Users\\Nick\\.nuget\\packages\\xunit.extensibility.execution\\2.9.3\\xunit.extensibility.execution.2.9.3.nupkg.sha512"
   ],
   "logs": []
 }
