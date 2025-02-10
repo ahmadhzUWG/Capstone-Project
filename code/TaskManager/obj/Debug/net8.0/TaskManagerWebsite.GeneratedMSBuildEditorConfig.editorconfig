@@ -17,63 +17,63 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = TaskManagerWebsite
 build_property.RootNamespace = TaskManagerWebsite
-build_property.ProjectDir = C:\Users\Nick\Desktop\G4CapstoneProject\TaskManager\
+build_property.ProjectDir = C:\Users\Nick\Desktop\G4CapstoneProject\code\TaskManager\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\Nick\Desktop\G4CapstoneProject\TaskManager
+build_property.MSBuildProjectDirectory = C:\Users\Nick\Desktop\G4CapstoneProject\code\TaskManager
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Account/Login.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Account/Register.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Home/Index.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Home/Privacy.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Shared/Error.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Users/Delete.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Users/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Users/Details.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Users/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Users/Edit.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Users/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Users/Index.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Users/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/_ViewImports.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/_ViewStart.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Nick/Desktop/G4CapstoneProject/TaskManager/Views/Shared/_Layout.cshtml]
+[C:/Users/Nick/Desktop/G4CapstoneProject/code/TaskManager/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-o24lfqmaiu
