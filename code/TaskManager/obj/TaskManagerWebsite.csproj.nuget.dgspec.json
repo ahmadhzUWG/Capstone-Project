@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {}
+    "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {
+    "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "projectUniqueName": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj",
         "projectName": "TaskManagerWebsite",
-        "projectPath": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
-        "packagesPath": "C:\\Users\\tdena1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\obj\\",
+        "projectPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "packagesPath": "C:\\Users\\Nick\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\tdena1\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Nick\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -92,6 +92,18 @@
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[8.0.7, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.3, )"
+            },
+            "xunit.assert": {
+              "target": "Package",
+              "version": "[2.9.3, )"
+            },
+            "xunit.core": {
+              "target": "Package",
+              "version": "[2.9.3, )"
             }
           },
           "imports": [
@@ -113,7 +125,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.307/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
