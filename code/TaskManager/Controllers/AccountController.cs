@@ -33,7 +33,7 @@ namespace TaskManagerWebsite.Controllers
                 return View(model);
 
             // Create a new user object. Note that we only set UserName and Email.
-            var user = new User { UserName = model.UserName, Email = model.Email };
+            var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
 
             // Create the user with the specified password.
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -44,9 +44,9 @@ namespace TaskManagerWebsite.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // If we got here, something failed; add errors and redisplay the form.
             foreach (var error in result.Errors)
             {
+                Console.WriteLine($"Code: {error.Code}, Description: {error.Description}"); 
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return View(model);

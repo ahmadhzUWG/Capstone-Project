@@ -5,19 +5,23 @@ namespace TaskManagerWebsite.ViewModels
     public class RegisterViewModel
     {
         [Required]
-        public string UserName { get; set; } = string.Empty;
+        [Display(Name = "User Name")]
+        public required string UserName { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        [Display(Name = "Email")]
+        public required string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        [Display(Name = "Password")]
+        public required string Password { get; set; }
 
+        [Required]
         [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
         [Display(Name = "Confirm Password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        public required string ConfirmPassword { get; set; }
     }
 }
