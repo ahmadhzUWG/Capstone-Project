@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
@@ -19,21 +20,15 @@ namespace TaskManagerWebsite.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            // List all users
+            // Fetch all users and pass them to the view
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
 
         // GET: Users/Details/{id}
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -44,13 +39,8 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // GET: Users/Edit/{id}
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
@@ -63,9 +53,8 @@ namespace TaskManagerWebsite.Controllers
         // POST: Users/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Email")] User user)
         {
-            // Only allow editing of certain properties (for example, UserName and Email)
             if (id != user.Id)
             {
                 return NotFound();
@@ -75,8 +64,18 @@ namespace TaskManagerWebsite.Controllers
             {
                 try
                 {
-                    // Update the user record
-                    _context.Update(user);
+                    // Fetch the existing user from the database
+                    var existingUser = await _context.Users.FindAsync(id);
+                    if (existingUser == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Update only the fields we allow
+                    existingUser.UserName = user.UserName;
+                    existingUser.Email = user.Email;
+
+                    _context.Update(existingUser);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -96,15 +95,9 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // GET: Users/Delete/{id}
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -114,9 +107,9 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // POST: Users/Delete/{id}
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -128,7 +121,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // Helper method to check if a user exists by id.
-        private bool UserExists(string id)
+        private bool UserExists(int id)
         {
             return _context.Users.Any(u => u.Id == id);
         }

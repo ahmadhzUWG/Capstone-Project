@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace TaskManagerWebsite.Models
 {
-    public class User : IdentityUser
+    public class User : IdentityUser<int>
     {
-      //  public int UserId { get; set; }
-       // public string Username { get; set; }
-       // public string Password { get; set; }
-       // public string Role { get; set; }
+        public string? Role { get; set; }
     }
-    
 }

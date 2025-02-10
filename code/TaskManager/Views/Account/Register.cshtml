@@ -31,6 +31,17 @@
     <button type="submit">Register</button>
 </form>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <ul>
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <li>@error.ErrorMessage</li>
+        }
+    </ul>
+}
+
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
