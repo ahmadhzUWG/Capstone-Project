@@ -1,0 +1,13 @@
+Delete Employees
+Context:
+		Admin is viewing employees
+	Primary Flow:
+		1. Admin selects an employee
+		2. Admin clicks "Delete Employyee" Button
+		3. System warns user for confirmation
+		4. Admin confirms deletion
+	Alternate Flow :
+		Admin cancels deleting an employee
+			A1. Admin is viewing warning
+			A2. Admin clicks "Cancel" button
+			
