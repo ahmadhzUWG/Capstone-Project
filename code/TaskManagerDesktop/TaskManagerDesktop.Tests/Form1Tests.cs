@@ -19,7 +19,7 @@ public class Form1Tests
     private async Task<ApplicationDbContext> GetMockDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
+            .UseInMemoryDatabase(databaseName: $"TestDatabase_{Guid.NewGuid()}")
             .Options;
 
         var dbContext = new ApplicationDbContext(options);
