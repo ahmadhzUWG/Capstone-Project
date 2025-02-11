@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using TaskManagerWebsite.Models;
+using TaskManagerDesktop.Models;
 using Xunit;
-using TaskManagerWebsite.Data; // Replace with actual namespace
+using TaskManagerDesktop.Data; // Replace with actual namespace
 
 namespace TaskManagerDesktop.Tests
 {

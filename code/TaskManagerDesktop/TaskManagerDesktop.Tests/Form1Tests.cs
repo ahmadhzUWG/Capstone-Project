@@ -1,15 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Moq;
 using Xunit;
 using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerDesktop.Data;
+
 using TaskManagerDesktop;
+using TaskManagerDesktop.Models;
 
 public class Form1Tests
 {
+
+
     private async Task<ApplicationDbContext> GetMockDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -18,14 +24,49 @@ public class Form1Tests
 
         var dbContext = new ApplicationDbContext(options);
 
-        dbContext.Users.AddRange(new List<User>
+        // Create a fake RoleManager (optional, if you use roles)
+        var roleStore = new RoleStore<IdentityRole<int>, ApplicationDbContext, int>(dbContext);
+        var roleManager = new RoleManager<IdentityRole<int>>(roleStore, null, null, null, null);
+
+        // Create a fake UserManager
+        var userStore = new UserStore<User, IdentityRole<int>, ApplicationDbContext, int>(dbContext);
+        var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+
+        // Seed users
+        var users = new List<User>
         {
             new User { Id = 1, UserName = "Alice", Email = "alice@example.com", Role = "Admin" },
             new User { Id = 2, UserName = "Bob", Email = "bob@example.com", Role = "User" }
-        });
+        };
+
+        foreach (var user in users)
+        {
+            await userManager.CreateAsync(user);
+        }
 
         await dbContext.SaveChangesAsync();
         return dbContext;
+    }
+
+    [Fact]
+    public void UserConstructor()
+    {
+        var user = new User
+        {
+            Id = 1,
+            UserName = "Alice",
+            Email = "@gmail.com",
+            Role = "Admin"
+        };
+
+        var role = user.Role;
+
+        Assert.Equal("Admin", role);
+        Debug.Assert(user != null, nameof(user) + " != null");
+        Assert.NotNull(user.Id);
+        Assert.NotNull(user.UserName);
+        Assert.NotNull(user.Email);
+        Assert.NotNull(user.Role);
     }
 
     [Fact]

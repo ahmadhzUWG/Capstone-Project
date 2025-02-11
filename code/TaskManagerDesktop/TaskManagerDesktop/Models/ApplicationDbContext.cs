@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using TaskManagerWebsite.Models;
-using Microsoft.AspNetCore.Identity;
 
-namespace TaskManagerWebsite.Data
+using Microsoft.AspNetCore.Identity;
+using TaskManagerDesktop.Models;
+
+namespace TaskManagerDesktop.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
@@ -13,12 +14,12 @@ namespace TaskManagerWebsite.Data
         {
         }
 
-        // ADD THIS PARAMETERLESS CONSTRUCTOR
-        public ApplicationDbContext() : base(new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString)
-            .Options)
-        {
-        }
+        ////// ADD THIS PARAMETERLESS CONSTRUCTOR
+        //public ApplicationDbContext() : base(new DbContextOptionsBuilder<ApplicationDbContext>()
+        //    .UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString)
+        //    .Options)
+        //    {
+        //}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

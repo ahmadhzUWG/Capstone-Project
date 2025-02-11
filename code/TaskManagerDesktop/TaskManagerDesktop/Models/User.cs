@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
-namespace TaskManagerWebsite.Models
+namespace TaskManagerDesktop.Models
 {
     public class User : IdentityUser<int>
     {

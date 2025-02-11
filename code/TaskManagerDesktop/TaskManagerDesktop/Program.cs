@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Configuration;
 using System.Windows.Forms;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Protocols;
 using TaskManagerDesktop;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerDesktop.Models;
+using TaskManagerDesktop.Data;
 
 namespace WinFormsApp
 {
@@ -15,15 +17,19 @@ namespace WinFormsApp
         static void Main()
         {
             var services = new ServiceCollection();
-            
-            // Use InMemory database for testing
+
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("TestDatabase"));
+                options.UseSqlServer(connectionString));
 
             services.AddIdentity<User, IdentityRole<int>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             var serviceProvider = services.BuildServiceProvider();
+            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+            dbContext.Database.EnsureCreated();
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();

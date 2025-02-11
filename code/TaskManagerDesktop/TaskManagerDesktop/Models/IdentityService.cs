@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerDesktop.Data;
+
 using Microsoft.Extensions.Configuration;
+using TaskManagerDesktop.Models;
 
 namespace TaskManagerDesktop.Services
 {
@@ -53,7 +54,7 @@ namespace TaskManagerDesktop.Services
                     options.UseSqlServer("Data Source=(localdb)\\ProjectModels;Initial Catalog=TaskManagerDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;"));
             }
 
-            services.AddIdentity<User, IdentityRole>()
+            services.AddIdentity<User, IdentityRole<int>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 

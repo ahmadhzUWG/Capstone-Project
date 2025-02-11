@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TaskManagerDesktop.Models;
 using TaskManagerDesktop.Services;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerDesktop.Data;
+
 using Xunit;
 
 namespace TaskManagerDesktop.Tests
