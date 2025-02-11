@@ -4,11 +4,5 @@
     <Compile Update="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="LoginControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UserControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

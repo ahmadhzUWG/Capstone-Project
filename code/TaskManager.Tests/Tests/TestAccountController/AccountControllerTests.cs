@@ -23,6 +23,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
 {
     public class AccountControllerTests
     {
+
         private Mock<SignInManager<User>> createSignInManagerMock(ApplicationDbContext context, UserManager<User> userManager)
         {
             var mockSignInManager = new Mock<SignInManager<User>>(
