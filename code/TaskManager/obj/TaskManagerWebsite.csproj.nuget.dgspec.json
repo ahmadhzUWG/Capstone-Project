@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {}
+    "C:\\Users\\tdena1\\Desktop\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {
+    "C:\\Users\\tdena1\\Desktop\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "projectUniqueName": "C:\\Users\\tdena1\\Desktop\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
         "projectName": "TaskManagerWebsite",
-        "projectPath": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "projectPath": "C:\\Users\\tdena1\\Desktop\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
         "packagesPath": "C:\\Users\\tdena1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tdena1\\Downloads\\Capstone-Project\\code\\TaskManager\\obj\\",
+        "outputPath": "C:\\Users\\tdena1\\Desktop\\Capstone-Project\\code\\TaskManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -55,39 +55,37 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Abstractions": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Analyzers": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
