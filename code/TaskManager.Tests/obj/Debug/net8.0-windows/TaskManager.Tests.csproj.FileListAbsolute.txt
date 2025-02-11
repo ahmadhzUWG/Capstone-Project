@@ -1,8 +1,0 @@
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\bin\Debug\net8.0-windows\.msCoverageSourceRootsMapping_TaskManager.Tests
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\bin\Debug\net8.0-windows\CoverletSourceRootsMapping_TaskManager.Tests
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.csproj.AssemblyReference.cache
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.AssemblyInfoInputs.cache
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.AssemblyInfo.cs
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.csproj.CoreCompileInputs.cache
-C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\obj\Debug\net8.0-windows\TaskManager.Tests.sourcelink.json
