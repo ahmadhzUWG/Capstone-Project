@@ -1,0 +1,222 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C89B2C2C-05C9-4A61-AA38-070FFB831336}|TaskManager.Tests\\TaskManager.Tests.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager.tests\\tests\\testaccountcontroller\\accountcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C89B2C2C-05C9-4A61-AA38-070FFB831336}|TaskManager.Tests\\TaskManager.Tests.csproj|solutionrelative:taskmanager.tests\\tests\\testaccountcontroller\\accountcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C89B2C2C-05C9-4A61-AA38-070FFB831336}|TaskManager.Tests\\TaskManager.Tests.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager.tests\\taskmanager.tests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{C89B2C2C-05C9-4A61-AA38-070FFB831336}|TaskManager.Tests\\TaskManager.Tests.csproj|solutionrelative:taskmanager.tests\\taskmanager.tests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\taskmanagerdesktop.tests\\form1tests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\taskmanagerdesktop.tests\\form1tests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\taskmanagerdesktop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\taskmanagerdesktop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\taskmanagerdesktop\\migrations\\20250210230743_initialcreate.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\taskmanagerdesktop\\migrations\\20250210230743_initialcreate.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanagerdesktop\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A349374D-4EFB-4179-8132-BBED0E3D8FAD}|TaskManagerDesktop\\TaskManagerDesktop.csproj|solutionrelative:taskmanagerdesktop\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AccountControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager.Tests\\Tests\\TestAccountController\\AccountControllerTests.cs",
+              "RelativeDocumentMoniker": "TaskManager.Tests\\Tests\\TestAccountController\\AccountControllerTests.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager.Tests\\Tests\\TestAccountController\\AccountControllerTests.cs",
+              "RelativeToolTip": "TaskManager.Tests\\Tests\\TestAccountController\\AccountControllerTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T20:15:27.107Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TaskManager.Tests",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
+              "RelativeDocumentMoniker": "TaskManager.Tests\\TaskManager.Tests.csproj",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
+              "RelativeToolTip": "TaskManager.Tests\\TaskManager.Tests.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-02-11T20:13:23.145Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TaskManagerDesktop",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "RelativeToolTip": "TaskManagerDesktop\\TaskManagerDesktop.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-02-11T07:29:00.986Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "20250210230743_InitialCreate.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop\\Migrations\\20250210230743_InitialCreate.Designer.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\TaskManagerDesktop\\Migrations\\20250210230743_InitialCreate.Designer.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop\\Migrations\\20250210230743_InitialCreate.Designer.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\TaskManagerDesktop\\Migrations\\20250210230743_InitialCreate.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBIAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T07:28:47.979Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1Tests.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop.Tests\\Form1Tests.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\TaskManagerDesktop.Tests\\Form1Tests.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\TaskManagerDesktop.Tests\\Form1Tests.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\TaskManagerDesktop.Tests\\Form1Tests.cs",
+              "ViewState": "AgIAADwAAAAAAAAAAAAowE8AAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T07:25:42.352Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "bootstrap-grid.css",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+              "RelativeDocumentMoniker": "TaskManager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+              "RelativeToolTip": "TaskManager\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAABRwAQAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-02-11T06:02:11.599Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Program.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Program.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Program.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Program.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAuwCgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:56:28.026Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Models\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Models\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Models\\ApplicationDbContext.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Models\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:47:08.8Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Form1.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwDoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:44:54.27Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.Designer.cs",
+              "RelativeToolTip": "TaskManagerDesktop\\Form1.Designer.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAuwBYAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:44:02.079Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Form1.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.cs",
+              "RelativeDocumentMoniker": "TaskManagerDesktop\\Form1.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManagerDesktop\\Form1.cs [Design]",
+              "RelativeToolTip": "TaskManagerDesktop\\Form1.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:43:46.478Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Program.cs",
+              "RelativeDocumentMoniker": "TaskManager\\Program.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Program.cs",
+              "RelativeToolTip": "TaskManager\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD4AAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-11T05:21:10.484Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
