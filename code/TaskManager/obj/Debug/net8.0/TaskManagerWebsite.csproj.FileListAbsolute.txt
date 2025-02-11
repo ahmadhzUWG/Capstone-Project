@@ -1,0 +1,9 @@
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.csproj.AssemblyReference.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.AssemblyInfoInputs.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.AssemblyInfo.cs
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.csproj.CoreCompileInputs.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.RazorAssemblyInfo.cache
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.RazorAssemblyInfo.cs
+C:\Users\tdena1\source\repos\Capstone-Project\code\TaskManager\obj\Debug\net8.0\TaskManagerWebsite.sourcelink.json

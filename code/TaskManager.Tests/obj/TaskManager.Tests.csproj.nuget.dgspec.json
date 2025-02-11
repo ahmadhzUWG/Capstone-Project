@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager.Tests\\TaskManager.Tests.csproj": {}
+    "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager.Tests\\TaskManager.Tests.csproj": {
+    "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
         "projectName": "TaskManager.Tests",
-        "projectPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
-        "packagesPath": "C:\\Users\\Nick\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager.Tests\\obj\\",
+        "projectPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager.Tests\\TaskManager.Tests.csproj",
+        "packagesPath": "C:\\Users\\tdena1\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Nick\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tdena1\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj": {
-                "projectPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj"
+              "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {
+                "projectPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj"
               }
             }
           }
@@ -90,24 +90,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj": {
+    "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "projectUniqueName": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
         "projectName": "TaskManagerWebsite",
-        "projectPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\TaskManagerWebsite.csproj",
-        "packagesPath": "C:\\Users\\Nick\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Nick\\Desktop\\G4CapstoneProject\\code\\TaskManager\\obj\\",
+        "projectPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\TaskManagerWebsite.csproj",
+        "packagesPath": "C:\\Users\\tdena1\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\tdena1\\source\\repos\\Capstone-Project\\code\\TaskManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Nick\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tdena1\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -145,39 +145,39 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Abstractions": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Analyzers": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[8.0.12, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
@@ -215,7 +215,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
