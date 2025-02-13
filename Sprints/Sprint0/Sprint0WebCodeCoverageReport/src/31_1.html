@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Account\Register.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.RegisterViewModel
+
+@{
+    ViewBag.Title = &quot;title&quot;;
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;h2&gt;Register&lt;/h2&gt;
+
+&lt;form asp-action=&quot;Register&quot; method=&quot;post&quot;&gt;
+    &lt;div&gt;
+        &lt;label asp-for=&quot;UserName&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;UserName&quot; /&gt;
+        &lt;span asp-validation-for=&quot;UserName&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Email&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Email&quot; /&gt;
+        &lt;span asp-validation-for=&quot;Email&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Password&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Password&quot; type=&quot;password&quot; /&gt;
+        &lt;span asp-validation-for=&quot;Password&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label asp-for=&quot;ConfirmPassword&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;ConfirmPassword&quot; type=&quot;password&quot; /&gt;
+        &lt;span asp-validation-for=&quot;ConfirmPassword&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;button type=&quot;submit&quot;&gt;Register&lt;/button&gt;
+&lt;/form&gt;
+
+@if (!ViewData.ModelState.IsValid)
+{
+    &lt;ul&gt;
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v =&gt; v.Errors))
+        {
+            &lt;li&gt;@error.ErrorMessage&lt;/li&gt;
+        }
+    &lt;/ul&gt;
+}
+
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,29,0],[5,5,5,24,0],[12,1,12,145,0],[13,1,13,145,0],[14,1,14,157,0],[17,1,17,142,0],[18,1,18,142,0],[19,1,19,154,0],[22,1,22,145,0],[23,1,23,145,0],[24,1,24,157,0],[27,1,27,152,0],[28,1,28,152,0],[29,1,29,164,0],[34,2,34,35,0],[35,1,35,2,0],[37,10,37,17,0],[37,19,37,28,0],[37,29,37,31,0],[37,32,37,75,0],[37,75,37,83,0],[37,83,37,84,0],[38,9,38,10,0],[39,18,39,37,0],[40,9,40,10,0],[42,1,42,2,0]]);
+    </script>
+  </body>
+</html>

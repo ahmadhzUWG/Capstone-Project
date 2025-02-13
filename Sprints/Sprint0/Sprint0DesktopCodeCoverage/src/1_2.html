@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\TaskManagerDesktop\Form1.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerDesktop.Data;
+
+
+namespace TaskManagerDesktop
+{
+    public partial class Form1 : Form
+    {
+        private readonly ApplicationDbContext _context;
+
+        public Form1(ApplicationDbContext requiredService)
+        {
+            _context = requiredService ?? throw new ArgumentNullException(nameof(requiredService));
+            InitializeComponent();
+            LoadUsers();
+        }
+
+        private async void LoadUsers()
+        {
+            try
+            {
+                var users = await _context.Users
+                    .Select(u =&gt; new
+                    {
+                        Id = u.Id,
+                        UserName = u.UserName ?? &quot;N/A&quot;,
+                        Email = u.Email ?? &quot;N/A&quot;,
+                        Role = u.Role ?? &quot;No Role Assigned&quot;
+                    })
+                    .ToListAsync();
+
+                dataGridView1.DataSource = users;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(&quot;Error: &quot; + ex.Message);
+            }
+        }
+        public async Task&lt;List&lt;UserViewModel&gt;&gt; GetUsersAsync()
+        {
+            return await _context.Users
+                .Select(u =&gt; new UserViewModel
+                {
+                    Id = u.Id,
+                    UserName = u.UserName ?? &quot;N/A&quot;,
+                    Email = u.Email ?? &quot;N/A&quot;,
+                    Role = u.Role ?? &quot;No Role Assigned&quot;
+                })
+                .ToListAsync();
+        }
+
+        public class UserViewModel
+        {
+            public int Id { get; set; }
+            public string UserName { get; set; }
+            public string Email { get; set; }
+            public string Role { get; set; }
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,59,1],[13,9,13,10,1],[14,13,14,100,1],[15,13,15,35,1],[16,13,16,25,1],[17,9,17,10,1],[20,9,20,10,1],[22,13,22,14,1],[23,17,31,36,1],[33,17,33,50,1],[34,13,34,14,1],[35,13,35,33,0],[36,13,36,14,0],[37,17,37,57,0],[38,13,38,14,0],[39,9,39,10,1],[41,9,41,10,1],[42,13,50,32,1],[51,9,51,10,1],[55,29,55,33,0],[55,34,55,38,1],[56,38,56,42,1],[56,43,56,47,1],[57,35,57,39,0],[57,40,57,44,1],[58,34,58,38,1],[58,39,58,43,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\ApplicationDbContext.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.Data
+{
+    public class ApplicationDbContext : IdentityDbContext&lt;User, IdentityRole&lt;int&gt;, int&gt;
+    {
+        public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+            : base(options)
+        {
+        }
+
+        public DbSet&lt;User&gt; Users { get; set; }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,15,11,28,1],[12,9,12,10,1],[13,9,13,10,1],[15,36,15,40,1],[15,41,15,45,1]]);
+    </script>
+  </body>
+</html>

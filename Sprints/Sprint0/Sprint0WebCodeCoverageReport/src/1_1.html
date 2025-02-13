@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\AccountController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+    public class AccountController : Controller
+    {
+        private readonly UserManager&lt;User&gt; _userManager;
+        private readonly SignInManager&lt;User&gt; _signInManager;
+
+        public AccountController(UserManager&lt;User&gt; userManager, SignInManager&lt;User&gt; signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
+
+        // GET: /Account/Register
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // POST: /Account/Register
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Create a new user object. Note that we only set UserName and Email.
+            var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
+
+            // Create the user with the specified password.
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                // Optionally sign in the user after registration.
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToAction(&quot;Index&quot;, &quot;Home&quot;);
+            }
+
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine($&quot;Code: {error.Code}, Description: {error.Description}&quot;); 
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        // GET: /Account/Login
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: /Account/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Login(LoginViewModel model, string? returnUrl = null)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Attempt to sign in the user using Identity.
+            var result = await _signInManager.PasswordSignInAsync(
+                model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(returnUrl) &amp;&amp; Url.IsLocalUrl(returnUrl))
+                    return LocalRedirect(returnUrl);
+                return RedirectToAction(&quot;Index&quot;, &quot;Home&quot;);
+            }
+
+            ModelState.AddModelError(string.Empty, &quot;Invalid login attempt.&quot;);
+            return View(model);
+        }
+
+        // POST: /Account/Logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction(&quot;Login&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,9,14,99,1],[15,9,15,10,1],[16,13,16,40,1],[17,13,17,44,1],[18,9,18,10,1],[23,9,23,10,1],[24,13,24,27,1],[25,9,25,10,1],[31,9,31,10,1],[32,13,32,37,1],[33,17,33,36,1],[36,13,36,91,1],[39,13,39,79,1],[40,13,40,34,1],[41,13,41,14,1],[43,17,43,77,1],[44,17,44,58,1],[47,13,47,20,1],[47,22,47,31,1],[47,32,47,34,1],[47,35,47,48,1],[48,13,48,14,1],[49,17,49,92,1],[50,17,50,75,1],[51,13,51,14,1],[52,13,52,32,1],[53,9,53,10,1],[58,9,58,10,1],[59,13,59,27,1],[60,9,60,10,1],[66,9,66,10,1],[67,13,67,37,1],[68,17,68,36,1],[71,13,72,95,1],[74,13,74,34,1],[75,13,75,14,1],[76,17,76,83,1],[77,21,77,53,1],[78,17,78,58,1],[81,13,81,78,1],[82,13,82,32,1],[83,9,83,10,1],[89,9,89,10,1],[90,13,90,49,1],[91,13,91,46,1],[92,9,92,10,1]]);
+    </script>
+  </body>
+</html>

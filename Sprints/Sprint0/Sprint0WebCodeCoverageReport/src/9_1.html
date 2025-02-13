@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Program.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+
+var builder = WebApplication.CreateBuilder(args);
+
+//  Configure Database Connection
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString(&quot;DefaultConnection&quot;)));
+
+//  Configure Identity with Integer User IDs
+builder.Services.AddIdentity&lt;User, IdentityRole&lt;int&gt;&gt;() // If using IdentityRole&lt;int&gt;, ensure it&#39;s correctly configured in ApplicationDbContext
+    .AddEntityFrameworkStores&lt;ApplicationDbContext&gt;()
+    .AddDefaultTokenProviders();
+
+//  Configure Authentication Cookies
+builder.Services.ConfigureApplicationCookie(options =&gt;
+{
+    options.LoginPath = &quot;/Account/Login&quot;; // Redirect to login page if unauthorized
+    options.LogoutPath = &quot;/Account/Logout&quot;;
+});
+
+//  Add services to the container
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+//  Ensure the Database is Migrated BEFORE the App Runs
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+    try
+    {
+        dbContext.Database.Migrate(); // Applies pending migrations
+        Console.WriteLine(&quot;Database connection successful.&quot;);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($&quot;Database error: {ex.Message}&quot;);
+    }
+}
+
+//  Configure the HTTP request pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler(&quot;/Home/Error&quot;);
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+//  Set default route
+app.MapControllerRoute(
+    name: &quot;default&quot;,
+    pattern: &quot;{controller=Account}/{action=Login}/{id?}&quot;);
+
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($&quot;Unhandled Exception: {ex.Message}&quot;);
+    Console.WriteLine($&quot;Stack Trace: {ex.StackTrace}&quot;);
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[6,1,6,50,0],[9,1,10,5,0],[10,5,10,89,0],[10,89,10,91,0],[13,1,15,33,0],[18,1,19,1,0],[19,1,19,2,0],[19,2,20,5,0],[20,5,20,42,0],[20,42,21,5,0],[21,5,21,44,0],[21,44,22,1,0],[22,1,22,2,0],[22,2,22,4,0],[25,1,25,44,0],[27,1,27,27,0],[30,8,30,46,0],[31,1,31,2,0],[32,5,32,86,0],[34,5,34,6,0],[35,9,35,38,0],[36,9,36,62,0],[37,5,37,6,0],[38,5,38,25,0],[39,5,39,6,0],[40,9,40,60,0],[41,5,41,6,0],[42,1,42,2,0],[45,1,45,38,0],[46,1,46,2,0],[47,5,47,44,0],[48,5,48,19,0],[49,1,49,2,0],[51,1,51,27,0],[52,1,52,22,0],[53,1,53,18,0],[55,1,55,25,0],[56,1,56,24,0],[59,1,61,59,0],[64,1,64,2,0],[65,5,65,15,0],[66,1,66,2,0],[67,1,67,21,0],[68,1,68,2,0],[69,5,69,61,0],[70,5,70,56,0],[71,1,71,2,0]]);
+    </script>
+  </body>
+</html>

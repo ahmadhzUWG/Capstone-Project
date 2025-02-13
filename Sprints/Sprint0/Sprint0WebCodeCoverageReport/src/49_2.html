@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestUser\UserTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Models;
+
+namespace TaskManager.Tests.Tests.TestUser
+{
+    public class UserTests
+    {
+        [Fact]
+        public void TestUser()
+        {
+            var user = new User
+            {
+                UserName = &quot;testUser&quot;,
+                Email = &quot;test@example.com&quot;,
+                Role = &quot;User&quot;
+            };
+
+            Assert.Equal(&quot;testUser&quot;, user.UserName);
+            Assert.Equal(&quot;test@example.com&quot;, user.Email);
+            Assert.Equal(&quot;User&quot;, user.Role);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,9,14,10,1],[15,13,20,15,1],[22,13,22,53,1],[23,13,23,58,1],[24,13,24,45,1],[25,9,25,10,1]]);
+    </script>
+  </body>
+</html>
