@@ -1,0 +1,7 @@
+View Groups
+Context:
+		Admin wants to view groups
+	Primary Flow:
+		1. User clicks "View Groups" link on Admin Home Page
+		2. System loads Groups Page
+		3. Admin can view list of Groups
