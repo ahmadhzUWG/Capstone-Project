@@ -1,0 +1,20 @@
+Log in
+Context:
+	User with active account invocates program and is faced with a login screen
+Primary Flow:
+	1. User enters valid account information (username, password)
+	2. User clicks login button
+	3. System takes login data and validates whether it is a created account
+	4. System verifys the account is stored.
+	5. System allows the user to login and based on their role, redirects them to the roles home page.
+Alternative Flows:
+	User provides no information
+		A1. User provides no information thats required to login
+		A2. User clicks Log In button
+		A3. System informs user to enter their data
+		A4. Return to primary flow step 1
+	User provides incorrect information
+		A1. User provides invalid username and/or password
+		A2. User clicks Log In button
+		A3. System informs user that the username or password is incorrect
+		A4. Return to primary flow step 1

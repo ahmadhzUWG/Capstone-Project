@@ -1,0 +1,9 @@
+View Employees
+Context:
+		Admin wants to view employees in the company
+	Primary Flow:
+		1. User clicks "View Employees" link on the Admin Home Page
+		2. System loads Employees Page
+		3. Admin can view a list of employees
+		
+		
