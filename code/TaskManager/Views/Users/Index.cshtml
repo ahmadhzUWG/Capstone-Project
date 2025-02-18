@@ -1,38 +1,31 @@
-﻿@model List<TaskManagerWebsite.Models.User>
-
-@{
-    ViewBag.Title = "Users List";
-    Layout = "_Layout";
+﻿@{
+    ViewData["Title"] = "Users Page";
 }
 
-<h2>Users List</h2>
+<link rel="stylesheet" href="~/css/user_index.css" />
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var user in Model)
-    {
+<div class="users-container">
+    <h1>User List</h1>
+    <table class="table">
         <tr>
-            <td>@user.Id</td>
-            <td>@user.UserName</td>
-            <td>@user.Email</td>
-            <td>@user.Role</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-primary">Edit</a>
-                <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger">Delete</a>
-            </td>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
         </tr>
-    }
-    </tbody>
-</table>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = user.Id }, new { @class = "btn btn-edit" })
+                    @Html.ActionLink("Delete", "Delete", new { id = user.Id }, new { @class = "btn btn-delete" })
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
 
 @if (TempData["SuccessMessage"] != null)
 {

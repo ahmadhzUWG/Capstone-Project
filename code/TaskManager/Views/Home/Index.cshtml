@@ -1,15 +1,18 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = null;
 }
 
-<main>
+<link rel="stylesheet" href="~/css/home.css" />
 
-    <div>
-        @Html.ActionLink("List of Users", "Index", "Users")<br />
+<main class="home-container">
+    <div class="card">
+        <h2>Welcome to the Home Page</h2>
+        <p>Select an option below:</p>
+        
+        <div class="button-container">
+            @Html.ActionLink("List of Users", "Index", "Users", null, new { @class = "btn btn-primary" })
+            @Html.ActionLink("Logout", "Login", "Account", null, new { @class = "btn btn-danger" })
+        </div>
     </div>
-
-    <div>
-        @Html.ActionLink("Logout", "Login", "Account")<br />
-    </div>
-
 </main>
