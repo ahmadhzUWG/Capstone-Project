@@ -15,7 +15,7 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManager.Tests.Tests.TestUsersController
 {
-    public class UsersControllerTests
+    public class AdminControllerTests
     {
         [Fact]
         public async Task Index_ReturnsAViewResult_WithAListOfUsers()
@@ -24,7 +24,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             dbContext.Users.Add(new User { UserName = "User1" });
             dbContext.Users.Add(new User { UserName = "User2" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Index();
 
@@ -39,7 +39,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Details(1);
 
@@ -54,7 +54,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Details(2);
 
@@ -68,7 +68,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Edit(1);
 
@@ -83,7 +83,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Edit(2);
 
@@ -97,7 +97,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
             var user = await dbContext.Users.FindAsync(1);
 
             var result = await controller.Edit(1, new User { Id = 1, UserName = "EditedUser1" });
@@ -114,7 +114,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
             var editedUser = new User { Id = 1, UserName = "" };
 
             controller.ModelState.AddModelError("UserName", "UserName is required");
@@ -131,7 +131,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Edit(2, new User { Id = 2, UserName = "User2" });
 
@@ -143,7 +143,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
         public async Task EditWithUserArg_ReturnsNotFoundResult_WithNotMatchingUserIds()
         {
             var dbContext = TestHelper.GetDbContext();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Edit(1, new User { Id = 2, UserName = "User2" });
 
@@ -157,7 +157,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Delete(1);
 
@@ -173,7 +173,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.Delete(2);
 
@@ -187,7 +187,7 @@ namespace TaskManager.Tests.Tests.TestUsersController
             var dbContext = TestHelper.GetDbContext();
             dbContext.Users.Add(new User { Id = 1, UserName = "User1" });
             await dbContext.SaveChangesAsync();
-            var controller = new UsersController(dbContext);
+            var controller = new AdminController(dbContext);
 
             var result = await controller.DeleteConfirmed(1);
             

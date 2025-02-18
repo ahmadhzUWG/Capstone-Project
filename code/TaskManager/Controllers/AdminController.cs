@@ -7,12 +7,12 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
 {
-    public class UsersController : Controller
+    public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
 
         // Inject the ApplicationDbContext via constructor injection.
-        public UsersController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context)
         {
             _context = context;
         }

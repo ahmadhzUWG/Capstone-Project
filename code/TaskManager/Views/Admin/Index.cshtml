@@ -1,8 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Users Page";
+    ViewData["Title"] = "Admin Page";
 }
 
-<link rel="stylesheet" href="~/css/user_index.css" />
+<link rel="stylesheet" href="~/css/admin_index.css" />
 
 <div class="users-container">
     <h1>User List</h1>
@@ -25,14 +25,3 @@
         }
     </table>
 </div>
-
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
