@@ -9,6 +9,7 @@ DIRS=(
     "code/TaskManager/bin/"
     "code/TaskManager.Tests/bin/"
     "code/TaskManager.Tests/obj/"
+    "code/.vs/"
 )
 
 # Loop through and remove each directory
