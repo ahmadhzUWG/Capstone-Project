@@ -13,6 +13,9 @@
 **/obj/
 *.vsidx
 */FileContentIndex/
+code/vs./
+code/TaskManagerDesktop/obj/
+code/TaskManagerDesktop/bin/
 code/TaskManager/TaskManagerDatabase/TaskManagerDatabase.dbmdl
 code/TaskManager/.vs/
 code/TaskManager/.vs/*
