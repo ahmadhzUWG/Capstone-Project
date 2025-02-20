@@ -1,0 +1,12 @@
+Delete Groups
+Context:
+			Admin is viewing list of groups
+		Primary Flow:
+			1. Admin selects a group
+			2. Admin Clicks "Delete Group" Button
+			3. System warns user for confirmation
+			4. Admin confirms deletion of group
+		Alternative Flow:
+			Admin cancels deleting a group
+					A1. Admin is viewing system warning to confirm deletion
+					A2. Admin clicks the "Cancel" Button

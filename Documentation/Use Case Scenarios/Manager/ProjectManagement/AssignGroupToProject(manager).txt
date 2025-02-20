@@ -1,0 +1,26 @@
+Assign Group to project
+Context:
+			Manager is viewing Project page
+		Primary Flow:
+			1. Manager attempts to add group to project.
+			2. System checks if Manager is also manager of group
+			3. Manager confirms project group addition.
+		Alternative Flow:
+			Manager is also manager of group
+				A1. Resume from primary flow step 2
+				A2. System adds group to project
+				A3. Resume primary flow step 3
+		Alternative Flow 2:
+			Manager is not manager of group and other manager accepts
+				A1. Resume from primary flow step 2
+				A2. System sends confirmation message to manager of group on whether they can join
+				A3. Other manager confirms
+				A4. System adds group to project
+				A5. Resume primary flow step 3
+		Alternative Flow 3:
+			Manager is not manager of group and other manager declines
+				A1. Resume from primary flow step 2
+				A2. System sends confirmation message to manager of group on whether they can join
+				A3. Other manager declines
+				A4. System informs Manager that the other manager declined
+				A5. Resume primary flow step 1 

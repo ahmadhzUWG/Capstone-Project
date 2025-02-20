@@ -1,0 +1,11 @@
+Delete Project
+Context:
+			Admin is viewing projects
+		Primary Flow:
+			1. Admin selects a project
+			2. Admin clicks "Confirm Deletion" Button
+			5. System warns user to confirm
+			6. Admin confirms
+		Alternate Flow 2:
+				A1. From primary flow step 2
+				A2. Admin clicks "Cancel Button"

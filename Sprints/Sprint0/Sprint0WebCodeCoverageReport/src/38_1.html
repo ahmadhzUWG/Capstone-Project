@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Users\Index.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model List&lt;TaskManagerWebsite.Models.User&gt;
+
+@{
+    ViewBag.Title = &quot;Users List&quot;;
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;h2&gt;Users List&lt;/h2&gt;
+
+&lt;table class=&quot;table&quot;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Id&lt;/th&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt;Role&lt;/th&gt;
+        &lt;th&gt;Actions&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    @foreach (var user in Model)
+    {
+        &lt;tr&gt;
+            &lt;td&gt;@user.Id&lt;/td&gt;
+            &lt;td&gt;@user.UserName&lt;/td&gt;
+            &lt;td&gt;@user.Email&lt;/td&gt;
+            &lt;td&gt;@user.Role&lt;/td&gt;
+            &lt;td&gt;
+                &lt;a asp-action=&quot;Edit&quot; asp-route-id=&quot;@user.Id&quot; class=&quot;btn btn-primary&quot;&gt;Edit&lt;/a&gt;
+                &lt;a asp-action=&quot;Delete&quot; asp-route-id=&quot;@user.Id&quot; class=&quot;btn btn-danger&quot;&gt;Delete&lt;/a&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    }
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+@if (TempData[&quot;SuccessMessage&quot;] != null)
+{
+    &lt;div class=&quot;alert alert-success&quot;&gt;@TempData[&quot;SuccessMessage&quot;]&lt;/div&gt;
+}
+
+@if (TempData[&quot;ErrorMessage&quot;] != null)
+{
+    &lt;div class=&quot;alert alert-danger&quot;&gt;@TempData[&quot;ErrorMessage&quot;]&lt;/div&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,34,0],[5,5,5,24,0],[21,6,21,13,0],[21,15,21,23,0],[21,24,21,26,0],[21,27,21,32,0],[22,5,22,6,0],[24,18,24,26,0],[25,18,25,32,0],[26,18,26,29,0],[27,18,27,28,0],[29,53,29,61,0],[30,55,30,63,0],[33,5,33,6,0],[37,2,37,41,0],[38,1,38,2,0],[39,39,39,66,0],[40,1,40,2,0],[42,2,42,39,0],[43,1,43,2,0],[44,38,44,63,0],[45,1,45,2,0]]);
+    </script>
+  </body>
+</html>

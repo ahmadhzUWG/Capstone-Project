@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\TaskManagerDesktop.Tests\UserServiceTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
+using TaskManagerDesktop.Models;
+using Xunit;
+using TaskManagerDesktop.Data; // Replace with actual namespace
+
+namespace TaskManagerDesktop.Tests
+{
+    public class UserServiceTests
+    {
+        private ApplicationDbContext GetDbContext()
+        {
+            var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Unique DB per test
+                .Options;
+            return new ApplicationDbContext(options);
+        }
+
+        private UserManager&lt;User&gt; GetUserManager(ApplicationDbContext dbContext)
+        {
+            var userStore = new UserStore&lt;User, IdentityRole&lt;int&gt;, ApplicationDbContext, int&gt;(dbContext);
+
+            var mockOptions = new Mock&lt;IOptions&lt;IdentityOptions&gt;&gt;();
+            var mockPasswordHasher = new PasswordHasher&lt;User&gt;();
+            var mockUserValidators = new List&lt;IUserValidator&lt;User&gt;&gt; { new UserValidator&lt;User&gt;() };
+            var mockPasswordValidators = new List&lt;IPasswordValidator&lt;User&gt;&gt; { new PasswordValidator&lt;User&gt;() };
+            var mockLookupNormalizer = new Mock&lt;ILookupNormalizer&gt;();
+            var mockIdentityErrorDescriber = new IdentityErrorDescriber();
+            var mockServiceProvider = new Mock&lt;IServiceProvider&gt;();
+            var mockLogger = new Mock&lt;ILogger&lt;UserManager&lt;User&gt;&gt;&gt;();
+
+            // Ensure IdentityOptions are set to default
+            mockOptions.Setup(opt =&gt; opt.Value).Returns(new IdentityOptions());
+
+            return new UserManager&lt;User&gt;(
+                userStore,
+                mockOptions.Object,
+                mockPasswordHasher,
+                mockUserValidators,
+                mockPasswordValidators,
+                mockLookupNormalizer.Object,
+                mockIdentityErrorDescriber,
+                mockServiceProvider.Object,
+                mockLogger.Object
+            );
+        }
+
+        [Fact]
+        public async Task CanCreateUser()
+        {
+            // Arrange
+            var dbContext = GetDbContext();
+            var userManager = GetUserManager(dbContext);
+
+            var user = new User { UserName = &quot;testuser&quot;, Email = &quot;test@example.com&quot; };
+
+            // Act
+            var result = await userManager.CreateAsync(user, &quot;P@ssword123&quot;);
+
+            // Assert
+            Assert.True(result.Succeeded);
+            Assert.NotNull(await dbContext.Users.FirstOrDefaultAsync(u =&gt; u.UserName == &quot;testuser&quot;));
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,9,19,10,1],[20,13,22,26,1],[23,13,23,54,1],[24,9,24,10,1],[27,9,27,10,1],[28,13,28,106,1],[30,13,30,69,1],[31,13,31,65,1],[32,13,32,99,1],[33,13,33,111,1],[34,13,34,70,1],[35,13,35,75,1],[36,13,36,68,1],[37,13,37,69,1],[40,13,40,80,1],[42,13,52,15,1],[53,9,53,10,1],[57,9,57,10,1],[59,13,59,44,1],[60,13,60,57,1],[62,13,62,87,1],[65,13,65,77,1],[68,13,68,43,1],[69,13,69,102,1],[70,9,70,10,1]]);
+    </script>
+  </body>
+</html>
