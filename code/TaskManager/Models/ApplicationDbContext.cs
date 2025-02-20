@@ -12,6 +12,19 @@ namespace TaskManagerWebsite.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Admin>()
+                .HasOne(a => a.User)
+                .WithMany() // No navigation property in User
+                .HasForeignKey(a => a.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
         public DbSet<User> Users { get; set; }
+        public DbSet<Admin> Admins { get; set; }
     }
 }

@@ -21,6 +21,22 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Account/Logout";
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(async context =>
+        {
+            var httpContext = context.Resource as HttpContext;
+            if (httpContext == null) return false;
+
+            var userManager = httpContext.RequestServices.GetRequiredService<UserManager<User>>();
+            var dbContext = httpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+
+            var user = await userManager.GetUserAsync(httpContext.User);
+            return user != null && await dbContext.Admins.AnyAsync(a => a.UserId == user.Id);
+        }));
+});
+
 //  Add services to the container
 builder.Services.AddControllersWithViews();
 
@@ -58,7 +74,7 @@ app.UseAuthorization();
 //  Set default route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Login}/{action=Login}/{id?}");
 
 try
 {

@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Admin Page";
+}
+
+<link rel="stylesheet" href="~/css/admin_index.css" />
+
+<div class="users-container">
+    <h1>User List</h1>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = user.Id }, new { @class = "btn btn-edit" })
+                    @Html.ActionLink("Delete", "Delete", new { id = user.Id }, new { @class = "btn btn-delete" })
+                </td>
+            </tr>
+        }
+    </table>
+</div>

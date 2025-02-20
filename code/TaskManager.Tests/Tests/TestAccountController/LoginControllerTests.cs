@@ -21,7 +21,7 @@ using TaskManagerWebsite.ViewModels;
 
 namespace TaskManager.Tests.Tests.TestAccountController
 {
-    public class AccountControllerTests
+    public class LoginControllerTests
     {
 
         private Mock<SignInManager<User>> createSignInManagerMock(ApplicationDbContext context, UserManager<User> userManager)
@@ -65,7 +65,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
 
             var result = controller.Register();
 
@@ -83,7 +83,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new RegisterViewModel
             {
                 ConfirmPassword = "password",
@@ -111,7 +111,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new RegisterViewModel
             {
                 ConfirmPassword = "password",
@@ -141,7 +141,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new RegisterViewModel
             {
                 ConfirmPassword = "password",
@@ -170,7 +170,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
 
             var result = controller.Login();
 
@@ -188,7 +188,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignInAsync(It.IsAny<User>(), false, null))
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new LoginViewModel()
             {
                 Password = "password",
@@ -216,7 +216,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
                 .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
             var mockUrlHelper = new Mock<IUrlHelper>();
             mockUrlHelper.Setup(m => m.IsLocalUrl(It.IsAny<string>())).Returns(true);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             controller.Url = mockUrlHelper.Object;
             var model = new LoginViewModel()
             {
@@ -242,7 +242,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.PasswordSignInAsync(It.IsAny<string>(), It.IsAny<string>(), false, false))
                 .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new LoginViewModel()
             {
                 Password = "password",
@@ -266,7 +266,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.PasswordSignInAsync(It.IsAny<string>(), It.IsAny<string>(), false, false))
                 .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             var model = new LoginViewModel()
             {
                 Password = "password",
@@ -290,7 +290,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
             signInManagerMock.Setup(sm => sm.SignOutAsync())
                 .Returns(Task.CompletedTask);
-            var controller = new AccountController(userManagerMock.Object, signInManagerMock.Object);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
             
             var result = await controller.Logout();
 
