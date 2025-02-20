@@ -1,0 +1,13 @@
+﻿@model Group
+
+<h2>Manage Group: @Model.Name</h2>
+
+<h3>Users in Group</h3>
+<ul>
+    @foreach (var user in Model.Users)
+    {
+        <li>@user.UserName</li>
+    }
+</ul>
+
+<a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>

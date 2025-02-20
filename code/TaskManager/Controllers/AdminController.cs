@@ -13,23 +13,25 @@ namespace TaskManagerWebsite.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        // Inject the ApplicationDbContext via constructor injection.
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // GET: Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Users()
         {
-            // Fetch all users and pass them to the view
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
 
         // GET: Users/Details/{id}
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> UserDetails(int id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -41,60 +43,154 @@ namespace TaskManagerWebsite.Controllers
             return View(user);
         }
 
-        // GET: Users/Edit/{id}
-        public async Task<IActionResult> Edit(int id)
+        // Display list of groups
+        public async Task<IActionResult> Groups()
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
+            var groups = await _context.Groups.ToListAsync();
+            return View(groups);
         }
 
-        // POST: Users/Edit/{id}
+        public IActionResult CreateGroup()
+        {
+            var users = _context.Users.ToList();
+            var userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+
+            var managers = users.Where(user => userManager.IsInRoleAsync(user, "Manager").Result).ToList();
+            var employees = users.Where(user => userManager.IsInRoleAsync(user, "Employee").Result).ToList();
+
+            ViewBag.Managers = managers;
+            ViewBag.Employees = employees;
+
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Email")] User user)
+        public async Task<IActionResult> CreateGroup(Group group, List<int> selectedUsers)
         {
-            if (id != user.Id)
+            if (ModelState.IsValid)
+            {
+                var users = await _context.Users.Where(u => selectedUsers.Contains(u.Id)).ToListAsync();
+
+                group.Users = users;
+
+                _context.Groups.Add(group);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Groups));
+            }
+
+            ViewBag.Users = await _context.Users.ToListAsync();
+            return View(group);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGroup(int id)
+        {
+            var group = await _context.Groups.FindAsync(id);
+            if (group != null)
+            {
+                _context.Groups.Remove(group);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Groups));
+        }
+
+        public async Task<IActionResult> ManageGroup(int id)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Users)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            return View(group);
+        }
+
+        public async Task<IActionResult> GroupDetails(int id)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Users)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound();
+
+            ViewBag.Users = await _context.Users.ToListAsync();
+            return View(group);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUserToGroup(int userId, int groupId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var group = await _context.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (user != null && group != null)
             {
-                try
+                if (group.Users.All(u => u.Id != userId))
                 {
-                    // Fetch the existing user from the database
-                    var existingUser = await _context.Users.FindAsync(id);
-                    if (existingUser == null)
-                    {
-                        return NotFound();
-                    }
-
-                    // Update only the fields we allow
-                    existingUser.UserName = user.UserName;
-                    existingUser.Email = user.Email;
-
-                    _context.Update(existingUser);
+                    group.Users.Add(user);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
+
+            return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            string currentRole = userRoles.FirstOrDefault();
+
+            ViewBag.Roles = roles;
+            ViewBag.CurrentRole = currentRole;
+
             return View(user);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, string UserName, string Email, string Role)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.UserName = UserName;
+            user.Email = Email;
+            await _userManager.UpdateAsync(user);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (userRoles.Any())
+            {
+                await _userManager.RemoveFromRolesAsync(user, userRoles);
+            }
+
+            if (!string.IsNullOrEmpty(Role))
+            {
+                await _userManager.AddToRoleAsync(user, Role);
+            }
+
+            return RedirectToAction(nameof(Users));
         }
 
         // GET: Users/Delete/{id}
@@ -120,10 +216,9 @@ namespace TaskManagerWebsite.Controllers
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Users));
         }
 
-        // Helper method to check if a user exists by id.
         private bool UserExists(int id)
         {
             return _context.Users.Any(u => u.Id == id);
