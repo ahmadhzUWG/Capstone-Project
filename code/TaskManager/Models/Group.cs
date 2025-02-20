@@ -9,7 +9,7 @@ public class Group
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Group Name is required")]
+    [Required(ErrorMessage = "Name is required")]
     [StringLength(100, ErrorMessage = "Group Name cannot exceed 100 characters")]
     public string Name { get; set; }
 

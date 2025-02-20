@@ -4,7 +4,7 @@
     string userRole = ViewBag.UserRole ?? "Guest";
 }
 
-<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/home_index.css" />
 
 <main class="home-container">
     <div class="card">
@@ -19,7 +19,7 @@
                 @Html.ActionLink("Manage Projects", "Index", "Admin", null, new { @class = "btn btn-primary" })
             }
             
-            @Html.ActionLink("Logout", "Login", "Login", null, new { @class = "btn btn-danger" })
+            @Html.ActionLink("Logout", "Index", "Login", null, new { @class = "btn btn-danger" })
         </div>
     </div>
 </main>

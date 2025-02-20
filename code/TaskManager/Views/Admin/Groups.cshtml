@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<Group>
 
+<link rel="stylesheet" href="~/css/admin_groups.css" />
+
 <h2>Groups</h2>
 
 <!-- Create Group Button -->
@@ -21,3 +23,5 @@
         </li>
     }
 </ul>
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
