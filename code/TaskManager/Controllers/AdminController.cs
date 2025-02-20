@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
@@ -7,12 +9,13 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
 {
-    public class UsersController : Controller
+    [Authorize(Policy = "AdminOnly")]
+    public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
 
         // Inject the ApplicationDbContext via constructor injection.
-        public UsersController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context)
         {
             _context = context;
         }

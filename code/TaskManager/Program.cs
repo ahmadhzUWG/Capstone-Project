@@ -5,28 +5,39 @@ using TaskManagerWebsite.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Configure Database Connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//  Configure Identity with Integer User IDs
-builder.Services.AddIdentity<User, IdentityRole<int>>() // If using IdentityRole<int>, ensure it's correctly configured in ApplicationDbContext
+builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//  Configure Authentication Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login"; // Redirect to login page if unauthorized
+    options.LoginPath = "/Account/Login"; 
     options.LogoutPath = "/Account/Logout";
 });
 
-//  Add services to the container
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(async context =>
+        {
+            var httpContext = context.Resource as HttpContext;
+            if (httpContext == null) return false;
+
+            var userManager = httpContext.RequestServices.GetRequiredService<UserManager<User>>();
+            var dbContext = httpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+
+            var user = await userManager.GetUserAsync(httpContext.User);
+            return user != null && await dbContext.Admins.AnyAsync(a => a.UserId == user.Id);
+        }));
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-//  Ensure the Database is Migrated BEFORE the App Runs
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -41,7 +52,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-//  Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -55,10 +65,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//  Set default route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Login}/{action=Login}/{id?}");
 
 try
 {
