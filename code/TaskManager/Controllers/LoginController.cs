@@ -8,18 +8,10 @@ using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
-    public class LoginController : Controller
+    public class LoginController(UserManager<User> userManager, SignInManager<User> signInManager) : Controller
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly ApplicationDbContext _context;
-
-        public LoginController(UserManager<User> userManager, SignInManager<User> signInManager, ApplicationDbContext context)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _context = context;
-        }
+        private readonly UserManager<User> _userManager = userManager;
+        private readonly SignInManager<User> _signInManager = signInManager;
 
         // GET: /Account/Login
         [HttpGet]
@@ -47,17 +39,10 @@ namespace TaskManagerWebsite.Controllers
 
             if (result.Succeeded)
             {
-                // Check if the user is an admin by querying the Admin table
-                bool isAdmin = await _context.Admins.AnyAsync(a => a.UserId == user.Id);
-
-                if (isAdmin)
-                {
-                    return RedirectToAction("Index", "Admin");
-                }
-
-                // Redirect to returnUrl or Home
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
                     return LocalRedirect(returnUrl);
+                }
 
                 return RedirectToAction("Index", "Home");
             }

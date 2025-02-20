@@ -1,0 +1,13 @@
+﻿@model IEnumerable<Group>
+
+<h2>Groups</h2>
+<ul>
+    @foreach (var group in Model)
+    {
+        <li>
+            <a href="@Url.Action("Details", "Group", new { id = group.Id })">
+                @group.Name
+            </a>
+        </li>
+    }
+</ul>

@@ -5,19 +5,16 @@ using TaskManagerWebsite.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Configure Database Connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//  Configure Identity with Integer User IDs
-builder.Services.AddIdentity<User, IdentityRole<int>>() // If using IdentityRole<int>, ensure it's correctly configured in ApplicationDbContext
+builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//  Configure Authentication Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login"; // Redirect to login page if unauthorized
+    options.LoginPath = "/Account/Login"; 
     options.LogoutPath = "/Account/Logout";
 });
 
@@ -37,12 +34,10 @@ builder.Services.AddAuthorization(options =>
         }));
 });
 
-//  Add services to the container
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-//  Ensure the Database is Migrated BEFORE the App Runs
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -57,7 +52,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-//  Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -71,7 +65,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//  Set default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Login}/{id?}");

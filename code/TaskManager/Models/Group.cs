@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace TaskManagerWebsite.Models;
 
-public class Admin
+public class Group
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int AdminId { get; set; }
-    public int UserId { get; set; }
-    public virtual User User { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public ICollection<User> Users { get; set; } = new List<User>();
 }

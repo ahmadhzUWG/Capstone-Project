@@ -18,21 +18,20 @@ namespace TaskManager.Controllers
 
         public HomeController(ILogger<HomeController> logger, UserManager<User> userManager, SignInManager<User> signInManager, ApplicationDbContext context)
         {
-            _logger = logger;
-            _context = context;
-            _userManager = userManager;
-            _signInManager = signInManager;
+            this._logger = logger;
+            this._context = context;
+            this._userManager = userManager;
+            this._signInManager = signInManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            string userRole = "Guest"; // Default role if not logged in
+            string userRole = "Guest";
 
-            if (_signInManager.IsSignedIn(User))
+            if (this._signInManager.IsSignedIn(User))
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user != null && await _context.Admins.AnyAsync(a => a.UserId == user.Id)
-                    )
+                var user = await this._userManager.GetUserAsync(User);
+                if (user != null && await this._context.Admins.AnyAsync(a => a.UserId == user.Id))
                 {
                     userRole = "Admin";
                 }

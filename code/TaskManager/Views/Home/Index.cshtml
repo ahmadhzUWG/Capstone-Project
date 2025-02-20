@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     Layout = null;
-    string userRole = ViewBag.UserRole ?? "Guest"; // Default to Guest if not set
+    string userRole = ViewBag.UserRole ?? "Guest";
 }
 
 <link rel="stylesheet" href="~/css/home.css" />
@@ -14,7 +14,9 @@
         <div class="button-container">
             @if (userRole == "Admin")
             {
-                @Html.ActionLink("List of Users", "Index", "Admin", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Employees", "Index", "Admin", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Groups", "Index", "Group", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Projects", "Index", "Admin", null, new { @class = "btn btn-primary" })
             }
             
             @Html.ActionLink("Logout", "Login", "Login", null, new { @class = "btn btn-danger" })
