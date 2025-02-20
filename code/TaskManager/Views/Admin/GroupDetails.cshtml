@@ -1,0 +1,26 @@
+﻿@model Group
+
+<h2>@Model.Name</h2>
+
+<h3>Users in this Group</h3>
+<ul>
+    @foreach (var user in Model.Users)
+    {
+        <li>@user.UserName (@user.Email)</li>
+    }
+</ul>
+
+<h3>Add User to Group</h3>
+<form asp-action="AddUserToGroup" asp-controller="Admin" method="post">
+    <input type="hidden" name="groupId" value="@Model.Id" />
+    <label for="userId">Select User:</label>
+    <select name="userId" class="form-control">
+        @foreach (var user in ViewBag.Users)
+        {
+            <option value="@user.Id">@user.UserName (@user.Email)</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-success mt-2">Add User</button>
+</form>
+
+<a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>

@@ -21,7 +21,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // GET: Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Users()
         {
             // Fetch all users and pass them to the view
             var users = await _context.Users.ToListAsync();
@@ -29,7 +29,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         // GET: Users/Details/{id}
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> UserDetails(int id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -39,6 +39,93 @@ namespace TaskManagerWebsite.Controllers
             }
 
             return View(user);
+        }
+
+        // Display list of groups
+        public async Task<IActionResult> Groups()
+        {
+            var groups = await _context.Groups.ToListAsync();
+            return View(groups);
+        }
+
+        // Create Group - GET
+        public IActionResult CreateGroup()
+        {
+            return View();
+        }
+
+        // Create Group - POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateGroup(Group group)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Groups.Add(group);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Groups));
+            }
+            return View(group);
+        }
+
+        // Delete Group
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGroup(int id)
+        {
+            var group = await _context.Groups.FindAsync(id);
+            if (group != null)
+            {
+                _context.Groups.Remove(group);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Groups));
+        }
+
+        // Manage Group - View Users in Group
+        public async Task<IActionResult> ManageGroup(int id)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Users)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            return View(group);
+        }
+
+        public async Task<IActionResult> GroupDetails(int id)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Users)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound();
+
+            ViewBag.Users = await _context.Users.ToListAsync();
+            return View(group);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUserToGroup(int userId, int groupId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var group = await _context.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (user != null && group != null)
+            {
+                if (group.Users.All(u => u.Id != userId))
+                {
+                    group.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToAction("GroupDetails", new { id = groupId });
         }
 
         // GET: Users/Edit/{id}
@@ -53,7 +140,6 @@ namespace TaskManagerWebsite.Controllers
             return View(user);
         }
 
-        // POST: Users/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Email")] User user)
@@ -67,14 +153,12 @@ namespace TaskManagerWebsite.Controllers
             {
                 try
                 {
-                    // Fetch the existing user from the database
                     var existingUser = await _context.Users.FindAsync(id);
                     if (existingUser == null)
                     {
                         return NotFound();
                     }
 
-                    // Update only the fields we allow
                     existingUser.UserName = user.UserName;
                     existingUser.Email = user.Email;
 
@@ -83,19 +167,14 @@ namespace TaskManagerWebsite.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Another user updated this record. Try again.");
+                    return View(user);
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Users));
             }
             return View(user);
         }
+
 
         // GET: Users/Delete/{id}
         public async Task<IActionResult> Delete(int id)
@@ -120,7 +199,7 @@ namespace TaskManagerWebsite.Controllers
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Users));
         }
 
         // Helper method to check if a user exists by id.
