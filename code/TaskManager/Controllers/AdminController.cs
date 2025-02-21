@@ -9,7 +9,7 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -190,7 +190,7 @@ namespace TaskManagerWebsite.Controllers
                 await _userManager.AddToRoleAsync(user, Role);
             }
 
-            return RedirectToAction(nameof(Users));
+            return RedirectToAction("Users");
         }
 
         // GET: Users/Delete/{id}

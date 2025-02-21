@@ -12,7 +12,7 @@
         <p>Select an option below:</p>
 
         <div class="button-container">
-            @if (userRole == "Admin")
+            @if (User.IsInRole("Admin"))
             {
                 @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
