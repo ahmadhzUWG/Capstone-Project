@@ -172,7 +172,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
                 .Returns(Task.CompletedTask);
             var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
 
-            var result = controller.Login();
+            var result = controller.Index();
 
             Assert.NotNull(result);
             Assert.IsType<ViewResult>(result);
@@ -196,7 +196,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             };
 
             controller.ModelState.AddModelError("UserName", "UserName is required");
-            var result = await controller.Login(model);
+            var result = await controller.Index(model);
 
             Assert.NotNull(result);
             var viewResult = Assert.IsType<ViewResult>(result);
@@ -225,7 +225,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             };
 
 
-            var result = await controller.Login(model, "/Home");
+            var result = await controller.Index(model, "/Home");
 
             Assert.NotNull(result);
             var localRedirectResult = Assert.IsType<LocalRedirectResult>(result);
@@ -249,7 +249,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
                 UserName = "test"
             };
 
-            var result = await controller.Login(model);
+            var result = await controller.Index(model);
 
             Assert.NotNull(result);
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
@@ -273,7 +273,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
                 UserName = "test"
             };
 
-            var result = await controller.Login(model);
+            var result = await controller.Index(model);
 
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.Equal(model, viewResult.Model);

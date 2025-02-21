@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 
 namespace TaskManagerWebsite.Models;
 
@@ -18,4 +19,6 @@ public class Group
     public string Description { get; set; }
 
     public ICollection<User> Users { get; set; } = new List<User>();
+
+    public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
 }

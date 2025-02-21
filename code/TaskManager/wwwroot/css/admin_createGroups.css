@@ -25,6 +25,13 @@
     background: #eaf4ff;
     padding: 5px;
     border-radius: 5px;
+    margin-left: 20px;
+}
+
+.manager-box:hover {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 /* Employee Styling */
@@ -33,9 +40,16 @@
 }
 
 .employee-box {
-    background: #eaffea;
+    background: #eaf4ff;
     padding: 5px;
     border-radius: 5px;
+    margin-left: 20px;
+}
+
+.employee-box:hover {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 /* Search Box */

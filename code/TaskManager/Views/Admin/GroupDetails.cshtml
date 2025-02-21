@@ -1,6 +1,21 @@
 ﻿@model Group
 
 <h2>@Model.Name</h2>
+<p><strong>Description:</strong> @Model.Description</p>
+
+<h3>Managers in this Group</h3>
+<ul>
+    @foreach (var manager in Model.Managers)
+    {
+        <li>
+            @manager.User.UserName (@manager.User.Email) 
+            @if (manager.IsPrimaryManager)
+            {
+                <strong>(Primary Manager)</strong>
+            }
+        </li>
+    }
+</ul>
 
 <h3>Users in this Group</h3>
 <ul>
@@ -21,6 +36,22 @@
         }
     </select>
     <button type="submit" class="btn btn-success mt-2">Add User</button>
+</form>
+
+<h3>Add Manager to Group</h3>
+<form asp-action="AddManagerToGroup" asp-controller="Admin" method="post">
+    <input type="hidden" name="groupId" value="@Model.Id" />
+    <label for="managerId">Select Manager:</label>
+    <select name="managerId" class="form-control">
+        @foreach (var user in ViewBag.Users) // Show only managers here in the future
+        {
+            <option value="@user.Id">@user.UserName (@user.Email)</option>
+        }
+    </select>
+    <label class="mt-2">
+        <input type="checkbox" name="isPrimary" value="true" /> Set as Primary Manager
+    </label>
+    <button type="submit" class="btn btn-primary mt-2">Add Manager</button>
 </form>
 
 <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>

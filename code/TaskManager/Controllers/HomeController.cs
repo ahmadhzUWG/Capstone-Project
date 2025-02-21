@@ -7,9 +7,8 @@ using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
 
-namespace TaskManager.Controllers
+namespace TaskManagerWebsite.Controllers
 {
-    [Authorize(Roles="Anonymous")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -25,6 +24,11 @@ namespace TaskManager.Controllers
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
         {
             return View();
         }

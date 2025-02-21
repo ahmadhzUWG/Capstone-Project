@@ -1,15 +1,17 @@
 ﻿@model TaskManagerWebsite.Models.Group
 
-<h1>Create Group</h1>
+<link href="~/css/admin_createGroups.css" rel="stylesheet" />
 
-<br />
+<h1>Create Group</h1>
 
 <form asp-action="CreateGroup" asp-controller="Admin" method="post">
     <div class="form-group">
         <label asp-for="Name">Group Name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
+
         <br />
+
         <label asp-for="Description">Group Description</label>
         <input asp-for="Description" class="form-control" />
         <span asp-validation-for="Description" class="text-danger"></span>
@@ -18,33 +20,44 @@
     <br />
 
     <div class="form-group">
+        <label>Select Managers</label>
+        <input type="text" id="searchBoxManagers" class="form-control mb-2" placeholder="Search managers...">
+
+        <div id="managerContainer">
+            @foreach (var user in ViewBag.Managers)
+            {
+                <div class="form-check manager-box d-flex align-items-center justify-content-between">
+                    <!-- Manager Selection -->
+                    <div class="d-flex align-items-center">
+                        <input type="checkbox" name="selectedManagers" value="@user.Id" class="form-check-input manager-checkbox me-2" id="manager-@user.Id" />
+                        <label class="form-check-label me-3" for="manager-@user.Id">@user.UserName (@user.Email)</label>
+                    </div>
+
+                    <!-- Primary Manager Selection -->
+                    <div class="d-flex align-items-center">
+                        <input type="radio" name="primaryManagerId" value="@user.Id" class="form-check-input primary-manager-radio me-2" disabled />
+                        <span class="text-muted">Primary Manager</span>
+                    </div>
+                </div>
+
+            }
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group">
         <label>Select Employees</label>
-        <input type="text" id="searchBox" class="form-control mb-2" placeholder="Search employees...">
+        <input type="text" id="searchBoxEmployees" class="form-control mb-2" placeholder="Search employees...">
 
-        <div id="checkboxContainer">
-            <!-- Managers Section -->
-            <h5 class="role-title manager">Managers</h5>
-            <div class="user-category">
-                @foreach (var user in ViewBag.Managers)
-                {
-                    <div class="form-check manager-box">
-                        <input type="checkbox" name="selectedUsers" value="@user.Id" class="form-check-input user-checkbox" />
-                        <label class="form-check-label">@user.UserName (@user.Email)</label>
-                    </div>
-                }
-            </div>
-
-            <!-- Employees Section -->
-            <h5 class="role-title employee">Regular Employees</h5>
-            <div class="user-category">
-                @foreach (var user in ViewBag.Employees)
-                {
-                    <div class="form-check employee-box">
-                        <input type="checkbox" name="selectedUsers" value="@user.Id" class="form-check-input user-checkbox" />
-                        <label class="form-check-label">@user.UserName (@user.Email)</label>
-                    </div>
-                }
-            </div>
+        <div id="employeeContainer">
+            @foreach (var user in ViewBag.Employees)
+            {
+                <div class="form-check employee-box">
+                    <input type="checkbox" name="selectedUsers" value="@user.Id" class="form-check-input employee-checkbox" />
+                    <label class="form-check-label">@user.UserName (@user.Email)</label>
+                </div>
+            }
         </div>
     </div>
 
@@ -54,22 +67,53 @@
 </form>
 
 <br />
-
 <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
 
-<!-- JavaScript for Search Functionality -->
+<!-- JavaScript for Enabling/Disabling Primary Manager Selection -->
 <script>
-    document.getElementById("searchBox").addEventListener("keyup", function () {
-        let searchValue = this.value.toLowerCase();
-        let checkboxes = document.querySelectorAll("#checkboxContainer .form-check");
+    document.addEventListener("DOMContentLoaded", function () {
+        let managerCheckboxes = document.querySelectorAll(".manager-checkbox");
+        let primaryManagerRadios = document.querySelectorAll(".primary-manager-radio");
 
-        checkboxes.forEach(function (check) {
-            let label = check.textContent.toLowerCase();
-            check.style.display = label.includes(searchValue) ? "block" : "none";
+        managerCheckboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener("change", function () {
+                primaryManagerRadios[index].disabled = !this.checked;
+                if (!this.checked && primaryManagerRadios[index].checked) {
+                    primaryManagerRadios[index].checked = false;
+                }
+            });
+        });
+
+        document.querySelector("form").addEventListener("submit", function (event) {
+            let selectedManagers = Array.from(managerCheckboxes).filter(c => c.checked);
+            let selectedPrimaryManager = Array.from(primaryManagerRadios).find(r => r.checked);
+
+            if (selectedManagers.length > 0 && !selectedPrimaryManager) {
+                alert("Please select at least one Primary Manager.");
+                event.preventDefault();
+            }
         });
     });
+</script>
+
+<!-- JavaScript for Search Functionality -->
+<script>
+    function setupSearch(inputId, containerId) {
+        document.getElementById(inputId).addEventListener("keyup", function () {
+            let searchValue = this.value.toLowerCase();
+            let checkboxes = document.querySelectorAll("#" + containerId + " .form-check");
+
+            checkboxes.forEach(function (check) {
+                let label = check.textContent.toLowerCase();
+                check.style.display = label.includes(searchValue) ? "block" : "none";
+            });
+        });
+    }
+
+    setupSearch("searchBoxManagers", "managerContainer");
+    setupSearch("searchBoxEmployees", "employeeContainer");
 </script>

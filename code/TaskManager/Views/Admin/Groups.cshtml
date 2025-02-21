@@ -11,7 +11,7 @@
     @foreach (var group in Model)
     {
         <li>
-            <a href="@Url.Action("ManageGroup", "Admin", new { id = group.Id })">
+            <a href="@Url.Action("GroupDetails", "Admin", new { id = group.Id })">
                 @group.Name
             </a>
 
