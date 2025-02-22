@@ -4,7 +4,7 @@
     string userRole = ViewBag.UserRole ?? "Guest";
 }
 
-<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/home_index.css" />
 
 <main class="home-container">
     <div class="card">
@@ -12,14 +12,14 @@
         <p>Select an option below:</p>
 
         <div class="button-container">
-            @if (userRole == "Admin")
+            @if (User.IsInRole("Admin"))
             {
-                @Html.ActionLink("Manage Employees", "Index", "Admin", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Groups", "Index", "Group", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Projects", "Index", "Admin", null, new { @class = "btn btn-primary" })
             }
             
-            @Html.ActionLink("Logout", "Login", "Login", null, new { @class = "btn btn-danger" })
+            @Html.ActionLink("Logout", "Index", "Login", null, new { @class = "btn btn-danger" })
         </div>
     </div>
 </main>

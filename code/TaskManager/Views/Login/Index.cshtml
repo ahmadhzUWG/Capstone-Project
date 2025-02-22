@@ -1,38 +1,31 @@
-﻿@{
-    ViewData["Title"] = "Admin Page";
+﻿@model TaskManagerWebsite.ViewModels.LoginViewModel
+
+@{
+    Layout = "_Layout";
 }
 
-<link rel="stylesheet" href="~/css/admin_index.css" />
+<link rel="stylesheet" href="~/css/login_index.css" />
 
-<div class="users-container">
-    <h1>User List</h1>
-    <table class="table">
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = user.Id }, new { @class = "btn btn-edit" })
-                    @Html.ActionLink("Delete", "Delete", new { id = user.Id }, new { @class = "btn btn-delete" })
-                </td>
-            </tr>
-        }
-    </table>
-</div>
+<h2>Login</h2>
 
+<form asp-action="Index" method="post">
+    <div>
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" />
+        <span asp-validation-for="UserName"></span>
+    </div>
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+    <button type="submit">Login</button>
+</form>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
+<p>
+    Don't have an account? <a asp-controller="Login" asp-action="Register">Register here</a>.
+</p>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

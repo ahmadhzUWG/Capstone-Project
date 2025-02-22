@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Group>
+
+<link rel="stylesheet" href="~/css/admin_groups.css" />
+
+<h2>Groups</h2>
+
+<!-- Create Group Button -->
+<a href="@Url.Action("CreateGroup", "Admin")" class="btn btn-primary">Create New Group</a>
+
+<ul>
+    @foreach (var group in Model)
+    {
+        <li>
+            <a href="@Url.Action("GroupDetails", "Admin", new { id = group.Id })">
+                @group.Name
+            </a>
+
+            <!-- Delete Group Form -->
+            <form asp-action="DeleteGroup" asp-controller="Admin" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="@group.Id" />
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </li>
+    }
+</ul>
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>

@@ -13,16 +13,15 @@ namespace TaskManagerWebsite.Controllers
         private readonly UserManager<User> _userManager = userManager;
         private readonly SignInManager<User> _signInManager = signInManager;
 
-        // GET: /Account/Login
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        public async Task<IActionResult> Index(LoginViewModel model, string? returnUrl = null)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -58,7 +57,7 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login");
+            return RedirectToAction("Index");
         }
 
         // GET: /Account/Register

@@ -11,11 +11,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> Users { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupManager> GroupManagers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // Many-to-Many Relationship: Users <-> Groups (General Membership)
         modelBuilder.Entity<User>()
             .HasMany(u => u.Groups)
             .WithMany(g => g.Users)
@@ -29,6 +31,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                     j.ToTable("UserGroups");
                 });
 
+        // One-to-One: Admin <-> User
         modelBuilder.Entity<Admin>()
             .HasOne(a => a.User)
             .WithMany()
@@ -36,5 +39,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Many-to-Many Relationship: Group <-> Managers (with Primary Manager field)
+        modelBuilder.Entity<GroupManager>()
+            .HasKey(gm => new { gm.GroupId, gm.UserId });
+
+        modelBuilder.Entity<GroupManager>()
+            .HasOne(gm => gm.Group)
+            .WithMany(g => g.Managers)
+            .HasForeignKey(gm => gm.GroupId);
+
+        modelBuilder.Entity<GroupManager>()
+            .HasOne(gm => gm.User)
+            .WithMany(u => u.ManagedGroups)
+            .HasForeignKey(gm => gm.UserId);
     }
 }

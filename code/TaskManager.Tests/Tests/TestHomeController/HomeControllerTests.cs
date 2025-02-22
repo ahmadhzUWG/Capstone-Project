@@ -3,9 +3,9 @@ using Xunit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TaskManager.Controllers;
 using TaskManagerWebsite.Models;
 using Microsoft.AspNetCore.Http;
+using TaskManagerWebsite.Controllers;
 using TaskManagerWebsite.Data;
 
 namespace TaskManager.Tests.Tests.TestHomeController
@@ -39,10 +39,7 @@ namespace TaskManager.Tests.Tests.TestHomeController
         public void Index_ReturnsViewResult()
         {
             var controller = new HomeController(
-                _mockLogger.Object,
-                _mockUserManager.Object,
-                _mockSignInManager.Object,
-                _mockDbContext.Object
+                _mockLogger.Object
             );
 
             var result = controller.Index();
@@ -55,10 +52,7 @@ namespace TaskManager.Tests.Tests.TestHomeController
         public void Privacy_ReturnsViewResult()
         {
             var controller = new HomeController(
-                _mockLogger.Object,
-                _mockUserManager.Object,
-                _mockSignInManager.Object,
-                _mockDbContext.Object
+                _mockLogger.Object
             );
 
             var result = controller.Privacy();
@@ -71,10 +65,7 @@ namespace TaskManager.Tests.Tests.TestHomeController
         public void Error_ReturnsViewResult()
         {
             var controller = new HomeController(
-                _mockLogger.Object,
-                _mockUserManager.Object,
-                _mockSignInManager.Object,
-                _mockDbContext.Object
+                _mockLogger.Object
             );
 
             controller.ControllerContext = new ControllerContext

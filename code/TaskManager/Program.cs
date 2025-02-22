@@ -34,16 +34,24 @@ builder.Services.AddAuthorization(options =>
         }));
 });
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.AccessDeniedPath = "/Home/AccessDenied";
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
+    await DataSeeder.SeedRolesAndAdminAsync(services);
+
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     try
     {
-        dbContext.Database.Migrate(); // Applies pending migrations
+        dbContext.Database.Migrate();
         Console.WriteLine("Database connection successful.");
     }
     catch (Exception ex)
@@ -67,7 +75,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Login}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}");
 
 try
 {
