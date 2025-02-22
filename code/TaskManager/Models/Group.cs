@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.SignalR;
 
 namespace TaskManagerWebsite.Models;
@@ -21,4 +22,9 @@ public class Group
     public ICollection<User> Users { get; set; } = new List<User>();
 
     public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
+    
+    public int? PrimaryManagerId { get; set; }
+
+    [ValidateNever]
+    public User PrimaryManager { get; set; }
 }

@@ -7,6 +7,4 @@ namespace TaskManagerWebsite.Models;
 public class User : IdentityUser<int>
 {
     public ICollection<Group> Groups { get; set; } = new List<Group>();
-
-    public ICollection<GroupManager> ManagedGroups { get; set; }
 }

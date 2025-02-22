@@ -1,5 +1,7 @@
 ﻿@model Group
 
+<link href="~/css/admin_createGroups.css" rel="stylesheet" />
+
 <h2>@Model.Name</h2>
 <p><strong>Description:</strong> @Model.Description</p>
 
@@ -9,7 +11,7 @@
     {
         <li>
             @manager.User.UserName (@manager.User.Email) 
-            @if (manager.IsPrimaryManager)
+            @if (Model.PrimaryManagerId == manager.UserId)  
             {
                 <strong>(Primary Manager)</strong>
             }
@@ -30,7 +32,7 @@
     <input type="hidden" name="groupId" value="@Model.Id" />
     <label for="userId">Select User:</label>
     <select name="userId" class="form-control">
-        @foreach (var user in ViewBag.Users)
+        @foreach (var user in ViewBag.Users ?? new List<User>())
         {
             <option value="@user.Id">@user.UserName (@user.Email)</option>
         }
@@ -43,13 +45,13 @@
     <input type="hidden" name="groupId" value="@Model.Id" />
     <label for="managerId">Select Manager:</label>
     <select name="managerId" class="form-control">
-        @foreach (var user in ViewBag.Users) // Show only managers here in the future
+        @foreach (var user in ViewBag.Managers ?? new List<User>())
         {
             <option value="@user.Id">@user.UserName (@user.Email)</option>
         }
     </select>
     <label class="mt-2">
-        <input type="checkbox" name="isPrimary" value="true" /> Set as Primary Manager
+        <input type="checkbox" name="isPrimary" value="true" @(Model.PrimaryManagerId != null ? "disabled" : "") /> Set as Primary Manager
     </label>
     <button type="submit" class="btn btn-primary mt-2">Add Manager</button>
 </form>
