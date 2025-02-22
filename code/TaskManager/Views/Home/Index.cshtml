@@ -1,15 +1,25 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = null;
+    string userRole = ViewBag.UserRole ?? "Guest";
 }
 
-<main>
+<link rel="stylesheet" href="~/css/home_index.css" />
 
-    <div>
-        @Html.ActionLink("List of Users", "Index", "Users")<br />
+<main class="home-container">
+    <div class="card">
+        <h2>Welcome to the Home Page</h2>
+        <p>Select an option below:</p>
+
+        <div class="button-container">
+            @if (User.IsInRole("Admin"))
+            {
+                @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Manage Projects", "Index", "Admin", null, new { @class = "btn btn-primary" })
+            }
+            
+            @Html.ActionLink("Logout", "Index", "Login", null, new { @class = "btn btn-danger" })
+        </div>
     </div>
-
-    <div>
-        @Html.ActionLink("Logout", "Login", "Account")<br />
-    </div>
-
 </main>

@@ -1,0 +1,8 @@
+Remove Group to project
+Context:
+			Admin is viewing Project page
+		Primary Flow:
+			1. Admin selects group
+			2. Admin clicks "Remove Group" button
+			2. System sends warning asking Admin/project lead to confirm
+			3. Admin confirms project group removal.

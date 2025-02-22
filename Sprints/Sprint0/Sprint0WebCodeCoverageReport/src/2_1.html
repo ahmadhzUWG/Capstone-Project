@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\HomeController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManager.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger&lt;HomeController&gt; _logger;
+
+        public HomeController(ILogger&lt;HomeController&gt; logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,62,1],[13,9,13,10,1],[14,13,14,30,1],[15,9,15,10,1],[18,9,18,10,1],[19,13,19,27,1],[20,9,20,10,1],[23,9,23,10,1],[24,13,24,27,1],[25,9,25,10,1],[29,9,29,10,1],[30,13,30,113,1],[31,9,31,10,1]]);
+    </script>
+  </body>
+</html>

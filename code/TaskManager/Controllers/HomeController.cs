@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
 
-namespace TaskManager.Controllers
+namespace TaskManagerWebsite.Controllers
 {
     public class HomeController : Controller
     {
@@ -11,15 +15,20 @@ namespace TaskManager.Controllers
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
+            this._logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             return View();
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
         {
             return View();
         }

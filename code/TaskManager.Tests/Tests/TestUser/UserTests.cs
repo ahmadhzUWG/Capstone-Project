@@ -16,12 +16,10 @@ namespace TaskManager.Tests.Tests.TestUser
             {
                 UserName = "testUser",
                 Email = "test@example.com",
-                Role = "User"
             };
 
             Assert.Equal("testUser", user.UserName);
             Assert.Equal("test@example.com", user.Email);
-            Assert.Equal("User", user.Role);
         }
     }
 }

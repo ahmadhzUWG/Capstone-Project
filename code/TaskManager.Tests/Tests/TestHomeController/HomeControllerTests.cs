@@ -1,23 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Moq;
+using Xunit;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TaskManager.Controllers;
 using TaskManagerWebsite.Models;
+using Microsoft.AspNetCore.Http;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.Data;
 
 namespace TaskManager.Tests.Tests.TestHomeController
 {
     public class HomeControllerTests
     {
+        private readonly Mock<UserManager<User>> _mockUserManager;
+        private readonly Mock<SignInManager<User>> _mockSignInManager;
+        private readonly Mock<ApplicationDbContext> _mockDbContext;
+        private readonly Mock<ILogger<HomeController>> _mockLogger;
+
+        public HomeControllerTests()
+        {
+            _mockUserManager = new Mock<UserManager<User>>(
+                new Mock<IUserStore<User>>().Object,
+                null, null, null, null, null, null, null, null
+            );
+
+            _mockSignInManager = new Mock<SignInManager<User>>(
+                _mockUserManager.Object,
+                new Mock<IHttpContextAccessor>().Object,
+                new Mock<IUserClaimsPrincipalFactory<User>>().Object,
+                null, null, null, null
+            );
+
+            _mockDbContext = new Mock<ApplicationDbContext>();
+            _mockLogger = new Mock<ILogger<HomeController>>();
+        }
+
         [Fact]
         public void Index_ReturnsViewResult()
         {
-            var dbContext = TestHelper.GetDbContext();
-            var controller = new HomeController(new Logger<HomeController>(new LoggerFactory()));
+            var controller = new HomeController(
+                _mockLogger.Object
+            );
 
             var result = controller.Index();
 
@@ -28,8 +51,9 @@ namespace TaskManager.Tests.Tests.TestHomeController
         [Fact]
         public void Privacy_ReturnsViewResult()
         {
-            var dbContext = TestHelper.GetDbContext();
-            var controller = new HomeController(new Logger<HomeController>(new LoggerFactory()));
+            var controller = new HomeController(
+                _mockLogger.Object
+            );
 
             var result = controller.Privacy();
 
@@ -40,8 +64,9 @@ namespace TaskManager.Tests.Tests.TestHomeController
         [Fact]
         public void Error_ReturnsViewResult()
         {
-            var dbContext = TestHelper.GetDbContext();
-            var controller = new HomeController(new Logger<HomeController>(new LoggerFactory()));
+            var controller = new HomeController(
+                _mockLogger.Object
+            );
 
             controller.ControllerContext = new ControllerContext
             {

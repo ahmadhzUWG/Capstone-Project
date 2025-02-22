@@ -1,0 +1,7 @@
+View Projects
+Context:
+			Manager wants to view projects
+		Primary Flow:
+		1. User clicks "View Projects" link on the Manager 
+		2. System loads Projects Page
+		3. Manager can view list of projects

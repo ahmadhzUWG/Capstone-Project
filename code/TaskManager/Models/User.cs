@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 
-namespace TaskManagerWebsite.Models
+namespace TaskManagerWebsite.Models;
+
+public class User : IdentityUser<int>
 {
-    public class User : IdentityUser<int>
-    {
-        public string? Role { get; set; }
-    }
+    public ICollection<Group> Groups { get; set; } = new List<Group>();
+
+    public ICollection<GroupManager> ManagedGroups { get; set; }
 }

@@ -1,0 +1,7 @@
+Assign Group to project
+Context:
+			Admin is viewing Project page
+		Primary Flow:
+			1. Admin attempts to add group to project.
+			2. System sends warning to admin asking for confirmation
+			3. Admin confirms project group addition. 
