@@ -21,4 +21,6 @@ public class Group
     public ICollection<User> Users { get; set; } = new List<User>();
 
     public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
+
+    public ICollection<Project> Projects { get; set; } = new List<Project>();
 }

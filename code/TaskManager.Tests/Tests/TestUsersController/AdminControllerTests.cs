@@ -54,7 +54,7 @@ public class AdminControllerTests
         var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
         // Convert ID to string and provide the required Email parameter
-        var result = await controller.Edit("1", "EditedUser1", "user1@example.com", "Role");
+        var result = await controller.UserEdit("1", "EditedUser1", "user1@example.com", "Role");
 
         var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("Index", redirectToActionResult.ActionName);
@@ -70,7 +70,7 @@ public class AdminControllerTests
         controller.ModelState.AddModelError("UserName", "UserName is required");
 
         // Convert ID to string and provide the required Email parameter
-        var result = await controller.Edit("1", "", "user1@example.com", "Role");
+        var result = await controller.UserEdit("1", "", "user1@example.com", "Role");
 
         var viewResult = Assert.IsType<ViewResult>(result);
         Assert.False(controller.ModelState.IsValid);
@@ -82,7 +82,7 @@ public class AdminControllerTests
         var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
         // Convert ID to string and provide the required Email parameter
-        var result = await controller.Edit("999", "User2", "user2@example.com", "Role");
+        var result = await controller.UserEdit("999", "User2", "user2@example.com", "Role");
 
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result);

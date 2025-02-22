@@ -18,8 +18,8 @@
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = user.Id }, new { @class = "btn btn-edit" })
-                    @Html.ActionLink("Delete", "Delete", new { id = user.Id }, new { @class = "btn btn-delete" })
+                    @Html.ActionLink("UserEdit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-edit" })
+                    @Html.ActionLink("UserDelete", "UserDelete", new { id = user.Id }, new { @class = "btn btn-delete" })
                 </td>
             </tr>
         }

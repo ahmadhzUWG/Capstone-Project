@@ -1,0 +1,20 @@
+﻿@model TaskManagerWebsite.Models.Project
+
+<h2>Project Details</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Project Lead:</strong> @Model.ProjectLead.UserName</p>
+
+    <h5>Groups</h5>
+    <ul>
+        @foreach (var group in Model.ProjectGroups)
+        {
+            <li>@group.Name</li>
+        }
+    </ul>
+</div>
+
+<a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+<a asp-action="Projects" class="btn btn-primary">Back to Projects</a>

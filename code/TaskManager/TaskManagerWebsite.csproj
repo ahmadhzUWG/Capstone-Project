@@ -36,12 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Views\Admin\Delete.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Login\Register.cshtml" />
-    <_ContentIncludedByDefault Remove="Views\Admin\Delete.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
