@@ -13,6 +13,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupManager> GroupManagers { get; set; }
 
+    public DbSet<Project> Projects { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -52,5 +54,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(gm => gm.User)
             .WithMany(u => u.ManagedGroups)
             .HasForeignKey(gm => gm.UserId);
+
     }
 }
