@@ -39,7 +39,7 @@ public class AdminControllerTests
         var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
         // Convert ID to string if the Edit method expects a string
-        var result = await controller.Edit("1");
+        var result = await controller.UserEdit("1");
 
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<User>(viewResult.Model);
