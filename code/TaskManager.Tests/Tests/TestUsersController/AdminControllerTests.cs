@@ -5,6 +5,7 @@ using TaskManager.Tests;
 using TaskManagerWebsite.Controllers;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
 
 public class AdminControllerTests
 {
@@ -29,6 +30,137 @@ public class AdminControllerTests
     {
         var roleStoreMock = new Mock<IRoleStore<IdentityRole<int>>>();
         return new Mock<RoleManager<IdentityRole<int>>>(roleStoreMock.Object, null, null, null, null);
+    }
+
+    [Fact]
+    public void Register_ReturnsViewResult()
+    {
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var result = controller.UserAdd();
+
+        Assert.NotNull(result);
+        Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    public async Task RegisterWithModelArg_ReturnsViewResult_WithCreateUserModelStateError()
+    {
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new AdminViewModel
+        {
+            ConfirmPassword = "password",
+            Email = "test@gmail.com",
+            Password = "password",
+            UserName = ""
+        };
+
+        controller.ModelState.AddModelError("UserName", "UserName is required");
+        var result = await controller.UserAdd(model);
+
+        Assert.NotNull(result);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.IsType<AdminViewModel>(viewResult.Model);
+    }
+
+    [Fact]
+    public async Task RegisterWithModelArg_ReturnsRedirectToActionResult()
+    {
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new AdminViewModel
+        {
+            ConfirmPassword = "password",
+            Email = "test@gmail.com",
+            Password = "password",
+            UserName = "test"
+        };
+
+        var result = await controller.UserAdd(model);
+
+        Assert.NotNull(result);
+        var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Users", redirectToActionResult.ActionName);
+    }
+
+    [Fact]
+    public async Task RegisterWithModelArg_ReturnsViewResult_WithFailedUserResult()
+    {
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError
+            {
+                Code = "DuplicateUserName",
+                Description = "The username is already taken."
+            }));
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new AdminViewModel
+        {
+            ConfirmPassword = "password",
+            Email = "test@gmail.com",
+            Password = "password",
+            UserName = "test"
+        };
+
+        var result = await controller.UserAdd(model);
+
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, viewResult.Model);
+        Assert.True(viewResult.ViewData.ModelState.ContainsKey(""));
+
+        var error = viewResult.ViewData.ModelState[""].Errors[0].ErrorMessage;
+        Assert.Equal("The username is already taken.", error);
+    }
+
+    [Fact]
+    public async Task RegisterWithModelArg_ReturnsViewResult_WithFailedUserRoleResult()
+    {
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError
+            {
+                Code = "RoleNotFound",
+                Description = "The role does not exist."
+            }));
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new AdminViewModel
+        {
+            ConfirmPassword = "password",
+            Email = "test@gmail.com",
+            Password = "password",
+            UserName = "test"
+        };
+
+        var result = await controller.UserAdd(model);
+
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, viewResult.Model);
+        Assert.True(viewResult.ViewData.ModelState.ContainsKey(""));
+
+        var error = viewResult.ViewData.ModelState[""].Errors[0].ErrorMessage;
+        Assert.Equal("The role does not exist.", error);
     }
 
     [Fact]

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -28,6 +29,50 @@ namespace TaskManagerWebsite.Controllers
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
+        }
+
+        public IActionResult UserAdd()
+        {
+            return View();
+        }
+
+        // POST: /Admin/UserAdd
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UserAdd(AdminViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Create a new user object. Note that we only set UserName and Email.
+            var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
+
+            // Create the user with the specified password.
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
+
+            if (createUserResult.Succeeded)
+            {
+                // Add the user to the Employee role.
+                var createUserRoleResult = await _userManager.AddToRoleAsync(user, "Employee");
+                if (createUserRoleResult.Succeeded)
+                {
+                    return RedirectToAction("Users", "Admin");
+                }
+
+                foreach (var error in createUserRoleResult.Errors)
+                {
+                    Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            
+            foreach (var error in createUserResult.Errors)
+            {
+                Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
         }
 
         // GET: Users/Details/{id}
