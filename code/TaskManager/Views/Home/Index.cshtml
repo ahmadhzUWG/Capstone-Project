@@ -17,6 +17,12 @@
                 @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Projects", "Projects", "Admin", null, new { @class = "btn btn-primary" })
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
+                    </form>
+                </div>
             }
             
             @if (User.IsInRole("Manager"))
@@ -24,14 +30,23 @@
                 @Html.ActionLink("View Employees", "Users", "Manager", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("View Groups", "Groups", "Manager", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Projects", "Projects", "Manager", null, new { @class = "btn btn-primary" })
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
+                    </form>
+                </div>
             }
 
-            <div style="display: flex; justify-content: center; align-items: center;">
-                <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
-                </form>
-            </div>
+            @if (!User.IsInRole("Manager") && !User.IsInRole("Admin") && !User.IsInRole("Employee"))
+            {
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <form action="@Url.Action("Index", "Login")" method="get" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Go to Login</button>
+                    </form>
+                </div>
+            }
 
         </div>
     </div>

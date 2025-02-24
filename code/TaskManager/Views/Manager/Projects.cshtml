@@ -1,8 +1,12 @@
 ﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
 
-<h2>Projects</h2>
+<link rel="stylesheet" href="~/css/manager_projects.css" asp-append-version="true" />
 
-<a href="@Url.Action("CreateProject", "Manager")" class="btn btn-primary">Create New Project</a>
+<div style="text-align: center" class="header">
+    <h2>Projects</h2>
+
+    <a href="@Url.Action("CreateProject", "Manager")" class="btn btn-primary">Create New Project</a>
+</div>
 
 <table class="table table-bordered">
     <thead>
@@ -19,15 +23,104 @@
             <td>
                 <a href="@Url.Action("ProjectDetails", "Manager", new { id = project.Id })" class="btn btn-info btn-sm">View</a>
                 
-                    @if (project.ProjectCreatorId == int.Parse(ViewBag.UserId))
-                    {
-                        <form asp-action="DeleteProject" asp-controller="Manager" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@project.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
-                        </form>
-                    }
+                @if (project.ProjectCreatorId == int.Parse(ViewBag.UserId))
+                {
+                    <form asp-action="DeleteProject" asp-controller="Manager" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@project.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
+                    </form>
+                }
             </td>
         </tr>
     }
     </tbody>
 </table>
+
+@if (ViewBag.GroupRequests != null && ViewBag.GroupRequests.Count > 0)
+{
+    <h3>Your Group Requests Inbox</h3>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Requested Group</th>
+            <th>Project Requesting Group</th>
+            <th>Decision</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var groupRequest in ViewBag.GroupRequests)
+        {
+            <tr>
+                <td>@groupRequest.Group.Name</td>
+                <td>@groupRequest.Project.Name</td>
+                <td>
+                    <form method="post" action="@Url.Action("AcceptRequest", "Manager")" style="display:inline;">
+                        <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                        <button type="submit" class="btn btn-info btn-sm">Accept</button>
+                    </form>
+
+                    <form method="post" action="@Url.Action("DenyRequest", "Manager")" style="display:inline;">
+                        <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        </tbody>
+    </table>
+}
+
+@if (ViewBag.SentGroupRequests != null && ViewBag.SentGroupRequests.Count > 0)
+{
+    <h3>Your Sent Group Requests</h3>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Requested Group</th>
+            <th>Project Requesting Group</th>
+            <th>Response</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var groupRequest in ViewBag.SentGroupRequests)
+        {
+            <tr>
+                <td>@(groupRequest.Group?.Name ?? "No Group Assigned")</td>
+                <td>@(groupRequest.Project?.Name ?? "No Project Assigned")</td>
+                <td>
+                    @if (groupRequest.Response == true)
+                    {
+                            <span class="badge bg-success equal-height">Accepted</span>
+                    }
+                    else
+                    {
+                            <span class="badge bg-danger equal-height">Denied</span>
+                    }
+                    
+                    <form action="@Url.Action("DeleteGroupRequest", "Manager")" method="post" style="display:inline;">
+                        <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                        <button type="submit" class="btn btn-sm btn-primary equal-height">OK</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<div style="text-align: center;">
+    @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+</div>

@@ -1,2 +1,24 @@
-﻿body {
+﻿.header {
+    padding-bottom: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: white;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.btn-cancel {
+    background: #585d61;
+    margin: 3px 3px 3px 3px;
+}
+
+.equal-height {
+    display: inline-flex;
+    align-items: center;
+    height: 2.25rem;
+    line-height: 2.25rem;
 }

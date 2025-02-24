@@ -217,8 +217,6 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("ProjectDetails", new { id = projectId });
         }
 
-
-
         public async Task<IActionResult> EditProject(int id)
         {
             var project = await _context.Projects.FindAsync(id);

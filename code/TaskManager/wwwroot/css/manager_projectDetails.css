@@ -1,0 +1,46 @@
+﻿.center-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+    .center-content h2, .center-content h4, .center-content h5 {
+        text-align: center;
+    }
+
+    .center-content h4 {
+        margin-top: 20px;
+    }
+
+    .center-content ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .center-content .group-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .center-content .group-item {
+        align-items: center;
+        width: 100%;
+    }
+
+    .center-content .group-name {
+        font-size: 16px; 
+    }
+
+    .center-content .remove-btn {
+        font-size: 14px;
+    }
+
+    .center-content form {
+        margin-top: 20px;
+    }
+
+    .center-content .btn {
+        margin-top: 10px;
+    }
