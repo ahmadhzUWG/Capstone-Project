@@ -8,6 +8,7 @@
 </head>
 <body>
     <header>
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TaskManager</a>
@@ -23,6 +24,43 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        
+                        @if (User.IsInRole("Manager")) 
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Users">Employees</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Projects">Projects</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Groups">Groups</a>
+                            </li>
+                            <li class="nav-item">
+                                <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="nav-link text-dark" style="border: none; background: none; cursor: pointer">Sign Out</button>
+                                </form>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin")) 
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Users">Employees</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Projects">Projects</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Groups">Groups</a>
+                            </li>
+                            <li class="nav-item">
+                                <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="nav-link text-dark" style="border: none; background: none; cursor: pointer">Sign Out</button>
+                                </form>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

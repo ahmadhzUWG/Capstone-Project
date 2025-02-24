@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
@@ -14,8 +16,9 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login"; 
-    options.LogoutPath = "/Account/Logout";
+    options.LoginPath = "/Login/Index"; 
+    options.LogoutPath = "/Login/Logout";
+    options.AccessDeniedPath = "/Home/AccessDenied";
 });
 
 builder.Services.AddAuthorization(options =>
@@ -32,11 +35,6 @@ builder.Services.AddAuthorization(options =>
             var user = await userManager.GetUserAsync(httpContext.User);
             return user != null && await dbContext.Admins.AnyAsync(a => a.UserId == user.Id);
         }));
-});
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.AccessDeniedPath = "/Home/AccessDenied";
 });
 
 builder.Services.AddControllersWithViews();

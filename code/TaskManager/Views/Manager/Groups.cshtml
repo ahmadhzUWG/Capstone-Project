@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Group>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/manager_groups.css" asp-append-version="true" />
+
+
+
+<div class="groups-container">
+    <h1>Groups</h1>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        @foreach (var group in Model)
+        {
+            <tr>
+                <td>@group.Name</td>
+                <td>@group.Description</td>
+            </tr>
+        }
+    </table>
+    
+    <div style="text-align: center;">
+        @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+    </div>
+</div>
+

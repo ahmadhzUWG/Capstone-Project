@@ -20,6 +20,8 @@ namespace TaskManagerWebsite.Models
         [ValidateNever]
         public User ProjectLead { get; set; }
 
+        public int ProjectCreatorId { get; set; }
+
         public ICollection<Group> ProjectGroups { get; set; } = new List<Group>();
     }
     }

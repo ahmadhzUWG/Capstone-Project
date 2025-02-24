@@ -247,6 +247,9 @@ namespace TaskManagerWebsite.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("ProjectCreatorId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProjectLeadId")
                         .HasColumnType("int");
 

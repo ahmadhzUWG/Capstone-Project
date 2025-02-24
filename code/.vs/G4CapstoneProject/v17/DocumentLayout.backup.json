@@ -1,0 +1,237 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\controllers\\managercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\controllers\\managercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\projectdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\projectdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\editproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\editproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\projects.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\projects.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\createproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\createproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\users.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\users.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\wwwroot\\css\\manager_groups.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\wwwroot\\css\\manager_groups.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|c:\\users\\ahmad\\documents\\github\\capstone-project\\code\\taskmanager\\views\\manager\\groups.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{963DD3DC-B2FF-4FE8-A1AF-DEF08E838CB5}|TaskManager\\TaskManagerWebsite.csproj|solutionrelative:taskmanager\\views\\manager\\groups.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|ViewDataWindow_MSSQL__/_localdb__ProjectModels/TaskManagerDatabase/True/SqlTable/dbo.Groups.sql||{0058A1F7-65F3-4DB9-B3D0-CA7E64DD73CD}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EditProject.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\EditProject.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\EditProject.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\EditProject.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\EditProject.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-24T01:22:44.778Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ProjectDetails.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\ProjectDetails.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\ProjectDetails.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\ProjectDetails.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\ProjectDetails.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-24T01:20:22.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Projects.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Projects.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\Projects.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Projects.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\Projects.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-24T01:10:58.982Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CreateProject.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\CreateProject.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\CreateProject.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\CreateProject.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\CreateProject.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-24T01:00:34.349Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-24T00:04:41.652Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ManagerController.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\ManagerController.cs",
+              "RelativeDocumentMoniker": "TaskManager\\Controllers\\ManagerController.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\ManagerController.cs",
+              "RelativeToolTip": "TaskManager\\Controllers\\ManagerController.cs",
+              "ViewState": "AgIAAFwAAAAAAAAAAADwv30AAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-23T22:16:19.078Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AdminController.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\AdminController.cs",
+              "RelativeDocumentMoniker": "TaskManager\\Controllers\\AdminController.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\AdminController.cs",
+              "RelativeToolTip": "TaskManager\\Controllers\\AdminController.cs",
+              "ViewState": "AgIAAHsAAAAAAAAAAAAYwLgAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-23T22:15:40.148Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "LoginController.cs",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\LoginController.cs",
+              "RelativeDocumentMoniker": "TaskManager\\Controllers\\LoginController.cs",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Controllers\\LoginController.cs",
+              "RelativeToolTip": "TaskManager\\Controllers\\LoginController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-23T23:33:04.789Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAADsAAACAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-23T23:17:30.526Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "dbo.Groups [Data]",
+              "DocumentMoniker": "ViewDataWindow_MSSQL__/_localdb__ProjectModels/TaskManagerDatabase/True/SqlTable/dbo.Groups.sql",
+              "ToolTip": "dbo.Groups [Data]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
+              "WhenOpened": "2025-02-23T22:53:39.775Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "manager_groups.css",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\wwwroot\\css\\manager_groups.css",
+              "RelativeDocumentMoniker": "TaskManager\\wwwroot\\css\\manager_groups.css",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\wwwroot\\css\\manager_groups.css",
+              "RelativeToolTip": "TaskManager\\wwwroot\\css\\manager_groups.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-02-23T22:52:53.794Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Users.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Users.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\Users.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Users.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\Users.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-23T22:31:48.583Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Groups.cshtml",
+              "DocumentMoniker": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Groups.cshtml",
+              "RelativeDocumentMoniker": "TaskManager\\Views\\Manager\\Groups.cshtml",
+              "ToolTip": "C:\\Users\\ahmad\\Documents\\GitHub\\Capstone-Project\\code\\TaskManager\\Views\\Manager\\Groups.cshtml",
+              "RelativeToolTip": "TaskManager\\Views\\Manager\\Groups.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-23T22:30:57.553Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
