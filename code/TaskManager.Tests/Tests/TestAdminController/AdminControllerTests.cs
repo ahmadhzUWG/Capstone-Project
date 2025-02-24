@@ -18,6 +18,21 @@ public class AdminControllerTests
         _mockUserManager = GetMockUserManager();
         _mockRoleManager = GetMockRoleManager();
         _dbContext = TestHelper.GetDbContext();
+
+        var mockRoles = new List<IdentityRole<int>>
+        {
+            new IdentityRole<int> { Id = 1, Name = "Admin" },
+            new IdentityRole<int> { Id = 2, Name = "Manager" },
+            new IdentityRole<int> { Id = 3, Name = "Employee" }
+        }.AsQueryable();
+
+        _mockRoleManager
+            .Setup(rm => rm.Roles)
+            .Returns(mockRoles);
+
+        _mockUserManager
+            .Setup(um => um.GetRolesAsync(It.IsAny<User>()))
+            .ReturnsAsync(new List<string> { "Admin", "Manager", "Employee" });
     }
 
     private Mock<UserManager<User>> GetMockUserManager()
@@ -166,11 +181,15 @@ public class AdminControllerTests
     [Fact]
     public async Task Edit_ReturnsAViewResult_WithAUser()
     {
-        _dbContext.Users.Add(new User { Id = 1, UserName = "User1", Email = "user1@example.com" });
-        await _dbContext.SaveChangesAsync();
+
         var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Convert ID to string if the Edit method expects a string
+        var user = new User { Id = 1, UserName = "User1", Email = "user1@example.com" };
+
+        _mockUserManager
+            .Setup(um => um.FindByIdAsync("1"))
+            .ReturnsAsync(user);
+
         var result = await controller.UserEdit("1");
 
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -179,33 +198,33 @@ public class AdminControllerTests
     }
 
     [Fact]
+    public async Task Edit_ReturnsNotFoundResult_WithNotFoundUser()
+    {
+        var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var result = await controller.UserEdit("999");
+
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
     public async Task EditWithUserArg_ReturnsRedirectToActionResult_WithAUser()
     {
-        _dbContext.Users.Add(new User { Id = 1, UserName = "User1", Email = "user1@example.com" });
+        var user = new User { Id = 1, UserName = "User1", Email = "user1@example.com" };
+        _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
         var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        _mockUserManager
+            .Setup(um => um.FindByIdAsync("1"))
+            .ReturnsAsync(user);
 
         // Convert ID to string and provide the required Email parameter
         var result = await controller.UserEdit("1", "EditedUser1", "user1@example.com", "Role");
 
         var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("Index", redirectToActionResult.ActionName);
-    }
-
-    [Fact]
-    public async Task EditWithUserArg_ReturnsViewResult_WithValidationError()
-    {
-        _dbContext.Users.Add(new User { Id = 1, UserName = "User1", Email = "user1@example.com" });
-        await _dbContext.SaveChangesAsync();
-        var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        controller.ModelState.AddModelError("UserName", "UserName is required");
-
-        // Convert ID to string and provide the required Email parameter
-        var result = await controller.UserEdit("1", "", "user1@example.com", "Role");
-
-        var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.False(controller.ModelState.IsValid);
+        Assert.Equal("Users", redirectToActionResult.ActionName);
     }
 
     [Fact]

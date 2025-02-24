@@ -514,7 +514,7 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            var roles = await roleManager.Roles.Select(r => r.Name).ToListAsync();
+            var roles = roleManager.Roles.Select(r => r.Name).ToList();
 
             var userRoles = await userManager.GetRolesAsync(user);
             string currentRole = userRoles.FirstOrDefault();
