@@ -6,15 +6,15 @@ Context:
 			2. Manager clicks "Edit Project"
 			3. System loads Project page
 			3. Manager edits project title and project description
-			4. Manager clicks "Confirm" Button
+			4. Manager clicks "Confirm"
 			5. System warns user to confirm
 			6. Manager confirms
 		Alternate Flow:
 			Manager provides missing information
 				A1. From primay flow step 2
 				A2. Manager provides incomplete title or description
-				A3. Manager clicks "Confirm Creation" Button
+				A3. Manager clicks "Confirm Creation"
 				A4. System warns user to provide necessary information.
 		Alternate Flow 2:
 				A1. From primary flow step 2
-				A2. Manager clicks "Cancel Button"
+				A2. Manager clicks "Cancel"

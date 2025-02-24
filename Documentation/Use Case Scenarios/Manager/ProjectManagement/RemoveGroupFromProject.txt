@@ -3,6 +3,6 @@ Context:
 			Manager is viewing Project page
 		Primary Flow:
 			1. Manager selects group
-			2. Manager clicks "Remove Group" button
+			2. Manager clicks "Remove Group"
 			2. System sends warning asking manager/project lead to confirm
 			3. Manager confirms project group removal.

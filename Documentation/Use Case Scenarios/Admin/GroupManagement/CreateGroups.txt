@@ -9,9 +9,9 @@ Context:
 	Alternate Flow :
 		Admin provides missing information
 			A1. Admin provides no information
-			A2. Admin clicks "Create Group" Button
+			A2. Admin clicks "Create Group"
 			A3. System provides Admin with warning stating that no information is provided
 			A4. Resume to primary flow step 1
 		Admin cancels creating a group
 			A1. Admin is viewing create group screen
-			A2. Admin clicks "Cancel" button
+			A2. Admin clicks "Cancel"
