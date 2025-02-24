@@ -2,18 +2,18 @@ Create Project
 Context:
 			Manager is viewing projects
 		Primary Flow:
-			1. Manager clicks "Create Project" button
+			1. Manager clicks "Create Project"
 			2. System loads Create Project Page
 			3. Manager enters project title and project description
-			4. Manager clicks "Confirm Creation" Button
+			4. Manager clicks "Confirm Creation"
 			5. System warns user to confirm
 			6. Manager confirms
 		Alternate Flow:
 			Manager provides missing information
 				A1. From primay flow step 2
 				A2. Manager provides incomplete title or description
-				A3. Manager clicks "Confirm Creation" Button
+				A3. Manager clicks "Confirm Creation"
 				A4. System warns user to provide necessary information.
 		Alternate Flow 2:
 				A1. From primary flow step 2
-				A2. Manager clicks "Cancel Button"
+				A2. Manager clicks "Cancel"

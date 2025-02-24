@@ -3,10 +3,10 @@ Context:
 			Admin is viewing groups
 		Primary Flow:
 			1. Admin selects a group
-			2. Admin selects "Manage Group" Button
+			2. Admin selects "Manage Group"
 			3. System loads Group Management Page
 			4. Admin removes manager to group
-			5. Admin clicks "Confirm" button to save changes
+			5. Admin clicks "Confirm" to save changes
 		Alternate Flow :
 			Admin cancels managing the group
 			A1. Admin cancels managing the group

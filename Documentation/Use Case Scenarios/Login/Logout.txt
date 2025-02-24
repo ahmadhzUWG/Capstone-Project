@@ -1,0 +1,7 @@
+Log out
+Context:
+	User with active account decides to logout
+Primary Flow:
+	1. User clicks logout
+	2. System logs user out
+	
