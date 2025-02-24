@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -31,6 +32,52 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying user details or NotFound if the user does not exist.</returns>
+
+        public IActionResult UserAdd()
+        {
+            return View();
+        }
+
+        // POST: /Admin/UserAdd
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UserAdd(AdminViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Create a new user object. Note that we only set UserName and Email.
+            var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
+
+            // Create the user with the specified password.
+            var createUserResult = await userManager.CreateAsync(user, model.Password);
+
+            if (createUserResult.Succeeded)
+            {
+                // Add the user to the Employee role.
+                var createUserRoleResult = await userManager.AddToRoleAsync(user, "Employee");
+                if (createUserRoleResult.Succeeded)
+                {
+                    return RedirectToAction("Users", "Admin");
+                }
+
+                foreach (var error in createUserRoleResult.Errors)
+                {
+                    Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            
+            foreach (var error in createUserResult.Errors)
+            {
+                Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+        // GET: Users/Details/{id}
         public async Task<IActionResult> UserDetails(int id)
         {
             var user = await context.Users.FindAsync(id);
@@ -80,6 +127,163 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="selectedUsers">List of selected user IDs.</param>
         /// <param name="primaryManagerId">The primary manager's ID.</param>
         /// <returns>A redirect to the Groups list if successful, or returns the form with validation errors.</returns>
+        // Display list of projects
+        public async Task<IActionResult> Projects()
+        {
+            var projects = await context.Projects.ToListAsync();
+            return View(projects);
+        }
+
+        public async Task<IActionResult> CreateProject()
+        {
+            var users = await context.Users.ToListAsync();
+            ViewBag.ProjectLeads = users;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProject(Project project)
+        {
+            if (ModelState.IsValid)
+            {
+                context.Projects.Add(project);
+                await context.SaveChangesAsync();
+                return RedirectToAction(nameof(Projects));
+            }
+
+            ViewBag.ProjectLeads = await context.Users.ToListAsync();
+            return View(project);
+        }
+
+        public async Task<IActionResult> ProjectDetails(int id)
+        {
+            var project = await context.Projects
+                .Include(p => p.ProjectLead)
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+            ViewBag.Groups = await context.Groups.ToListAsync();
+            return View(project);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignGroupToProject(int projectId, int groupId)
+        {
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            var group = await context.Groups.FindAsync(groupId);
+
+            if (project == null || group == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the group is already assigned
+            if (!project.ProjectGroups.Any(pg => pg.GroupId == groupId))
+            {
+                project.ProjectGroups.Add(new GroupProject
+                {
+                    ProjectId = projectId,
+                    GroupId = groupId
+                });
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveGroupFromProject(int projectId, int groupId)
+        {
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var projectGroup = project.ProjectGroups.FirstOrDefault(pg => pg.GroupId == groupId);
+
+            if (projectGroup != null)
+            {
+                project.ProjectGroups.Remove(projectGroup);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
+
+
+        public async Task<IActionResult> EditProject(int id)
+        {
+            var project = await context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ProjectLeads = await context.Users.ToListAsync();
+            return View(project);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProject(int id, Project project)
+        {
+            if (id != project.Id)
+            {
+                return BadRequest();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    context.Update(project);
+                    await context.SaveChangesAsync();
+                    return RedirectToAction("ProjectDetails", new { id = project.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!context.Projects.Any(p => p.Id == project.Id))
+                    {
+                        return NotFound();
+                    }
+                    throw;
+                }
+            }
+
+            ViewBag.ProjectLeads = await context.Users.ToListAsync();
+            return View(project);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            var project = await context.Projects.FindAsync(id);
+            if (project != null)
+            {
+                context.Projects.Remove(project);
+                await context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Projects));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateGroup(Group group, List<int> selectedManagers, List<int> selectedUsers, int primaryManagerId)
@@ -117,6 +321,7 @@ namespace TaskManagerWebsite.Controllers
                 {
                     group.Users.Add(manager);
                     group.Managers.Add(new GroupManager { GroupId = group.Id, UserId = manager.Id });
+
                 }
 
                 var userEntities = await context.Users.Where(u => selectedUsers.Contains(u.Id) && !selectedManagers.Contains(u.Id)).ToListAsync();
@@ -281,7 +486,7 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying user edit options or NotFound if the user does not exist.</returns>
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> UserEdit(string id)
         {
             var user = await userManager.FindByIdAsync(id);
             if (user == null)
@@ -310,7 +515,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A redirect to the Users list.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, string UserName, string Email, string Role)
+        public async Task<IActionResult> UserEdit(string id, string UserName, string Email, string Role)
         {
             var user = await userManager.FindByIdAsync(id);
             if (user == null)
@@ -342,7 +547,7 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying the user to be deleted or NotFound if the user does not exist.</returns>
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> UserDelete(int id)
         {
             var user = await context.Users.FindAsync(id);
             if (user == null)

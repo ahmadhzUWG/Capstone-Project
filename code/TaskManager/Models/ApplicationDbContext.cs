@@ -12,6 +12,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupManager> GroupManagers { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<GroupProject> GroupProjects { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,5 +59,21 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany()
             .HasForeignKey(g => g.PrimaryManagerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Many-to-Many Relationship: Projects <-> Groups
+        modelBuilder.Entity<GroupProject>()
+            .HasKey(gp => new { gp.ProjectId, gp.GroupId });
+
+        modelBuilder.Entity<GroupProject>()
+            .HasOne(gp => gp.Project)
+            .WithMany(p => p.ProjectGroups)
+            .HasForeignKey(gp => gp.ProjectId);
+
+        modelBuilder.Entity<GroupProject>()
+            .HasOne(gp => gp.Group)
+            .WithMany(g => g.GroupProjects)
+            .HasForeignKey(gp => gp.GroupId);
     }
+
 }
+

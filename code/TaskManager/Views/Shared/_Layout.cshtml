@@ -41,7 +41,3 @@
 </body>
 </html>
 
-@if (!User.Identity.IsAuthenticated)
-{
-    <meta http-equiv="refresh" content="0;url=@Url.Action("AccessDenied", "Home")" />
-}

@@ -2,10 +2,13 @@
     ViewData["Title"] = "Admin Page";
 }
 
-<link rel="stylesheet" href="~/css/admin_users.css" />
+<link rel="stylesheet" href="~/css/admin_users.css" asp-append-version="true" />
 
 <div class="users-container">
     <h1>User List</h1>
+    <div style="text-align: center;">
+        @Html.ActionLink("Add", "UserAdd", "Admin", null, new { @class = "btn btn-add" })
+    </div>
     <table class="table">
         <tr>
             <th>Name</th>
@@ -18,8 +21,8 @@
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = user.Id }, new { @class = "btn btn-edit" })
-                    @Html.ActionLink("Delete", "Delete", new { id = user.Id }, new { @class = "btn btn-delete" })
+                    @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-edit" })
+                    @Html.ActionLink("Delete", "UserDelete", new { id = user.Id }, new { @class = "btn btn-delete" })
                 </td>
             </tr>
         }

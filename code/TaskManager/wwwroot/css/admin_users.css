@@ -38,3 +38,8 @@ h1 {
 .btn-delete {
     background: #dc3545;
 }
+
+.btn-add {
+    background: #1c2cbd;
+    margin-bottom: 5px;
+}

@@ -19,12 +19,15 @@ public class Group
     [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string Description { get; set; }
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<User> Users { get; set; } = [];
 
-    public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
+    public ICollection<GroupManager> Managers { get; set; } = [];
     
     public int? PrimaryManagerId { get; set; }
 
     [ValidateNever]
-    public User PrimaryManager { get; set; }
+    public User? PrimaryManager { get; set; }
+
+    public ICollection<GroupProject> GroupProjects { get; set; } = [];
 }
+
