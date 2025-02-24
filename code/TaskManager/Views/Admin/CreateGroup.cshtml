@@ -4,7 +4,7 @@
 
 <h1>Create Group</h1>
 
-<form asp-action="CreateGroup" asp-controller="Admin" method="post">
+<form id="createGroupForm" asp-action="CreateGroup" asp-controller="Admin" method="post">
     <div class="form-group">
         <label asp-for="Name">Group Name</label>
         <input asp-for="Name" class="form-control" required />
@@ -110,22 +110,26 @@
                 });
             });
 
-            document.querySelector("form").addEventListener("submit", function (event) {
-                let selectedManagers = Array.from(managerCheckboxes).filter(c => c.checked);
-                let selectedPrimaryManager = Array.from(primaryManagerRadios).find(r => r.checked);
+            document.getElementById("createGroupForm").addEventListener("submit", function (event) {
+    let managerCheckboxes = document.querySelectorAll(".manager-checkbox");
+    let primaryManagerRadios = document.querySelectorAll(".primary-manager-radio");
 
-                if (selectedManagers.length === 0) {
-                    alert("Please select at least one Manager.");
-                    event.preventDefault();
-                    return;
-                }
+    let selectedManagers = Array.from(managerCheckboxes).filter(c => c.checked);
+    let selectedPrimaryManager = Array.from(primaryManagerRadios).find(r => r.checked);
 
-                if (!selectedPrimaryManager) {
-                    alert("Please select a Primary Manager.");
-                    event.preventDefault();
-                    return;
-                }
-            });
+    if (selectedManagers.length === 0) {
+        alert("Please select at least one Manager.");
+        event.preventDefault();
+        return;
+    }
+
+    if (!selectedPrimaryManager) {
+        alert("Please select a Primary Manager.");
+        event.preventDefault();
+        return;
+    }
+        });
+
         });
 
     </script>

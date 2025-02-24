@@ -62,40 +62,5 @@ namespace TaskManagerWebsite.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index");
         }
-
-        // GET: /Account/Register
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: /Account/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // Create a new user object. Note that we only set UserName and Email.
-            var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
-
-            // Create the user with the specified password.
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                // Optionally sign in the user after registration.
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"Code: {error.Code}, Description: {error.Description}"); 
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-            return View(model);
-        }
     }
 }

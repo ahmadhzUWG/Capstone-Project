@@ -1,0 +1,31 @@
+﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
+
+<link rel="stylesheet" href="~/css/manager_projects.css" asp-append-version="true" />
+
+<div style="text-align: center" class="header">
+    <h2>Projects</h2>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Project Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var project in Model.OrderBy(p => p.Name))
+    {
+        <tr>
+            <td>@project.Name</td>
+            <td>
+                <a href="@Url.Action("ProjectDetails", "Employee", new { id = project.Id })" class="btn btn-info btn-sm">View</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div style="text-align: center;">
+    @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+</div>

@@ -1,0 +1,25 @@
+﻿@model TaskManagerWebsite.Models.Project
+
+<link rel="stylesheet" href="~/css/manager_projectDetails.css" asp-append-version="true" />
+
+<div class="center-content">
+    <h2>Project Details</h2>
+
+    <div>
+        <h4>@Model.Name</h4>
+        <p><strong>Description:</strong> @Model.Description</p>
+        <p><strong>Project Lead:</strong> @Model.ProjectLead.UserName</p>
+
+        <h5>Groups:</h5>
+        <ul>
+            @foreach (var groupProject in Model.ProjectGroups)
+            {
+                <li class = "group-item">
+                    <span class="group-name">@groupProject.Group.Name</span>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
+</div>
