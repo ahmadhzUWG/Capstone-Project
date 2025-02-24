@@ -37,17 +37,17 @@ namespace TaskManagerWebsite.Controllers
         {
             var userId = _userManager.GetUserId(User);
             ViewBag.UserId = userId;
+
             var groupRequests = await _context.GroupRequests
-                .Include(gr => gr.Group)    
-                .Include(gr => gr.Project)  
-                .Where(gr => _context.GroupManagers
-                    .Any(gm => gm.GroupId == gr.GroupId && gm.UserId == int.Parse(userId) && gm.IsPrimaryManager && gr.Response == null))
+                .Include(gr => gr.Group)
+                .Include(gr => gr.Project)
+                .Where(gr => gr.Group.PrimaryManagerId == int.Parse(userId) && gr.Response == null)
                 .ToListAsync();
             ViewBag.GroupRequests = groupRequests;
 
             var sentGroupRequests = await _context.GroupRequests
-                .Include(gr => gr.Group)    
-                .Include(gr => gr.Project) 
+                .Include(gr => gr.Group)
+                .Include(gr => gr.Project)
                 .Where(gr => gr.SenderId == int.Parse(userId) && gr.Response != null)
                 .ToListAsync();
             ViewBag.SentGroupRequests = sentGroupRequests;
@@ -55,6 +55,7 @@ namespace TaskManagerWebsite.Controllers
             var projects = await _context.Projects.ToListAsync();
             return View(projects);
         }
+
 
         public async Task<IActionResult> CreateProject()
         {

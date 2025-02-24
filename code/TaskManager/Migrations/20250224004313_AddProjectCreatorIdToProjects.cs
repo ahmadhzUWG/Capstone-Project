@@ -14,7 +14,7 @@ namespace TaskManagerWebsite.Migrations
                 name: "ProjectCreatorId",
                 table: "Projects",
                 type: "int",
-                nullable: false);
+                nullable: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Projects_AspNetUsers_ProjectCreatorId",  

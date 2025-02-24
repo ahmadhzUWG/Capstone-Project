@@ -147,7 +147,7 @@ namespace TaskManagerWebsite.Controllers
         {
             if (ModelState.IsValid)
             {
-                var currentUserId = _userManager.GetUserId(User);
+                var currentUserId = userManager.GetUserId(User);
 
                 if (string.IsNullOrEmpty(currentUserId))
                 {
@@ -157,8 +157,8 @@ namespace TaskManagerWebsite.Controllers
 
                 project.ProjectCreatorId = int.Parse(currentUserId);
 
-                _context.Projects.Add(project);
-                await _context.SaveChangesAsync();
+                context.Projects.Add(project);
+                await context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Projects));
             }
@@ -261,7 +261,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 try
                 {
-                    var currentUserId = _userManager.GetUserId(User);
+                    var currentUserId = userManager.GetUserId(User);
 
                     if (string.IsNullOrEmpty(currentUserId))
                     {
@@ -271,8 +271,8 @@ namespace TaskManagerWebsite.Controllers
 
                     project.ProjectCreatorId = int.Parse(currentUserId);
 
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
+                    context.Update(project);
+                    await context.SaveChangesAsync();
 
                     return RedirectToAction("ProjectDetails", new { id = project.Id });
                 }
