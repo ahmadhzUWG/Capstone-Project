@@ -1,5 +1,7 @@
 ﻿using TaskManagerWebsite.Models;
 
+namespace TaskManagerWebsite.Models;
+
 public class GroupManager
 {
     public int GroupId { get; set; }
@@ -7,6 +9,4 @@ public class GroupManager
 
     public int UserId { get; set; }
     public User User { get; set; }
-
-    public bool IsPrimaryManager { get; set; }
 }

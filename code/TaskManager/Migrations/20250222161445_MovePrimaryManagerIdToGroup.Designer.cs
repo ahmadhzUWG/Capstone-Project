@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagerWebsite.Data;
 
@@ -11,9 +12,11 @@ using TaskManagerWebsite.Data;
 namespace TaskManagerWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250222161445_MovePrimaryManagerIdToGroup")]
+    partial class MovePrimaryManagerIdToGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -201,6 +204,26 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId1")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("GroupManagers");
+                });
+
             modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -346,6 +369,39 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.User", "PrimaryManager")
+                        .WithMany()
+                        .HasForeignKey("PrimaryManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("PrimaryManager");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                        .WithMany("Managers")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.User", null)
+                        .WithMany("ManagedGroups")
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UserGroup", b =>
                 {
                     b.HasOne("TaskManagerWebsite.Models.Group", null)
@@ -363,14 +419,7 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
                 {
-                    b.Navigation("GroupProjects");
-
                     b.Navigation("Managers");
-                });
-
-            modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
-                {
-                    b.Navigation("ProjectGroups");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>

@@ -41,7 +41,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Many-to-Many Relationship: Group <-> Managers (with Primary Manager field)
         modelBuilder.Entity<GroupManager>()
             .HasKey(gm => new { gm.GroupId, gm.UserId });
 
@@ -52,12 +51,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<GroupManager>()
             .HasOne(gm => gm.User)
-            .WithMany(u => u.ManagedGroups)
+            .WithMany()
             .HasForeignKey(gm => gm.UserId);
+
+        modelBuilder.Entity<Group>()
+            .HasOne(g => g.PrimaryManager)
+            .WithMany()
+            .HasForeignKey(g => g.PrimaryManagerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Many-to-Many Relationship: Projects <-> Groups
         modelBuilder.Entity<GroupProject>()
-            .HasKey(gp => new { gp.ProjectId, gp.GroupId }); // Composite Primary Key
+            .HasKey(gp => new { gp.ProjectId, gp.GroupId });
 
         modelBuilder.Entity<GroupProject>()
             .HasOne(gp => gp.Project)
