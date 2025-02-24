@@ -22,5 +22,5 @@ public class Group
 
     public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
 
-    public ICollection<Project> Projects { get; set; } = new List<Project>();
+    public ICollection<GroupProject> GroupProjects { get; set; } = new List<GroupProject>();
 }

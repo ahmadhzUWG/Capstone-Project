@@ -22,6 +22,6 @@ namespace TaskManagerWebsite.Models
 
         public int ProjectCreatorId { get; set; }
 
-        public ICollection<Group> ProjectGroups { get; set; } = new List<Group>();
+        public ICollection<GroupProject> ProjectGroups { get; set; } = new List<GroupProject>();
     }
     }

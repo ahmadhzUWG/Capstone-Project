@@ -153,15 +153,71 @@ namespace TaskManagerWebsite.Controllers
             var project = await _context.Projects
                 .Include(p => p.ProjectLead)
                 .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
             {
                 return NotFound();
             }
-
+            ViewBag.Groups = await _context.Groups.ToListAsync();
             return View(project);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignGroupToProject(int projectId, int groupId)
+        {
+            var project = await _context.Projects
+                .Include(p => p.ProjectGroups)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            var group = await _context.Groups.FindAsync(groupId);
+
+            if (project == null || group == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the group is already assigned
+            if (!project.ProjectGroups.Any(pg => pg.GroupId == groupId))
+            {
+                project.ProjectGroups.Add(new GroupProject
+                {
+                    ProjectId = projectId,
+                    GroupId = groupId
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveGroupFromProject(int projectId, int groupId)
+        {
+            var project = await _context.Projects
+                .Include(p => p.ProjectGroups)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var projectGroup = project.ProjectGroups.FirstOrDefault(pg => pg.GroupId == groupId);
+
+            if (projectGroup != null)
+            {
+                project.ProjectGroups.Remove(projectGroup);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
+
 
         public async Task<IActionResult> EditProject(int id)
         {
@@ -255,7 +311,7 @@ namespace TaskManagerWebsite.Controllers
                 if (!groupManagers.Any(gm => gm.IsPrimaryManager))
                 {
                     ModelState.AddModelError("primaryManagerId", "At least one manager must be designated as the primary manager.");
-                    return View(group); // Return view with validation error
+                    return View(group);
                 }
 
                 _context.Set<GroupManager>().AddRange(groupManagers);
