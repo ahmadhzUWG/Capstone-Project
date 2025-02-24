@@ -147,8 +147,19 @@ namespace TaskManagerWebsite.Controllers
         {
             if (ModelState.IsValid)
             {
+                var currentUserId = userManager.GetUserId(User);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    ModelState.AddModelError("", "Unable to determine the logged-in user.");
+                    return View(project);
+                }
+
+                project.ProjectCreatorId = int.Parse(currentUserId);
+
                 context.Projects.Add(project);
                 await context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Projects));
             }
 
@@ -225,8 +236,6 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("ProjectDetails", new { id = projectId });
         }
 
-
-
         public async Task<IActionResult> EditProject(int id)
         {
             var project = await context.Projects.FindAsync(id);
@@ -252,8 +261,19 @@ namespace TaskManagerWebsite.Controllers
             {
                 try
                 {
+                    var currentUserId = userManager.GetUserId(User);
+
+                    if (string.IsNullOrEmpty(currentUserId))
+                    {
+                        ModelState.AddModelError("", "Unable to determine the logged-in user.");
+                        return View(project);
+                    }
+
+                    project.ProjectCreatorId = int.Parse(currentUserId);
+
                     context.Update(project);
                     await context.SaveChangesAsync();
+
                     return RedirectToAction("ProjectDetails", new { id = project.Id });
                 }
                 catch (DbUpdateConcurrencyException)

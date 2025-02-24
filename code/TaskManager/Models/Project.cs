@@ -17,8 +17,11 @@ namespace TaskManagerWebsite.Models
         public string Description { get; set; }
 
         public int ProjectLeadId { get; set; }
+
         [ValidateNever]
         public User ProjectLead { get; set; }
+
+        public int? ProjectCreatorId { get; set; }
 
         public ICollection<GroupProject> ProjectGroups { get; set; } = new List<GroupProject>();
     }

@@ -14,8 +14,11 @@ namespace TaskManagerWebsite.Controllers
         private readonly SignInManager<User> _signInManager = signInManager;
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // This ensures that the user is logged out when they visit the login page.
+            await _signInManager.SignOutAsync(); 
+            
             return View();
         }
 

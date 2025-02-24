@@ -15,6 +15,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Project> Projects { get; set; }
     public DbSet<GroupProject> GroupProjects { get; set; }
 
+    public DbSet<GroupRequest> GroupRequests { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
