@@ -17,12 +17,6 @@
                 @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Projects", "Projects", "Admin", null, new { @class = "btn btn-primary" })
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
-                    </form>
-                </div>
             }
             
             @if (User.IsInRole("Manager"))
@@ -30,12 +24,13 @@
                 @Html.ActionLink("View Employees", "Users", "Manager", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("View Groups", "Groups", "Manager", null, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Manage Projects", "Projects", "Manager", null, new { @class = "btn btn-primary" })
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
-                    </form>
-                </div>
+            }
+            
+            @if (User.IsInRole("Employee"))
+            {
+                @Html.ActionLink("View Employees", "Users", "Employee", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("View Groups", "Groups", "Employee", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("View Projects", "Projects", "Employee", null, new { @class = "btn btn-primary" })
             }
 
             @if (!User.IsInRole("Manager") && !User.IsInRole("Admin") && !User.IsInRole("Employee"))
@@ -47,6 +42,14 @@
                     </form>
                 </div>
             }
+            
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger" style="cursor: pointer">Sign Out</button>
+                </form>
+            </div>
+
 
         </div>
     </div>

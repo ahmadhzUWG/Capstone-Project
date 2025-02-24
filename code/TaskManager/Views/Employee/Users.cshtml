@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Employee Page";
+}
+
+<link rel="stylesheet" href="~/css/manager_users.css" asp-append-version="true" />
+
+<div class="users-container">
+    <h1>Employee List</h1>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+            </tr>
+        }
+    </table>
+    
+    <div style="text-align: center;">
+        @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+    </div>
+</div>

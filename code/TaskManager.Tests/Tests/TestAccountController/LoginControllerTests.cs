@@ -53,10 +53,7 @@ namespace TaskManager.Tests.Tests.TestAccountController
             );
 
             return mockUserManager;
-        }
-
-        [Fact]
-        public void Register_ReturnsViewResult()
+        } [Fact] public void Register_ReturnsViewResult()
         {
             var dbContext = TestHelper.GetDbContext();
             var userManagerMock = createUserManagerMock(dbContext);
