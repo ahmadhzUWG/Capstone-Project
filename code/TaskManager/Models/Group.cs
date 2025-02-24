@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.SignalR;
 
 namespace TaskManagerWebsite.Models;
@@ -18,9 +19,15 @@ public class Group
     [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string Description { get; set; }
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<User> Users { get; set; } = [];
 
-    public ICollection<GroupManager> Managers { get; set; } = new List<GroupManager>();
+    public ICollection<GroupManager> Managers { get; set; } = [];
+    
+    public int? PrimaryManagerId { get; set; }
 
-    public ICollection<GroupProject> GroupProjects { get; set; } = new List<GroupProject>();
+    [ValidateNever]
+    public User? PrimaryManager { get; set; }
+
+    public ICollection<GroupProject> GroupProjects { get; set; } = [];
 }
+
