@@ -36,13 +36,13 @@ namespace TaskManager.Tests.Tests.TestHomeController
         }
 
         [Fact]
-        public void Index_ReturnsViewResult()
+        public async Task Index_ReturnsViewResult()
         {
             var controller = new HomeController(
                 _mockLogger.Object
             );
 
-            var result = controller.Index();
+            var result = await controller.Index();
 
             Assert.NotNull(result);
             Assert.IsType<ViewResult>(result);
