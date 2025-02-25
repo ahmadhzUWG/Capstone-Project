@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Admin\UserDelete.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.User
+
+@{
+    ViewData[&quot;Title&quot;] = &quot;Delete User&quot;;
+}
+
+&lt;h2&gt;Delete User&lt;/h2&gt;
+
+&lt;h3&gt;Are you sure you want to delete this user?&lt;/h3&gt;
+&lt;div&gt;
+    &lt;h4&gt;User&lt;/h4&gt;
+    &lt;hr /&gt;
+    &lt;dl class=&quot;dl-horizontal&quot;&gt;
+        &lt;dt&gt;@Html.DisplayNameFor(model =&gt; model.UserName)&lt;/dt&gt;
+        &lt;dd&gt;@Html.DisplayFor(model =&gt; model.UserName)&lt;/dd&gt;
+        
+        &lt;dt&gt;@Html.DisplayNameFor(model =&gt; model.Email)&lt;/dt&gt;
+        &lt;dd&gt;@Html.DisplayFor(model =&gt; model.Email)&lt;/dd&gt;
+    &lt;/dl&gt;
+
+    &lt;form asp-action=&quot;DeleteConfirmed&quot; method=&quot;post&quot;&gt;
+        @Html.AntiForgeryToken()
+        &lt;input type=&quot;hidden&quot; asp-for=&quot;Id&quot; /&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Delete&quot; class=&quot;btn btn-danger&quot; /&gt; |
+        &lt;a asp-action=&quot;Users&quot;&gt;Back to List&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,39,0]]);
+    </script>
+  </body>
+</html>

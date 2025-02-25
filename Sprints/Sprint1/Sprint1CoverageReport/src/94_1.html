@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Program.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+    options.UseSqlServer(builder.Configuration.GetConnectionString(&quot;DefaultConnection&quot;)));
+
+builder.Services.AddIdentity&lt;User, IdentityRole&lt;int&gt;&gt;()
+    .AddEntityFrameworkStores&lt;ApplicationDbContext&gt;()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =&gt;
+{
+    options.LoginPath = &quot;/Login/Index&quot;; 
+    options.LogoutPath = &quot;/Login/Logout&quot;;
+    options.AccessDeniedPath = &quot;/Home/AccessDenied&quot;;
+});
+
+builder.Services.AddAuthorization(options =&gt;
+{
+    options.AddPolicy(&quot;AdminOnly&quot;, policy =&gt;
+        policy.RequireAssertion(async context =&gt;
+        {
+            var httpContext = context.Resource as HttpContext;
+            if (httpContext == null) return false;
+
+            var userManager = httpContext.RequestServices.GetRequiredService&lt;UserManager&lt;User&gt;&gt;();
+            var dbContext = httpContext.RequestServices.GetRequiredService&lt;ApplicationDbContext&gt;();
+
+            var user = await userManager.GetUserAsync(httpContext.User);
+            return user != null &amp;&amp; await dbContext.Admins.AnyAsync(a =&gt; a.UserId == user.Id);
+        }));
+});
+
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DataSeeder.SeedRolesAndAdminAsync(services);
+
+    var dbContext = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+    try
+    {
+        dbContext.Database.Migrate();
+        Console.WriteLine(&quot;Database connection successful.&quot;);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($&quot;Database error: {ex.Message}&quot;);
+    }
+}
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler(&quot;/Home/Error&quot;);
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: &quot;default&quot;,
+    pattern: &quot;{controller=Login}/{action=Index}/{id?}&quot;);
+
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($&quot;Unhandled Exception: {ex.Message}&quot;);
+    Console.WriteLine($&quot;Stack Trace: {ex.StackTrace}&quot;);
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,1,8,50,0],[10,1,11,5,0],[11,5,11,89,0],[11,89,11,91,0],[13,1,15,33,0],[17,1,18,1,0],[18,1,18,2,0],[18,2,19,5,0],[19,5,19,40,0],[19,40,20,5,0],[20,5,20,42,0],[20,42,21,5,0],[21,5,21,53,0],[21,53,22,1,0],[22,1,22,2,0],[22,2,22,4,0],[24,1,25,1,0],[25,1,25,2,0],[25,2,26,5,0],[26,5,27,9,0],[27,9,28,9,0],[28,9,28,10,0],[28,10,29,13,0],[29,13,29,63,0],[29,63,30,13,0],[30,13,30,37,0],[30,37,30,38,0],[30,38,30,51,0],[30,51,32,13,0],[32,13,32,99,0],[32,99,33,13,0],[33,13,33,100,0],[33,100,35,13,0],[35,13,35,73,0],[35,73,36,13,0],[36,13,36,94,0],[36,94,37,9,0],[37,9,37,10,0],[37,10,37,11,0],[37,11,37,13,0],[37,13,38,1,0],[38,1,38,2,0],[38,2,38,4,0],[40,1,40,44,0],[42,1,42,27,0],[44,8,44,46,0],[45,1,45,2,0],[46,5,46,42,0],[47,5,47,55,0],[49,5,49,86,0],[51,5,51,6,0],[52,9,52,38,0],[53,9,53,62,0],[54,5,54,6,0],[55,5,55,25,0],[56,5,56,6,0],[57,9,57,60,0],[58,5,58,6,0],[59,1,59,2,0],[61,1,61,38,0],[62,1,62,2,0],[63,5,63,44,0],[64,5,64,19,0],[65,1,65,2,0],[67,1,67,27,0],[68,1,68,22,0],[69,1,69,18,0],[71,1,71,25,0],[72,1,72,24,0],[74,1,76,57,0],[79,1,79,2,0],[80,5,80,15,0],[81,1,81,2,0],[82,1,82,21,0],[83,1,83,2,0],[84,5,84,61,0],[85,5,85,56,0],[86,1,86,2,0]]);
+    </script>
+  </body>
+</html>

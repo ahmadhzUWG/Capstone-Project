@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Controllers\HomeController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger&lt;HomeController&gt; _logger;
+
+        public HomeController(ILogger&lt;HomeController&gt; logger)
+        {
+            this._logger = logger;
+        }
+
+        public async Task&lt;IActionResult&gt; Index()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,9,16,62,1],[17,9,17,10,1],[18,13,18,35,1],[19,9,19,10,1],[22,9,22,10,1],[23,13,23,27,1],[24,9,24,10,1],[27,9,27,10,1],[28,13,28,27,1],[29,9,29,10,1],[32,9,32,10,1],[33,13,33,27,1],[34,9,34,10,1],[38,9,38,10,1],[39,13,39,113,1],[40,9,40,10,1]]);
+    </script>
+  </body>
+</html>

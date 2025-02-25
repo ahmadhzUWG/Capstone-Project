@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Admin\GroupDetails.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model Group
+
+&lt;link href=&quot;~/css/admin_createGroups.css&quot; rel=&quot;stylesheet&quot; /&gt;
+
+&lt;h2&gt;@Model.Name&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Description:&lt;/strong&gt; @Model.Description&lt;/p&gt;
+
+&lt;h3&gt;Managers in this Group&lt;/h3&gt;
+&lt;ul&gt;
+    @foreach (var manager in Model.Managers)
+    {
+        &lt;li&gt;
+            @manager.User.UserName (@manager.User.Email) 
+            @if (Model.PrimaryManagerId == manager.UserId)  
+            {
+                &lt;strong&gt;(Primary Manager)&lt;/strong&gt;
+            }
+        &lt;/li&gt;
+    }
+&lt;/ul&gt;
+
+&lt;h3&gt;Users in this Group&lt;/h3&gt;
+&lt;ul&gt;
+    @foreach (var user in Model.Users)
+    {
+        &lt;li&gt;@user.UserName (@user.Email)&lt;/li&gt;
+    }
+&lt;/ul&gt;
+
+&lt;h3&gt;Add User to Group&lt;/h3&gt;
+&lt;form asp-action=&quot;AddUserToGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+    &lt;label for=&quot;userId&quot;&gt;Select User:&lt;/label&gt;
+    &lt;select name=&quot;userId&quot; class=&quot;form-control&quot;&gt;
+        @foreach (var user in ViewBag.Users ?? new List&lt;User&gt;())
+        {
+            &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName (@user.Email)&lt;/option&gt;
+        }
+    &lt;/select&gt;
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-success mt-2&quot;&gt;Add User&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;h3&gt;Add Manager to Group&lt;/h3&gt;
+&lt;form asp-action=&quot;AddManagerToGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+    &lt;label for=&quot;managerId&quot;&gt;Select Manager:&lt;/label&gt;
+    &lt;select name=&quot;managerId&quot; class=&quot;form-control&quot;&gt;
+        @foreach (var user in ViewBag.Managers ?? new List&lt;User&gt;())
+        {
+            &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName (@user.Email)&lt;/option&gt;
+        }
+    &lt;/select&gt;
+    &lt;label class=&quot;mt-2&quot;&gt;
+        &lt;input type=&quot;checkbox&quot; name=&quot;isPrimary&quot; value=&quot;true&quot; @(Model.PrimaryManagerId != null ? &quot;disabled&quot; : &quot;&quot;) /&gt; Set as Primary Manager
+    &lt;/label&gt;
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary mt-2&quot;&gt;Add Manager&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;a href=&quot;@Url.Action(&quot;Groups&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Groups&lt;/a&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,6,10,13,0],[10,15,10,26,0],[10,27,10,29,0],[10,30,10,44,0],[11,5,11,6,0],[14,14,14,59,0],[15,13,15,14,0],[17,13,17,14,0],[19,5,19,6,0],[24,6,24,13,0],[24,15,24,23,0],[24,24,24,26,0],[24,27,24,38,0],[25,5,25,6,0],[27,5,27,6,0],[35,10,35,17,0],[35,19,35,27,0],[35,28,35,30,0],[35,31,35,64,0],[36,9,36,10,0],[38,9,38,10,0],[48,10,48,17,0],[48,19,48,27,0],[48,28,48,30,0],[48,31,48,67,0],[49,9,49,10,0],[51,9,51,10,0]]);
+    </script>
+  </body>
+</html>

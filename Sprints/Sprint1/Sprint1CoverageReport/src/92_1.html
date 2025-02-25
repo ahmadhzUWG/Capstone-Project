@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Models\Project.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.Data.SqlClient.DataClassification;
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagerWebsite.Models
+{
+    public class Project
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = &quot;Name is required&quot;)]
+        [StringLength(100, ErrorMessage = &quot;Project Name cannot exceed 100 characters&quot;)]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = &quot;Description is required&quot;)]
+        [StringLength(500, ErrorMessage = &quot;Description cannot exceed 500 characters&quot;)]
+        public string Description { get; set; }
+
+        public int ProjectLeadId { get; set; }
+
+        [ValidateNever]
+        public User ProjectLead { get; set; }
+
+        public int? ProjectCreatorId { get; set; }
+
+        public ICollection&lt;GroupProject&gt; ProjectGroups { get; set; } = new List&lt;GroupProject&gt;();
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,25,9,29,1],[9,30,9,34,1],[13,30,13,34,1],[13,35,13,39,1],[17,37,17,41,1],[17,42,17,46,1],[19,36,19,40,1],[19,41,19,45,1],[22,35,22,39,1],[22,40,22,44,1],[24,40,24,44,1],[24,45,24,49,1],[26,58,26,62,1],[26,63,26,67,1],[26,72,26,96,1]]);
+    </script>
+  </body>
+</html>

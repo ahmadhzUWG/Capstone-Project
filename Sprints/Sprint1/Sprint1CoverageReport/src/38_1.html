@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Migrations\20250224053750_UpdateGroupRequestTable.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class UpdateGroupRequestTable : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: &quot;GroupRequests&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    SenderId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ProjectId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    Response = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupRequests&quot;, x =&gt; x.Id);
+                });
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;GroupRequests&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,15,35,0],[15,35,23,18,0],[23,18,25,17,0],[25,17,25,18,0],[25,18,26,21,0],[26,21,26,69,0],[26,69,27,17,0],[27,17,27,18,0],[27,18,27,20,0],[28,9,28,10,0],[32,9,32,10,0],[33,13,34,40,0],[35,9,35,10,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Login\Index.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.LoginViewModel
+
+@{
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/login_index.css&quot; /&gt;
+
+&lt;h2&gt;Login&lt;/h2&gt;
+
+&lt;form asp-action=&quot;Index&quot; method=&quot;post&quot;&gt;
+    &lt;div asp-validation-summary=&quot;All&quot; class=&quot;text-danger&quot;&gt;&lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label asp-for=&quot;UserName&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;UserName&quot;/&gt;
+        &lt;span asp-validation-for=&quot;UserName&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Password&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Password&quot; type=&quot;password&quot;/&gt;
+        &lt;span asp-validation-for=&quot;Password&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;button type=&quot;submit&quot;&gt;Login&lt;/button&gt;
+&lt;/form&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,24,0]]);
+    </script>
+  </body>
+</html>

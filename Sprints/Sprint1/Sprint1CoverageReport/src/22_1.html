@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Migrations\20250220195815_ConfigureUserGroups.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class ConfigureUserGroups : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: &quot;Role&quot;,
+                table: &quot;AspNetUsers&quot;);
+
+            migrationBuilder.CreateTable(
+                name: &quot;Groups&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false),
+                    Description = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Groups&quot;, x =&gt; x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;UserGroups&quot;,
+                columns: table =&gt; new
+                {
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_UserGroups&quot;, x =&gt; new { x.UserId, x.GroupId });
+                    table.ForeignKey(
+                        name: &quot;FK_UserGroups_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_UserGroups_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_UserGroups_GroupId&quot;,
+                table: &quot;UserGroups&quot;,
+                column: &quot;GroupId&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;UserGroups&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;Groups&quot;);
+
+            migrationBuilder.AddColumn&lt;string&gt;(
+                name: &quot;Role&quot;,
+                table: &quot;AspNetUsers&quot;,
+                type: &quot;nvarchar(max)&quot;,
+                nullable: true);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,15,39,0],[17,13,19,35,0],[19,35,25,18,0],[25,18,27,17,0],[27,17,27,18,0],[27,18,28,21,0],[28,21,28,62,0],[28,62,29,17,0],[29,17,29,18,0],[29,18,29,20,0],[31,13,33,35,0],[33,35,37,18,0],[37,18,39,17,0],[39,17,39,18,0],[39,18,40,21,0],[40,21,40,89,0],[40,89,41,21,0],[41,21,46,62,0],[46,62,47,21,0],[47,21,52,62,0],[52,62,53,17,0],[53,17,53,18,0],[53,18,53,20,0],[55,13,58,36,0],[59,9,59,10,0],[63,9,63,10,0],[64,13,65,37,0],[67,13,68,33,0],[70,13,74,33,0],[75,9,75,10,0]]);
+    </script>
+  </body>
+</html>

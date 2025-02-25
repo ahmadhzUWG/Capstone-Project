@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Manager\Projects.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model IEnumerable&lt;TaskManagerWebsite.Models.Project&gt;
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/manager_projects.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;header&quot;&gt;
+    &lt;h2&gt;Projects&lt;/h2&gt;
+
+    &lt;a href=&quot;@Url.Action(&quot;CreateProject&quot;, &quot;Manager&quot;)&quot; class=&quot;btn btn-primary&quot;&gt;Create New Project&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;table class=&quot;table table-bordered&quot;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Project Name&lt;/th&gt;
+        &lt;th&gt;Actions&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    @foreach (var project in Model.OrderBy(p =&gt; p.Name)) // Sort projects by name
+    {
+        &lt;tr&gt;
+            &lt;td&gt;@project.Name&lt;/td&gt;
+            &lt;td&gt;
+                &lt;a href=&quot;@Url.Action(&quot;ProjectDetails&quot;, &quot;Manager&quot;, new { id = project.Id })&quot; class=&quot;btn btn-info btn-sm&quot;&gt;View&lt;/a&gt;
+                
+                @if (project.ProjectCreatorId == int.Parse(ViewBag.UserId))
+                {
+                    &lt;form asp-action=&quot;DeleteProject&quot; asp-controller=&quot;Manager&quot; method=&quot;post&quot; style=&quot;display:inline;&quot;&gt;
+                        &lt;input type=&quot;hidden&quot; name=&quot;id&quot; value=&quot;@project.Id&quot; /&gt;
+                        &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot; onclick=&quot;return confirm(&#39;Are you sure you want to delete this project?&#39;);&quot;&gt;Delete&lt;/button&gt;
+                    &lt;/form&gt;
+                }
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    }
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+@if (ViewBag.GroupRequests != null &amp;&amp; ViewBag.GroupRequests.Count &gt; 0)
+{
+    &lt;h3&gt;Your Group Requests Inbox&lt;/h3&gt;
+    &lt;table class=&quot;table table-bordered&quot;&gt;
+        &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Requested Group&lt;/th&gt;
+            &lt;th&gt;Project Requesting Group&lt;/th&gt;
+            &lt;th&gt;Decision&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        @foreach (var groupRequest in ViewBag.GroupRequests)
+        {
+            &lt;tr&gt;
+                &lt;td&gt;@groupRequest.Group.Name&lt;/td&gt;
+                &lt;td&gt;@groupRequest.Project.Name&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;form method=&quot;post&quot; action=&quot;@Url.Action(&quot;AcceptRequest&quot;, &quot;Manager&quot;)&quot; style=&quot;display:inline;&quot;&gt;
+                        &lt;input type=&quot;hidden&quot; name=&quot;requestId&quot; value=&quot;@groupRequest.Id&quot; /&gt;
+                        &lt;button type=&quot;submit&quot; class=&quot;btn btn-info btn-sm&quot;&gt;Accept&lt;/button&gt;
+                    &lt;/form&gt;
+
+                    &lt;form method=&quot;post&quot; action=&quot;@Url.Action(&quot;DenyRequest&quot;, &quot;Manager&quot;)&quot; style=&quot;display:inline;&quot;&gt;
+                        &lt;input type=&quot;hidden&quot; name=&quot;requestId&quot; value=&quot;@groupRequest.Id&quot; /&gt;
+                        &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot;&gt;Deny&lt;/button&gt;
+                    &lt;/form&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        }
+        @if (TempData[&quot;SuccessMessage&quot;] != null)
+        {
+            &lt;div class=&quot;alert alert-success&quot;&gt;
+                @TempData[&quot;SuccessMessage&quot;]
+            &lt;/div&gt;
+        }
+
+        @if (TempData[&quot;ErrorMessage&quot;] != null)
+        {
+            &lt;div class=&quot;alert alert-danger&quot;&gt;
+                @TempData[&quot;ErrorMessage&quot;]
+            &lt;/div&gt;
+        }
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+}
+
+@if (ViewBag.SentGroupRequests != null &amp;&amp; ViewBag.SentGroupRequests.Count &gt; 0)
+{
+    &lt;h3&gt;Your Sent Group Requests&lt;/h3&gt;
+    &lt;table class=&quot;table table-bordered&quot;&gt;
+        &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Requested Group&lt;/th&gt;
+            &lt;th&gt;Project Requesting Group&lt;/th&gt;
+            &lt;th&gt;Response&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        @foreach (var groupRequest in ViewBag.SentGroupRequests)
+        {
+            &lt;tr&gt;
+                &lt;td&gt;@(groupRequest.Group?.Name ?? &quot;No Group Assigned&quot;)&lt;/td&gt;
+                &lt;td&gt;@(groupRequest.Project?.Name ?? &quot;No Project Assigned&quot;)&lt;/td&gt;
+                &lt;td&gt;
+                    @if (groupRequest.Response == true)
+                    {
+                            &lt;span class=&quot;badge bg-success equal-height&quot;&gt;Accepted&lt;/span&gt;
+                    }
+                    else
+                    {
+                            &lt;span class=&quot;badge bg-danger equal-height&quot;&gt;Denied&lt;/span&gt;
+                    }
+                    
+                    &lt;form action=&quot;@Url.Action(&quot;DeleteGroupRequest&quot;, &quot;Manager&quot;)&quot; method=&quot;post&quot; style=&quot;display:inline;&quot;&gt;
+                        &lt;input type=&quot;hidden&quot; name=&quot;requestId&quot; value=&quot;@groupRequest.Id&quot; /&gt;
+                        &lt;button type=&quot;submit&quot; class=&quot;btn btn-sm btn-primary equal-height&quot;&gt;OK&lt;/button&gt;
+                    &lt;/form&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        }
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+}
+
+&lt;div style=&quot;text-align: center;&quot;&gt;
+    @Html.ActionLink(&quot;Go Back&quot;, &quot;Index&quot;, &quot;Home&quot;, null, new { @class = &quot;btn btn-cancel&quot; })
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,6,19,13,0],[19,15,19,26,0],[19,27,19,29,0],[19,30,19,49,0],[19,49,19,55,0],[19,55,19,56,0],[20,5,20,6,0],[26,18,26,76,0],[27,17,27,18,0],[32,17,32,18,0],[35,5,35,6,0],[39,2,39,71,0],[40,1,40,2,0],[51,10,51,17,0],[51,19,51,35,0],[51,36,51,38,0],[51,39,51,60,0],[52,9,52,10,0],[68,9,68,10,0],[69,10,69,49,0],[70,9,70,10,0],[74,9,74,10,0],[76,10,76,47,0],[77,9,77,10,0],[81,9,81,10,0],[84,1,84,2,0],[86,2,86,79,0],[87,1,87,2,0],[98,10,98,17,0],[98,19,98,35,0],[98,36,98,38,0],[98,39,98,64,0],[99,9,99,10,0],[104,22,104,56,0],[105,21,105,22,0],[107,21,107,22,0],[109,21,109,22,0],[111,21,111,22,0],[119,9,119,10,0],[122,1,122,2,0]]);
+    </script>
+  </body>
+</html>

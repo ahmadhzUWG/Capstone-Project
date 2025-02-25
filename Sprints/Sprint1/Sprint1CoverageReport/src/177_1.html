@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Manager\EditProject.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.Project
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/manager_editProject.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;h2 class=&quot;text-center&quot;&gt;Edit Project&lt;/h2&gt;
+
+&lt;div class=&quot;form-container&quot;&gt;
+    &lt;form asp-action=&quot;EditProject&quot; method=&quot;post&quot;&gt;
+        &lt;input type=&quot;hidden&quot; asp-for=&quot;Id&quot; /&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; /&gt;
+            &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Description&quot;&gt;&lt;/label&gt;
+            &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot;&gt;&lt;/textarea&gt;
+            &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;ProjectLeadId&quot;&gt;Project Lead&lt;/label&gt;
+            &lt;select asp-for=&quot;ProjectLeadId&quot; class=&quot;form-control&quot;&gt;
+                @foreach (var user in ViewBag.ProjectLeads)
+                {
+                    &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;span asp-validation-for=&quot;ProjectLeadId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Save Changes&lt;/button&gt;
+        &lt;a asp-action=&quot;ProjectDetails&quot; asp-route-id=&quot;@Model.Id&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[26,18,26,25,0],[26,27,26,35,0],[26,36,26,38,0],[26,39,26,59,0],[27,17,27,18,0],[29,17,29,18,0]]);
+    </script>
+  </body>
+</html>

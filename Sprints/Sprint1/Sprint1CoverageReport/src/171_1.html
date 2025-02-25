@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Employee\ProjectDetails.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.Project
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/manager_projectDetails.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;div class=&quot;center-content&quot;&gt;
+    &lt;h2&gt;Project Details&lt;/h2&gt;
+
+    &lt;div&gt;
+        &lt;h4&gt;@Model.Name&lt;/h4&gt;
+        &lt;p&gt;&lt;strong&gt;Description:&lt;/strong&gt; @Model.Description&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Project Lead:&lt;/strong&gt; @Model.ProjectLead.UserName&lt;/p&gt;
+
+        &lt;h5&gt;Groups:&lt;/h5&gt;
+        &lt;ul&gt;
+            @foreach (var groupProject in Model.ProjectGroups)
+            {
+                &lt;li class = &quot;group-item&quot;&gt;
+                    &lt;span class=&quot;group-name&quot;&gt;@groupProject.Group.Name&lt;/span&gt;
+                &lt;/li&gt;
+            }
+        &lt;/ul&gt;
+    &lt;/div&gt;
+
+    &lt;a asp-action=&quot;Projects&quot; class=&quot;btn btn-primary&quot;&gt;Back to Projects&lt;/a&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,14,15,21,0],[15,23,15,39,0],[15,40,15,42,0],[15,43,15,62,0],[16,13,16,14,0],[20,13,20,14,0]]);
+    </script>
+  </body>
+</html>

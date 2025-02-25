@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Migrations\20250224004313_AddProjectCreatorIdToProjects.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddProjectCreatorIdToProjects : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn&lt;int&gt;(
+                name: &quot;ProjectCreatorId&quot;,
+                table: &quot;Projects&quot;,
+                type: &quot;int&quot;,
+                nullable: true);
+
+            migrationBuilder.AddForeignKey(
+                name: &quot;FK_Projects_AspNetUsers_ProjectCreatorId&quot;,  
+                table: &quot;Projects&quot;,                              
+                column: &quot;ProjectCreatorId&quot;,                    
+                principalTable: &quot;AspNetUsers&quot;,                  
+                principalColumn: &quot;Id&quot;,                          
+                onDelete: ReferentialAction.NoAction);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: &quot;ProjectCreatorId&quot;,
+                table: &quot;Projects&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,17,33,0],[19,13,25,55,0],[26,9,26,10,0],[30,9,30,10,0],[31,13,33,36,0],[34,9,34,10,0]]);
+    </script>
+  </body>
+</html>

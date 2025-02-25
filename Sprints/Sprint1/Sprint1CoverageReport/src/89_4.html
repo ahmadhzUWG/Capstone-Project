@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\Tests\TestViewModels\RegisterViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManager.Tests.Tests.TestViewModels
+{
+    public class RegisterViewModelTests
+    {
+        [Fact]
+        public void TestRegisterViewModel()
+        {
+            var registerViewModel = new RegisterViewModel
+            {
+                UserName = &quot;testUser&quot;,
+                Email = &quot;test@example.com&quot;,
+                Password = &quot;password123&quot;,
+                ConfirmPassword = &quot;password123&quot;
+            };
+
+            Assert.Equal(&quot;testUser&quot;, registerViewModel.UserName);
+            Assert.Equal(&quot;test@example.com&quot;, registerViewModel.Email);
+            Assert.Equal(&quot;password123&quot;, registerViewModel.Password);
+            Assert.Equal(&quot;password123&quot;, registerViewModel.ConfirmPassword);
+
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,9,14,10,1],[15,13,21,15,1],[23,13,23,66,1],[24,13,24,71,1],[25,13,25,69,1],[26,13,26,76,1],[28,9,28,10,1]]);
+    </script>
+  </body>
+</html>

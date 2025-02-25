@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Migrations\20250223172501_AddProjectGroupRelationship.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddProjectGroupRelationship : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;GroupProject&quot;);
+
+            migrationBuilder.CreateTable(
+                name: &quot;GroupProjects&quot;,
+                columns: table =&gt; new
+                {
+                    ProjectId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupProjects&quot;, x =&gt; new { x.ProjectId, x.GroupId });
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProjects_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProjects_Projects_ProjectId&quot;,
+                        column: x =&gt; x.ProjectId,
+                        principalTable: &quot;Projects&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupProjects_GroupId&quot;,
+                table: &quot;GroupProjects&quot;,
+                column: &quot;GroupId&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;GroupProjects&quot;);
+
+            migrationBuilder.CreateTable(
+                name: &quot;GroupProject&quot;,
+                columns: table =&gt; new
+                {
+                    ProjectGroupsId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ProjectsId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupProject&quot;, x =&gt; new { x.ProjectGroupsId, x.ProjectsId });
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProject_Groups_ProjectGroupsId&quot;,
+                        column: x =&gt; x.ProjectGroupsId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProject_Projects_ProjectsId&quot;,
+                        column: x =&gt; x.ProjectsId,
+                        principalTable: &quot;Projects&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupProject_ProjectsId&quot;,
+                table: &quot;GroupProject&quot;,
+                column: &quot;ProjectsId&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,14,39,0],[16,13,18,35,0],[18,35,22,18,0],[22,18,24,17,0],[24,17,24,18,0],[24,18,25,21,0],[25,21,25,95,0],[25,95,26,21,0],[26,21,31,62,0],[31,62,32,21,0],[32,21,37,62,0],[37,62,38,17,0],[38,17,38,18,0],[38,18,38,20,0],[40,13,43,36,0],[44,9,44,10,0],[48,9,48,10,0],[49,13,50,40,0],[52,13,54,35,0],[54,35,58,18,0],[58,18,60,17,0],[60,17,60,18,0],[60,18,61,21,0],[61,21,61,103,0],[61,103,62,21,0],[62,21,67,62,0],[67,62,68,21,0],[68,21,73,62,0],[73,62,74,17,0],[74,17,74,18,0],[74,18,74,20,0],[76,13,79,39,0],[80,9,80,10,0]]);
+    </script>
+  </body>
+</html>

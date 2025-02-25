@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Models\DataSeeder.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.Models;
+
+public static class DataSeeder
+{
+    public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+        var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;User&gt;&gt;();
+
+        string[] roles = { &quot;Admin&quot;, &quot;Manager&quot;, &quot;Employee&quot; };
+
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole&lt;int&gt;(role));
+            }
+        }
+
+        string adminEmail = &quot;manager@gmail.com&quot;;
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+        if (adminUser == null)
+        {
+            var newAdmin = new User
+            {
+                UserName = &quot;Manager&quot;,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(newAdmin, &quot;Manager1!&quot;);
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newAdmin, &quot;Manager&quot;);
+            }
+        }
+        else
+        {
+            await userManager.AddToRoleAsync(adminUser, &quot;Manager&quot;);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,5,10,6,1],[11,9,11,96,1],[12,9,12,83,1],[14,9,14,61,1],[16,9,16,16,1],[16,18,16,26,1],[16,27,16,29,1],[16,30,16,35,1],[17,9,17,10,1],[18,13,18,58,1],[19,13,19,14,1],[20,17,20,76,1],[21,13,21,14,1],[22,9,22,10,1],[24,9,24,49,1],[25,9,25,72,1],[27,9,27,31,1],[28,9,28,10,1],[29,13,34,15,1],[36,13,36,79,1],[38,13,38,34,1],[39,13,39,14,1],[40,17,40,71,1],[41,13,41,14,1],[42,9,42,10,1],[44,9,44,10,1],[45,13,45,68,1],[46,9,46,10,1],[47,5,47,6,1]]);
+    </script>
+  </body>
+</html>

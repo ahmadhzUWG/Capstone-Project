@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\TestHelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Data;
+
+namespace TaskManager.Tests
+{
+    public static class TestHelper
+    {
+        public static ApplicationDbContext GetDbContext()
+        {
+            var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+                .UseInMemoryDatabase(databaseName: $&quot;TestDatabase_{Guid.NewGuid()}&quot;) 
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+            return dbContext;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,9,14,10,1],[15,13,17,26,1],[19,13,19,63,1],[20,13,20,30,1],[21,9,21,10,1]]);
+    </script>
+  </body>
+</html>

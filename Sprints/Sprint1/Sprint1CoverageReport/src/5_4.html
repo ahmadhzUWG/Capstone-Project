@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\DesktopTests\Form1Tests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Moq;
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerDesktop.Data;
+
+using TaskManagerDesktop;
+using TaskManagerDesktop.Models;
+
+public class Form1Tests
+{
+
+
+    private async Task&lt;ApplicationDbContext&gt; GetMockDbContext()
+    {
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: $&quot;TestDatabase_{Guid.NewGuid()}&quot;)
+            .Options;
+
+        var dbContext = new ApplicationDbContext(options);
+
+        // Create a fake RoleManager (optional, if you use roles)
+        var roleStore = new RoleStore&lt;IdentityRole&lt;int&gt;, ApplicationDbContext, int&gt;(dbContext);
+        var roleManager = new RoleManager&lt;IdentityRole&lt;int&gt;&gt;(roleStore, null, null, null, null);
+
+        // Create a fake UserManager
+        var userStore = new UserStore&lt;User, IdentityRole&lt;int&gt;, ApplicationDbContext, int&gt;(dbContext);
+        var userManager = new UserManager&lt;User&gt;(userStore, null, null, null, null, null, null, null, null);
+
+        // Seed users
+        var users = new List&lt;User&gt;
+        {
+            new User { Id = 1, UserName = &quot;Alice&quot;, Email = &quot;alice@example.com&quot;, Role = &quot;Admin&quot; },
+            new User { Id = 2, UserName = &quot;Bob&quot;, Email = &quot;bob@example.com&quot;, Role = &quot;User&quot; }
+        };
+
+        foreach (var user in users)
+        {
+            await userManager.CreateAsync(user);
+        }
+
+        await dbContext.SaveChangesAsync();
+        return dbContext;
+    }
+
+    [Fact]
+    public void UserConstructor()
+    {
+        var user = new User
+        {
+            Id = 1,
+            UserName = &quot;Alice&quot;,
+            Email = &quot;@gmail.com&quot;,
+            Role = &quot;Admin&quot;
+        };
+
+        var role = user.Role;
+
+        Assert.Equal(&quot;Admin&quot;, role);
+        Debug.Assert(user != null, nameof(user) + &quot; != null&quot;);
+        Assert.NotNull(user.Id);
+        Assert.NotNull(user.UserName);
+        Assert.NotNull(user.Email);
+        Assert.NotNull(user.Role);
+    }
+
+    [Fact]
+    public async Task GetUsersAsync_ReturnsExpectedUsers()
+    {
+        // Arrange
+        var dbContext = await GetMockDbContext();
+        var form = new Form1(dbContext);
+
+        // Act
+        var users = await form.GetUsersAsync();
+
+        // Assert
+        Assert.Equal(2, users.Count);
+        Assert.Contains(users, u =&gt; u.UserName == &quot;Alice&quot; &amp;&amp; u.Role == &quot;Admin&quot;);
+        Assert.Contains(users, u =&gt; u.UserName == &quot;Bob&quot; &amp;&amp; u.Role == &quot;User&quot;);
+    }
+
+    [Fact]
+    public async Task GetUsersAsync_ReturnsEmptyList_WhenNoUsersExist()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: &quot;EmptyDb&quot;)
+            .Options;
+        var emptyDbContext = new ApplicationDbContext(options);
+        var form = new Form1(emptyDbContext);
+
+        // Act
+        var users = await form.GetUsersAsync();
+
+        // Assert
+        Assert.Empty(users);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[20,5,20,6,1],[21,9,23,22,1],[25,9,25,59,1],[28,9,28,96,1],[29,9,29,97,1],[32,9,32,102,1],[33,9,33,108,1],[36,9,40,11,1],[42,9,42,16,1],[42,18,42,26,1],[42,27,42,29,1],[42,30,42,35,1],[43,9,43,10,1],[44,13,44,49,1],[45,9,45,10,1],[47,9,47,44,1],[48,9,48,26,1],[49,5,49,6,1],[53,5,53,6,1],[54,9,60,11,1],[62,9,62,30,1],[64,9,64,37,1],[65,9,65,63,1],[66,9,66,33,1],[67,9,67,39,1],[68,9,68,36,1],[69,9,69,35,1],[70,5,70,6,1],[74,5,74,6,1],[76,9,76,50,1],[77,9,77,41,1],[80,9,80,48,1],[83,9,83,38,1],[84,9,84,37,1],[84,37,84,79,1],[84,79,84,81,1],[85,9,85,37,1],[85,37,85,76,1],[85,76,85,78,1],[86,5,86,6,1],[90,5,90,6,1],[92,9,94,22,1],[95,9,95,64,1],[96,9,96,46,1],[99,9,99,48,1],[102,9,102,29,1],[103,5,103,6,1]]);
+    </script>
+  </body>
+</html>

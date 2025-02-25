@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Admin\UserEdit.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model User
+
+&lt;h2&gt;Edit User&lt;/h2&gt;
+
+&lt;form asp-action=&quot;UserEdit&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;hidden&quot; asp-for=&quot;Id&quot; /&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label asp-for=&quot;UserName&quot;&gt;Username&lt;/label&gt;
+        &lt;input asp-for=&quot;UserName&quot; class=&quot;form-control&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label asp-for=&quot;Email&quot;&gt;Email&lt;/label&gt;
+        &lt;input asp-for=&quot;Email&quot; class=&quot;form-control&quot; /&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label&gt;Role&lt;/label&gt;
+        &lt;select name=&quot;Role&quot; class=&quot;form-control&quot;&gt;
+            @foreach (var role in ViewBag.Roles)
+            {
+                &lt;option value=&quot;@role&quot; selected=&quot;@(role == ViewBag.CurrentRole ? &quot;selected&quot; : null)&quot;&gt;
+                    @role
+                &lt;/option&gt;
+            }
+        &lt;/select&gt;
+    &lt;/div&gt;
+
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Save Changes&lt;/button&gt;
+    &lt;a asp-action=&quot;Users&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+&lt;/form&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[21,14,21,21,0],[21,23,21,31,0],[21,32,21,34,0],[21,35,21,48,0],[22,13,22,14,0],[26,13,26,14,0]]);
+    </script>
+  </body>
+</html>

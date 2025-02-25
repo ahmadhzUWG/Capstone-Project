@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager\Views\Admin\CreateGroup.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.Group
+
+&lt;link href=&quot;~/css/admin_createGroups.css&quot; rel=&quot;stylesheet&quot; /&gt;
+
+&lt;h1&gt;Create Group&lt;/h1&gt;
+
+&lt;form id=&quot;createGroupForm&quot; asp-action=&quot;CreateGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;&gt;
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label asp-for=&quot;Name&quot;&gt;Group Name&lt;/label&gt;
+        &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; required /&gt;
+        &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+
+        &lt;br /&gt;
+
+        &lt;label asp-for=&quot;Description&quot;&gt;Group Description&lt;/label&gt;
+        &lt;input asp-for=&quot;Description&quot; class=&quot;form-control&quot; required /&gt;
+        &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;br /&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label&gt;Select Managers&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;searchBoxManagers&quot; class=&quot;form-control mb-2&quot; placeholder=&quot;Search managers...&quot;&gt;
+
+        &lt;div id=&quot;managerContainer&quot;&gt;
+            @foreach (var user in ViewBag.Managers ?? new List&lt;User&gt;())
+            {
+                &lt;div class=&quot;form-check manager-box d-flex align-items-center justify-content-between&quot;&gt;
+                    &lt;!-- Manager Selection --&gt;
+                    &lt;div class=&quot;d-flex align-items-center&quot;&gt;
+                        &lt;input type=&quot;checkbox&quot; name=&quot;selectedManagers&quot; value=&quot;@user.Id&quot; class=&quot;form-check-input manager-checkbox me-2&quot; id=&quot;manager-@user.Id&quot; /&gt;
+                        &lt;label class=&quot;form-check-label me-3&quot; for=&quot;manager-@user.Id&quot;&gt;@user.UserName (@user.Email)&lt;/label&gt;
+                    &lt;/div&gt;
+
+                    &lt;!-- Primary Manager Selection --&gt;
+                    &lt;div class=&quot;d-flex align-items-center&quot;&gt;
+                        &lt;input type=&quot;radio&quot; name=&quot;primaryManagerId&quot; value=&quot;@user.Id&quot; class=&quot;form-check-input primary-manager-radio me-2&quot; disabled /&gt;
+                        &lt;span class=&quot;text-muted&quot;&gt;Primary Manager&lt;/span&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            }
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;br /&gt;
+
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;label&gt;Select Employees&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;searchBoxEmployees&quot; class=&quot;form-control mb-2&quot; placeholder=&quot;Search employees...&quot;&gt;
+
+        &lt;div id=&quot;employeeContainer&quot;&gt;
+            @foreach (var user in ViewBag.Employees ?? new List&lt;User&gt;())
+            {
+                &lt;div class=&quot;form-check employee-box&quot;&gt;
+                    &lt;input type=&quot;checkbox&quot; name=&quot;selectedUsers&quot; value=&quot;@user.Id&quot; class=&quot;form-check-input employee-checkbox&quot; /&gt;
+                    &lt;label class=&quot;form-check-label&quot;&gt;@user.UserName (@user.Email)&lt;/label&gt;
+                &lt;/div&gt;
+            }
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;br /&gt;
+
+    &lt;!-- Hidden Input for Primary Manager ID --&gt;
+    &lt;input type=&quot;hidden&quot; id=&quot;primaryManagerHidden&quot; name=&quot;primaryManagerId&quot; value=&quot;&quot; /&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Create&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;br /&gt;
+&lt;a href=&quot;@Url.Action(&quot;Groups&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Groups&lt;/a&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+
+    &lt;script&gt;
+        document.addEventListener(&quot;DOMContentLoaded&quot;, function () {
+            let managerCheckboxes = document.querySelectorAll(&quot;.manager-checkbox&quot;);
+            let primaryManagerRadios = document.querySelectorAll(&quot;.primary-manager-radio&quot;);
+            let hiddenPrimaryManagerInput = document.getElementById(&quot;primaryManagerHidden&quot;);
+
+            function updatePrimaryManagerSelection() {
+                let selectedManagers = Array.from(managerCheckboxes).filter(c =&gt; c.checked);
+                primaryManagerRadios.forEach(radio =&gt; {
+                    radio.disabled = !selectedManagers.some(m =&gt; m.value === radio.value);
+                });
+
+                let selectedPrimary = Array.from(primaryManagerRadios).find(r =&gt; r.checked);
+                if (!selectedPrimary &amp;&amp; selectedManagers.length &gt; 0) {
+                    let firstAvailable = primaryManagerRadios.find(radio =&gt; !radio.disabled);
+                    if (firstAvailable) {
+                        firstAvailable.checked = true;
+                        hiddenPrimaryManagerInput.value = firstAvailable.value;
+                    }
+                }
+            }
+
+            managerCheckboxes.forEach((checkbox) =&gt; {
+                checkbox.addEventListener(&quot;change&quot;, function () {
+                    updatePrimaryManagerSelection();
+                });
+            });
+
+            primaryManagerRadios.forEach(radio =&gt; {
+                radio.addEventListener(&quot;change&quot;, function () {
+                    if (this.checked) {
+                        hiddenPrimaryManagerInput.value = this.value;
+                    }
+                });
+            });
+
+            document.getElementById(&quot;createGroupForm&quot;).addEventListener(&quot;submit&quot;, function (event) {
+    let managerCheckboxes = document.querySelectorAll(&quot;.manager-checkbox&quot;);
+    let primaryManagerRadios = document.querySelectorAll(&quot;.primary-manager-radio&quot;);
+
+    let selectedManagers = Array.from(managerCheckboxes).filter(c =&gt; c.checked);
+    let selectedPrimaryManager = Array.from(primaryManagerRadios).find(r =&gt; r.checked);
+
+    if (selectedManagers.length === 0) {
+        alert(&quot;Please select at least one Manager.&quot;);
+        event.preventDefault();
+        return;
+    }
+
+    if (!selectedPrimaryManager) {
+        alert(&quot;Please select a Primary Manager.&quot;);
+        event.preventDefault();
+        return;
+    }
+        });
+
+        });
+
+    &lt;/script&gt;
+
+    &lt;!-- JavaScript for Search Functionality --&gt;
+    &lt;script&gt;
+        function setupSearch(inputId, containerId) {
+            document.getElementById(inputId).addEventListener(&quot;keyup&quot;, function () {
+                let searchValue = this.value.toLowerCase();
+                let checkboxes = document.querySelectorAll(&quot;#&quot; + containerId + &quot; .form-check&quot;);
+
+                let hasVisibleUsers = false;
+
+                checkboxes.forEach(function (check) {
+                    let label = check.textContent.toLowerCase();
+                    let isVisible = label.includes(searchValue);
+                    check.style.display = isVisible ? &quot;block&quot; : &quot;none&quot;;
+                    if (isVisible) hasVisibleUsers = true;
+                });
+
+                // Hide the container if no users match the search
+                document.getElementById(containerId).style.display = hasVisibleUsers ? &quot;block&quot; : &quot;none&quot;;
+            });
+        }
+
+        setupSearch(&quot;searchBoxManagers&quot;, &quot;managerContainer&quot;);
+        setupSearch(&quot;searchBoxEmployees&quot;, &quot;employeeContainer&quot;);
+
+    &lt;/script&gt;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[27,14,27,21,0],[27,23,27,31,0],[27,32,27,34,0],[27,35,27,71,0],[28,13,28,14,0],[42,13,42,14,0],[53,14,53,21,0],[53,23,53,31,0],[53,32,53,34,0],[53,35,53,72,0],[54,13,54,14,0],[59,13,59,14,0]]);
+    </script>
+  </body>
+</html>
