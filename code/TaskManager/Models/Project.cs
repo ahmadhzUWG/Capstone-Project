@@ -25,4 +25,4 @@ namespace TaskManagerWebsite.Models
 
         public ICollection<GroupProject> ProjectGroups { get; set; } = new List<GroupProject>();
     }
-    }
+}

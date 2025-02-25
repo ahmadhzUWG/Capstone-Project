@@ -101,6 +101,7 @@ namespace TaskManagerWebsite.Controllers
 
             var managedGroupsToRemove = new List<Group>();
 
+            //Remove managed groups that are already assigned to the project
             foreach (var group1 in groups)
             {
                 List<Group> groupsWithGivenProject = _context.GroupProjects
@@ -121,12 +122,12 @@ namespace TaskManagerWebsite.Controllers
             managedGroups.RemoveAll(group => managedGroupsToRemove.Contains(group));
             ViewBag.ManagedGroups = managedGroups;
 
-            ViewBag.ManagedGroups = managedGroups;
             var unmanagedGroups = groups.Where(group => !group.Managers
                 .Any(manager => manager.UserId == int.Parse(currentUserId))).ToList();
 
             var groupsToRemove = new List<Group>();
 
+            // Remove unmanaged groups that are already assigned to the project
             foreach (var group in unmanagedGroups)
             {
                 List<Group> groupsWithGivenProject = _context.GroupProjects

@@ -1,8 +1,12 @@
 ﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
 
-<h2>Projects</h2>
+<link rel="stylesheet" href="~/css/admin_projects.css" asp-append-version="true" />
 
-<a href="@Url.Action("CreateProject", "Admin")" class="btn btn-primary">Create New Project</a>
+<div style="text-align: center" class="header">
+    <h2>Projects</h2>
+
+    <a href="@Url.Action("CreateProject", "Admin")" class="btn btn-primary">Create New Project</a>
+</div>
 
 <table class="table table-bordered">
     <thead>
@@ -23,8 +27,13 @@
                     <input type="hidden" name="id" value="@project.Id" />
                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
                 </form>
+                
             </td>
         </tr>
     }
     </tbody>
 </table>
+
+<div style="text-align: center;">
+    @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+</div>

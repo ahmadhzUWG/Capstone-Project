@@ -1,13 +1,26 @@
-﻿body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+﻿.groups-container {
+    max-width: 800px;
+    margin: auto;
     padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 h2 {
     color: #333;
     text-align: center;
     margin-bottom: 20px;
+}
+
+h1 {
+    color: #007bff;
+    text-align: center;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .btn {
@@ -17,6 +30,12 @@ h2 {
     font-size: 14px;
     display: inline-block;
     transition: background 0.3s ease;
+}
+
+.btn-cancel {
+    background: #585d61;
+    margin: 3px 3px 3px 3px;
+    color: #fff;
 }
 
 .btn-primary {
@@ -40,34 +59,6 @@ h2 {
     .btn-danger:hover {
         background-color: #a71d2a;
     }
-
-ul {
-    list-style: none;
-    padding: 0;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-li {
-    background: white;
-    margin: 10px 0;
-    padding: 12px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-    li a {
-        color: #007bff;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-        li a:hover {
-            text-decoration: underline;
-        }
 
 form {
     display: inline;

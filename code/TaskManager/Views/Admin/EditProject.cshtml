@@ -1,33 +1,37 @@
 ﻿@model TaskManagerWebsite.Models.Project
 
-<h2>Edit Project</h2>
+<link rel="stylesheet" href="~/css/admin_editProject.css" asp-append-version="true" />
 
-<form asp-action="EditProject" method="post">
-    <input type="hidden" asp-for="Id" />
+<h2 class="text-center">Edit Project</h2>
 
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+<div class="form-container">
+    <form asp-action="EditProject" method="post">
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="ProjectLeadId">Project Lead</label>
-        <select asp-for="ProjectLeadId" class="form-control">
-            @foreach (var user in ViewBag.ProjectLeads)
-            {
-                <option value="@user.Id">@user.UserName</option>
-            }
-        </select>
-        <span asp-validation-for="ProjectLeadId" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-    <button type="submit" class="btn btn-success">Save Changes</button>
-    <a asp-action="ProjectDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="form-group">
+            <label asp-for="ProjectLeadId">Project Lead</label>
+            <select asp-for="ProjectLeadId" class="form-control">
+                @foreach (var user in ViewBag.ProjectLeads)
+                {
+                    <option value="@user.Id">@user.UserName</option>
+                }
+            </select>
+            <span asp-validation-for="ProjectLeadId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a asp-action="ProjectDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

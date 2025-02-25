@@ -1,18 +1,27 @@
 ﻿
 /* Centering the add form */
-form {
+.form-add input {
+    display: block;
     width: 350px;
-    margin: 50px auto;
-    padding: 20px;
+    margin: 5px auto;
+    padding: 15px;
     background: #f8f9fa;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
+.form-add .label {
+    display: block;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+
 h2 {
     text-align: center;
     margin-bottom: 20px;
 }
+
 
 /* Styling labels */
 label {
@@ -52,8 +61,10 @@ span {
 }
 
 /* Submit button styling */
-button {
-    width: 100%;
+.button {
+    display: block;
+    width: 5%;
+    margin: 5px auto;
     padding: 10px;
     background-color: #007bff;
     color: white;
@@ -63,7 +74,7 @@ button {
     font-size: 16px;
 }
 
-    button:hover {
+    .button:hover {
         background-color: #0056b3;
     }
 

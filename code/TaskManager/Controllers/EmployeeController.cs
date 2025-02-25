@@ -79,7 +79,6 @@ namespace TaskManagerWebsite.Controllers
             managedGroups.RemoveAll(group => managedGroupsToRemove.Contains(group));
             ViewBag.ManagedGroups = managedGroups;
 
-            ViewBag.ManagedGroups = managedGroups;
             var unmanagedGroups = groups.Where(group => !group.Managers
                 .Any(manager => manager.UserId == int.Parse(currentUserId))).ToList();
 
