@@ -2,79 +2,30 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\Tests\TestModels\GroupProjectTests.cs</title>
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\LoginViewModel.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using TaskManagerWebsite.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace TaskManager.Tests.Tests.TestModels
+namespace TaskManagerWebsite.ViewModels
 {
-    public class GroupProjectTests
+    public class LoginViewModel
     {
-        [Fact]
-        public void GroupProject_ProjectId_CanBeSetAndRetrieved()
-        {
-            var groupProject = new GroupProject { ProjectId = 10 };
-            Assert.Equal(10, groupProject.ProjectId);
-        }
+        [Required]
+        public string UserName { get; set; } = string.Empty;
 
-        [Fact]
-        public void GroupProject_Project_CanBeAssignedAndRetrieved()
-        {
-            var project = new Project { Id = 1, Name = &quot;New Website&quot; };
-            var groupProject = new GroupProject { Project = project };
-
-            Assert.NotNull(groupProject.Project);
-            Assert.Equal(1, groupProject.Project.Id);
-            Assert.Equal(&quot;New Website&quot;, groupProject.Project.Name);
-        }
-
-        [Fact]
-        public void GroupProject_GroupId_CanBeSetAndRetrieved()
-        {
-            var groupProject = new GroupProject { GroupId = 20 };
-            Assert.Equal(20, groupProject.GroupId);
-        }
-
-        [Fact]
-        public void GroupProject_Group_CanBeAssignedAndRetrieved()
-        {
-            var group = new Group { Id = 2, Name = &quot;Development Team&quot; };
-            var groupProject = new GroupProject { Group = group };
-
-            Assert.NotNull(groupProject.Group);
-            Assert.Equal(2, groupProject.Group.Id);
-            Assert.Equal(&quot;Development Team&quot;, groupProject.Group.Name);
-        }
-
-        [Fact]
-        public void GroupProject_CanBeInstantiatedWithValues()
-        {
-            var project = new Project { Id = 5, Name = &quot;API Development&quot; };
-            var group = new Group { Id = 3, Name = &quot;Backend Team&quot; };
-
-            var groupProject = new GroupProject
-            {
-                ProjectId = 5,
-                Project = project,
-                GroupId = 3,
-                Group = group
-            };
-
-            Assert.Equal(5, groupProject.ProjectId);
-            Assert.Equal(3, groupProject.GroupId);
-            Assert.Equal(&quot;API Development&quot;, groupProject.Project.Name);
-            Assert.Equal(&quot;Backend Team&quot;, groupProject.Group.Name);
-        }
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,9,9,10,1],[10,13,10,68,1],[11,13,11,54,1],[12,9,12,10,1],[16,9,16,10,1],[17,13,17,72,1],[18,13,18,71,1],[20,13,20,50,1],[21,13,21,54,1],[22,13,22,68,1],[23,9,23,10,1],[27,9,27,10,1],[28,13,28,66,1],[29,13,29,52,1],[30,9,30,10,1],[34,9,34,10,1],[35,13,35,73,1],[36,13,36,67,1],[38,13,38,48,1],[39,13,39,52,1],[40,13,40,71,1],[41,9,41,10,1],[45,9,45,10,1],[46,13,46,76,1],[47,13,47,69,1],[49,13,55,15,1],[57,13,57,53,1],[58,13,58,51,1],[59,13,59,72,1],[60,13,60,67,1],[61,9,61,10,1]]);
+      highlightRanges([[8,34,8,38,1],[8,39,8,43,1],[8,48,8,60,1],[12,34,12,38,1],[12,39,12,43,1],[12,48,12,60,1]]);
     </script>
   </body>
 </html>

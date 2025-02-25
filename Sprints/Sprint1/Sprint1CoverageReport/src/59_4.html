@@ -2,81 +2,43 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\Users\ahmad\Documents\GitHub\Capstone-Project\code\TaskManager.Tests\Tests\TestModels\DataSeederTests.cs</title>
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\AdminViewModel.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.AspNetCore.Identity;
-using Moq;
-using TaskManagerWebsite.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace TaskManager.Tests.Tests.TestModels
+namespace TaskManagerWebsite.ViewModels
 {
-    public class DataSeederTests
+    public class AdminViewModel
     {
-        private readonly Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt; _mockRoleManager;
-        private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
-        private readonly Mock&lt;IServiceProvider&gt; _mockServiceProvider;
+        [Required]
+        [Display(Name = &quot;User Name&quot;)]
+        public required string UserName { get; set; }
 
-        public DataSeederTests()
-        {
-            _mockRoleManager = GetMockRoleManager();
-            _mockUserManager = GetMockUserManager();
-            _mockServiceProvider = new Mock&lt;IServiceProvider&gt;();
+        [Required]
+        [EmailAddress]
+        [Display(Name = &quot;Email&quot;)]
+        public required string Email { get; set; }
 
-            _mockServiceProvider
-                .Setup(sp =&gt; sp.GetService(typeof(RoleManager&lt;IdentityRole&lt;int&gt;&gt;)))
-                .Returns(_mockRoleManager.Object);
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = &quot;Password&quot;)]
+        public required string Password { get; set; }
 
-            _mockServiceProvider
-                .Setup(sp =&gt; sp.GetService(typeof(UserManager&lt;User&gt;)))
-                .Returns(_mockUserManager.Object);
-        }
-
-        private Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt; GetMockRoleManager()
-        {
-            var roleStoreMock = new Mock&lt;IRoleStore&lt;IdentityRole&lt;int&gt;&gt;&gt;();
-            return new Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;(roleStoreMock.Object, null, null, null, null);
-        }
-
-        private Mock&lt;UserManager&lt;User&gt;&gt; GetMockUserManager()
-        {
-            var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
-            return new Mock&lt;UserManager&lt;User&gt;&gt;(userStoreMock.Object, null, null, null, null, null, null, null, null);
-        }
-
-        [Fact]
-        public async Task SeedRolesAndAdminAsync_CreatesAdminUser_WhenNotFound()
-        {
-            _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(It.IsAny&lt;string&gt;())).ReturnsAsync((User)null);
-            _mockUserManager.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;())).ReturnsAsync(IdentityResult.Success);
-            _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;())).ReturnsAsync(IdentityResult.Success);
-
-            await DataSeeder.SeedRolesAndAdminAsync(_mockServiceProvider.Object);
-
-            _mockUserManager.Verify(um =&gt; um.CreateAsync(It.Is&lt;User&gt;(u =&gt; u.Email == &quot;manager@gmail.com&quot;), &quot;Manager1!&quot;), Times.Once);
-            _mockUserManager.Verify(um =&gt; um.AddToRoleAsync(It.Is&lt;User&gt;(u =&gt; u.Email == &quot;manager@gmail.com&quot;), &quot;Manager&quot;), Times.Once);
-        }
-
-        [Fact]
-        public async Task SeedRolesAndAdminAsync_AddsManagerRole_WhenAdminExists()
-        {
-            var existingAdmin = new User { Email = &quot;manager@gmail.com&quot; };
-            _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;manager@gmail.com&quot;)).ReturnsAsync(existingAdmin);
-            _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(existingAdmin, &quot;Manager&quot;)).ReturnsAsync(IdentityResult.Success);
-
-            await DataSeeder.SeedRolesAndAdminAsync(_mockServiceProvider.Object);
-
-            _mockUserManager.Verify(um =&gt; um.AddToRoleAsync(existingAdmin, &quot;Manager&quot;), Times.Once);
-        }
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare(&quot;Password&quot;, ErrorMessage = &quot;Passwords do not match.&quot;)]
+        [Display(Name = &quot;Confirm Password&quot;)]
+        public required string ConfirmPassword { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[13,9,13,33,1],[14,9,14,10,1],[15,13,15,53,1],[16,13,16,53,1],[17,13,17,65,1],[19,13,21,51,1],[23,13,25,51,1],[26,9,26,10,1],[29,9,29,10,1],[30,13,30,75,1],[31,13,31,107,1],[32,9,32,10,1],[35,9,35,10,1],[36,13,36,62,1],[37,13,37,118,1],[38,9,38,10,1],[42,9,42,10,1],[43,13,43,108,1],[44,13,44,133,1],[45,13,45,136,1],[47,13,47,82,1],[49,13,49,134,1],[50,13,50,135,1],[51,9,51,10,1],[55,9,55,10,1],[56,13,56,74,1],[57,13,57,112,1],[58,13,58,124,1],[60,13,60,82,1],[62,13,62,100,1],[63,9,63,10,1]]);
+      highlightRanges([[9,43,9,47,1],[9,48,9,52,1],[14,40,14,44,1],[14,45,14,49,1],[19,43,19,47,1],[19,48,19,52,1],[25,50,25,54,1],[25,55,25,59,1]]);
     </script>
   </body>
 </html>
