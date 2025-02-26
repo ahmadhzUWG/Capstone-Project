@@ -1,22 +1,139 @@
+/* Responsive Typography */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* Ensure the entire page is centered */
 body {
-  margin-bottom: 60px;
+    background-color: red !important;
+}
+
+
+/* Centered container */
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px; /* Adjust width to keep content readable */
+}
+
+/* Centered text for all headings */
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Style buttons */
+.btn {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Center lists */
+ul, ol {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 500px;
+    text-align: center;
+}
+
+li {
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Center form elements */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+/* Input fields */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease-in-out;
+}
+
+    .form-control:focus {
+        box-shadow: 0 0 5px rgba(37, 140, 251, 0.5);
+        border-color: #258cfb;
+    }
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    background-color: #007bff !important;
+    padding: 15px;
+}
+
+    .navbar a {
+        color: white !important;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+/* Improve spacing */
+.mb-3 {
+    margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px;
+    background-color: #343a40;
+    color: white;
+    width: 100%;
+}
+
+/* Adjust layout for smaller screens */
+@media (max-width: 576px) {
+    .container-fluid {
+        width: 95%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    ul, ol {
+        max-width: 100%;
+    }
 }

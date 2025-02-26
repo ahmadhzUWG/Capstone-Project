@@ -16,8 +16,10 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // This ensures that the user is logged out when they visit the login page.
-            await _signInManager.SignOutAsync(); 
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+            }
             
             return View();
         }
@@ -53,14 +55,12 @@ namespace TaskManagerWebsite.Controllers
             return View(model);
         }
 
-
-        // POST: /Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Login");
         }
     }
 }

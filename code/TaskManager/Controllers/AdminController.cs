@@ -119,109 +119,48 @@ namespace TaskManagerWebsite.Controllers
             return View();
         }
 
-        /// <summary>
-        /// Handles the creation of a new group, assigning selected managers and users.
-        /// </summary>
-        /// <param name="group">The group to be created.</param>
-        /// <param name="selectedManagers">List of selected manager IDs.</param>
-        /// <param name="selectedUsers">List of selected user IDs.</param>
-        /// <param name="primaryManagerId">The primary manager's ID.</param>
-        /// <returns>A redirect to the Groups list if successful, or returns the form with validation errors.</returns>
-        // Display list of projects
-        public async Task<IActionResult> Projects()
-        {
-            var projects = await context.Projects.ToListAsync();
-            return View(projects);
-        }
-
-        public async Task<IActionResult> CreateProject()
-        {
-            var users = await context.Users.ToListAsync();
-            ViewBag.ProjectLeads = users;
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProject(Project project)
+        public async Task<IActionResult> CreateGroup(GroupViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var currentUserId = userManager.GetUserId(User);
-
-                if (string.IsNullOrEmpty(currentUserId))
-                {
-                    ModelState.AddModelError("", "Unable to determine the logged-in user.");
-                    return View(project);
-                }
-
-                project.ProjectCreatorId = int.Parse(currentUserId);
-
-                context.Projects.Add(project);
-                await context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Projects));
+                ViewBag.Employees = await context.Users.ToListAsync();
+                return View(model);
             }
 
-            ViewBag.ProjectLeads = await context.Users.ToListAsync();
-            return View(project);
+            var manager = await context.Users.FindAsync(model.SelectedManagerId);
+            if (manager == null)
+            {
+                ModelState.AddModelError("SelectedManagerId", "The selected manager does not exist.");
+                ViewBag.Employees = await context.Users.ToListAsync();
+                return View(model);
+            }
+
+            var group = new Group
+            {
+                Name = model.Name,
+                Description = model.Description,
+                PrimaryManager = manager
+            };
+
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            // Add employees (excluding the manager)
+            var employees = await context.Users
+                .Where(u => model.SelectedUserIds.Contains(u.Id) && u.Id != model.SelectedManagerId)
+                .ToListAsync();
+
+            foreach (var employee in employees)
+            {
+                group.Users.Add(employee);
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Groups");
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateGroup(Group group, int selectedManager, List<int> selectedUsers)
-        {
-            if (selectedManager > 0)
-            {
-                var manager = await context.Users.FindAsync(selectedManager);
-                if (manager == null)
-                {
-                    ModelState.AddModelError("Manager", "The selected Manager is invalid.");
-                }
-                else
-                {
-                    group.PrimaryManager = manager;
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("Manager", "The Manager field is required.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                context.Groups.Add(group);
-                await context.SaveChangesAsync();
-
-                // Add the manager to the group
-                group.Users.Add(group.PrimaryManager);
-
-                // Insert into GroupManager table
-                var groupManager = new GroupManager
-                {
-                    GroupId = group.Id,
-                    UserId = selectedManager
-                };
-                context.GroupManagers.Add(groupManager);
-
-                // Add selected employees (excluding the manager)
-                var userEntities = await context.Users
-                    .Where(u => selectedUsers.Contains(u.Id) && u.Id != selectedManager)
-                    .ToListAsync();
-
-                foreach (var user in userEntities)
-                {
-                    group.Users.Add(user);
-                }
-
-                await context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Groups));
-            }
-
-            return View(group);
-        }
-
 
         /// <summary>
         /// Deletes a group based on the provided ID.
@@ -427,6 +366,54 @@ namespace TaskManagerWebsite.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
+        /// <summary>
+        /// Handles the creation of a new group, assigning selected managers and users.
+        /// </summary>
+        /// <param name="group">The group to be created.</param>
+        /// <param name="selectedManagers">List of selected manager IDs.</param>
+        /// <param name="selectedUsers">List of selected user IDs.</param>
+        /// <param name="primaryManagerId">The primary manager's ID.</param>
+        /// <returns>A redirect to the Groups list if successful, or returns the form with validation errors.</returns>
+        // Display list of projects
+        public async Task<IActionResult> Projects()
+        {
+            var projects = await context.Projects.ToListAsync();
+            return View(projects);
+        }
+
+        public async Task<IActionResult> CreateProject()
+        {
+            var users = await context.Users.ToListAsync();
+            ViewBag.ProjectLeads = users;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProject(Project project)
+        {
+            if (ModelState.IsValid)
+            {
+                var currentUserId = userManager.GetUserId(User);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    ModelState.AddModelError("", "Unable to determine the logged-in user.");
+                    return View(project);
+                }
+
+                project.ProjectCreatorId = int.Parse(currentUserId);
+
+                context.Projects.Add(project);
+                await context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Projects));
+            }
+
+            ViewBag.ProjectLeads = await context.Users.ToListAsync();
+            return View(project);
         }
 
         public async Task<IActionResult> ProjectDetails(int id)
@@ -658,16 +645,6 @@ namespace TaskManagerWebsite.Controllers
                 await context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Users));
-        }
-
-        /// <summary>
-        /// Checks whether a user exists in the database.
-        /// </summary>
-        /// <param name="id">The ID of the user.</param>
-        /// <returns>True if the user exists, otherwise false.</returns>
-        private bool UserExists(int id)
-        {
-            return context.Users.Any(u => u.Id == id);
         }
     }
 }

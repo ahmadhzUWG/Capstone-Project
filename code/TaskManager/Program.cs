@@ -16,6 +16,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.SlidingExpiration = false;
     options.LoginPath = "/Login/Index"; 
     options.LogoutPath = "/Login/Index";
     options.AccessDeniedPath = "/Home/AccessDenied";
@@ -60,7 +62,7 @@ using (var scope = app.Services.CreateScope())
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Shared/Error");
     app.UseHsts();
 }
 
