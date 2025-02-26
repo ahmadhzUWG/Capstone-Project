@@ -28,3 +28,4 @@ for item in "${TO_REMOVE[@]}"; do
 done
 
 echo "✅ Cleanup complete!"
+
