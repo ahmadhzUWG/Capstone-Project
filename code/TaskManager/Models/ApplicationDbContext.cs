@@ -5,18 +5,60 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<User, IdentityRole<int>, int>(options)
+/// <summary>
+/// Represents the database context for the Task Manager Website application.
+/// Inherits from <see cref="IdentityDbContext{TUser, TRole, TKey}"/> to support Identity features.
+/// </summary>
+public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ApplicationDbContext"/> class.
+    /// </summary>
+    /// <param name="options">Database context configuration options.</param>
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    /// <summary>
+    /// Gets or sets the Users table.
+    /// </summary>
     public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Admins table.
+    /// </summary>
     public DbSet<Admin> Admins { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Groups table.
+    /// </summary>
     public DbSet<Group> Groups { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GroupManagers table.
+    /// </summary>
     public DbSet<GroupManager> GroupManagers { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Projects table.
+    /// </summary>
     public DbSet<Project> Projects { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GroupProjects table.
+    /// </summary>
     public DbSet<GroupProject> GroupProjects { get; set; }
 
+    /// <summary>
+    /// Gets or sets the GroupRequests table.
+    /// </summary>
     public DbSet<GroupRequest> GroupRequests { get; set; }
 
+    /// <summary>
+    /// Configures the entity relationships and database mappings.
+    /// </summary>
+    /// <param name="modelBuilder">Provides a simple API to configure entity relationships.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -76,6 +118,4 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany(g => g.GroupProjects)
             .HasForeignKey(gp => gp.GroupId);
     }
-
 }
-

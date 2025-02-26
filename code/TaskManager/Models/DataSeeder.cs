@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
-using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Models;
 
+/// <summary>
+/// Provides methods for seeding default roles and an administrative user into the database.
+/// </summary>
 public static class DataSeeder
 {
+    /// <summary>
+    /// Seeds predefined roles and a default admin user into the database if they do not already exist.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider used to resolve dependencies.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
