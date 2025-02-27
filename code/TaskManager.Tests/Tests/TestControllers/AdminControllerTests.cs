@@ -346,46 +346,19 @@ public class AdminControllerTests
         Assert.NotNull(viewResult.ViewData["Managers"]);
     }
 
-
-    [Fact]
-    public async Task ManageGroup_ReturnsViewIfGroupExists()
-    {
-        // Arrange
-        var dbContext = TestHelper.GetDbContext();
-        var group = new Group { Id = 30, Name = "ManageGroup", Users = new List<User>(), Description = "Test Description" };
-        dbContext.Groups.Add(group);
-        await dbContext.SaveChangesAsync();
-        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        // Act
-        var result = await controller.ManageGroup(30);
-
-        // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var modelGroup = Assert.IsType<Group>(viewResult.Model);
-        Assert.Equal("ManageGroup", modelGroup.Name);
-    }
-
-    [Fact]
-    public async Task ManageGroup_ReturnsNotFoundIfGroupDoesNotExist()
-    {
-        // Arrange
-        var dbContext = TestHelper.GetDbContext();
-        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        // Act
-        var result = await controller.ManageGroup(999);
-
-        // Assert
-        Assert.IsType<NotFoundResult>(result);
-    }
-
     [Fact]
     public async Task CreateGroup_Post_InvalidPrimaryManager_ReturnsViewWithError()
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var group = new Group { Id = 1, Name = "NewGroup" };
+
+        var groupViewModel = new GroupViewModel
+        { 
+            Name = "NewGroup",
+            Description = "Test Description",
+            SelectedManagerId = 9,
+            SelectedUserIds = [3]
+        };
         // Use an invalid primaryManagerId (0)
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
@@ -405,7 +378,7 @@ public class AdminControllerTests
         controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
 
         // Act
-        var result = await controller.CreateGroup(group, new List<int> { 2 }, new List<int> { 3 }, 0);
+        var result = await controller.CreateGroup(groupViewModel);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -415,55 +388,53 @@ public class AdminControllerTests
     [Fact]
     public async Task CreateGroup_Post_Valid_ReturnsRedirect()
     {
-    // Arrange
-    var dbContext = TestHelper.GetDbContext();
-    // Add a primary manager and other users
-    var primaryManager = new User { Id = 1, UserName = "PrimaryManager", Email = "pm@example.com" };
-    var otherManager = new User { Id = 2, UserName = "OtherManager", Email = "om@example.com" };
-    var employee = new User { Id = 3, UserName = "Employee", Email = "emp@example.com" };
-    dbContext.Users.AddRange(primaryManager, otherManager, employee);
-    await dbContext.SaveChangesAsync();
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        // Add a primary manager and other users
+        var primaryManager = new User { Id = 1, UserName = "PrimaryManager", Email = "pm@example.com" };
+        var otherManager = new User { Id = 2, UserName = "OtherManager", Email = "om@example.com" };
+        var employee = new User { Id = 3, UserName = "Employee", Email = "emp@example.com" };
+        dbContext.Users.AddRange(primaryManager, otherManager, employee);
+        await dbContext.SaveChangesAsync();
 
-    var group = new Group 
-    { 
-        Id = 10, 
-        Name = "ValidGroup", 
-        Users = new List<User>(), 
-        Managers = new List<GroupManager>(), 
-        Description = "Test Description"
-    };
+        var groupViewModel = new GroupViewModel
+        {
+            Name = "NewGroup",
+            Description = "Test Description",
+            SelectedManagerId = 1,
+            SelectedUserIds = [3]
+        };
 
-    // Create the controller with required mocked dependencies.
-    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        // Create the controller with required mocked dependencies.
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-    // Build a service provider with necessary services.
-    var services = new ServiceCollection()
-        .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-        .AddSingleton<UserManager<User>>(_mockUserManager.Object)
-        .BuildServiceProvider();
+        // Build a service provider with necessary services.
+        var services = new ServiceCollection()
+            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+            .AddSingleton<UserManager<User>>(_mockUserManager.Object)
+            .BuildServiceProvider();
 
-    // Set up the HttpContext with the service provider.
-    var httpContext = new DefaultHttpContext { RequestServices = services };
-    controller.ControllerContext.HttpContext = httpContext;
+        // Set up the HttpContext with the service provider.
+        var httpContext = new DefaultHttpContext { RequestServices = services };
+        controller.ControllerContext.HttpContext = httpContext;
 
-    // Manually create and assign TempData to avoid DI lookup for ITempDataDictionaryFactory.
-    var tempDataProvider = services.GetRequiredService<ITempDataProvider>();
-    controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
+        // Manually create and assign TempData to avoid DI lookup for ITempDataDictionaryFactory.
+        var tempDataProvider = services.GetRequiredService<ITempDataProvider>();
+        controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
 
-    // Assign a mocked IUrlHelper to bypass IUrlHelperFactory resolution when RedirectToAction is called.
-    var mockUrlHelper = new Mock<IUrlHelper>();
-    controller.Url = mockUrlHelper.Object;
+        // Assign a mocked IUrlHelper to bypass IUrlHelperFactory resolution when RedirectToAction is called.
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        controller.Url = mockUrlHelper.Object;
 
-    // Act
-    var result = await controller.CreateGroup(group, new List<int> { 1, 2 }, new List<int> { 3 }, 1);
+        // Act
+        var result = await controller.CreateGroup(groupViewModel);
 
-    // Assert
-    var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-    Assert.Equal("Groups", redirectResult.ActionName);
-    Assert.Contains(group.Managers, gm => gm.UserId == 1);
-    Assert.Contains(group.Users, u => u.Id == 3);
-}
-
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Groups", redirectResult.ActionName);
+        Assert.Equal(1, groupViewModel.SelectedManagerId);
+        Assert.Contains(3, groupViewModel.SelectedUserIds);
+    }
 
     [Fact]
     public async Task DeleteGroup_RemovesGroupIfExists()

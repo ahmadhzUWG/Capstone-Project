@@ -2,22 +2,41 @@
 
 namespace TaskManagerWebsite.ViewModels
 {
+    /// <summary>
+    /// Represents the data model for creating an admin user.
+    /// </summary>
     public class AdminViewModel
     {
+        /// <summary>
+        /// Gets or sets the username for the admin.
+        /// This field is required.
+        /// </summary>
         [Required]
         [Display(Name = "User Name")]
         public required string UserName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the email address of the admin.
+        /// This field is required and must be a valid email format.
+        /// </summary>
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public required string Email { get; set; }
 
+        /// <summary>
+        /// Gets or sets the password for the admin.
+        /// This field is required and will be masked as a password input.
+        /// </summary>
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public required string Password { get; set; }
 
+        /// <summary>
+        /// Gets or sets the confirmation password.
+        /// This field is required and must match the password field.
+        /// </summary>
         [Required]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match.")]

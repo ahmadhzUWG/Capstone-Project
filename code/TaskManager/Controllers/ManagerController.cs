@@ -7,13 +7,23 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
 {
+    /// <summary>
+    /// Manages actions for users with the "Manager" role, including viewing, creating, and managing projects, groups, and group requests.
+    /// </summary>
     [Authorize(Roles = "Manager")]
     public class ManagerController : Controller
+
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagerController"/> class.
+        /// </summary>
+        /// <param name="context">The database context for data access.</param>
+        /// <param name="userManager">The user manager for handling user authentication.</param>
+        /// <param name="roleManager">The role manager for handling role-related operations.</param>
         public ManagerController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _context = context;
@@ -21,18 +31,30 @@ namespace TaskManagerWebsite.Controllers
             _roleManager = roleManager;
         }
 
+        /// <summary>
+        /// Retrieves a list of all users in the system.
+        /// </summary>
+        /// <returns>A view displaying the list of users.</returns>
         public async Task<IActionResult> Users()
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
 
+        /// <summary>
+        /// Retrieves a list of all groups in the system.
+        /// </summary>
+        /// <returns>A view displaying the list of groups.</returns>
         public async Task<IActionResult> Groups()
         {
             var groups = await _context.Groups.ToListAsync();
             return View(groups);
         }
 
+        /// <summary>
+        /// Retrieves a list of projects, including pending and sent group requests for the logged-in manager.
+        /// </summary>
+        /// <returns>A view displaying the projects the manager is involved in.</returns>
         public async Task<IActionResult> Projects()
         {
             var userId = _userManager.GetUserId(User);
@@ -56,7 +78,10 @@ namespace TaskManagerWebsite.Controllers
             return View(projects);
         }
 
-
+        /// <summary>
+        /// Displays the form for creating a new project.
+        /// </summary>
+        /// <returns>A view with a list of users and groups available for selection.</returns>
         public async Task<IActionResult> CreateProject()
         {
             var users = await _context.Users.ToListAsync();
@@ -65,6 +90,14 @@ namespace TaskManagerWebsite.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the submission of a new project creation form.
+        /// </summary>
+        /// <param name="project">The project object containing user input data.</param>
+        /// <returns>
+        /// Redirects to the projects list upon successful creation.
+        /// If the model state is invalid or the user is not logged in, returns the form with validation errors.
+        /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProject(Project project)
@@ -90,6 +123,14 @@ namespace TaskManagerWebsite.Controllers
             return View(project);
         }
 
+        /// <summary>
+        /// Retrieves details of a specific project, including associated groups, user roles, and management status.
+        /// </summary>
+        /// <param name="id">The ID of the project.</param>
+        /// <returns>
+        /// Returns a view displaying project details if found;
+        /// otherwise, returns a <see cref="NotFoundResult"/> if the project does not exist.
+        /// </returns>
         public async Task<IActionResult> ProjectDetails(int id)
         {
             var currentUserId = _userManager.GetUserId(User);
@@ -101,7 +142,6 @@ namespace TaskManagerWebsite.Controllers
 
             var managedGroupsToRemove = new List<Group>();
 
-            //Remove managed groups that are already assigned to the project
             foreach (var group1 in groups)
             {
                 List<Group> groupsWithGivenProject = _context.GroupProjects
@@ -109,6 +149,7 @@ namespace TaskManagerWebsite.Controllers
                     .Select(gp => gp.Group)
                     .Distinct()
                     .ToList();
+
                 foreach (var groupInProject in groupsWithGivenProject)
                 {
                     if (groupInProject.Id == group1.Id)
@@ -127,7 +168,6 @@ namespace TaskManagerWebsite.Controllers
 
             var groupsToRemove = new List<Group>();
 
-            // Remove unmanaged groups that are already assigned to the project
             foreach (var group in unmanagedGroups)
             {
                 List<Group> groupsWithGivenProject = _context.GroupProjects
@@ -135,6 +175,7 @@ namespace TaskManagerWebsite.Controllers
                     .Select(gp => gp.Group)  
                     .Distinct() 
                     .ToList();
+
                 foreach (var groupInProject in groupsWithGivenProject)
                 {
                     if (groupInProject.Id == group.Id)
@@ -162,6 +203,11 @@ namespace TaskManagerWebsite.Controllers
             return View(project);
         }
 
+        /// <summary>
+        /// Retrieves the project details for editing.
+        /// </summary>
+        /// <param name="id">The ID of the project to edit.</param>
+        /// <returns>Returns the edit view with the project details if found; otherwise, returns a <see cref="NotFoundResult"/>.</returns>
         public async Task<IActionResult> EditProject(int id)
         {
             var project = await _context.Projects.FindAsync(id);
@@ -174,6 +220,16 @@ namespace TaskManagerWebsite.Controllers
             return View(project);
         }
 
+        /// <summary>
+        /// Updates the details of an existing project.
+        /// </summary>
+        /// <param name="id">The ID of the project being edited.</param>
+        /// <param name="project">The updated project details.</param>
+        /// <returns>
+        /// Redirects to the project details page if successful.
+        /// If the ID does not match or the project does not exist, returns a <see cref="BadRequestResult"/> or <see cref="NotFoundResult"/>.
+        /// If an error occurs, the edit view is returned with validation messages.
+        /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProject(int id, Project project)
@@ -215,7 +271,11 @@ namespace TaskManagerWebsite.Controllers
             return View(project);
         }
 
-
+        /// <summary>
+        /// Deletes a specified project from the system.
+        /// </summary>
+        /// <param name="id">The ID of the project to delete.</param>
+        /// <returns>Redirects to the project list after deletion.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProject(int id)
@@ -229,6 +289,15 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction(nameof(Projects));
         }
 
+        /// <summary>
+        /// Sends a request to assign a group to a project.
+        /// </summary>
+        /// <param name="projectId">The ID of the project.</param>
+        /// <param name="groupId">The ID of the group being requested.</param>
+        /// <returns>
+        /// Redirects to the project details page after submitting the request.
+        /// If validation fails, returns an error message.
+        /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RequestGroupToProject(int projectId, int groupId)
@@ -277,6 +346,12 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("ProjectDetails", "Manager", new {id = projectId});
         }
 
+        /// <summary>
+        /// Assigns a group to a specified project if it is not already assigned.
+        /// </summary>
+        /// <param name="projectId">The ID of the project.</param>
+        /// <param name="groupId">The ID of the group to be assigned.</param>
+        /// <returns>Redirects to the project details page if successful.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignGroupToProject(int projectId, int groupId)
@@ -300,7 +375,6 @@ namespace TaskManagerWebsite.Controllers
                 return RedirectToAction("ProjectDetails", "Manager", new { id = projectId });
             }
 
-            // Check if the group is already assigned
             if (!project.ProjectGroups.Any(pg => pg.GroupId == groupId))
             {
                 project.ProjectGroups.Add(new GroupProject
@@ -314,6 +388,12 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("ProjectDetails", new { id = projectId });
         }
 
+        /// <summary>
+        /// Removes a group from a specified project if it is currently assigned.
+        /// </summary>
+        /// <param name="projectId">The ID of the project.</param>
+        /// <param name="groupId">The ID of the group to be removed.</param>
+        /// <returns>Redirects to the project details page if successful.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveGroupFromProject(int projectId, int groupId)
@@ -338,6 +418,11 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("ProjectDetails", new { id = projectId });
         }
 
+        /// <summary>
+        /// Accepts a pending group request and assigns the group to the project.
+        /// </summary>
+        /// <param name="requestId">The ID of the request to accept.</param>
+        /// <returns>Redirects to the projects list after approval.</returns>
         [HttpPost]
         public async Task<IActionResult> AcceptRequest(int requestId)
         {
@@ -369,6 +454,11 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("Projects");
         }
 
+        /// <summary>
+        /// Denies a pending group request.
+        /// </summary>
+        /// <param name="requestId">The ID of the request to deny.</param>
+        /// <returns>Redirects to the projects list after denial.</returns>
         [HttpPost]
         public async Task<IActionResult> DenyRequest(int requestId)
         {
@@ -386,6 +476,11 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("Projects");
         }
 
+        /// <summary>
+        /// Deletes a group request from the system.
+        /// </summary>
+        /// <param name="requestId">The ID of the group request to delete.</param>
+        /// <returns>Redirects to the projects list after deletion.</returns>
         [HttpPost]
         public async Task<IActionResult> DeleteGroupRequest(int requestId)
         {
