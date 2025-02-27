@@ -7,6 +7,10 @@ using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.Controllers
 {
+    /// <summary>
+    /// Handles actions related to employees, including viewing users, groups, and projects.
+    /// Restricted to users with the "Employee" role.
+    /// </summary>
     [Authorize(Roles = "Employee")]
     public class EmployeeController : Controller
     {
@@ -14,6 +18,12 @@ namespace TaskManagerWebsite.Controllers
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmployeeController"/> class.
+        /// </summary>
+        /// <param name="context">The database context for data access.</param>
+        /// <param name="userManager">The user manager for handling user-related operations.</param>
+        /// <param name="roleManager">The role manager for handling role-related operations.</param>
         public EmployeeController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _context = context;
@@ -21,18 +31,30 @@ namespace TaskManagerWebsite.Controllers
             _roleManager = roleManager;
         }
 
+        /// <summary>
+        /// Retrieves a list of all users in the system.
+        /// </summary>
+        /// <returns>A view displaying the list of users.</returns>
         public async Task<IActionResult> Users()
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
 
+        /// <summary>
+        /// Retrieves a list of all groups in the system.
+        /// </summary>
+        /// <returns>A view displaying the list of groups.</returns>
         public async Task<IActionResult> Groups()
         {
             var groups = await _context.Groups.ToListAsync();
             return View(groups);
         }
 
+        /// <summary>
+        /// Retrieves a list of projects associated with groups the current user belongs to.
+        /// </summary>
+        /// <returns>A view displaying the projects the user is involved in.</returns>
         public async Task<IActionResult> Projects()
         {
             int userId = int.Parse(_userManager.GetUserId(User));
@@ -48,6 +70,14 @@ namespace TaskManagerWebsite.Controllers
             return View(projects);
         }
 
+        /// <summary>
+        /// Retrieves details of a specific project, including associated groups and user roles.
+        /// </summary>
+        /// <param name="id">The ID of the project.</param>
+        /// <returns>
+        /// Returns a view displaying project details if found;
+        /// otherwise, returns a <see cref="NotFoundResult"/> if the project does not exist.
+        /// </returns>
         public async Task<IActionResult> ProjectDetails(int id)
         {
             var currentUserId = _userManager.GetUserId(User);

@@ -8,20 +8,37 @@ using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
+
+    /// <summary>
+    /// Manages user authentication, including login and logout functionality.
+    /// </summary>
     public class LoginController(UserManager<User> userManager, SignInManager<User> signInManager) : Controller
     {
         private readonly UserManager<User> _userManager = userManager;
         private readonly SignInManager<User> _signInManager = signInManager;
 
+
+        /// <summary>
+        /// Displays the login page and ensures the user is signed out before rendering.
+        /// </summary>
+        /// <returns>The login view.</returns>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // This ensures that the user is logged out when they visit the login page.
             await _signInManager.SignOutAsync(); 
             
             return View();
         }
 
+        /// <summary>
+        /// Processes user login requests.
+        /// </summary>
+        /// <param name="model">The login credentials submitted by the user.</param>
+        /// <param name="returnUrl">An optional return URL to redirect the user after successful login.</param>
+        /// <returns>
+        /// Redirects to the return URL or the home page upon successful login.
+        /// If the login attempt fails, returns the login view with validation errors.
+        /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(LoginViewModel model, string? returnUrl = null)
@@ -54,7 +71,10 @@ namespace TaskManagerWebsite.Controllers
         }
 
 
-        // POST: /Account/Logout
+        /// <summary>
+        /// Logs the user out and redirects them to the login page.
+        /// </summary>
+        /// <returns>Redirects to the login page after signing out.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
