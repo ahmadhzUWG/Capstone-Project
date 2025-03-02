@@ -1,162 +1,126 @@
-﻿@model TaskManagerWebsite.Models.Group
+﻿@model TaskManagerWebsite.ViewModels.GroupViewModel
 
-<link href="~/css/admin_createGroups.css" rel="stylesheet" />
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<h1>Create Group</h1>
+<link rel="stylesheet" href="/css/Admin/createGroups.css" />
 
-<form id="createGroupForm" asp-action="CreateGroup" asp-controller="Admin" method="post">
-    <div class="form-group">
-        <label asp-for="Name">Group Name</label>
-        <input asp-for="Name" class="form-control" required />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<div class="container">
+    <div class="form-container">
+        <h1 class="text-center">Create Group</h1>
 
-        <br />
+        <form id="createGroupForm" asp-action="CreateGroup" asp-controller="Admin" method="post" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label asp-for="Name">Group Name</label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
 
-        <label asp-for="Description">Group Description</label>
-        <input asp-for="Description" class="form-control" required />
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+            <div class="form-group">
+                <label asp-for="Description">Group Description</label>
+                <input asp-for="Description" class="form-control" required />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
 
-    <br />
+            <div class="form-group">
+                <label>Select Manager</label>
+                <input type="text" id="searchBoxManagers" class="form-control mb-2" placeholder="Search managers...">
+                <select asp-for="SelectedManagerId" id="managerDropdown" class="form-control">
+                    <option value="">-- Select a Manager --</option>
+                    @foreach (var user in ViewBag.Employees ?? new List<User>())
+                    {
+                        <option value="@user.Id" class="manager-option" data-user-id="@user.Id">@user.UserName (@user.Email)</option>
+                    }
+                </select>
+                <span asp-validation-for="SelectedManagerId" class="text-danger"></span>
+            </div>
 
-    <div class="form-group">
-        <label>Select Managers</label>
-        <input type="text" id="searchBoxManagers" class="form-control mb-2" placeholder="Search managers...">
-
-        <div id="managerContainer">
-            @foreach (var user in ViewBag.Managers ?? new List<User>())
-            {
-                <div class="form-check manager-box d-flex align-items-center justify-content-between">
-                    <!-- Manager Selection -->
-                    <div class="d-flex align-items-center">
-                        <input type="checkbox" name="selectedManagers" value="@user.Id" class="form-check-input manager-checkbox me-2" id="manager-@user.Id" />
-                        <label class="form-check-label me-3" for="manager-@user.Id">@user.UserName (@user.Email)</label>
-                    </div>
-
-                    <!-- Primary Manager Selection -->
-                    <div class="d-flex align-items-center">
-                        <input type="radio" name="primaryManagerId" value="@user.Id" class="form-check-input primary-manager-radio me-2" disabled />
-                        <span class="text-muted">Primary Manager</span>
-                    </div>
+            <div class="form-group">
+                <label>Select Employees</label>
+                <div id="employeeContainer" class="employee-list">
+                    @foreach (var user in ViewBag.Employees ?? new List<User>())
+                    {
+                        <div class="form-check employee-box" data-user-id="@user.Id">
+                            <input type="checkbox" name="SelectedUserIds" value="@user.Id" class="form-check-input employee-checkbox"
+                            @(Model?.SelectedUserIds != null && Model.SelectedUserIds.Contains(user.Id) ? "checked" : "") />
+                            <label class="form-check-label">@user.UserName (@user.Email)</label>
+                        </div>
+                    }
                 </div>
-            }
-        </div>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block mt-3">Create</button>
+        </form>
+
+        <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary btn-block mt-2">Back to Groups</a>
     </div>
-
-    <br />
-
-    <div class="form-group">
-        <label>Select Employees</label>
-        <input type="text" id="searchBoxEmployees" class="form-control mb-2" placeholder="Search employees...">
-
-        <div id="employeeContainer">
-            @foreach (var user in ViewBag.Employees ?? new List<User>())
-            {
-                <div class="form-check employee-box">
-                    <input type="checkbox" name="selectedUsers" value="@user.Id" class="form-check-input employee-checkbox" />
-                    <label class="form-check-label">@user.UserName (@user.Email)</label>
-                </div>
-            }
-        </div>
-    </div>
-
-    <br />
-
-    <!-- Hidden Input for Primary Manager ID -->
-    <input type="hidden" id="primaryManagerHidden" name="primaryManagerId" value="" />
-
-    <button type="submit" class="btn btn-success">Create</button>
-</form>
-
-<br />
-<a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let managerCheckboxes = document.querySelectorAll(".manager-checkbox");
-            let primaryManagerRadios = document.querySelectorAll(".primary-manager-radio");
-            let hiddenPrimaryManagerInput = document.getElementById("primaryManagerHidden");
-
-            function updatePrimaryManagerSelection() {
-                let selectedManagers = Array.from(managerCheckboxes).filter(c => c.checked);
-                primaryManagerRadios.forEach(radio => {
-                    radio.disabled = !selectedManagers.some(m => m.value === radio.value);
-                });
-
-                let selectedPrimary = Array.from(primaryManagerRadios).find(r => r.checked);
-                if (!selectedPrimary && selectedManagers.length > 0) {
-                    let firstAvailable = primaryManagerRadios.find(radio => !radio.disabled);
-                    if (firstAvailable) {
-                        firstAvailable.checked = true;
-                        hiddenPrimaryManagerInput.value = firstAvailable.value;
-                    }
-                }
-            }
-
-            managerCheckboxes.forEach((checkbox) => {
-                checkbox.addEventListener("change", function () {
-                    updatePrimaryManagerSelection();
-                });
-            });
-
-            primaryManagerRadios.forEach(radio => {
-                radio.addEventListener("change", function () {
-                    if (this.checked) {
-                        hiddenPrimaryManagerInput.value = this.value;
-                    }
-                });
-            });
-
-            document.getElementById("createGroupForm").addEventListener("submit", function (event) {
-    let managerCheckboxes = document.querySelectorAll(".manager-checkbox");
-    let primaryManagerRadios = document.querySelectorAll(".primary-manager-radio");
-
-    let selectedManagers = Array.from(managerCheckboxes).filter(c => c.checked);
-    let selectedPrimaryManager = Array.from(primaryManagerRadios).find(r => r.checked);
-
-    if (selectedManagers.length === 0) {
-        alert("Please select at least one Manager.");
-        event.preventDefault();
-        return;
-    }
-
-    if (!selectedPrimaryManager) {
-        alert("Please select a Primary Manager.");
-        event.preventDefault();
-        return;
-    }
-        });
-
-        });
-
-    </script>
-
-    <!-- JavaScript for Search Functionality -->
-    <script>
-        function setupSearch(inputId, containerId) {
+        function setupDropdownSearch(inputId, dropdownId) {
             document.getElementById(inputId).addEventListener("keyup", function () {
                 let searchValue = this.value.toLowerCase();
-                let checkboxes = document.querySelectorAll("#" + containerId + " .form-check");
-
-                let hasVisibleUsers = false;
-
-                checkboxes.forEach(function (check) {
-                    let label = check.textContent.toLowerCase();
-                    let isVisible = label.includes(searchValue);
-                    check.style.display = isVisible ? "block" : "none";
-                    if (isVisible) hasVisibleUsers = true;
+                let options = document.querySelectorAll("#" + dropdownId + " .manager-option");
+                options.forEach(function (option) {
+                    let isVisible = option.textContent.toLowerCase().includes(searchValue);
+                    option.style.display = isVisible ? "block" : "none";
                 });
-
-                // Hide the container if no users match the search
-                document.getElementById(containerId).style.display = hasVisibleUsers ? "block" : "none";
             });
         }
 
-        setupSearch("searchBoxManagers", "managerContainer");
-        setupSearch("searchBoxEmployees", "employeeContainer");
+        function setupSearch(inputId, containerId) {
+            document.getElementById(inputId).addEventListener("keyup", function () {
+                let searchValue = this.value.toLowerCase();
+                let checkboxes = document.querySelectorAll("#" + containerId + " .employee-box");
+                checkboxes.forEach(function (box) {
+                    let label = box.querySelector(".form-check-label").textContent.toLowerCase();
+                    let isHidden = box.style.display === "none";
+                    box.style.display = label.includes(searchValue) && !isHidden ? "block" : "none";
+                });
+            });
+        }
 
+        document.getElementById("managerDropdown").addEventListener("change", function () {
+            let selectedManagerId = this.value;
+            let employeeCheckboxes = document.querySelectorAll(".employee-box");
+
+            employeeCheckboxes.forEach(function (box) {
+                let checkbox = box.querySelector(".employee-checkbox");
+                let userId = box.getAttribute("data-user-id");
+
+                if (userId === selectedManagerId) {
+                    checkbox.checked = false;
+                    box.style.display = "none";
+                } else {
+                    box.style.display = "block";
+                }
+            });
+        });
+
+        document.querySelectorAll(".employee-checkbox").forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                let userId = this.value;
+                let managerOption = document.querySelector("#managerDropdown option[data-user-id='" + userId + "']");
+
+                if (this.checked) {
+                    if (managerOption) {
+                        managerOption.style.display = "none";
+                        if (managerOption.selected) {
+                            document.getElementById("managerDropdown").value = "";
+                        }
+                    }
+                } else {
+                    if (managerOption) {
+                        managerOption.style.display = "block";
+                    }
+                }
+            });
+        });
+
+        setupDropdownSearch("searchBoxManagers", "managerDropdown");
+        setupSearch("searchBoxEmployees", "employeeContainer");
     </script>
 }

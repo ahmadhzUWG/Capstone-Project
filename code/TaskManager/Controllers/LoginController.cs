@@ -25,6 +25,10 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+            }
             await _signInManager.SignOutAsync(); 
             
             return View();
@@ -70,7 +74,6 @@ namespace TaskManagerWebsite.Controllers
             return View(model);
         }
 
-
         /// <summary>
         /// Logs the user out and redirects them to the login page.
         /// </summary>
@@ -80,7 +83,7 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Login");
         }
     }
 }

@@ -1,39 +1,31 @@
 #!/bin/bash
 
-# List of paths (both directories and files) to remove
-DIRS_AND_FILES=(
-    "code/TaskManagerDesktop/obj/"
-    "code/TaskManagerDesktop/bin/"
+echo "Cleaning up build artifacts..."
+
+# List of directories and files to remove
+TO_REMOVE=(
     "code/TaskManager/bin/"
     "code/TaskManager/obj/"
-    "code/TaskManager/bin/"
+    "code/TaskManagerDesktop/bin/"
+    "code/TaskManagerDesktop/obj/"
     "code/TaskManager.Tests/bin/"
     "code/TaskManager.Tests/obj/"
     "code/.vs/"
-)
-
-FILES=(
     "code/G4CapstoneProject.sln.DotSettings.user"
 )
 
-# Loop through and remove each directory
-for dir in "${DIRS_AND_FILES[@]}"; do
-    if [ -d "$dir" ]; then
-        echo "Deleting directory: $dir"
-        rm -rf "$dir"
+# Remove each file/directory
+for item in "${TO_REMOVE[@]}"; do
+    if [ -d "$item" ]; then
+        echo "Deleting directory: $item"
+        rm -rf "$item"
+    elif [ -f "$item" ]; then
+        echo "Deleting file: $item"
+        rm -f "$item"
     else
-        echo "Skipping: $dir (not found)"
+        echo "Skipping: $item (not found)"
     fi
 done
 
-# Loop through and remove each file
-for file in "${FILES[@]}"; do
-    if [ -f "$file" ]; then
-        echo "Deleting file: $file"
-        rm -f "$file"
-    else
-        echo "Skipping: $file (not found)"
-    fi
-done
+echo "✅ Cleanup complete!"
 
-echo "Cleanup complete!"

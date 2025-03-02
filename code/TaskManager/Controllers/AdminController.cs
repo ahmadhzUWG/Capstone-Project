@@ -126,6 +126,236 @@ namespace TaskManagerWebsite.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateGroup(GroupViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Employees = await context.Users.ToListAsync();
+                return View(model);
+            }
+
+            var manager = await context.Users.FindAsync(model.SelectedManagerId);
+            if (manager == null)
+            {
+                ModelState.AddModelError("SelectedManagerId", "The selected manager does not exist.");
+                ViewBag.Employees = await context.Users.ToListAsync();
+                return View(model);
+            }
+
+            var group = new Group
+            {
+                Name = model.Name,
+                Description = model.Description,
+                PrimaryManager = manager
+            };
+
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            // Add employees (excluding the manager)
+            var employees = await context.Users
+                .Where(u => model.SelectedUserIds.Contains(u.Id) && u.Id != model.SelectedManagerId)
+                .ToListAsync();
+
+            foreach (var employee in employees)
+            {
+                group.Users.Add(employee);
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Groups");
+        }
+
+        /// <summary>
+        /// Deletes a group based on the provided ID.
+        /// </summary>
+        /// <param name="id">The ID of the group to be deleted.</param>
+        /// <returns>A redirect to the Groups list.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGroup(int id)
+        {
+            var group = await context.Groups.FindAsync(id);
+            if (group != null)
+            {
+                context.Groups.Remove(group);
+                await context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Groups));
+        }
+
+        /// <summary>
+        /// Retrieves and displays detailed information for a specific group, including its users and managers,
+        /// and also loads all users (excluding managers) and all managers from the database to allow adding new members.
+        /// </summary>
+        /// <param name="id">The ID of the group.</param>
+        /// <returns>A view displaying group details or NotFound if the group does not exist.</returns>
+        public async Task<IActionResult> GroupDetails(int id)
+        {
+            var group = await context.Groups
+                .Include(g => g.Users) // Include group members
+                .Include(g => g.PrimaryManager) // Include the single manager
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (group == null)
+                return NotFound();
+
+            var allUsers = await context.Users.ToListAsync();
+
+            // Get employees who are not in the group (available to be added)
+            var availableEmployees = allUsers
+                .Where(u => !group.Users.Contains(u) && (group.PrimaryManager == null || u.Id != group.PrimaryManager.Id))
+                .ToList();
+
+            // Get employees who are already in the group but are not the current manager (eligible for promotion)
+            var availableManagers = allUsers
+                .Where(u => group.PrimaryManager == null || u.Id != group.PrimaryManager.Id)
+                .ToList();
+
+            ViewBag.Users = availableEmployees;
+            ViewBag.AvailableManagers = availableManagers;
+
+            return View(group);
+        }
+
+        /// <summary>
+        /// Adds a user to a specified group.
+        /// </summary>
+        /// <param name="groupId">The ID of the group.</param>
+        /// <param name="userId">The ID of the user to be added.</param>
+        /// <returns>A redirect to the group's details page.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddUserToGroup(int groupId, int userId)
+        {
+            var group = await context.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.Id == groupId);
+            var user = await context.Users.FindAsync(userId);
+
+            if (group == null || user == null)
+            {
+                return NotFound();
+            }
+
+            if (!group.Users.Contains(user))
+            {
+                group.Users.Add(user);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveUserFromGroup(int groupId, int userId)
+        {
+            var group = await context.Groups
+                .Include(g => g.Users)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            var user = await context.Users.FindAsync(userId);
+
+            if (group == null || user == null)
+            {
+                return NotFound();
+            }
+
+            if (group.Users.Contains(user))
+            {
+                group.Users.Remove(user);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
+        /// <summary>
+        /// Adds a manager to a specified group, with an option to set them as the primary manager.
+        /// </summary>
+        /// <param name="groupId">The ID of the group.</param>
+        /// <param name="managerId">The ID of the manager to be added.</param>
+        /// <param name="isPrimary">Indicates if the manager should be the primary manager.</param>
+        /// <returns>A redirect to the group's details page.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddManagerToGroup(int groupId, int managerId, bool isPrimary)
+        {
+            var group = await context.Groups.Include(g => g.Managers).FirstOrDefaultAsync(g => g.Id == groupId);
+            var user = await context.Users.FindAsync(managerId);
+
+            if (group == null || user == null)
+            {
+                return NotFound();
+            }
+
+            if (group.Managers.All(m => m.UserId != managerId))
+            {
+                context.GroupManagers.Add(new GroupManager
+                {
+                    GroupId = groupId,
+                    UserId = managerId
+                });
+            }
+
+            if (isPrimary)
+            {
+                group.PrimaryManagerId = managerId;
+            }
+
+            await context.SaveChangesAsync();
+            return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeManager(int groupId, int newManagerId)
+        {
+            var group = await context.Groups
+                .Include(g => g.Users)
+                .Include(g => g.PrimaryManager)
+                .Include(g => g.Managers)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var newManager = await context.Users.FindAsync(newManagerId);
+            if (newManager == null)
+            {
+                return NotFound();
+            }
+
+            var previousManager = group.PrimaryManager;
+            if (previousManager != null)
+            {
+                var previousManagerEntry = await context.GroupManagers
+                    .FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == previousManager.Id);
+
+                if (previousManagerEntry != null)
+                {
+                    context.GroupManagers.Remove(previousManagerEntry);
+                }
+            }
+
+            group.PrimaryManager = newManager;
+
+            var newManagerEntry = new GroupManager
+            {
+                GroupId = groupId,
+                UserId = newManagerId
+            };
+            context.GroupManagers.Add(newManagerEntry);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("GroupDetails", new { id = groupId });
+        }
+
         /// <summary>
         /// Handles the creation of a new group, assigning selected managers and users.
         /// </summary>
@@ -232,7 +462,7 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            if (!project.ProjectGroups.Any(pg => pg.GroupId == groupId))
+            if (project.ProjectGroups.All(pg => pg.GroupId != groupId))
             {
                 project.ProjectGroups.Add(new GroupProject
                 {
@@ -366,214 +596,6 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        /// Creates a new group with selected managers, users, and a primary manager.
-        /// </summary>
-        /// <param name="group">The group object containing the group details.</param>
-        /// <param name="selectedManagers">List of user IDs assigned as managers.</param>
-        /// <param name="selectedUsers">List of user IDs assigned as regular members.</param>
-        /// <param name="primaryManagerId">The ID of the primary manager.</param>
-        /// <returns>
-        /// Redirects to the group list if successful.
-        /// If validation fails, returns the view with validation errors and repopulated selection lists.
-        /// </returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateGroup(Group group, List<int> selectedManagers, List<int> selectedUsers, int primaryManagerId)
-        {
-            if (primaryManagerId > 0)
-            {
-                var primaryManager = await context.Users.FindAsync(primaryManagerId);
-                if (primaryManager == null)
-                {
-                    ModelState.AddModelError("PrimaryManagerId", "The selected Primary Manager is invalid.");
-                }
-                else
-                {
-                    group.PrimaryManager = primaryManager;
-                    group.PrimaryManagerId = primaryManagerId;
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("PrimaryManagerId", "The Primary Manager field is required.");
-            }
-
-            if (!selectedManagers.Contains(primaryManagerId))
-            {
-                ModelState.AddModelError("PrimaryManagerId", "Primary Manager must be one of the selected managers.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                context.Groups.Add(group);
-                await context.SaveChangesAsync();
-
-                var managerEntities = await context.Users.Where(u => selectedManagers.Contains(u.Id)).ToListAsync();
-                foreach (var manager in managerEntities)
-                {
-                    group.Users.Add(manager);
-                    group.Managers.Add(new GroupManager { GroupId = group.Id, UserId = manager.Id });
-
-                }
-
-                var userEntities = await context.Users.Where(u => selectedUsers.Contains(u.Id) && !selectedManagers.Contains(u.Id)).ToListAsync();
-                foreach (var user in userEntities)
-                {
-                    group.Users.Add(user);
-                }
-
-                await context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Groups));
-            }
-
-            var usersList = await context.Users.ToListAsync();
-            var userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-
-            var managers = usersList.Where(user => userManager.IsInRoleAsync(user, "Manager").Result).ToList();
-            var employees = usersList.Where(user => userManager.IsInRoleAsync(user, "Employee").Result && !managers.Contains(user)).ToList();
-
-            ViewBag.Managers = managers;
-            ViewBag.Employees = employees;
-
-            return View(group);
-        }
-
-        /// <summary>
-        /// Deletes a group based on the provided ID.
-        /// </summary>
-        /// <param name="id">The ID of the group to be deleted.</param>
-        /// <returns>A redirect to the Groups list.</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteGroup(int id)
-        {
-            var group = await context.Groups.FindAsync(id);
-            if (group != null)
-            {
-                context.Groups.Remove(group);
-                await context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Groups));
-        }
-
-        /// <summary>
-        /// Retrieves and displays management details for a specific group.
-        /// </summary>
-        /// <param name="id">The ID of the group.</param>
-        /// <returns>A view displaying group management details or NotFound if the group does not exist.</returns>
-        public async Task<IActionResult> ManageGroup(int id)
-        {
-            var group = await context.Groups
-                .Include(g => g.Users)
-                .FirstOrDefaultAsync(g => g.Id == id);
-
-            if (group == null)
-            {
-                return NotFound();
-            }
-
-            return View(group);
-        }
-
-        /// <summary>
-        /// Retrieves and displays detailed information for a specific group, including its users and managers,
-        /// and also loads all users (excluding managers) and all managers from the database to allow adding new members.
-        /// </summary>
-        /// <param name="id">The ID of the group.</param>
-        /// <returns>A view displaying group details or NotFound if the group does not exist.</returns>
-        public async Task<IActionResult> GroupDetails(int id)
-        {
-            var group = await context.Groups
-                .Include(g => g.Users)
-                .Include(g => g.Managers)
-                .ThenInclude(gm => gm.User)
-                .Include(g => g.PrimaryManager)
-                .FirstOrDefaultAsync(g => g.Id == id);
-
-            if (group == null)
-                return NotFound();
-
-            var allUsers = await context.Users.ToListAsync();
-            var userManager = HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-
-            var allManagers = allUsers
-                .Where(user => userManager.IsInRoleAsync(user, "Manager").Result)
-                .ToList();
-
-            var nonManagerUsers = allUsers.Except(allManagers).ToList();
-
-            ViewBag.Users = nonManagerUsers;
-            ViewBag.Managers = allManagers;
-
-            return View(group);
-        }
-
-        /// <summary>
-        /// Adds a user to a specified group.
-        /// </summary>
-        /// <param name="groupId">The ID of the group.</param>
-        /// <param name="userId">The ID of the user to be added.</param>
-        /// <returns>A redirect to the group's details page.</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddUserToGroup(int groupId, int userId)
-        {
-            var group = await context.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.Id == groupId);
-            var user = await context.Users.FindAsync(userId);
-
-            if (group == null || user == null)
-            {
-                return NotFound();
-            }
-
-            if (!group.Users.Contains(user))
-            {
-                group.Users.Add(user);
-                await context.SaveChangesAsync();
-            }
-
-            return RedirectToAction("GroupDetails", new { id = groupId });
-        }
-
-        /// <summary>
-        /// Adds a manager to a specified group, with an option to set them as the primary manager.
-        /// </summary>
-        /// <param name="groupId">The ID of the group.</param>
-        /// <param name="managerId">The ID of the manager to be added.</param>
-        /// <param name="isPrimary">Indicates if the manager should be the primary manager.</param>
-        /// <returns>A redirect to the group's details page.</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddManagerToGroup(int groupId, int managerId, bool isPrimary)
-        {
-            var group = await context.Groups.Include(g => g.Managers).FirstOrDefaultAsync(g => g.Id == groupId);
-            var user = await context.Users.FindAsync(managerId);
-
-            if (group == null || user == null)
-            {
-                return NotFound();
-            }
-
-            if (group.Managers.All(m => m.UserId != managerId))
-            {
-                context.GroupManagers.Add(new GroupManager
-                {
-                    GroupId = groupId,
-                    UserId = managerId
-                });
-            }
-
-            if (isPrimary)
-            {
-                group.PrimaryManagerId = managerId;
-            }
-
-            await context.SaveChangesAsync();
-            return RedirectToAction("GroupDetails", new { id = groupId });
-        }
-
-        /// <summary>
         /// Displays the edit page for a specific user.
         /// </summary>
         /// <param name="id">The ID of the user.</param>
@@ -666,16 +688,6 @@ namespace TaskManagerWebsite.Controllers
                 await context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Users));
-        }
-
-        /// <summary>
-        /// Checks whether a user exists in the database.
-        /// </summary>
-        /// <param name="id">The ID of the user.</param>
-        /// <returns>True if the user exists, otherwise false.</returns>
-        private bool UserExists(int id)
-        {
-            return context.Users.Any(u => u.Id == id);
         }
     }
 }

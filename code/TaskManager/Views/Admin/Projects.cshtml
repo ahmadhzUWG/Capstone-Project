@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
 
-<link rel="stylesheet" href="~/css/admin_projects.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Admin/projects.css" asp-append-version="true" />
 
 <div style="text-align: center" class="header">
     <h2>Projects</h2>
@@ -16,7 +16,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var project in Model.OrderBy(p => p.Name)) // Sort projects by name
+    @foreach (var project in Model.OrderBy(p => p.Name))
     {
         <tr>
             <td>@project.Name</td>
