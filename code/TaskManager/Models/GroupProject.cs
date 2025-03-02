@@ -14,7 +14,7 @@ public class GroupProject
     /// <summary>
     /// Gets or sets the project entity associated with the group.
     /// </summary>
-    public Project Project { get; set; }
+    public Project? Project { get; set; }
 
     /// <summary>
     /// Gets or sets the identifier of the group associated with the project.
@@ -24,5 +24,5 @@ public class GroupProject
     /// <summary>
     /// Gets or sets the group entity associated with the project.
     /// </summary>
-    public Group Group { get; set; }
+    public Group? Group { get; set; }
 }

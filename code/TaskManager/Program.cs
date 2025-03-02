@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Authorization;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,19 +27,47 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireAssertion(async context =>
-        {
-            var httpContext = context.Resource as HttpContext;
-            if (httpContext == null) return false;
+    // Admins can manage everything
+    options.AddPolicy("CanManageUsers", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
 
-            var userManager = httpContext.RequestServices.GetRequiredService<UserManager<User>>();
-            var dbContext = httpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+    // Managers can edit users they manage
+    options.AddPolicy("CanEditUser", policy =>
+        policy.Requirements.Add(new UserRelationshipRequirement("Manager")));
 
-            var user = await userManager.GetUserAsync(httpContext.User);
-            return user != null && await dbContext.Admins.AnyAsync(a => a.UserId == user.Id);
-        }));
+    // Only Admins can delete users
+    options.AddPolicy("CanDeleteUser", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+    // Admins can create groups/projects
+    options.AddPolicy("CanManageGroups", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+    options.AddPolicy("CanManageProjects", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+    // Managers can edit groups/projects they manage
+    options.AddPolicy("CanEditGroup", policy =>
+        policy.Requirements.Add(new GroupRoleRequirement("Manager")));
+    options.AddPolicy("CanEditProject", policy =>
+        policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
+
+    // Only Admins can delete groups/projects
+    options.AddPolicy("CanDeleteGroup", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+    options.AddPolicy("CanDeleteProject", policy =>
+        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+    // Managers can manage employees within their own group/project
+    options.AddPolicy("CanManageGroupEmployees", policy =>
+        policy.Requirements.Add(new GroupRoleRequirement("Manager")));
+    options.AddPolicy("CanManageProjectEmployees", policy =>
+        policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
 });
+
+builder.Services.AddScoped<IAuthorizationHandler, UserRoleHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, UserRelationshipHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
 
 builder.Services.AddControllersWithViews();
 
@@ -46,7 +76,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await DataSeeder.SeedRolesAndAdminAsync(services);
+    await DataSeeder.SeedRolesAndUsersAsync(services);
 
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     try

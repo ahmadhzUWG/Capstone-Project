@@ -306,8 +306,6 @@ public class AdminControllerTests
         {
             Id = 40,
             Name = "GroupDetails",
-            Users = new List<User>(),
-            Managers = new List<GroupManager>(),
             Description = "Test Description"
         };
         dbContext.Groups.Add(group);
@@ -315,25 +313,14 @@ public class AdminControllerTests
         var managerUser = new User { Id = 1, UserName = "ManagerUser", Email = "manager@example.com" };
         var employeeUser = new User { Id = 2, UserName = "EmployeeUser", Email = "employee@example.com" };
         dbContext.Users.AddRange(managerUser, employeeUser);
+
+        // ✅ Add users to `UserGroups` instead of `Group.Users`
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 1, Role = "Manager" });
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 2, Role = "Member" });
+
         await dbContext.SaveChangesAsync();
 
-        _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 1), "Manager"))
-            .ReturnsAsync(true);
-        _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 2), "Manager"))
-            .ReturnsAsync(false);
-
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        var services = new ServiceCollection()
-            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-            .AddSingleton<UserManager<User>>(_mockUserManager.Object)
-            .BuildServiceProvider();
-
-        var httpContext = new DefaultHttpContext { RequestServices = services };
-        controller.ControllerContext.HttpContext = httpContext;
-
-        var tempDataProvider = services.GetRequiredService<ITempDataProvider>();
-        controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
 
         // Act
         var result = await controller.GroupDetails(40);
@@ -342,8 +329,14 @@ public class AdminControllerTests
         var viewResult = Assert.IsType<ViewResult>(result);
         var modelGroup = Assert.IsType<Group>(viewResult.Model);
         Assert.Equal("GroupDetails", modelGroup.Name);
-        Assert.NotNull(viewResult.ViewData["Users"]);
-        Assert.NotNull(viewResult.ViewData["Managers"]);
+
+        Assert.NotNull(viewResult.ViewData["GroupUsers"]);
+        var groupUsers = viewResult.ViewData["GroupUsers"] as List<UserGroup>;
+        Assert.NotNull(groupUsers);
+        Assert.Equal(2, groupUsers.Count);
+
+        Assert.Contains(groupUsers, gu => gu.UserId == 1 && gu.Role == "Manager");
+        Assert.Contains(groupUsers, gu => gu.UserId == 2 && gu.Role == "Member");
     }
 
     [Fact]
@@ -391,7 +384,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         // Add a primary manager and other users
-        var primaryManager = new User { Id = 1, UserName = "PrimaryManager", Email = "pm@example.com" };
+        var primaryManager = new User { Id = 1, UserName = "Manager", Email = "pm@example.com" };
         var otherManager = new User { Id = 2, UserName = "OtherManager", Email = "om@example.com" };
         var employee = new User { Id = 3, UserName = "Employee", Email = "emp@example.com" };
         dbContext.Users.AddRange(primaryManager, otherManager, employee);
@@ -479,9 +472,9 @@ public class AdminControllerTests
         var result1 = await controller.AddUserToGroup(1, 1);
         Assert.IsType<NotFoundResult>(result1);
 
-        // Add group but not user
-        dbContext.Groups.Add(new Group { Id = 50, Name = "AddUserGroup", Users = new List<User>(), Description = "Test Description"});
+        dbContext.Groups.Add(new Group { Id = 50, Name = "AddUserGroup", Description = "Test Description" });
         await dbContext.SaveChangesAsync();
+
         var result2 = await controller.AddUserToGroup(50, 99);
         Assert.IsType<NotFoundResult>(result2);
     }
@@ -491,7 +484,7 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var group = new Group { Id = 60, Name = "UserGroup", Users = new List<User>(), Description = "Test Description"};
+        var group = new Group { Id = 60, Name = "UserGroup", Description = "Test Description" };
         var user = new User { Id = 10, UserName = "GroupUser", Email = "groupuser@example.com" };
         dbContext.Groups.Add(group);
         dbContext.Users.Add(user);
@@ -505,7 +498,9 @@ public class AdminControllerTests
         // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("GroupDetails", redirectResult.ActionName);
-        Assert.Contains(group.Users, u => u.Id == 10);
+
+        // ✅ Check in `UserGroups`
+        Assert.Contains(dbContext.UserGroups, ug => ug.GroupId == 60 && ug.UserId == 10 && ug.Role == "Member");
     }
 
     [Fact]
@@ -541,7 +536,7 @@ public class AdminControllerTests
         {
             Id = 80,
             Name = "ManagerGroup",
-            Description = "Test Description", // Added required property
+            Description = "Test Description",
             Managers = new List<GroupManager>()
         };
         var user = new User
@@ -562,7 +557,7 @@ public class AdminControllerTests
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("GroupDetails", redirectResult.ActionName);
         Assert.Contains(dbContext.GroupManagers, gm => gm.GroupId == 80 && gm.UserId == 20);
-        Assert.Equal(20, group.PrimaryManagerId);
+        Assert.Equal(20, group.ManagerId);
     }
 
 

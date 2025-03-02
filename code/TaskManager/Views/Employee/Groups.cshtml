@@ -1,31 +1,55 @@
 ﻿@model IEnumerable<Group>
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/manager_groups.css" asp-append-version="true" />
-
-
+<link rel="stylesheet" href="~/css/Admin/groups.css" asp-append-version="true" />
 
 <div class="groups-container">
     <h1>Groups</h1>
+
     <table class="table">
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-        </tr>
-        @foreach (var group in Model)
-        {
+        <thead>
             <tr>
-                <td>@group.Name</td>
-                <td>@group.Description</td>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
             </tr>
-        }
+        </thead>
+        <tbody>
+            @foreach (var group in Model)
+            {
+                <tr>
+                    <td>
+                        @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "CanEditGroup")).Succeeded)
+                        {
+                            <a href="@Url.Action("GroupDetails", "Employee", new { id = group.Id })">
+                                @group.Name
+                            </a>
+                        }
+                        else
+                        {
+                            @group.Name
+                        }
+                    </td>
+                    <td>@group.Description</td>
+                    <td>
+                        @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "CanDeleteGroup")).Succeeded)
+                        {
+                            <form asp-action="DeleteGroup" asp-controller="Admin" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@group.Id"/>
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
     </table>
-    
+
     <div style="text-align: center;">
-        @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
     </div>
 </div>
-

@@ -60,7 +60,7 @@
                         @userGroup.User.UserName (@userGroup.User.Email)
                         @if (userGroup.Role != "Manager") // Prevent removing managers directly
                         {
-                            <form asp-action="RemoveUserFromGroup" asp-controller="Admin" method="post" class="inline-form">
+                            <form asp-action="RemoveUserFromGroup" asp-controller="Employee" method="post" class="inline-form">
                                 <input type="hidden" name="groupId" value="@Model.Id" />
                                 <input type="hidden" name="userId" value="@userGroup.UserId" />
                                 <button type="submit" class="btn btn-danger btn-sm">Remove</button>
@@ -83,7 +83,7 @@
     <!-- Form to Add Employees to the Group -->
     <div class="group-section">
         <h3>Add Employee to Group</h3>
-        <form asp-action="AddUserToGroup" asp-controller="Admin" method="post">
+        <form asp-action="AddUserToGroup" asp-controller="Employee" method="post">
             <input type="hidden" name="groupId" value="@Model.Id" />
             <label for="userId">Select Employee:</label>
             <select name="userId" class="form-control">
@@ -105,6 +105,6 @@
 
     <!-- Back to Groups Button -->
     <div class="back-button">
-        <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>
+        <a href="@Url.Action("Groups", "Employee")" class="btn btn-secondary">Back to Groups</a>
     </div>
 </div>
