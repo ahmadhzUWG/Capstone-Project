@@ -1,0 +1,12 @@
+Delete Stage on Project Board
+Context:
+	Admin/Project lead wants to remove a task from column/stage to project board and is viewing the board.
+	Primary Flow:
+		1. User selects stage
+		2. User clicks delete
+		3. System deletes stage
+	Alternative Flow: Stage contains task/tasks
+		1. Resume from primary flow step 2
+		2. System warns user that the stage is not empty and asks for deletion confirmation
+		3. User clicks confirm deletion
+		

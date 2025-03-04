@@ -1,0 +1,13 @@
+Find Username
+Context: User faces login screen and doesn't remember username
+	Primary Flow:
+		1. User clicks find username
+		2. System loads find username page
+		3. User provides email
+		4. System returns username tied to email
+	Alternative Flow: User provides incorrect email
+		1. Resume from primary step 2
+		2. user provides incorrect email
+		3. System warns user that the email is not tied to an account
+		4. Resume from primary flow step 3
+
