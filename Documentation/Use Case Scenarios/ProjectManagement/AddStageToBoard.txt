@@ -1,0 +1,18 @@
+Add Stage to Project Board
+Context:
+	Admin/Project lead wants to add an additional column/stage to project board and is viewing the board.
+	Primary Flow:
+		1. User clicks Add Stage
+		2. System loads sidebar requesting stage name and position number
+		3. User provides necessary information
+		4. User clicks Add
+	Alternative Flow: User provides no information for new stage
+		1. Resume from primary flow step 2
+		2. User provides no information
+		3. System warns user to provide information
+		4. Resume primary flow step 3
+	Alternative Flow 2: User provides duplicate stage name
+		1. Resume from primary flow step 2
+		2. User provides duplicate stage name
+		3. System warns user that duplicate name is not allowed
+		4. Resume primary flow step 3
