@@ -30,11 +30,11 @@ public static class DataSeeder
         var testUsers = new List<(string UserName, string Email, string Role, string Password)>
         {
             ("Admin", "admin@gmail.com", "Admin", "Admin1!"),
-            ("Manager1", "manager1@gmail.com", "Employee", "Manager1!"),
-            ("Manager2", "manager2@gmail.com", "Employee", "Manager1!"),
-            ("Employee1", "employee1@gmail.com", "Employee", "Employee1!"),
-            ("Employee2", "employee2@gmail.com", "Employee", "Employee1!"),
-            ("Employee3", "employee3@gmail.com", "Employee", "Employee1!"),
+            ("Manager1", "manager1@gmail.com", "Employee", "User1!"),
+            ("Manager2", "manager2@gmail.com", "Employee", "User1!"),
+            ("Employee1", "employee1@gmail.com", "Employee", "User1!"),
+            ("Employee2", "employee2@gmail.com", "Employee", "User1!"),
+            ("Employee3", "employee3@gmail.com", "Employee", "User1!"),
         };
 
         foreach (var (userName, email, role, password) in testUsers)

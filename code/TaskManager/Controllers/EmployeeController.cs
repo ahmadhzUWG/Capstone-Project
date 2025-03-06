@@ -276,57 +276,22 @@ namespace TaskManagerWebsite.Controllers
             var currentUserId = _userManager.GetUserId(User);
             ViewBag.UserId = currentUserId;
 
-            var groups = await _context.Groups.Include(group => group.Managers).ToListAsync();
-            var managedGroups = groups.Where(group => group.Managers
-                .Any(manager => manager.UserId == int.Parse(currentUserId))).ToList();
+            var groups = await _context.Groups.ToListAsync();
 
-            var managedGroupsToRemove = new List<Group>();
+            var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
 
-            foreach (var group1 in groups)
-            {
-                List<Group> groupsWithGivenProject = _context.GroupProjects
-                    .Where(gp => gp.ProjectId == id)
-                    .Select(gp => gp.Group)
-                    .Distinct()
-                    .ToList();
+            var groupsWithGivenProject = await _context.GroupProjects
+                .Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .Distinct()
+                .ToListAsync();
 
-                foreach (var groupInProject in groupsWithGivenProject)
-                {
-                    if (groupInProject.Id == group1.Id)
-                    {
-                        managedGroupsToRemove.Add(group1);
-                        break;
-                    }
-                }
-            }
-
-            managedGroups.RemoveAll(group => managedGroupsToRemove.Contains(group));
+            managedGroups.RemoveAll(group => groupsWithGivenProject.Contains(group.Id));
             ViewBag.ManagedGroups = managedGroups;
 
-            var unmanagedGroups = groups.Where(group => !group.Managers
-                .Any(manager => manager.UserId == int.Parse(currentUserId))).ToList();
+            var unmanagedGroups = groups.Where(group => group.ManagerId != int.Parse(currentUserId)).ToList();
 
-            var groupsToRemove = new List<Group>();
-
-            foreach (var group in unmanagedGroups)
-            {
-                List<Group> groupsWithGivenProject = _context.GroupProjects
-                    .Where(gp => gp.ProjectId == id) 
-                    .Select(gp => gp.Group)  
-                    .Distinct() 
-                    .ToList();
-
-                foreach (var groupInProject in groupsWithGivenProject)
-                {
-                    if (groupInProject.Id == group.Id)
-                    {
-                        groupsToRemove.Add(group);
-                        break;
-                    }
-                }
-            }
-
-            unmanagedGroups.RemoveAll(group => groupsToRemove.Contains(group));
+            unmanagedGroups.RemoveAll(group => groupsWithGivenProject.Contains(group.Id));
             ViewBag.UnmanagedGroups = unmanagedGroups;
 
             var project = await _context.Projects
