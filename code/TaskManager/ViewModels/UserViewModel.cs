@@ -5,41 +5,37 @@ namespace TaskManagerWebsite.ViewModels
     /// <summary>
     /// Represents the data model for creating an admin user.
     /// </summary>
-    public class AdminViewModel
+    public class UserViewModel
     {
         /// <summary>
         /// Gets or sets the username for the admin.
-        /// This field is required.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "User name is required. Please provide a unique user name for this admin.")]
         [Display(Name = "User Name")]
         public required string UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the email address of the admin.
-        /// This field is required and must be a valid email format.
         /// </summary>
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email address is required. Please provide a valid email for this admin.")]
+        [EmailAddress(ErrorMessage = "Please provide a valid email address (e.g., user@example.com).")]
         [Display(Name = "Email")]
         public required string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the password for the admin.
-        /// This field is required and will be masked as a password input.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "A password is required. Please use at least 8 characters, mixing letters and digits.")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public required string Password { get; set; }
 
         /// <summary>
-        /// Gets or sets the confirmation password.
-        /// This field is required and must match the password field.
+        /// Gets or sets the confirmation password, which must match the password.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "Please confirm your password to ensure accuracy.")]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        [Compare("Password", ErrorMessage = "Passwords do not match. Make sure both fields are the same.")]
         [Display(Name = "Confirm Password")]
         public required string ConfirmPassword { get; set; }
     }

@@ -1,0 +1,110 @@
+﻿@model Group
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/groupDetails.css" />
+
+<div class="container">
+    <div class="group-header">
+        <h2>@Model.Name</h2>
+        <p>Description: @Model.Description</p>
+    </div>
+
+    <!-- Display the Current Manager -->
+    <div class="group-section">
+        <h3>Manager of this Group</h3>
+        @if (Model.Manager != null)
+        {
+            <p class="manager-info"><strong>@Model.Manager.UserName (@Model.Manager.Email)</strong></p>
+        }
+        else
+        {
+            <p class="manager-info"><strong>No manager assigned.</strong></p>
+        }
+    </div>
+
+    <!-- Change Manager Section -->
+    <div class="group-section">
+        <h3>Change Manager</h3>
+        <form asp-action="ChangeManager" asp-controller="Employee" method="post">
+            <input type="hidden" name="groupId" value="@Model.Id" />
+            <label for="newManagerId">Select New Manager:</label>
+            <select name="newManagerId" class="form-control">
+                @if (ViewBag.AvailableManagers != null && ViewBag.AvailableManagers.Count > 0)
+                {
+                    @foreach (var manager in ViewBag.AvailableManagers)
+                    {
+                        <option value="@manager.Id">@manager.UserName (@manager.Email)</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled>No available employees to promote</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-warning mt-2" @(ViewBag.AvailableManagers.Count == 0 ? "disabled" : "")>Change Manager</button>
+        </form>
+    </div>
+
+    <!-- List of Employees in the Group -->
+    <div class="group-section">
+        <h3>Employees in this Group</h3>
+        @if (ViewBag.GroupUsers != null)
+        {
+            <ul class="employee-list">
+                @foreach (var userGroup in ViewBag.GroupUsers)
+                {
+                    <li class="employee-item">
+                        @userGroup.User.UserName (@userGroup.User.Email)
+                        @if (userGroup.Role != "Manager") // Prevent removing managers directly
+                        {
+                            <form asp-action="RemoveUserFromGroup" asp-controller="Employee" method="post" class="inline-form">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <input type="hidden" name="userId" value="@userGroup.UserId" />
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge badge-info">Manager</span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="no-employees">No employees assigned to this group.</p>
+        }
+    </div>
+
+    <!-- Form to Add Employees to the Group -->
+    <div class="group-section">
+        <h3>Add Employee to Group</h3>
+        <form asp-action="AddUserToGroup" asp-controller="Employee" method="post">
+            <input type="hidden" name="groupId" value="@Model.Id" />
+            <label for="userId">Select Employee:</label>
+            <select name="userId" class="form-control">
+                @if (ViewBag.Users != null && ViewBag.Users.Count > 0)
+                {
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        <option value="@user.Id">@user.UserName (@user.Email)</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled>No available employees</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-success mt-2" @(ViewBag.Users.Count == 0 ? "disabled" : "")>Add Employee</button>
+        </form>
+    </div>
+
+    <!-- Back to Groups Button -->
+    <div class="back-button">
+        <a href="@Url.Action("Groups", "Employee")" class="btn btn-secondary">Back to Groups</a>
+    </div>
+</div>

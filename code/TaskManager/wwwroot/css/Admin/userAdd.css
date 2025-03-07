@@ -1,94 +1,115 @@
-﻿
-/* Centering the add form */
-.form-add input {
-    display: block;
-    width: 350px;
-    margin: 5px auto;
-    padding: 15px;
-    background: #f8f9fa;
+﻿/* Center the main container with a similar style */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 25px;
     border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centers text inside the container */
 }
 
-.form-add .label {
-    display: block;
-    text-align: center;
-    margin-bottom: 5px;
+/* Inner form container */
+.form-container {
+    padding: 20px;
 }
 
-
-h2 {
-    text-align: center;
+/* Headings */
+h1, h2 {
     margin-bottom: 20px;
+    color: #34495e;
+    text-align: center;
 }
 
+/* Form styling */
+form {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers form elements */
+}
 
-/* Styling labels */
+.form-group {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Labels */
 label {
     font-weight: bold;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 
-/* Styling input fields */
-input {
+/* Inputs (for text, email, password, etc.) */
+.form-control {
     width: 100%;
     padding: 10px;
-    margin-bottom: 10px;
+    border-radius: 6px;
     border: 1px solid #ccc;
-    border-radius: 5px;
     font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
 }
 
-/* Error message styling */
-span {
-    color: red;
-    font-size: 12px;
-}
-
+/* Generic button styling */
 .btn {
     display: inline-block;
     padding: 8px 12px;
-    text-decoration: none;
-    color: white;
+    font-size: 14px;
     border-radius: 4px;
     text-align: center;
+    text-decoration: none;
+    margin-top: 10px;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    color: #fff;
 }
 
+/* Specific button styles */
+.btn-success {
+    background-color: #2ecc71;
+}
+
+    .btn-success:hover {
+        background-color: #27ae60;
+    }
+
+.btn-secondary {
+    background-color: #7f8c8d;
+}
+
+    .btn-secondary:hover {
+        background-color: #697174;
+    }
+
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Cancel link styled as button (if you use @Html.ActionLink) */
 .btn-cancel {
-    background: #585d61;
-    margin: 3px 3px 3px 3px;
+    background-color: #585d61;
 }
 
-/* Submit button styling */
+/* If you use a separate .button class for the submit button */
 .button {
     display: block;
-    width: 5%;
+    width: auto;
     margin: 5px auto;
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    text-align: center;
+    font-weight: bold;
 }
 
     .button:hover {
         background-color: #0056b3;
     }
-
-/* Centering the register link */
-p {
-    text-align: center;
-    margin-top: 15px;
-}
-
-    p a {
-        color: #007bff;
-        text-decoration: none;
-    }
-
-        p a:hover {
-            text-decoration: underline;
-        }

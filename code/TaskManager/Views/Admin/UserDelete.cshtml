@@ -1,4 +1,4 @@
-﻿@model TaskManagerWebsite.Models.User
+﻿@model TaskManagerWebsite.ViewModels.UserDeleteViewModel
 
 @{
     ViewData["Title"] = "Delete User";
@@ -6,22 +6,65 @@
 
 <h2>Delete User</h2>
 
-<h3>Are you sure you want to delete this user?</h3>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (Model.RelatedGroups.Any() || Model.RelatedProjects.Any())
+{
+    <div class="alert alert-warning">
+        <strong>Warning!</strong> This user cannot be deleted because they manage groups or those groups are referenced in projects.
+
+        @if (Model.RelatedGroups.Any())
+        {
+            <p>The user manages the following groups:</p>
+            <ul>
+                @foreach (var group in Model.RelatedGroups)
+                {
+                    <li>@group.Name</li>
+                }
+            </ul>
+        }
+
+        @if (Model.RelatedProjects.Any())
+        {
+            <p>The following projects reference those groups:</p>
+            <ul>
+                @foreach (var project in Model.RelatedProjects)
+                {
+                    <li>@project.Name</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
 <div>
-    <h4>User</h4>
+    <h4>User Details</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>@Html.DisplayNameFor(model => model.UserName)</dt>
-        <dd>@Html.DisplayFor(model => model.UserName)</dd>
-        
-        <dt>@Html.DisplayNameFor(model => model.Email)</dt>
-        <dd>@Html.DisplayFor(model => model.Email)</dd>
+        <dt>@Html.DisplayNameFor(model => model.User.UserName)</dt>
+        <dd>@Html.DisplayFor(model => model.User.UserName)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.User.Email)</dt>
+        <dd>@Html.DisplayFor(model => model.User.Email)</dd>
     </dl>
 
-    <form asp-action="DeleteConfirmed" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Users">Back to List</a>
-    </form>
+    @if (!Model.RelatedGroups.Any() && !Model.RelatedProjects.Any())
+    {
+        <form asp-action="DeleteConfirmed" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.User.Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    }
+    else
+    {
+        <p class="text-muted"><em>Deletion is disabled because of the dependencies above.</em></p>
+    }
+
+    <a asp-action="Users" class="btn btn-secondary">Back to List</a>
 </div>

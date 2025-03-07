@@ -35,6 +35,8 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     /// </summary>
     public DbSet<Group> Groups { get; set; }
 
+    public DbSet<UserGroup> UserGroups { get; set; }
+
     /// <summary>
     /// Gets or sets the GroupManagers table.
     /// </summary>
@@ -63,19 +65,20 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     {
         base.OnModelCreating(modelBuilder);
 
-        // Many-to-Many Relationship: Users <-> Groups (General Membership)
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Groups)
-            .WithMany(g => g.Users)
-            .UsingEntity<Dictionary<string, object>>(
-                "UserGroup",
-                j => j.HasOne<Group>().WithMany().HasForeignKey("GroupId"),
-                j => j.HasOne<User>().WithMany().HasForeignKey("UserId"),
-                j =>
-                {
-                    j.HasKey("UserId", "GroupId");
-                    j.ToTable("UserGroups");
-                });
+        // Many-to-Many Relationship: Users <-> Groups (Explicitly Define UserGroup)
+        modelBuilder.Entity<UserGroup>()
+            .HasKey(ug => new { ug.UserId, ug.GroupId });
+
+        modelBuilder.Entity<UserGroup>()
+            .HasOne(ug => ug.User)
+            .WithMany(u => u.UserGroups)
+            .HasForeignKey(ug => ug.UserId);
+
+        modelBuilder.Entity<UserGroup>()
+            .HasOne(ug => ug.Group)
+            .WithMany(g => g.UserGroups)
+            .HasForeignKey(ug => ug.GroupId);
+
 
         // One-to-One: Admin <-> User
         modelBuilder.Entity<Admin>()
@@ -86,7 +89,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<GroupManager>()
-            .HasKey(gm => new { gm.GroupId, gm.UserId });
+            .HasKey(gm => new { gm.UserId, gm.GroupId });
 
         modelBuilder.Entity<GroupManager>()
             .HasOne(gm => gm.Group)
@@ -98,10 +101,10 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .WithMany()
             .HasForeignKey(gm => gm.UserId);
 
-        modelBuilder.Entity<Group>()
-            .HasOne(g => g.PrimaryManager)
+        modelBuilder.Entity<Project>()
+            .HasOne(p => p.ProjectLead)
             .WithMany()
-            .HasForeignKey(g => g.PrimaryManagerId)
+            .HasForeignKey(p => p.ProjectLeadId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Many-to-Many Relationship: Projects <-> Groups

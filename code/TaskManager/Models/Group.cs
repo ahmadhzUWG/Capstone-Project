@@ -36,7 +36,7 @@ public class Group
     /// <summary>
     /// Gets or sets the collection of users who are members of the group.
     /// </summary>
-    public ICollection<User> Users { get; set; } = [];
+    public ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
 
     /// <summary>
     /// Gets or sets the collection of managers responsible for the group.
@@ -47,17 +47,17 @@ public class Group
     /// Gets or sets the ID of the primary manager of the group.
     /// This value is optional.
     /// </summary>
-    public int? PrimaryManagerId { get; set; }
+    public int? ManagerId { get; set; }
 
     /// <summary>
     /// Gets or sets the primary manager of the group.
     /// This property is not validated during model binding.
     /// </summary>
     [ValidateNever]
-    public User? PrimaryManager { get; set; }
+    public User? Manager { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of group projects associated with this group.
     /// </summary>
-    public ICollection<GroupProject> GroupProjects { get; set; } = [];
+    public ICollection<GroupProject> GroupProjects { get; set; } = new List<GroupProject>();
 }

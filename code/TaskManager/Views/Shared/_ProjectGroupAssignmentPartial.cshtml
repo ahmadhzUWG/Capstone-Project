@@ -1,0 +1,69 @@
+﻿@model TaskManagerWebsite.Models.Project
+
+@{
+    Layout = null;
+}
+<div id="group-assignment-container">
+    <div class="assigned-groups">
+        <h3>Assigned Groups</h3>
+        @if (Model.ProjectGroups != null && Model.ProjectGroups.Any())
+        {
+            <ul class="group-list">
+                @foreach (var pg in Model.ProjectGroups)
+                {
+                    <li class="group-item">
+                        @pg.Group.Name
+                        <form asp-action="RemoveGroupFromProject"
+                              method="post"
+                              data-ajax="true"
+                              data-ajax-method="POST"
+                              data-ajax-success="refreshGroupAssignment"
+                              data-ajax-failure="groupActionFailed"
+                              class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="projectId" value="@Model.Id" />
+                            <input type="hidden" name="groupId" value="@pg.GroupId" />
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="no-groups">No groups assigned to this project.</p>
+        }
+    </div>
+
+    <div class="assign-group">
+        <h3>Assign Group to Project</h3>
+        <form id="assignGroupForm"
+              asp-action="AssignGroupToProject"
+              method="post"
+              data-ajax="true"
+              data-ajax-method="POST"
+              data-ajax-success="refreshGroupAssignment"
+              data-ajax-failure="groupActionFailed">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="projectId" value="@Model.Id" />
+            <label for="groupId">Select Group:</label>
+            <select name="groupId" class="form-control">
+                @if (ViewBag.Groups != null && ViewBag.Groups.Count > 0)
+                {
+                    @foreach (var group in ViewBag.Groups)
+                    {
+                        <option value="@group.Id">@group.Name</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled>No available groups</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-success mt-2"
+            @(ViewBag.Groups != null && ViewBag.Groups.Count == 0 ? "disabled" : "")>
+                Assign Group
+            </button>
+        </form>
+    </div>
+</div>

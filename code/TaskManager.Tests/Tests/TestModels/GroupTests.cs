@@ -29,27 +29,31 @@ namespace TaskManager.Tests.Tests.TestModels
         [Fact]
         public void Group_PrimaryManagerId_CanBeSetAndRetrieved()
         {
-            var group = new Group { PrimaryManagerId = 5 };
-            Assert.Equal(5, group.PrimaryManagerId);
+            var group = new Group { ManagerId = 5 };
+            Assert.Equal(5, group.ManagerId);
         }
 
         [Fact]
         public void Group_PrimaryManager_CanBeSetAndRetrieved()
         {
             var user = new User { Id = 1, UserName = "AdminUser" };
-            var group = new Group { PrimaryManager = user };
+            var group = new Group { Manager = user };
 
-            Assert.NotNull(group.PrimaryManager);
-            Assert.Equal("AdminUser", group.PrimaryManager.UserName);
+            Assert.NotNull(group.Manager);
+            Assert.Equal("AdminUser", group.Manager.UserName);
         }
 
         [Fact]
-        public void Group_Users_DefaultsToEmptyList()
+        public void Group_UserGroups_DefaultsToEmptyList()
         {
+            // Arrange
             var group = new Group();
-            Assert.NotNull(group.Users);
-            Assert.Empty(group.Users);
+
+            // Act & Assert
+            Assert.NotNull(group.UserGroups);
+            Assert.Empty(group.UserGroups);
         }
+
 
         [Fact]
         public void Group_Managers_DefaultsToEmptyList()
@@ -68,20 +72,29 @@ namespace TaskManager.Tests.Tests.TestModels
         }
 
         [Fact]
-        public void Group_Users_CanBeAssignedAndRetrieved()
+        public void Group_UserGroups_CanBeAssignedAndRetrieved()
         {
+            // Arrange
             var users = new List<User>
             {
                 new User { Id = 1, UserName = "User1" },
                 new User { Id = 2, UserName = "User2" }
             };
 
-            var group = new Group { Users = users };
+            var group = new Group
+            {
+                UserGroups = new List<UserGroup>
+                {
+                    new UserGroup { UserId = 1, User = users[0], Role = "Member" },
+                    new UserGroup { UserId = 2, User = users[1], Role = "Manager" }
+                }
+            };
 
-            Assert.NotNull(group.Users);
-            Assert.Equal(2, group.Users.Count);
-            Assert.Contains(group.Users, u => u.UserName == "User1");
-            Assert.Contains(group.Users, u => u.UserName == "User2");
+            // Act & Assert
+            Assert.NotNull(group.UserGroups);
+            Assert.Equal(2, group.UserGroups.Count);
+            Assert.Contains(group.UserGroups, ug => ug.User.UserName == "User1");
+            Assert.Contains(group.UserGroups, ug => ug.User.UserName == "User2");
         }
 
         [Fact]
