@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
@@ -40,7 +41,7 @@ namespace TaskManagerWebsite.Controllers
         // POST: /Admin/UserAdd
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UserAdd(AdminViewModel model)
+        public async Task<IActionResult> UserAdd(UserViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -420,42 +421,72 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> CreateProject()
         {
             var users = await context.Users.ToListAsync();
-            ViewBag.ProjectLeads = users;
-            return View();
+
+            // Build the view model
+            var model = new CreateProjectViewModel
+            {
+                ProjectLeads = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         /// <summary>
         /// Handles the submission of a new project creation form.
         /// </summary>
-        /// <param name="project">The project object containing user input data.</param>
+        /// <param name="model">The CreateProjectViewModel containing user input.</param>
         /// <returns>
         /// Redirects to the projects list upon successful creation.
-        /// If the model state is invalid or the user is not logged in, returns the form with validation errors.
+        /// If the model state is invalid or user is not logged in, returns the form with validation errors.
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProject(Project project)
+        public async Task<IActionResult> CreateProject(CreateProjectViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var currentUserId = userManager.GetUserId(User);
-
-                if (string.IsNullOrEmpty(currentUserId))
+                var users = await context.Users.ToListAsync();
+                model.ProjectLeads = users.Select(u => new SelectListItem
                 {
-                    ModelState.AddModelError("", "Unable to determine the logged-in user.");
-                    return View(project);
-                }
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList();
 
-                project.ProjectCreatorId = int.Parse(currentUserId);
-
-                context.Projects.Add(project);
-                await context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Projects));
+                return View(model);
             }
 
-            ViewBag.ProjectLeads = await context.Users.ToListAsync();
-            return View(project);
+            var currentUserId = userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                ModelState.AddModelError("", "Unable to determine the logged-in user.");
+
+                var users = await context.Users.ToListAsync();
+                model.ProjectLeads = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList();
+
+                return View(model);
+            }
+
+            var project = new Project
+            {
+                Name = model.Name,
+                Description = model.Description,
+                ProjectLeadId = model.ProjectLeadId,
+                ProjectCreatorId = int.Parse(currentUserId)
+            };
+
+            context.Projects.Add(project);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Projects));
         }
 
         /// <summary>
@@ -495,30 +526,34 @@ namespace TaskManagerWebsite.Controllers
         {
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
-            var group = await context.Groups.FindAsync(groupId);
-
-            if (project == null || group == null)
-            {
+            if (project == null)
                 return NotFound();
-            }
 
-            var alreadyAssigned = await context.GroupProjects
-                .AnyAsync(gp => gp.ProjectId == projectId && gp.GroupId == groupId);
+            var group = await context.Groups.FindAsync(groupId);
+            if (group == null)
+                return NotFound();
 
-            if (!alreadyAssigned)
+            if (project.ProjectGroups.All(pg => pg.GroupId != groupId))
             {
-                context.GroupProjects.Add(new GroupProject
-                {
-                    ProjectId = projectId,
-                    GroupId = groupId
-                });
+                context.GroupProjects.Add(new GroupProject { ProjectId = projectId, GroupId = groupId });
                 await context.SaveChangesAsync();
             }
 
-            return RedirectToAction("ProjectDetails", new { id = projectId });
+            project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            var allGroups = await context.Groups.ToListAsync();
+            var assignedGroupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+            ViewBag.Groups = allGroups.Where(g => !assignedGroupIds.Contains(g.Id)).ToList();
+
+            return PartialView("_GroupAssignmentPartial", project);
         }
+
 
         /// <summary>
         /// Removes a group from a specified project if it is currently assigned.
@@ -531,16 +566,31 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveGroupFromProject(int projectId, int groupId)
         {
-            var projectGroup = await context.GroupProjects
-                .FirstOrDefaultAsync(gp => gp.ProjectId == projectId && gp.GroupId == groupId);
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
 
+            if (project == null)
+                return NotFound();
+
+            var projectGroup = project.ProjectGroups.FirstOrDefault(pg => pg.GroupId == groupId);
             if (projectGroup != null)
             {
                 context.GroupProjects.Remove(projectGroup);
                 await context.SaveChangesAsync();
             }
 
-            return RedirectToAction("ProjectDetails", new { id = projectId });
+            project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            var allGroups = await context.Groups.ToListAsync();
+            var assignedGroupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+            ViewBag.Groups = allGroups.Where(g => !assignedGroupIds.Contains(g.Id)).ToList();
+
+            return PartialView("_GroupAssignmentPartial", project);
         }
 
         /// <summary>

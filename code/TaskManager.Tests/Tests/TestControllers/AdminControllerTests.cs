@@ -988,7 +988,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-        var model = new AdminViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123" , ConfirmPassword = "Test@123" };
+        var model = new UserViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123" , ConfirmPassword = "Test@123" };
 
         _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), model.Password))
             .ReturnsAsync(IdentityResult.Success);
@@ -1009,7 +1009,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-        var model = new AdminViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123", ConfirmPassword = "Test@123" };
+        var model = new UserViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123", ConfirmPassword = "Test@123" };
 
         var identityErrors = new IdentityError[] { new IdentityError { Code = "Error1", Description = "User creation failed" } };
         _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), model.Password))
@@ -1030,7 +1030,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-        var model = new AdminViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123", ConfirmPassword = "Test@123" };
+        var model = new UserViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123", ConfirmPassword = "Test@123" };
 
         _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), model.Password))
             .ReturnsAsync(IdentityResult.Success);

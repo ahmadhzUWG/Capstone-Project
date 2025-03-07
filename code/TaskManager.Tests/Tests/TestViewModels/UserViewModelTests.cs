@@ -7,12 +7,12 @@ using TaskManagerWebsite.ViewModels;
 
 namespace TaskManager.Tests.Tests.TestViewModels
 {
-    public class AdminViewModelTests
+    public class UserViewModelTests
     {
         [Fact]
         public void TestAdminViewModel()
         {
-            var vm = new AdminViewModel
+            var vm = new UserViewModel
             {
                 UserName = "testUser",
                 Email = "user@gmail.com",
