@@ -1,4 +1,4 @@
-﻿@model Group
+﻿@model TaskManagerWebsite.Models.Group
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -17,7 +17,9 @@
         <h3>Manager of this Group</h3>
         @if (Model.Manager != null)
         {
-            <p class="manager-info"><strong>@Model.Manager.UserName (@Model.Manager.Email)</strong></p>
+            <p class="manager-info">
+                <strong>@Model.Manager.UserName (@Model.Manager.Email)</strong>
+            </p>
         }
         else
         {
@@ -29,6 +31,7 @@
     <div class="group-section">
         <h3>Change Manager</h3>
         <form asp-action="ChangeManager" asp-controller="Employee" method="post">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="groupId" value="@Model.Id" />
             <label for="newManagerId">Select New Manager:</label>
             <select name="newManagerId" class="form-control">
@@ -48,59 +51,9 @@
         </form>
     </div>
 
-    <!-- List of Employees in the Group -->
-    <div class="group-section">
-        <h3>Employees in this Group</h3>
-        @if (ViewBag.GroupUsers != null)
-        {
-            <ul class="employee-list">
-                @foreach (var userGroup in ViewBag.GroupUsers)
-                {
-                    <li class="employee-item">
-                        @userGroup.User.UserName (@userGroup.User.Email)
-                        @if (userGroup.Role != "Manager") // Prevent removing managers directly
-                        {
-                            <form asp-action="RemoveUserFromGroup" asp-controller="Admin" method="post" class="inline-form">
-                                <input type="hidden" name="groupId" value="@Model.Id" />
-                                <input type="hidden" name="userId" value="@userGroup.UserId" />
-                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="badge badge-info">Manager</span>
-                        }
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <p class="no-employees">No employees assigned to this group.</p>
-        }
-    </div>
-
-    <!-- Form to Add Employees to the Group -->
-    <div class="group-section">
-        <h3>Add Employee to Group</h3>
-        <form asp-action="AddUserToGroup" asp-controller="Admin" method="post">
-            <input type="hidden" name="groupId" value="@Model.Id" />
-            <label for="userId">Select Employee:</label>
-            <select name="userId" class="form-control">
-                @if (ViewBag.Users != null && ViewBag.Users.Count > 0)
-                {
-                    @foreach (var user in ViewBag.Users)
-                    {
-                        <option value="@user.Id">@user.UserName (@user.Email)</option>
-                    }
-                }
-                else
-                {
-                    <option value="" disabled>No available employees</option>
-                }
-            </select>
-            <button type="submit" class="btn btn-success mt-2" @(ViewBag.Users.Count == 0 ? "disabled" : "")>Add Employee</button>
-        </form>
+    <!-- Combined Employee Assignment Section (Partial View) -->
+    <div class="group-section" id="group-assignment-section">
+        @await Html.PartialAsync("_GroupUserAssignmentPartial", Model)
     </div>
 
     <!-- Back to Groups Button -->
@@ -108,3 +61,16 @@
         <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary">Back to Groups</a>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function refreshGroupAssignment(htmlSnippet) {
+            $("#group-assignment-section").html(htmlSnippet);
+        }
+        function groupActionFailed(xhr, status, error) {
+            alert("An error occurred while processing the group update.");
+            console.error("Error:", error);
+        }
+    </script>
+}
