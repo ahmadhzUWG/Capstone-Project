@@ -1,0 +1,26 @@
+﻿@model TaskManagerWebsite.Models.Project
+
+<h1>@Model.Name - Project Board</h1>
+
+@if (Model.ProjectBoard == null)
+{
+    <p>No board found for this project.</p>
+}
+else
+{
+    <div>
+        <button class="btn btn-primary">Add Stage</button>
+    </div>
+
+    <div class="d-flex flex-row">
+        @foreach (var stage in Model.ProjectBoard.Stages.OrderBy(s => s.Position))
+        {
+            <div class="p-2 board-column">
+                <h5>@stage.Name</h5>
+                <!-- tasks go here -->
+            </div>
+        }
+    </div>
+}
+
+<a asp-action="ProjectDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Go Back</a>

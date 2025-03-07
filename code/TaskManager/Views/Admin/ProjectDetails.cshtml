@@ -39,7 +39,8 @@
 
         <button type="submit" class="btn btn-success mt-2">Assign Group</button>
     </form>
-
+    
+    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
     <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
