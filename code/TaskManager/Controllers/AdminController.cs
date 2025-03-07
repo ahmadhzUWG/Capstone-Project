@@ -441,6 +441,42 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
+        /// Retrieves the project board for a specific project. If the project does not have a board, a new one is created.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public async Task<IActionResult> ProjectBoard(int id)
+        {
+            var project = await context.Projects
+                .Include(p => p.ProjectBoard)
+                .ThenInclude(b => b.Stages)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            if (project.ProjectBoard == null)
+            {
+                var currentUserId = userManager.GetUserId(User);
+                var newBoard = new ProjectBoard { ProjectId = project.Id };
+                newBoard.BoardCreatorId = int.Parse(currentUserId);
+                context.ProjectBoards.Add(newBoard);
+                await context.SaveChangesAsync();
+
+                project = await context.Projects
+                    .Include(p => p.ProjectBoard)
+                    .ThenInclude(b => b.Stages)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+            }
+
+            return View("ProjectBoard", project);
+        }
+
+
+
+        /// <summary>
         /// Assigns a group to a specified project if it is not already assigned.
         /// </summary>
         /// <param name="projectId">The ID of the project.</param>
