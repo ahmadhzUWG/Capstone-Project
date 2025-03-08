@@ -54,4 +54,6 @@ public class Project
     /// A project can be associated with multiple groups.
     /// </summary>
     public ICollection<GroupProject> ProjectGroups { get; set; } = new List<GroupProject>();
+
+    public ProjectBoard? ProjectBoard { get; set; }
 }
