@@ -12,8 +12,8 @@ using TaskManagerWebsite.Data;
 namespace TaskManagerWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250222183342_Add_Projects_Table")]
-    partial class Add_Projects_Table
+    [Migration("20250302002910_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,39 +24,6 @@ namespace TaskManagerWebsite.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("GroupManager", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsPrimaryManager")
-                        .HasColumnType("bit");
-
-                    b.HasKey("GroupId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("GroupManagers");
-                });
-
-            modelBuilder.Entity("GroupProject", b =>
-                {
-                    b.Property<int>("ProjectGroupsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProjectGroupsId", "ProjectsId");
-
-                    b.HasIndex("ProjectsId");
-
-                    b.ToTable("GroupProject");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
@@ -222,6 +189,9 @@ namespace TaskManagerWebsite.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -229,7 +199,68 @@ namespace TaskManagerWebsite.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ManagerId");
+
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupManagers");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupProject", b =>
+                {
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProjectId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupProjects");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Response")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("GroupRequests");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
@@ -249,6 +280,9 @@ namespace TaskManagerWebsite.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ProjectCreatorId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProjectLeadId")
                         .HasColumnType("int");
@@ -336,45 +370,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("UserGroups", (string)null);
-                });
-
-            modelBuilder.Entity("GroupManager", b =>
-                {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
-                        .WithMany("Managers")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaskManagerWebsite.Models.User", "User")
-                        .WithMany("ManagedGroups")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GroupProject", b =>
-                {
-                    b.HasOne("TaskManagerWebsite.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaskManagerWebsite.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("UserGroups");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -439,12 +443,78 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId");
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                        .WithMany("Managers")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupProject", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                        .WithMany("GroupProjects")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.Project", "Project")
+                        .WithMany("ProjectGroups")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupRequest", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
                 {
                     b.HasOne("TaskManagerWebsite.Models.User", "ProjectLead")
                         .WithMany()
                         .HasForeignKey("ProjectLeadId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ProjectLead");
@@ -452,27 +522,40 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("UserGroup", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", null)
-                        .WithMany()
+                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                        .WithMany("UserGroups")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", null)
-                        .WithMany()
+                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                        .WithMany("UserGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
                 {
+                    b.Navigation("GroupProjects");
+
                     b.Navigation("Managers");
+
+                    b.Navigation("UserGroups");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
+                {
+                    b.Navigation("ProjectGroups");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>
                 {
-                    b.Navigation("ManagedGroups");
+                    b.Navigation("UserGroups");
                 });
 #pragma warning restore 612, 618
         }

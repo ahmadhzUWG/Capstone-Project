@@ -1,45 +1,58 @@
 ﻿@model TaskManagerWebsite.Models.Project
 
-<link rel="stylesheet" href="~/css/projectDetails.css" asp-append-version="true" />
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<div class="center-content">
-    <h2>Project Details</h2>
+<link rel="stylesheet" href="~/css/Admin/projectDetails.css" />
 
-    <div>
-        <h4>@Model.Name</h4>
-        <p><strong>Description:</strong> @Model.Description</p>
-        <p><strong>Project Lead:</strong> @Model.ProjectLead.UserName</p>
-
-        <h5>Groups</h5>
-        <ul>
-            @foreach (var groupProject in Model.ProjectGroups)
-            {
-                <li>@groupProject.Group.Name 
-                    <form asp-action="RemoveGroupFromProject" method="post" style="display:inline;">
-                        <input type="hidden" name="projectId" value="@Model.Id" />
-                        <input type="hidden" name="groupId" value="@groupProject.GroupId" />
-                        <button type="submit" class="btn btn-danger remove-btn">Remove</button>
-
-                    </form></li>
-            }
-        </ul>
+<div class="container">
+    <!-- Project Header -->
+    <div class="project-header">
+        <h2>@Model.Name</h2>
+        <p>Description: @Model.Description</p>
     </div>
 
-    <h4>Assign Group to Project</h4>
-    <form asp-action="AssignGroupToProject" method="post">
-        <input type="hidden" name="projectId" value="@Model.Id" />
+    <!-- Project Lead Info -->
+    <div class="project-section">
+        <h3>Project Lead</h3>
+        @if (Model.ProjectLead != null)
+        {
+            <p class="lead-info">
+                <strong>@Model.ProjectLead.UserName (@Model.ProjectLead.Email)</strong>
+            </p>
+        }
+        else
+        {
+            <p class="lead-info"><strong>No project lead assigned.</strong></p>
+        }
+        <a asp-action="EditProject" asp-route-id="@Model.Id" class="btn btn-info mt-2">
+            Edit Project
+        </a>
+    </div>
 
-        <label for="groupId">Select Group:</label>
-        <select name="groupId" class="form-control">
-            @foreach (var group in ViewBag.Groups)
-            {
-                <option value="@group.Id">@group.Name</option>
-            }
-        </select>
+    <!-- Group Assignment Section (Partial) -->
+    <div class="project-section">
+        @await Html.PartialAsync("_GroupAssignmentPartial", Model)
+    </div>
 
-        <button type="submit" class="btn btn-success mt-2">Assign Group</button>
-    </form>
-
-    <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
-    <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
+    <!-- Back to Projects Button -->
+    <div class="back-button">
+        <a href="@Url.Action("Projects", "Admin")" class="btn btn-secondary">Back to Projects</a>
+    </div>
 </div>
+
+
+@section Scripts {
+    <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function refreshGroupAssignment(htmlSnippet) {
+            $("#group-assignment-container").html(htmlSnippet);
+        }
+
+        function groupActionFailed(xhr, status, error) {
+            alert("An error occurred while processing the request.");
+            console.error("Error:", error);
+        }
+    </script>
+}
