@@ -1,7 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     Layout = "_Layout";
-    string userRole = ViewBag.UserRole ?? "Guest";
     string userName = User.Identity.IsAuthenticated ? User.Identity.Name : "Guest";
 }
 
@@ -10,32 +9,5 @@
 <main class="home-container">
     <div class="card">
         <h2>Welcome, @userName!</h2>
-        <p>Select an option below:</p>
-
-        <div class="button-container">
-            @if (User.IsInRole("Admin"))
-            {
-                @Html.ActionLink("Manage Employees", "Users", "Admin", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Groups", "Groups", "Admin", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Projects", "Projects", "Admin", null, new { @class = "btn btn-primary" })
-            }
-
-            @if (User.IsInRole("Employee"))
-            {
-                @Html.ActionLink("View Employees", "Users", "Employee", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Groups", "Groups", "Employee", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Projects", "Projects", "Employee", null, new { @class = "btn btn-primary" })
-            }
-
-            @if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
-            {
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <form action="@Url.Action("Index", "Login")" method="get" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Go to Login</button>
-                    </form>
-                </div>
-            }
-        </div>
     </div>
 </main>

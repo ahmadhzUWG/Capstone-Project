@@ -47,7 +47,8 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="projectId" value="@Model.Id" />
             <label for="groupId">Select Group:</label>
-            <select name="groupId" class="form-control">
+            <input type="text" id="searchBoxAvailableGroups" class="form-control mb-2" placeholder="Search available groups...">
+            <select name="groupId" class="form-control" id="availableGroupsSelect">
                 @if (ViewBag.Groups != null && ViewBag.Groups.Count > 0)
                 {
                     @foreach (var group in ViewBag.Groups)
