@@ -35,10 +35,13 @@
             @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
-    <!-- Back to Projects Button -->
     <div class="back-button">
         <a href="@Url.Action("Projects", "Admin")" class="btn btn-secondary">Back to Projects</a>
     </div>
+    
+    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+    <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+    <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
 
 @section Scripts {

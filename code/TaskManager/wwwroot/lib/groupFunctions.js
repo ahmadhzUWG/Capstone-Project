@@ -1,24 +1,17 @@
-// groupFunctions.js
-
-// Rebuild the manager dropdown by dynamically reading current options,
-// filtering out those with data-removed="true".
 function setupDropdownSearch(inputId, dropdownId) {
     var input = document.getElementById(inputId);
     var dropdown = document.getElementById(dropdownId);
 
-    // Cache the original options when the page loads.
     var originalOptions = Array.from(dropdown.querySelectorAll("option"));
 
     input.addEventListener("keyup", function () {
         var searchValue = input.value.toLowerCase();
 
-        // Filter from the original list of options.
         var filteredOptions = originalOptions.filter(function (option) {
             return option.getAttribute("data-removed") !== "true" &&
                 option.text.toLowerCase().includes(searchValue);
         });
 
-        // Clear the dropdown.
         dropdown.innerHTML = "";
 
         if (filteredOptions.length === 0) {
@@ -35,7 +28,6 @@ function setupDropdownSearch(inputId, dropdownId) {
 }
 
 
-// Filters the list of employee boxes based on search text.
 function setupSearch(inputId, containerId) {
     var input = document.getElementById(inputId);
     input.addEventListener("keyup", function () {
@@ -70,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// When an employee checkbox is toggled, mark or unmark the corresponding manager option.
 document.querySelectorAll(".employee-checkbox").forEach(function (checkbox) {
     checkbox.addEventListener("change", function () {
         let userId = this.value;

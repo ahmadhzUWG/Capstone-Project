@@ -58,6 +58,16 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<GroupRequest> GroupRequests { get; set; }
 
     /// <summary>
+    /// Gets or sets the project boards.
+    /// </summary>
+    public DbSet<ProjectBoard> ProjectBoards { get; set; }
+
+    /// <summary>
+    /// Gets or sets the stages.
+    /// </summary>
+    public DbSet<Stage> Stages { get; set; }
+
+    /// <summary>
     /// Configures the entity relationships and database mappings.
     /// </summary>
     /// <param name="modelBuilder">Provides a simple API to configure entity relationships.</param>
@@ -120,5 +130,43 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .HasOne(gp => gp.Group)
             .WithMany(g => g.GroupProjects)
             .HasForeignKey(gp => gp.GroupId);
+
+        // Board -> Stages (One-to-Many)
+        modelBuilder.Entity<Stage>()
+            .HasOne(s => s.ProjectBoard)
+            .WithMany(b => b.Stages)
+            .HasForeignKey(s => s.ProjectBoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Stage>()
+            .HasOne(s => s.CreatorGroup)
+            .WithMany()
+            .HasForeignKey(s => s.CreatorGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Stage>()
+            .HasOne(s => s.CreatorUser)
+            .WithMany()
+            .HasForeignKey(s => s.CreatorUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Stage>()
+            .HasOne(s => s.AssignedGroup)
+            .WithMany()
+            .HasForeignKey(s => s.AssignedGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ProjectBoard -> User (One-to-Many)
+        modelBuilder.Entity<ProjectBoard>()
+            .HasOne(pb => pb.BoardCreator)
+            .WithMany()
+            .HasForeignKey(pb => pb.BoardCreatorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Project>()
+            .HasOne(p => p.ProjectBoard)
+            .WithOne(b => b.Project)
+            .HasForeignKey<ProjectBoard>(b => b.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

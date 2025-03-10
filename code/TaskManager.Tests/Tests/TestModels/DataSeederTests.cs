@@ -44,7 +44,7 @@ namespace TaskManager.Tests.Tests.TestModels
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
             _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
 
-            await DataSeeder.SeedRolesAndAdminAsync(_mockServiceProvider.Object);
+            await DataSeeder.SeedRolesAndUsersAsync(_mockServiceProvider.Object);
 
             _mockUserManager.Verify(um => um.CreateAsync(It.Is<User>(u => u.Email == "manager@gmail.com"), "Manager1!"), Times.Once);
             _mockUserManager.Verify(um => um.AddToRoleAsync(It.Is<User>(u => u.Email == "manager@gmail.com"), "Manager"), Times.Once);
@@ -57,7 +57,7 @@ namespace TaskManager.Tests.Tests.TestModels
             _mockUserManager.Setup(um => um.FindByEmailAsync("manager@gmail.com")).ReturnsAsync(existingAdmin);
             _mockUserManager.Setup(um => um.AddToRoleAsync(existingAdmin, "Manager")).ReturnsAsync(IdentityResult.Success);
 
-            await DataSeeder.SeedRolesAndAdminAsync(_mockServiceProvider.Object);
+            await DataSeeder.SeedRolesAndUsersAsync(_mockServiceProvider.Object);
 
             _mockUserManager.Verify(um => um.AddToRoleAsync(existingAdmin, "Manager"), Times.Once);
         }

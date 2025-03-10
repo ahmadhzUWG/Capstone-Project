@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -605,14 +606,21 @@ public class AdminControllerTests
     [Fact]
     public async Task CreateProject_Post_InvalidModel_ReturnsView()
     {
+        CreateProjectViewModel model = new CreateProjectViewModel();
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
         controller.ModelState.AddModelError("Error", "Invalid");
         var project = new Project { Id = 1, Name = "InvalidProject" };
+        var users = await dbContext.Users.ToListAsync();
 
+        model.ProjectLeads = users.Select(u => new SelectListItem
+        {
+            Value = u.Id.ToString(),
+            Text = u.UserName
+        }).ToList();
         // Act
-        var result = await controller.CreateProject(project);
+        var result = await controller.CreateProject(model);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -627,9 +635,19 @@ public class AdminControllerTests
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
         _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
         var project = new Project { Id = 1, Name = "ProjectNoUser" };
+        var users = await dbContext.Users.ToListAsync();
+
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
 
         // Act
-        var result = await controller.CreateProject(project);
+        var result = await controller.CreateProject(model);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -667,16 +685,19 @@ public class AdminControllerTests
         var mockUrlHelper = new Mock<IUrlHelper>();
         controller.Url = mockUrlHelper.Object;
 
-        // Create a valid Project with the required Description.
-        var project = new Project
+        var users = await dbContext.Users.ToListAsync();
+
+        CreateProjectViewModel model = new CreateProjectViewModel
         {
-            Id = 1,
-            Name = "ValidProject",
-            Description = "Test project description"
+            ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
         };
 
         // Act
-        var result = await controller.CreateProject(project);
+        var result = await controller.CreateProject(model);
 
         // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
@@ -972,10 +993,19 @@ public class AdminControllerTests
 
         controller.ModelState.AddModelError("Name", "Required");
 
-        var project = new Project { Description = "No Name" };
+        var users = await dbContext.Users.ToListAsync();
+
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
 
         // Act
-        var result = await controller.CreateProject(project);
+        var result = await controller.CreateProject(model);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
