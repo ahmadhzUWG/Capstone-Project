@@ -38,7 +38,7 @@
         /// <summary>
         /// Gets or sets the creator group.
         /// </summary>
-        public Group CreatorGroup { get; set; }
+        public Group? CreatorGroup { get; set; }
 
         /// <summary>
         /// Gets or sets the creator user identifier.
