@@ -116,14 +116,7 @@ namespace TaskManagerWebsite.Controllers
         {
             var users = context.Users.ToList();
 
-            // Fetch managers dynamically from the GroupManagers table
-            var managerIds = context.GroupManagers.Select(gm => gm.UserId).Distinct().ToHashSet();
-
-            var managers = users.Where(user => managerIds.Contains(user.Id)).ToList();
-            var employees = users.Where(user => !managerIds.Contains(user.Id)).ToList();
-
-            ViewBag.Managers = managers;
-            ViewBag.Employees = employees;
+            ViewBag.Employees = users;
 
             return View();
         }

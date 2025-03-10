@@ -31,9 +31,8 @@
         </a>
     </div>
 
-    <!-- Group Assignment Section (Partial) -->
     <div class="project-section">
-        @await Html.PartialAsync("_GroupAssignmentPartial", Model)
+            @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
     <!-- Back to Projects Button -->
@@ -42,9 +41,9 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/lib/groupFunctions.js"></script>
     <script>
         function refreshGroupAssignment(htmlSnippet) {
             $("#group-assignment-container").html(htmlSnippet);

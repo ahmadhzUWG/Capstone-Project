@@ -94,7 +94,6 @@ body.button {
 .employee-box {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     background-color: #ecf0f1;
     padding: 12px;
     width: 80%;

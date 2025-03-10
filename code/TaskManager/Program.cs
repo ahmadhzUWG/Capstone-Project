@@ -69,6 +69,8 @@ builder.Services.AddScoped<IAuthorizationHandler, UserRelationshipHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
 
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -98,10 +100,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapBlazorHub();
 
 app.MapControllerRoute(
     name: "default",
