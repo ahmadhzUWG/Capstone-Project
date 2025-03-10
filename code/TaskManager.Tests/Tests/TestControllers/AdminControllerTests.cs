@@ -176,8 +176,8 @@ public class AdminControllerTests
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        var modelUser = Assert.IsType<User>(viewResult.Model);
-        Assert.Equal("DeleteUser", modelUser.UserName);
+        var modelUser = Assert.IsType<UserDeleteViewModel>(viewResult.Model);
+        Assert.Equal("DeleteUser", modelUser.User.UserName);
     }
 
     [Fact]
@@ -239,9 +239,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         // Add users for testing
-        var managerUser = new User { Id = 1, UserName = "ManagerUser", Email = "manager@example.com" };
         var employeeUser = new User { Id = 2, UserName = "EmployeeUser", Email = "employee@example.com" };
-        dbContext.Users.Add(managerUser);
         dbContext.Users.Add(employeeUser);
         dbContext.SaveChanges();
 
@@ -274,13 +272,9 @@ public class AdminControllerTests
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.NotNull(viewResult.ViewData["Managers"]);
         Assert.NotNull(viewResult.ViewData["Employees"]);
-        var managers = viewResult.ViewData["Managers"] as List<User>;
         var employees = viewResult.ViewData["Employees"] as List<User>;
-        Assert.Single(managers);
         Assert.Single(employees);
-        Assert.Equal("ManagerUser", managers.First().UserName);
         Assert.Equal("EmployeeUser", employees.First().UserName);
     }
 
@@ -497,8 +491,8 @@ public class AdminControllerTests
         var result = await controller.AddUserToGroup(60, 10);
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("GroupDetails", redirectResult.ActionName);
+        var redirectResult = Assert.IsType<PartialViewResult>(result);
+        Assert.Equal("_GroupUserAssignmentPartial", redirectResult.ViewName);
 
         // ✅ Check in `UserGroups`
         Assert.Contains(dbContext.UserGroups, ug => ug.GroupId == 60 && ug.UserId == 10 && ug.Role == "Member");
@@ -546,8 +540,14 @@ public class AdminControllerTests
             UserName = "ManagerUser",
             Email = "manager@example.com"
         };
+        var groupManager = new GroupManager
+        {
+            GroupId = 80,
+            UserId = 20
+        };
         dbContext.Groups.Add(group);
         dbContext.Users.Add(user);
+        dbContext.GroupManagers.Add(groupManager);
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
@@ -593,14 +593,22 @@ public class AdminControllerTests
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+        };
+
         // Act
         var result = await controller.CreateProject();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        var projectLeads = viewResult.ViewData["ProjectLeads"] as List<User>;
-        Assert.NotNull(projectLeads);
-        Assert.Equal(2, projectLeads.Count);
+        Assert.NotNull(model.ProjectLeads);
+        Assert.Equal(2, model.ProjectLeads.Count);
     }
 
     [Fact]
@@ -619,12 +627,21 @@ public class AdminControllerTests
             Value = u.Id.ToString(),
             Text = u.UserName
         }).ToList();
+
+        CreateProjectViewModel viewModel = new CreateProjectViewModel
+        {
+            ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+        };
         // Act
-        var result = await controller.CreateProject(model);
+        var result = await controller.CreateProject(viewModel);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.Equal(project, viewResult.Model);
+        Assert.Equal(viewModel, viewResult.Model);
     }
 
     [Fact]
@@ -689,6 +706,8 @@ public class AdminControllerTests
 
         CreateProjectViewModel model = new CreateProjectViewModel
         {
+            Name = "ValidProject",
+            Description = "Test Description",
             ProjectLeads = users.Select(u => new SelectListItem
             {
                 Value = u.Id.ToString(),
@@ -754,8 +773,8 @@ public class AdminControllerTests
         var result = await controller.AssignGroupToProject(1, 10);
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("ProjectDetails", redirectResult.ActionName);
+        var redirectResult = Assert.IsType<PartialViewResult>(result);
+        Assert.Equal("_ProjectGroupAssignmentPartial", redirectResult.ViewName);
         Assert.Contains(project.ProjectGroups, pg => pg.GroupId == 10);
     }
 
@@ -776,7 +795,7 @@ public class AdminControllerTests
         var result = await controller.AssignGroupToProject(1, 10);
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        var redirectResult = Assert.IsType<PartialViewResult>(result);
         Assert.Equal(1, project.ProjectGroups.Count(pg => pg.GroupId == 10));
     }
 
@@ -809,8 +828,8 @@ public class AdminControllerTests
         var result = await controller.RemoveGroupFromProject(1, 10);
 
         // Assert
-        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("ProjectDetails", redirectResult.ActionName);
+        var redirectResult = Assert.IsType<PartialViewResult>(result);
+        Assert.Equal("_ProjectGroupAssignmentPartial", redirectResult.ViewName);
         Assert.DoesNotContain(project.ProjectGroups, pg => pg.GroupId == 10);
     }
 
