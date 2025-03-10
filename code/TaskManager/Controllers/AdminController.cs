@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -32,13 +33,16 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying user details or NotFound if the user does not exist.</returns>
-
         public IActionResult UserAdd()
         {
             return View();
         }
 
-        // POST: /Admin/UserAdd
+        /// <summary>
+        /// Users the add.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UserAdd(UserViewModel model)
@@ -46,15 +50,12 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Create a new user object. Note that we only set UserName and Email.
             var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
 
-            // Create the user with the specified password.
             var createUserResult = await userManager.CreateAsync(user, model.Password);
 
             if (createUserResult.Succeeded)
             {
-                // Add the user to the Employee role.
                 var createUserRoleResult = await userManager.AddToRoleAsync(user, "Employee");
                 if (createUserRoleResult.Succeeded)
                 {
@@ -213,7 +214,6 @@ namespace TaskManagerWebsite.Controllers
             if (group == null)
                 return NotFound();
 
-            // ✅ Load Users from `UserGroups`
             var groupUsers = await context.UserGroups
                 .Where(ug => ug.GroupId == id)
                 .Include(ug => ug.User)
@@ -267,7 +267,6 @@ namespace TaskManagerWebsite.Controllers
                 await context.SaveChangesAsync();
             }
 
-            // Re-fetch group and related data
             group = await context.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
             var groupUsers = await context.UserGroups
                 .Where(ug => ug.GroupId == groupId)
@@ -275,7 +274,6 @@ namespace TaskManagerWebsite.Controllers
                 .ToListAsync();
             var allUsers = await context.Users.ToListAsync();
 
-            // Calculate available employees (those not in the group and not the manager)
             var availableEmployees = allUsers
                 .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group.Manager == null || u.Id != group.Manager.Id))
                 .ToList();
@@ -304,7 +302,6 @@ namespace TaskManagerWebsite.Controllers
                 .ToListAsync();
             var allUsers = await context.Users.ToListAsync();
 
-            // Calculate available employees (those not in the group and not the manager)
             var availableEmployees = allUsers
                 .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group.Manager == null || u.Id != group.Manager.Id))
                 .ToList();
@@ -532,42 +529,6 @@ namespace TaskManagerWebsite.Controllers
             ViewBag.Groups = await context.Groups.ToListAsync();
             return View(project);
         }
-
-        /// <summary>
-        /// Retrieves the project board for a specific project. If the project does not have a board, a new one is created.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns></returns>
-        public async Task<IActionResult> ProjectBoard(int id)
-        {
-            var project = await context.Projects
-                .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            if (project.ProjectBoard == null)
-            {
-                var currentUserId = userManager.GetUserId(User);
-                var newBoard = new ProjectBoard { ProjectId = project.Id };
-                newBoard.BoardCreatorId = int.Parse(currentUserId);
-                context.ProjectBoards.Add(newBoard);
-                await context.SaveChangesAsync();
-
-                project = await context.Projects
-                    .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .FirstOrDefaultAsync(p => p.Id == id);
-            }
-
-            return View("ProjectBoard", project);
-        }
-
-
 
         /// <summary>
         /// Assigns a group to a specified project if it is not already assigned.

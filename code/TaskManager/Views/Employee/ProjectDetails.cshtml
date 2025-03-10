@@ -14,15 +14,17 @@
         <ul>
             @foreach (var groupProject in Model.ProjectGroups)
             {
-                <li class = "group-item">
+                <li class="group-item">
                     <span class="group-name">@groupProject.Group.Name</span>
 
+                    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+                    {
                         <form asp-action="RemoveGroupFromProject" method="post" style="display:inline;">
                             <input type="hidden" name="projectId" value="@Model.Id" />
                             <input type="hidden" name="groupId" value="@groupProject.GroupId" />
                             <button type="submit" class="btn btn-danger remove-btn">Remove</button>
                         </form>
-                    
+                    }
                 </li>
             }
         </ul>
@@ -81,6 +83,6 @@
             }
         </form>
     }
-
+    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
