@@ -194,13 +194,11 @@ namespace TaskManagerWebsite.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("PrimaryManagerId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
+                    b.HasIndex("ManagerId");
 
-                    b.HasIndex("PrimaryManagerId");
+                    b.ToTable("Groups");
 
                     b.ToTable("Groups", (string)null);
                 });
@@ -276,8 +274,8 @@ namespace TaskManagerWebsite.Migrations
                     b.HasIndex("GroupId");
 
                     b.HasIndex("ProjectId");
-
-                    b.ToTable("GroupRequests");
+                    
+                    b.ToTable("GroupRequests", (string)null);
 
                 });
 
@@ -377,7 +375,6 @@ namespace TaskManagerWebsite.Migrations
                     b.HasIndex("ProjectBoardId");
 
                     b.ToTable("Stages", (string)null);
-
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>
@@ -532,12 +529,12 @@ namespace TaskManagerWebsite.Migrations
             modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
             
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "PrimaryManager")
+                    b.HasOne("TaskManagerWebsite.Models.User", "Manager")
                         .WithMany()
-                        .HasForeignKey("PrimaryManagerId")
+                        .HasForeignKey("ManagerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("PrimaryManager");
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
@@ -661,7 +658,6 @@ namespace TaskManagerWebsite.Migrations
                 });
 
             modelBuilder.Entity("UserGroup", b =>
-
                 {
                     b.HasOne("TaskManagerWebsite.Models.User", "Manager")
                         .WithMany()

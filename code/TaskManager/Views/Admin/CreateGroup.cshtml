@@ -1,4 +1,6 @@
 ﻿@model TaskManagerWebsite.ViewModels.GroupViewModel
+@using TaskManagerWebsite.Components
+
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -25,19 +27,17 @@
 
             <div class="form-group">
                 <label>Select Manager</label>
-                <input type="text" id="searchBoxManagers" class="form-control mb-2" placeholder="Search managers...">
-                <select asp-for="SelectedManagerId" id="managerDropdown" class="form-control">
-                    <option value="">-- Select a Manager --</option>
-                    @foreach (var user in ViewBag.Employees ?? new List<User>())
-                    {
-                        <option value="@user.Id" class="manager-option" data-user-id="@user.Id">@user.UserName (@user.Email)</option>
-                    }
-                </select>
+                <component type="typeof(ManagerSearch)"
+                           render-mode="ServerPrerendered"
+                           param-Managers="@(ViewBag.Employees ?? new List<User>())"
+                           param-SelectedManagerId="@(Model?.SelectedManagerId ?? 0)" />
                 <span asp-validation-for="SelectedManagerId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label>Select Employees</label>
+
+                <input type="text" id="searchBoxEmployees" class="form-control mb-2" placeholder="Search employees...">
                 <div id="employeeContainer" class="employee-list">
                     @foreach (var user in ViewBag.Employees ?? new List<User>())
                     {
@@ -59,68 +59,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        function setupDropdownSearch(inputId, dropdownId) {
-            document.getElementById(inputId).addEventListener("keyup", function () {
-                let searchValue = this.value.toLowerCase();
-                let options = document.querySelectorAll("#" + dropdownId + " .manager-option");
-                options.forEach(function (option) {
-                    let isVisible = option.textContent.toLowerCase().includes(searchValue);
-                    option.style.display = isVisible ? "block" : "none";
-                });
-            });
-        }
-
-        function setupSearch(inputId, containerId) {
-            document.getElementById(inputId).addEventListener("keyup", function () {
-                let searchValue = this.value.toLowerCase();
-                let checkboxes = document.querySelectorAll("#" + containerId + " .employee-box");
-                checkboxes.forEach(function (box) {
-                    let label = box.querySelector(".form-check-label").textContent.toLowerCase();
-                    let isHidden = box.style.display === "none";
-                    box.style.display = label.includes(searchValue) && !isHidden ? "block" : "none";
-                });
-            });
-        }
-
-        document.getElementById("managerDropdown").addEventListener("change", function () {
-            let selectedManagerId = this.value;
-            let employeeCheckboxes = document.querySelectorAll(".employee-box");
-
-            employeeCheckboxes.forEach(function (box) {
-                let checkbox = box.querySelector(".employee-checkbox");
-                let userId = box.getAttribute("data-user-id");
-
-                if (userId === selectedManagerId) {
-                    checkbox.checked = false;
-                    box.style.display = "none";
-                } else {
-                    box.style.display = "block";
-                }
-            });
-        });
-
-        document.querySelectorAll(".employee-checkbox").forEach(function (checkbox) {
-            checkbox.addEventListener("change", function () {
-                let userId = this.value;
-                let managerOption = document.querySelector("#managerDropdown option[data-user-id='" + userId + "']");
-
-                if (this.checked) {
-                    if (managerOption) {
-                        managerOption.style.display = "none";
-                        if (managerOption.selected) {
-                            document.getElementById("managerDropdown").value = "";
-                        }
-                    }
-                } else {
-                    if (managerOption) {
-                        managerOption.style.display = "block";
-                    }
-                }
-            });
-        });
-
-        setupDropdownSearch("searchBoxManagers", "managerDropdown");
-        setupSearch("searchBoxEmployees", "employeeContainer");
-    </script>
+    <script src="~/lib/groupFunctions.js"></script>
 }

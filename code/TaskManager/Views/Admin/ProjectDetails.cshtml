@@ -13,9 +13,7 @@
         <p>Description: @Model.Description</p>
     </div>
 
-
-        <button type="submit" class="btn btn-success mt-2">Assign Group</button>
-    </form>
+    <button type="submit" class="btn btn-success mt-2">Assign Group</button>
     
     <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
 
@@ -37,20 +35,18 @@
         </a>
     </div>
 
-    <!-- Group Assignment Section (Partial) -->
     <div class="project-section">
-        @await Html.PartialAsync("_GroupAssignmentPartial", Model)
+            @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
-    <!-- Back to Projects Button -->
-    <div class="back-button">
-        <a href="@Url.Action("Projects", "Admin")" class="btn btn-secondary">Back to Projects</a>
-    </div>
+    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+    <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+    <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
-
 
 @section Scripts {
     <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/lib/groupFunctions.js"></script>
     <script>
         function refreshGroupAssignment(htmlSnippet) {
             $("#group-assignment-container").html(htmlSnippet);

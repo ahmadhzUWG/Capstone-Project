@@ -10,22 +10,6 @@ namespace TaskManagerWebsite.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // 1) Remove leftover references to "UserId1" in GroupManagers
-            migrationBuilder.DropForeignKey(
-                name: "FK_GroupManagers_AspNetUsers_UserId1",
-                table: "GroupManagers"
-            );
-
-            migrationBuilder.DropIndex(
-                name: "IX_GroupManagers_UserId1",
-                table: "GroupManagers"
-            );
-
-            migrationBuilder.DropColumn(
-                name: "UserId1",
-                table: "GroupManagers"
-            );
-
             // 2) Make ProjectCreatorId in Projects nullable
             migrationBuilder.AlterColumn<int>(
                 name: "ProjectCreatorId",
@@ -106,19 +90,6 @@ namespace TaskManagerWebsite.Migrations
                 }
             );
 
-            // 5) Create needed indexes
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupRequests_GroupId",
-                table: "GroupRequests",
-                column: "GroupId"
-            );
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupRequests_ProjectId",
-                table: "GroupRequests",
-                column: "ProjectId"
-            );
-
             migrationBuilder.CreateIndex(
                 name: "IX_ProjectBoards_ProjectId",
                 table: "ProjectBoards",
@@ -147,25 +118,6 @@ namespace TaskManagerWebsite.Migrations
                 name: "IX_Stages_ProjectBoardId",
                 table: "Stages",
                 column: "ProjectBoardId"
-            );
-
-            // 6) Re-link foreign keys for GroupRequests -> Groups/Projects
-            migrationBuilder.AddForeignKey(
-                name: "FK_GroupRequests_Groups_GroupId",
-                table: "GroupRequests",
-                column: "GroupId",
-                principalTable: "Groups",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade
-            );
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_GroupRequests_Projects_ProjectId",
-                table: "GroupRequests",
-                column: "ProjectId",
-                principalTable: "Projects",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade
             );
 
             // 7) If your DB does NOT already have the FK for PrimaryManagerId,
