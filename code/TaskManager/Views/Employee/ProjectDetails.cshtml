@@ -1,6 +1,6 @@
 ﻿@model TaskManagerWebsite.Models.Project
 
-<link rel="stylesheet" href="~/css/manager_projectDetails.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Manager/manager_projectDetails.css" asp-append-version="true" />
 
 <div class="center-content">
     <h2>Project Details</h2>
@@ -10,16 +10,77 @@
         <p><strong>Description:</strong> @Model.Description</p>
         <p><strong>Project Lead:</strong> @Model.ProjectLead.UserName</p>
 
-        <h5>Groups:</h5>
+        <h5>Groups</h5>
         <ul>
             @foreach (var groupProject in Model.ProjectGroups)
             {
                 <li class = "group-item">
                     <span class="group-name">@groupProject.Group.Name</span>
+
+                        <form asp-action="RemoveGroupFromProject" method="post" style="display:inline;">
+                            <input type="hidden" name="projectId" value="@Model.Id" />
+                            <input type="hidden" name="groupId" value="@groupProject.GroupId" />
+                            <button type="submit" class="btn btn-danger remove-btn">Remove</button>
+                        </form>
+                    
                 </li>
             }
         </ul>
     </div>
+
+    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+    {
+        <h4>Assign Group to Project</h4>
+        <form asp-action="AssignGroupToProject" method="post">
+            <input type="hidden" name="projectId" value="@Model.Id" />
+
+            <label for="groupId">Select Group:</label>
+            <select name="groupId" class="form-control">
+                @foreach (var group in ViewBag.ManagedGroups)
+                {
+                    <option value="@group.Id">@group.Name</option>
+                }
+            </select>
+
+            <button type="submit" class="btn btn-success mt-2">Assign Group</button>
+
+            @if (TempData["AssignedErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["AssignedErrorMessage"]
+                </div>
+            }
+        </form>
+
+        <a href="@Url.Action("EditProject", "Employee", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+
+        <h4>Request Group to Project</h4>
+        <form asp-action="RequestGroupToProject" method="post">
+            <input type="hidden" name="projectId" value="@Model.Id" />
+
+            <label for="groupId">Select Group:</label>
+            <select name="groupId" class="form-control">
+                @foreach (var group in ViewBag.UnmanagedGroups)
+                {
+                    <option value="@group.Id">@group.Name</option>
+                }
+            </select>
+
+            <button type="submit" class="btn btn-warning mt-2">Request Assign Group</button>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+        </form>
+    }
 
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>

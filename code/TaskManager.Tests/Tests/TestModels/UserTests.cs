@@ -24,25 +24,34 @@ namespace TaskManager.Tests.Tests.TestModels
         {
             var user = new User();
 
-            Assert.NotNull(user.Groups);
-            Assert.Empty(user.Groups);
+            Assert.NotNull(user.UserGroups);
+            Assert.Empty(user.UserGroups);
         }
 
         [Fact]
-        public void User_Groups_CanBeAssignedAndRetrieved()
+        public void User_UserGroups_CanBeAssignedAndRetrieved()
         {
+            // Arrange
             var groups = new List<Group>
             {
                 new Group { Id = 1, Name = "Development" },
                 new Group { Id = 2, Name = "Design" }
             };
 
-            var user = new User { Groups = groups };
+            var user = new User
+            {
+                UserGroups = new List<UserGroup>
+                {
+                    new UserGroup { GroupId = 1, Group = groups[0], Role = "Member" },
+                    new UserGroup { GroupId = 2, Group = groups[1], Role = "Manager" }
+                }
+            };
 
-            Assert.NotNull(user.Groups);
-            Assert.Equal(2, user.Groups.Count);
-            Assert.Contains(user.Groups, g => g.Name == "Development");
-            Assert.Contains(user.Groups, g => g.Name == "Design");
+            // Act & Assert
+            Assert.NotNull(user.UserGroups);
+            Assert.Equal(2, user.UserGroups.Count);
+            Assert.Contains(user.UserGroups, ug => ug.Group.Name == "Development");
+            Assert.Contains(user.UserGroups, ug => ug.Group.Name == "Design");
         }
 
         [Fact]

@@ -12,5 +12,5 @@ public class User : IdentityUser<int>
     /// Gets or sets the collection of groups the user is a member of.
     /// A user can belong to multiple groups.
     /// </summary>
-    public ICollection<Group> Groups { get; set; } = new List<Group>();
+    public ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
 }

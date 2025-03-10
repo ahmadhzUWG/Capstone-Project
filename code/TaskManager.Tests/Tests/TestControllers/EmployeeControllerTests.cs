@@ -126,8 +126,8 @@ namespace TaskManager.Tests.Tests.TestControllers
                 Id = 1,
                 Name = "TestGroup",
                 Description = "TestDescription",
-                PrimaryManagerId = 1,
-                PrimaryManager = user
+                ManagerId = 1,
+                Manager = user
             };
 
             var unmanagedGroup = new Group
@@ -135,8 +135,8 @@ namespace TaskManager.Tests.Tests.TestControllers
                 Id = 2,
                 Name = "Test2Group",
                 Description = "Test2Description",
-                PrimaryManagerId = 2,
-                PrimaryManager = otherUser
+                ManagerId = 2,
+                Manager = otherUser
             };
 
             var anotherUnmanagedGroup = new Group
@@ -144,8 +144,8 @@ namespace TaskManager.Tests.Tests.TestControllers
                 Id = 3,
                 Name = "Test3Group",
                 Description = "Test3Description",
-                PrimaryManagerId = 2,
-                PrimaryManager = otherUser
+                ManagerId = 2,
+                Manager = otherUser
             };
 
             var managedGroupManager = new GroupManager
