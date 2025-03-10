@@ -1,4 +1,4 @@
-﻿@model TaskManagerWebsite.Models.Project
+@model TaskManagerWebsite.Models.Project
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -12,6 +12,10 @@
         <h2>@Model.Name</h2>
         <p>Description: @Model.Description</p>
     </div>
+
+    <button type="submit" class="btn btn-success mt-2">Assign Group</button>
+    
+    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
 
     <!-- Project Lead Info -->
     <div class="project-section">
@@ -35,10 +39,6 @@
             @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
-    <div class="back-button">
-        <a href="@Url.Action("Projects", "Admin")" class="btn btn-secondary">Back to Projects</a>
-    </div>
-    
     <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
     <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>

@@ -194,14 +194,29 @@ namespace TaskManagerWebsite.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("PrimaryManagerId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ManagerId");
 
                     b.ToTable("Groups");
+
+                    b.ToTable("Groups", (string)null);
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupManagers", (string)null);
+
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
@@ -259,8 +274,9 @@ namespace TaskManagerWebsite.Migrations
                     b.HasIndex("GroupId");
 
                     b.HasIndex("ProjectId");
-
+                    
                     b.ToTable("GroupRequests", (string)null);
+
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
@@ -285,6 +301,7 @@ namespace TaskManagerWebsite.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectLeadId")
+
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -306,9 +323,11 @@ namespace TaskManagerWebsite.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ProjectId")
+
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
 
                     b.HasIndex("BoardCreatorId");
 
@@ -505,6 +524,17 @@ namespace TaskManagerWebsite.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+            
+                {
+                    b.HasOne("TaskManagerWebsite.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
@@ -742,7 +772,11 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("TaskManagerWebsite.Models.ProjectBoard", b =>
                 {
+
                     b.Navigation("Stages");
+
+                    b.Navigation("UserGroups");
+
                 });
 #pragma warning restore 612, 618
         }
