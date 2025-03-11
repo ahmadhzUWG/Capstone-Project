@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\GroupManager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerWebsite.Models;
+
+/// &lt;summary&gt;
+/// Represents the relationship between a user and a group as a manager.
+/// A group manager is responsible for overseeing a specific group.
+/// &lt;/summary&gt;
+public class GroupManager
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the identifier of the group that the manager is associated with.
+    /// &lt;/summary&gt;
+    public int GroupId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the group entity associated with this manager.
+    /// &lt;/summary&gt;
+    public Group Group { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the identifier of the user who is assigned as a group manager.
+    /// &lt;/summary&gt;
+    public int UserId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the user entity who is managing the group.
+    /// &lt;/summary&gt;
+    public User User { get; set; }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,26,12,30,1],[12,31,12,35,1],[17,26,17,30,1],[17,31,17,35,1],[22,25,22,29,1],[22,30,22,34,1],[27,24,27,28,1],[27,29,27,33,1]]);
+    </script>
+  </body>
+</html>

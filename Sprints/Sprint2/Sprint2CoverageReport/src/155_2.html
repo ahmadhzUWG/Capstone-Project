@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Shared\_Layout.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;base href=&quot;~/&quot; /&gt;
+    &lt;meta charset=&quot;utf-8&quot;/&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;/&gt;
+    &lt;title&gt;@ViewData[&quot;Title&quot;] - TaskManager&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;~/lib/bootstrap/dist/css/bootstrap.min.css&quot;/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+
+    &lt;nav class=&quot;navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3&quot;&gt;
+        &lt;div class=&quot;container-fluid&quot;&gt;
+            &lt;a class=&quot;navbar-brand&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Index&quot;&gt;TaskManager&lt;/a&gt;
+            &lt;button class=&quot;navbar-toggler&quot; type=&quot;button&quot; data-bs-toggle=&quot;collapse&quot; data-bs-target=&quot;.navbar-collapse&quot; aria-controls=&quot;navbarSupportedContent&quot;
+                    aria-expanded=&quot;false&quot; aria-label=&quot;Toggle navigation&quot;&gt;
+                &lt;span class=&quot;navbar-toggler-icon&quot;&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;div class=&quot;navbar-collapse collapse d-sm-inline-flex justify-content-between&quot;&gt;
+                &lt;ul class=&quot;navbar-nav flex-grow-1&quot;&gt;
+                    &lt;li class=&quot;nav-item&quot;&gt;
+                        &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Index&quot;&gt;Home&lt;/a&gt;
+                    &lt;/li&gt;
+                        
+                    @if (User.IsInRole(&quot;Employee&quot;)) 
+                    {
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                                &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Employee&quot; asp-action=&quot;Users&quot;&gt;Employees&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                                &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Employee&quot; asp-action=&quot;Projects&quot;&gt;Projects&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                                &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Employee&quot; asp-action=&quot;Groups&quot;&gt;Groups&lt;/a&gt;
+                        &lt;/li&gt;
+                    }
+
+                    @if (User.IsInRole(&quot;Admin&quot;)) 
+                    {
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                            &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Admin&quot; asp-action=&quot;Users&quot;&gt;Employees&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                            &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Admin&quot; asp-action=&quot;Projects&quot;&gt;Projects&lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                            &lt;a class=&quot;nav-link text-dark&quot; asp-area=&quot;&quot; asp-controller=&quot;Admin&quot; asp-action=&quot;Groups&quot;&gt;Groups&lt;/a&gt;
+                        &lt;/li&gt;
+                    }
+                        
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        &lt;li class=&quot;nav-item&quot;&gt;
+                            &lt;form action=&quot;@Url.Action(&quot;Logout&quot;, &quot;Login&quot;)&quot; method=&quot;post&quot; style=&quot;display:inline;&quot;&gt;
+                                @Html.AntiForgeryToken()
+                                &lt;button type=&quot;submit&quot; class=&quot;nav-link text-dark&quot; style=&quot;border: none; background: none; cursor: pointer&quot;&gt;Sign Out&lt;/button&gt;
+                            &lt;/form&gt;
+                        &lt;/li&gt;
+                    }
+
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+&lt;/header&gt;
+&lt;div class=&quot;container-fluid&quot;&gt;
+    &lt;main role=&quot;main&quot; class=&quot;pb-3&quot;&gt;
+        @RenderBody()
+    &lt;/main&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;~/lib/jquery/dist/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/lib/bootstrap/dist/js/bootstrap.bundle.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;~/js/site.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;_framework/blazor.server.js&quot;&gt;&lt;/script&gt;
+
+@await RenderSectionAsync(&quot;Scripts&quot;, required: false)
+&lt;/body&gt;
+&lt;/html&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,13,7,31,0],[26,22,26,52,0],[27,21,27,22,0],[37,21,37,22,0],[39,22,39,49,0],[40,21,40,22,0],[50,21,50,22,0],[52,22,52,56,0],[53,21,53,22,0],[55,43,55,74,0],[56,34,56,58,0],[60,21,60,22,0],[69,10,69,23,0],[75,1,75,76,0],[78,2,78,55,0]]);
+    </script>
+  </body>
+</html>

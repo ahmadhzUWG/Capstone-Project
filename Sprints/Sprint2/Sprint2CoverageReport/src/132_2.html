@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\ProjectDetails.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.Project
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Admin/projectDetails.css&quot; /&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+
+    &lt;div class=&quot;project-header&quot;&gt;
+        &lt;h2&gt;@Model.Name&lt;/h2&gt;
+        &lt;p&gt;Description: @Model.Description&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-success mt-2&quot;&gt;Assign Group&lt;/button&gt;
+
+    &lt;div class=&quot;project-section&quot;&gt;
+        &lt;h3&gt;Project Lead&lt;/h3&gt;
+        @if (Model.ProjectLead != null)
+        {
+            &lt;p class=&quot;lead-info&quot;&gt;
+                &lt;strong&gt;@Model.ProjectLead.UserName (@Model.ProjectLead.Email)&lt;/strong&gt;
+            &lt;/p&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;lead-info&quot;&gt;&lt;strong&gt;No project lead assigned.&lt;/strong&gt;&lt;/p&gt;
+        }
+        &lt;a asp-action=&quot;EditProject&quot; asp-route-id=&quot;@Model.Id&quot; class=&quot;btn btn-info mt-2&quot;&gt;
+            Edit Project
+        &lt;/a&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;project-section&quot;&gt;
+        @await Html.PartialAsync(&quot;_ProjectGroupAssignmentPartial&quot;, Model)
+    &lt;/div&gt;
+
+    &lt;a href=&quot;@Url.Action(&quot;ProjectBoard&quot;, &quot;Project&quot;, new { id = Model.Id })&quot; class=&quot;btn btn-info&quot;&gt;View Project Board&lt;/a&gt;
+    &lt;a href=&quot;@Url.Action(&quot;EditProject&quot;, &quot;Admin&quot;, new { id = Model.Id })&quot; class=&quot;btn btn-warning&quot;&gt;Edit&lt;/a&gt;
+    &lt;a asp-action=&quot;Projects&quot; class=&quot;btn btn-primary&quot;&gt;Back to Projects&lt;/a&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;script src=&quot;~/lib/jquery.unobtrusive-ajax.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;~/lib/groupFunctions.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+        function refreshGroupAssignment(htmlSnippet) {
+            $(&quot;#group-assignment-container&quot;).html(htmlSnippet);
+        }
+
+        function groupActionFailed(xhr, status, error) {
+            alert(&quot;An error occurred while processing the request.&quot;);
+            console.error(&quot;Error:&quot;, error);
+        }
+    &lt;/script&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[12,14,12,25,0],[13,26,13,44,0],[20,10,20,40,0],[21,9,21,10,0],[23,26,23,53,0],[23,55,23,79,0],[25,9,25,10,0],[27,9,27,10,0],[29,9,29,10,0],[30,52,30,61,0],[36,10,36,75,0],[39,14,39,76,0],[40,14,40,73,0]]);
+    </script>
+  </body>
+</html>

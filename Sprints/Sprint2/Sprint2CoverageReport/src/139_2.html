@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Employee\CreateProject.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.Models.Project
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/manager_createProject.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;h2 class=&quot;text-center&quot;&gt;Create New Project&lt;/h2&gt;
+
+&lt;div class=&quot;form-container&quot;&gt;
+    &lt;form asp-action=&quot;CreateProject&quot; method=&quot;post&quot;&gt;
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; /&gt;
+            &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Description&quot;&gt;&lt;/label&gt;
+            &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot;&gt;&lt;/textarea&gt;
+            &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;ProjectLeadId&quot;&gt;Project Lead&lt;/label&gt;
+            &lt;select asp-for=&quot;ProjectLeadId&quot; class=&quot;form-control&quot;&gt;
+                @foreach (var user in ViewBag.ProjectLeads)
+                {
+                    &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;span asp-validation-for=&quot;ProjectLeadId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Create&lt;/button&gt;
+        &lt;a asp-action=&quot;Projects&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[3,1,3,74,0],[10,1,10,141,0],[11,1,11,141,0],[12,1,12,153,0],[16,1,16,148,0],[17,1,17,151,0],[18,1,18,160,0],[22,1,22,150,0],[23,1,23,151,0],[24,18,24,25,0],[24,27,24,35,0],[24,36,24,38,0],[24,39,24,59,0],[25,17,25,18,0],[26,37,26,45,0],[26,47,26,61,0],[27,17,27,18,0],[29,1,29,162,0]]);
+    </script>
+  </body>
+</html>

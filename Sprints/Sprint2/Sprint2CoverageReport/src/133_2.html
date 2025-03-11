@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\Projects.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model IEnumerable&lt;TaskManagerWebsite.Models.Project&gt;
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Admin/projects.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;header&quot;&gt;
+    &lt;h2&gt;Projects&lt;/h2&gt;
+
+    &lt;a href=&quot;@Url.Action(&quot;CreateProject&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-primary&quot;&gt;Create New Project&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;table class=&quot;table table-bordered&quot;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Project Name&lt;/th&gt;
+        &lt;th&gt;Actions&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    @foreach (var project in Model.OrderBy(p =&gt; p.Name))
+    {
+        &lt;tr&gt;
+            &lt;td&gt;@project.Name&lt;/td&gt;
+            &lt;td&gt;
+                &lt;a href=&quot;@Url.Action(&quot;ProjectDetails&quot;, &quot;Admin&quot;, new { id = project.Id })&quot; class=&quot;btn btn-info btn-sm&quot;&gt;View&lt;/a&gt;
+
+                &lt;form asp-action=&quot;DeleteProject&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot; style=&quot;display:inline;&quot;&gt;
+                    &lt;input type=&quot;hidden&quot; name=&quot;id&quot; value=&quot;@project.Id&quot; /&gt;
+                    &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot; onclick=&quot;return confirm(&#39;Are you sure you want to delete this project?&#39;);&quot;&gt;Delete&lt;/button&gt;
+                &lt;/form&gt;
+                
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    }
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div style=&quot;text-align: center;&quot;&gt;
+    @Html.ActionLink(&quot;Go Back&quot;, &quot;Index&quot;, &quot;Home&quot;, null, new { @class = &quot;btn btn-cancel&quot; })
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[3,1,3,74,0],[8,14,8,52,0],[19,6,19,13,0],[19,15,19,26,0],[19,27,19,29,0],[19,30,19,49,0],[19,49,19,55,0],[19,55,19,56,0],[20,5,20,6,0],[22,18,22,31,0],[24,26,24,90,0],[27,59,27,71,0],[33,5,33,6,0],[38,6,38,91,0]]);
+    </script>
+  </body>
+</html>
