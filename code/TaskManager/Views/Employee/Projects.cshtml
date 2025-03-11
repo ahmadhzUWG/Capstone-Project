@@ -1,11 +1,19 @@
 ﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
 
+@{
+    var isManager = ViewBag.IsManager as bool? ?? false; // Retrieve isManager value from ViewBag
+}
+
 <link rel="stylesheet" href="~/css/Manager/manager_projects.css" asp-append-version="true" />
 
 <div style="text-align: center" class="header">
     <h2>Projects</h2>
-
-    <a href="@Url.Action("CreateProject", "Employee")" class="btn btn-primary">Create New Project</a>
+    
+    @if (isManager)
+    {
+        <a href="@Url.Action("CreateProject", "Employee")" class="btn btn-primary">Create New Project</a>
+    }
+    
 </div>
 
 <table class="table table-bordered">

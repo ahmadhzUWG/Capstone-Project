@@ -205,6 +205,14 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A view displaying the projects the manager is involved in.</returns>
         public async Task<IActionResult> Projects()
         {
+            var currentUser = await _userManager.GetUserAsync(User); 
+
+            
+            var isManager = await _context.Groups
+                                          .AnyAsync(g => g.ManagerId == currentUser.Id);
+
+            ViewBag.IsManager = isManager;
+
             var userId = _userManager.GetUserId(User);
             ViewBag.UserId = userId;
 
