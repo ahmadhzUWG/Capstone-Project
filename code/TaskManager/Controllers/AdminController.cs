@@ -469,11 +469,23 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> CreateProject()
         {
             var users = await context.Users.ToListAsync();
+            var leads = context.Groups
+                .Where(g => g.ManagerId != null) 
+                .AsEnumerable()
+                .Select(g => context.Users.FirstOrDefault(u => u.Id == g.ManagerId)) 
+                .Where(u => u != null) 
+                .Distinct() 
+                .ToList();
+
+
+            var currentAdmin = await userManager.GetUserAsync(User);
+            leads.Add(currentAdmin);
+            ViewBag.Groups = await context.Groups.ToListAsync();
 
             // Build the view model
             var model = new CreateProjectViewModel
             {
-                ProjectLeads = users.Select(u => new SelectListItem
+                ProjectLeads = leads.Select(u => new SelectListItem
                 {
                     Value = u.Id.ToString(),
                     Text = u.UserName
@@ -495,15 +507,27 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProject(CreateProjectViewModel model)
         {
+            var users = await context.Users.ToListAsync();
+            var leads = context.Groups
+                .Where(g => g.ManagerId != null)
+                .AsEnumerable()
+                .Select(g => context.Users.FirstOrDefault(u => u.Id == g.ManagerId))
+                .Where(u => u != null)
+                .Distinct()
+                .ToList();
+
+            var currentAdmin = await userManager.GetUserAsync(User);
+            leads.Add(currentAdmin);
+            ViewBag.Groups = await context.Groups.ToListAsync();
+
+            model.ProjectLeads = leads.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList();
+
             if (!ModelState.IsValid)
             {
-                var users = await context.Users.ToListAsync();
-                model.ProjectLeads = users.Select(u => new SelectListItem
-                {
-                    Value = u.Id.ToString(),
-                    Text = u.UserName
-                }).ToList();
-
                 return View(model);
             }
 
@@ -512,13 +536,6 @@ namespace TaskManagerWebsite.Controllers
             if (string.IsNullOrEmpty(currentUserId))
             {
                 ModelState.AddModelError("", "Unable to determine the logged-in user.");
-
-                var users = await context.Users.ToListAsync();
-                model.ProjectLeads = users.Select(u => new SelectListItem
-                {
-                    Value = u.Id.ToString(),
-                    Text = u.UserName
-                }).ToList();
 
                 return View(model);
             }
@@ -533,6 +550,16 @@ namespace TaskManagerWebsite.Controllers
 
             context.Projects.Add(project);
             await context.SaveChangesAsync();
+
+            var selectedGroupIds = Request.Form["GroupId"].ToList();
+            if (selectedGroupIds.Count > 0)
+            {
+                foreach (var groupId in selectedGroupIds)
+                {
+                    await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                }
+
+            }
 
             return RedirectToAction(nameof(Projects));
         }

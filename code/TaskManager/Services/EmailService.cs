@@ -7,12 +7,16 @@ namespace TaskManagerWebsite.Services
     {
         private readonly IConfiguration _configuration;
 
+        public EmailService()
+        {
+        }
+
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        public virtual async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var emailSettings = _configuration.GetSection("EmailSettings");
 

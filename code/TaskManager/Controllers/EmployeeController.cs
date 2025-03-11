@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -245,7 +248,19 @@ namespace TaskManagerWebsite.Controllers
             var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
             ViewBag.ManagedGroups = managedGroups;
 
-            return View();
+            var leads = new List<User> { currentUser };
+
+            // Build the view model
+            var model = new CreateProjectViewModel
+            {
+                ProjectLeads = leads.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         /// <summary>
@@ -258,17 +273,41 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProject(Project project)
+        public async Task<IActionResult> CreateProject(CreateProjectViewModel model)
         {
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
+            var leads = new List<User> { currentUser };
+
+            model.ProjectLeads = leads.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList();
+
             if (ModelState.IsValid)
             {
-                var currentUserId = _userManager.GetUserId(User);
-
                 if (string.IsNullOrEmpty(currentUserId))
                 {
                     ModelState.AddModelError("", "Unable to determine the logged-in user.");
-                    return View(project);
+                    return View(model);
                 }
+
+                var project = new Project
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ProjectLeadId = model.ProjectLeadId,
+                    ProjectCreatorId = int.Parse(currentUserId)
+                };
 
                 project.ProjectCreatorId = int.Parse(currentUserId);
 
@@ -288,8 +327,7 @@ namespace TaskManagerWebsite.Controllers
                 return RedirectToAction(nameof(Projects));
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
-            return View(project);
+            return View(model);
         }
 
         /// <summary>

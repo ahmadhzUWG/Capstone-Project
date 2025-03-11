@@ -1,6 +1,7 @@
-﻿@model TaskManagerWebsite.Models.Project
+﻿@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateProjectViewModel
 
 <link rel="stylesheet" href="~/css/Manager/manager_createProject.css" asp-append-version="true" />
+<div asp-validation-summary="All" class="text-danger"></div>
 
 <h2 class="text-center">Create New Project</h2>
 
@@ -20,32 +21,26 @@
         
         <div class="form-group">
             <label asp-for="ProjectLeadId">Project Lead</label>
-            <select asp-for="ProjectLeadId" class="form-control">
-                <option value="@ViewBag.ProjectLead.Id" selected>@ViewBag.ProjectLead.UserName</option>
-            </select>
+            <select asp-for="ProjectLeadId" asp-items="Model.ProjectLeads" class="form-control"></select>
             <span asp-validation-for="ProjectLeadId" class="text-danger"></span>
         </div>
-
+        
         <h4>Assign Group to Project</h4>
         <div class="form-group">
             <label>Group</label>
             <div class="scrollable-checkbox-container">
-                @foreach (var group in ViewBag.ManagedGroups)
+                @if (ViewBag.ManagedGroups != null)
                 {
-                    <div class="form-check">
-                        <input type="checkbox" name="GroupId" value="@group.Id" id="group_@group.Id">
-                        <label for="group_@group.Id">@group.Name</label>
-                    </div>
+                    @foreach (var group in ViewBag.ManagedGroups)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" name="GroupId" value="@group.Id" id="group_@group.Id">
+                            <label for="group_@group.Id">@group.Name</label>
+                        </div>
+                    }
                 }
             </div>
         </div>
-
-        @if (TempData["AssignedErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["AssignedErrorMessage"]
-            </div>
-        }
 
         <button type="submit" class="btn btn-success">Create</button>
         <a asp-action="Projects" class="btn btn-secondary">Cancel</a>
