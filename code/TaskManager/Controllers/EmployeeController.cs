@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -48,6 +51,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await _context.Groups.ToListAsync();
+
+            foreach (var group in groups)
+            {
+                group.Manager = await _context.Users.FindAsync(group.ManagerId);
+            }
+
             return View(groups);
         }
 
@@ -196,6 +205,14 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A view displaying the projects the manager is involved in.</returns>
         public async Task<IActionResult> Projects()
         {
+            var currentUser = await _userManager.GetUserAsync(User); 
+
+            
+            var isManager = await _context.Groups
+                                          .AnyAsync(g => g.ManagerId == currentUser.Id);
+
+            ViewBag.IsManager = isManager;
+
             var userId = _userManager.GetUserId(User);
             ViewBag.UserId = userId;
 
@@ -209,11 +226,17 @@ namespace TaskManagerWebsite.Controllers
             var sentGroupRequests = await _context.GroupRequests
                 .Include(gr => gr.Group)
                 .Include(gr => gr.Project)
-                .Where(gr => gr.SenderId == int.Parse(userId) && gr.Response != null)
+                .Where(gr => gr.SenderId == int.Parse(userId))
                 .ToListAsync();
             ViewBag.SentGroupRequests = sentGroupRequests;
 
             var projects = await _context.Projects.ToListAsync();
+
+            foreach (var project in projects)
+            {
+                project.ProjectLead = await _context.Users.FindAsync(project.ProjectLeadId);
+            }
+
             return View(projects);
         }
 
@@ -223,10 +246,29 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A view with a list of users and groups available for selection.</returns>
         public async Task<IActionResult> CreateProject()
         {
-            var users = await _context.Users.ToListAsync();
-            ViewBag.ProjectLeads = users;
-            ViewBag.Groups = await _context.Groups.ToListAsync();
-            return View();
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
+            var leads = new List<User> { currentUser };
+
+            // Build the view model
+            var model = new CreateProjectViewModel
+            {
+                ProjectLeads = leads.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         /// <summary>
@@ -239,27 +281,61 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProject(Project project)
+        public async Task<IActionResult> CreateProject(CreateProjectViewModel model)
         {
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
+            var leads = new List<User> { currentUser };
+
+            model.ProjectLeads = leads.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList();
+
             if (ModelState.IsValid)
             {
-                var currentUserId = _userManager.GetUserId(User);
-
                 if (string.IsNullOrEmpty(currentUserId))
                 {
                     ModelState.AddModelError("", "Unable to determine the logged-in user.");
-                    return View(project);
+                    return View(model);
                 }
+
+                var project = new Project
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ProjectLeadId = model.ProjectLeadId,
+                    ProjectCreatorId = int.Parse(currentUserId)
+                };
 
                 project.ProjectCreatorId = int.Parse(currentUserId);
 
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
+
+                var selectedGroupIds = Request.Form["GroupId"].ToList();
+                if (selectedGroupIds.Count > 0)
+                {
+                    foreach (var groupId in selectedGroupIds)
+                    {
+                        await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    }
+
+                }
+
                 return RedirectToAction(nameof(Projects));
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
-            return View(project);
+            return View(model);
         }
 
         /// <summary>
@@ -320,7 +396,22 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g => g.ManagerId)
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
             return View(project);
         }
 
@@ -371,7 +462,22 @@ namespace TaskManagerWebsite.Controllers
                 }
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g => g.ManagerId) 
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
             return View(project);
         }
 

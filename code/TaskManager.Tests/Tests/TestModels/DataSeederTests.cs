@@ -4,15 +4,24 @@ using Microsoft.AspNetCore.Identity;
 using Moq;
 using Xunit;
 using TaskManagerWebsite.Models;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
 
 public class DataSeederTests
 {
     private readonly Mock<UserManager<User>> _mockUserManager;
     private readonly Mock<RoleManager<IdentityRole<int>>> _mockRoleManager;
     private readonly Mock<IServiceProvider> _mockServiceProvider;
+    private readonly ApplicationDbContext _dbContext;
 
     public DataSeederTests()
     {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase") 
+            .Options;
+
+        _dbContext = new ApplicationDbContext(options); 
+
         // Setup a mock IUserStore for UserManager.
         var userStoreMock = new Mock<IUserStore<User>>();
         _mockUserManager = new Mock<UserManager<User>>(
@@ -31,6 +40,9 @@ public class DataSeederTests
         _mockServiceProvider
             .Setup(sp => sp.GetService(typeof(RoleManager<IdentityRole<int>>)))
             .Returns(_mockRoleManager.Object);
+        _mockServiceProvider
+            .Setup(sp => sp.GetService(typeof(ApplicationDbContext)))
+            .Returns(_dbContext);
 
         // Configure RoleManager so that roles do not exist and are then created.
         _mockRoleManager

@@ -23,15 +23,17 @@
     <table class="table">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Actions</th>
+                <th style="color: black;">Manager</th>
+                <th style="color: black;">Name</th>
+                <th style="color: black;">Description</th>
+                <th style="color: black;">Actions</th>
         </tr>
         </thead>
         <tbody>
         @foreach (var group in Model)
         {
             <tr>
+                <td>@group.Manager!.UserName</td>
                 <td>
                     <a href="@Url.Action("GroupDetails", "Admin", new { id = group.Id })">
                         @group.Name
@@ -45,7 +47,7 @@
                           style="display:inline;"
                           onsubmit="return confirm('Are you sure you want to delete this group?');">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@group.Id" />
+                        <input type="hidden" name="id" value="@group.Id"/>
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                 </td>

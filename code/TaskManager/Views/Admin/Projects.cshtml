@@ -11,6 +11,7 @@
 <table class="table table-bordered">
     <thead>
     <tr>
+        <th>Project Lead</th>
         <th>Project Name</th>
         <th>Actions</th>
     </tr>
@@ -19,15 +20,16 @@
     @foreach (var project in Model.OrderBy(p => p.Name))
     {
         <tr>
+            <td>@project.ProjectLead.UserName</td>
             <td>@project.Name</td>
             <td>
                 <a href="@Url.Action("ProjectDetails", "Admin", new { id = project.Id })" class="btn btn-info btn-sm">View</a>
 
                 <form asp-action="DeleteProject" asp-controller="Admin" method="post" style="display:inline;">
-                    <input type="hidden" name="id" value="@project.Id" />
+                    <input type="hidden" name="id" value="@project.Id"/>
                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
                 </form>
-                
+
             </td>
         </tr>
     }

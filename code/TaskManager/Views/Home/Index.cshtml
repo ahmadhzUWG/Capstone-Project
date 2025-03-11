@@ -9,5 +9,10 @@
 <main class="home-container">
     <div class="card">
         <h2>Welcome, @userName!</h2>
+        
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="@Url.Action("Index", "Login")" class="btn btn-primary">Login</a>
+        }
     </div>
 </main>

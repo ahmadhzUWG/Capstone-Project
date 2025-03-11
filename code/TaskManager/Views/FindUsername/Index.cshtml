@@ -1,0 +1,39 @@
+﻿@model TaskManagerWebsite.ViewModels.FindUsernameViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/Login/login_index.css" />
+
+<div style="text-align: center">
+    <h4>Find Username associated with Email</h4>
+</div>
+
+<form asp-action="Index" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email"/>
+        <span asp-validation-for="Email"></span>
+
+    </div>
+    
+    <button type="submit">Find</button>
+</form>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" style="margin-top: 15px; text-align: center">
+        <strong>Success!</strong> @TempData["SuccessMessage"]
+    </div>
+}
+
+<div style="text-align: center">
+    <a href="@Url.Action("Index", "Login")" class="btn btn-cancel">Back to Login</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

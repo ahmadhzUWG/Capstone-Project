@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using TaskManagerWebsite.Data;
 
 namespace TaskManagerWebsite.Models;
 
@@ -16,6 +17,7 @@ public static class DataSeeder
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
         string[] roles = { "Admin", "Employee" };
 
@@ -54,12 +56,34 @@ public static class DataSeeder
                 {
                     await userManager.AddToRoleAsync(newUser, role);
                 }
+
+                if (role.Equals("Admin"))
+                {
+                    var admin = new Admin
+                    {
+                        UserId = newUser.Id 
+                    };
+
+                    context.Admins.Add(admin);
+                    await context.SaveChangesAsync();
+                }
             }
             else
             {
                 if (!await userManager.IsInRoleAsync(existingUser, role))
                 {
                     await userManager.AddToRoleAsync(existingUser, role);
+                }
+
+                if (role.Equals("Admin") && !context.Admins.Any(a => a.UserId == existingUser.Id))
+                {
+                    var admin = new Admin
+                    {
+                        UserId = existingUser.Id
+                    };
+
+                    context.Admins.Add(admin);
+                    await context.SaveChangesAsync();
                 }
             }
         }
