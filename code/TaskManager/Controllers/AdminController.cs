@@ -105,6 +105,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await context.Groups.ToListAsync();
+
+            foreach (var group in groups)
+            {
+                group.Manager = await context.Users.FindAsync(group.ManagerId);
+            }
+
             return View(groups);
         }
 
@@ -192,6 +198,15 @@ namespace TaskManagerWebsite.Controllers
             var group = await context.Groups.FindAsync(id);
             if (group == null)
             {
+                return RedirectToAction(nameof(Groups));
+            }
+
+            bool isAssignedToProject = await context.GroupProjects
+                .AnyAsync(gp => gp.GroupId == id);
+
+            if (isAssignedToProject)
+            {
+                TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
                 return RedirectToAction(nameof(Groups));
             }
 
@@ -438,6 +453,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Projects()
         {
             var projects = await context.Projects.ToListAsync();
+
+            foreach (var project in projects)
+            {
+                project.ProjectLead = await context.Users.FindAsync(project.ProjectLeadId);
+            }
+
             return View(projects);
         }
 
