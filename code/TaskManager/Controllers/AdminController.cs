@@ -18,6 +18,7 @@ namespace TaskManagerWebsite.Controllers
     /// </summary>
     public class AdminController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager) : Controller
     {
+
         /// <summary>
         /// Retrieves and displays a list of all users.
         /// </summary>
@@ -105,6 +106,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await context.Groups.ToListAsync();
+
+            foreach (var group in groups)
+            {
+                group.Manager = await context.Users.FindAsync(group.ManagerId);
+            }
+
             return View(groups);
         }
 
@@ -428,6 +435,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Projects()
         {
             var projects = await context.Projects.ToListAsync();
+
+            foreach (var project in projects)
+            {
+                project.ProjectLead = await context.Users.FindAsync(project.ProjectLeadId);
+            }
+
             return View(projects);
         }
 

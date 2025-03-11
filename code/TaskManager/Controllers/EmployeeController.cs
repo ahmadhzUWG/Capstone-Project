@@ -48,6 +48,12 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await _context.Groups.ToListAsync();
+
+            foreach (var group in groups)
+            {
+                group.Manager = await _context.Users.FindAsync(group.ManagerId);
+            }
+
             return View(groups);
         }
 
@@ -215,6 +221,12 @@ namespace TaskManagerWebsite.Controllers
             ViewBag.SentGroupRequests = sentGroupRequests;
 
             var projects = await _context.Projects.ToListAsync();
+
+            foreach (var project in projects)
+            {
+                project.ProjectLead = await _context.Users.FindAsync(project.ProjectLeadId);
+            }
+
             return View(projects);
         }
 
