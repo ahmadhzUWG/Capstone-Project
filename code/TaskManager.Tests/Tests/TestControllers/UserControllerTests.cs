@@ -917,7 +917,22 @@ public class UserControllerTests
         dbContext.Projects.Add(new Project { Id = 1, Name = "Project1", Description = "Test Description" });
         dbContext.Projects.Add(new Project { Id = 2, Name = "Project2", Description = "Test Description" });
         await dbContext.SaveChangesAsync();
+
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Set up a fake authenticated user
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "TestAuthentication"));
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        // Configure the userManager mock to return a valid user id
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
 
         // Act
         var result = await controller.Projects();

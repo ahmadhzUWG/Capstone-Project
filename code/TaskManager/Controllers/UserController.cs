@@ -439,7 +439,7 @@ namespace TaskManagerWebsite.Controllers
             var groupRequests = await context.GroupRequests
                 .Include(gr => gr.Group)
                 .Include(gr => gr.Project)
-                .Where(gr => gr.Group.ManagerId == int.Parse(userId) && gr.Response == null)
+                .Where(gr => gr.Group.ManagerId == int.Parse(userId) && gr.Response != null)
                 .ToListAsync();
             ViewBag.GroupRequests = groupRequests;
 

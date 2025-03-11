@@ -31,14 +31,14 @@
         {
             <tr>
                 <td>
-                    <a href="@Url.Action("GroupDetails", "User", new { id = group.Id })">
-                        @group.Name
-                    </a>
+                    @group.Name
                 </td>
                 <td>@group.Description</td>
                 <td>
+                    <a href="@Url.Action("GroupDetails", "User", new { id = group.Id })" class="btn btn-info btn-sm">View</a>
                     @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "IsManager")).Succeeded
-                         || (await AuthorizationService.AuthorizeAsync(User, null, "IsAdmin")).Succeeded)                    {
+                         || (await AuthorizationService.AuthorizeAsync(User, null, "IsAdmin")).Succeeded)
+                    {
 
                         <form asp-action="DeleteGroup" asp-controller="User" method="post" style="display:inline;">
                             <input type="hidden" name="id" value="@group.Id"/>

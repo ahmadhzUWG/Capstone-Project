@@ -14,9 +14,9 @@
 
         <div class="button-container">
 
-                @Html.ActionLink("Manage Employees", "Users", "User", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Groups", "Groups", "User", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Manage Projects", "Projects", "User", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("View Employees", "Users", "User", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("View Groups", "Groups", "User", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("View Projects", "Projects", "User", null, new { @class = "btn btn-primary" })
 
             @if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
             {

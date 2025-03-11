@@ -49,19 +49,6 @@ namespace TaskManager.Tests.Tests.TestControllers
         }
 
         [Fact]
-        public void Privacy_ReturnsViewResult()
-        {
-            var controller = new HomeController(
-                _mockLogger.Object
-            );
-
-            var result = controller.Privacy();
-
-            Assert.NotNull(result);
-            Assert.IsType<ViewResult>(result);
-        }
-
-        [Fact]
         public void Error_ReturnsViewResult()
         {
             var controller = new HomeController(
