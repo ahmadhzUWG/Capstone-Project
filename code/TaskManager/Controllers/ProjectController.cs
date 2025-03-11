@@ -302,6 +302,12 @@ namespace TaskManagerWebsite.Controllers
                 Text = pg.Group.Name
             }).ToList();
 
+            vm.AllStages = project.ProjectBoard.Stages
+                .OrderBy(s => s.Position)
+                .ToList();
+
+            vm.ProjectId = project.Id;
+
             var currentUserId = userManager.GetUserId(User);
             var currentUser = await userManager.FindByIdAsync(currentUserId);
             bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
