@@ -66,7 +66,6 @@ namespace TaskManagerWebsite.Controllers
             if (group == null)
                 return NotFound();
 
-            // ✅ Load Users from `UserGroups`
             var groupUsers = await _context.UserGroups
                 .Where(ug => ug.GroupId == id)
                 .Include(ug => ug.User)
