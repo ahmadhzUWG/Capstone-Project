@@ -64,6 +64,7 @@ namespace TaskManagerWebsite.Controllers
                     }
 
                     TempData["ErrorMessage"] = "There was an error resetting your password.";
+                    return View(model);
                 }
 
                 var subject = "Task Manager - Password Reset";
