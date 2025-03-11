@@ -430,6 +430,39 @@ public class AdminControllerTests
     }
 
     [Fact]
+    public async Task CreateGroup_InvalidModelState_ReturnsViewWithEmployees()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "User1", Email = "user1@example.com" });
+        dbContext.Users.Add(new User { Id = 2, UserName = "User2", Email = "user2@example.com" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new GroupViewModel
+        {
+            Name = "",
+            Description = "Some Description",
+            SelectedManagerId = 1,
+            SelectedUserIds = new List<int> { 2 }
+        };
+
+        controller.ModelState.AddModelError("Name", "Name is required");
+
+        // Act
+        var result = await controller.CreateGroup(model);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, viewResult.Model);
+
+        var employees = viewResult.ViewData["Employees"] as List<User>;
+        Assert.NotNull(employees);
+        Assert.True(employees.Count >= 2);
+    }
+
+    [Fact]
     public async Task DeleteGroup_RemovesGroupIfExists()
     {
         // Arrange
@@ -459,6 +492,72 @@ public class AdminControllerTests
 
         // Assert
         Assert.IsType<RedirectToActionResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_GroupAssignedToProject_ReturnsRedirectWithErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var dbContext = new ApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = "Test Group", Description = "Test" };
+        dbContext.Groups.Add(group);
+        dbContext.GroupProjects.Add(new GroupProject { GroupId = 1, ProjectId = 1 });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock<ITempDataProvider>().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Groups", redirectResult.ActionName);
+        Assert.Equal("This group is assigned to one or more projects and cannot be deleted.",
+            controller.TempData["ErrorMessage"]);
+        var stillThere = await dbContext.Groups.FindAsync(1);
+        Assert.NotNull(stillThere);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_DbUpdateException_SetsTempDataErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var testContext = new TestApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = "Test Group", Description = "Test"};
+        testContext.Groups.Add(group);
+        await testContext.SaveChangesAsync();
+
+        testContext.ThrowOnSaveChanges = true;
+
+        var controller = new AdminController(testContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock<ITempDataProvider>().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Groups", redirectResult.ActionName);
+        Assert.Equal("Unable to delete this group because it is referenced elsewhere. Check project assignments",
+            controller.TempData["ErrorMessage"]);
+
+        var existingGroup = await testContext.Groups.FindAsync(1);
+        Assert.NotNull(existingGroup);
     }
 
     [Fact]
