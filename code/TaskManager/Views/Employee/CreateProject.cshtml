@@ -1,6 +1,6 @@
 ﻿@model TaskManagerWebsite.Models.Project
 
-<link rel="stylesheet" href="~/css/manager_createProject.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Manager/manager_createProject.css" asp-append-version="true" />
 
 <h2 class="text-center">Create New Project</h2>
 
@@ -17,17 +17,35 @@
             <textarea asp-for="Description" class="form-control"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
-
+        
         <div class="form-group">
             <label asp-for="ProjectLeadId">Project Lead</label>
             <select asp-for="ProjectLeadId" class="form-control">
-                @foreach (var user in ViewBag.ProjectLeads)
-                {
-                    <option value="@user.Id">@user.UserName</option>
-                }
+                <option value="@ViewBag.ProjectLead.Id" selected>@ViewBag.ProjectLead.UserName</option>
             </select>
             <span asp-validation-for="ProjectLeadId" class="text-danger"></span>
         </div>
+
+        <h4>Assign Group to Project</h4>
+        <div class="form-group">
+            <label>Group</label>
+            <div class="scrollable-checkbox-container">
+                @foreach (var group in ViewBag.ManagedGroups)
+                {
+                    <div class="form-check">
+                        <input type="checkbox" name="GroupId" value="@group.Id" id="group_@group.Id">
+                        <label for="group_@group.Id">@group.Name</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (TempData["AssignedErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["AssignedErrorMessage"]
+            </div>
+        }
 
         <button type="submit" class="btn btn-success">Create</button>
         <a asp-action="Projects" class="btn btn-secondary">Cancel</a>

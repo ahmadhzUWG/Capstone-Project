@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<TaskManagerWebsite.Models.Project>
 
-<link rel="stylesheet" href="~/css/manager_projects.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Manager/manager_projects.css" asp-append-version="true" />
 
 <div style="text-align: center" class="header">
     <h2>Projects</h2>
@@ -23,7 +23,7 @@
             <td>
                 <a href="@Url.Action("ProjectDetails", "Employee", new { id = project.Id })" class="btn btn-info btn-sm">View</a>
                 
-                @if (project.ProjectLeadId == int.Parse(ViewBag.UserId))
+                @if (project.ProjectCreatorId == int.Parse(ViewBag.UserId) || project.ProjectLeadId == int.Parse(ViewBag.UserId))
                 {
                     <form asp-action="DeleteProject" asp-controller="Employee" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="@project.Id" />
@@ -105,14 +105,18 @@
                     {
                             <span class="badge bg-success equal-height">Accepted</span>
                     }
-                    else
+                    else if (groupRequest.Response == false)
                     {
                             <span class="badge bg-danger equal-height">Denied</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning equal-height">Pending</span>
                     }
                     
                     <form action="@Url.Action("DeleteGroupRequest", "Employee")" method="post" style="display:inline;">
                         <input type="hidden" name="requestId" value="@groupRequest.Id" />
-                        <button type="submit" class="btn btn-sm btn-primary equal-height">OK</button>
+                        <button type="submit" class="btn btn-sm btn-primary equal-height">Remove</button>
                     </form>
                 </td>
             </tr>

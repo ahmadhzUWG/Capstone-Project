@@ -17,7 +17,7 @@
                 <li class="group-item">
                     <span class="group-name">@groupProject.Group.Name</span>
 
-                    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+                    @if (Model.ProjectCreatorId == int.Parse(ViewBag.UserId) || Model.ProjectLeadId == int.Parse(ViewBag.UserId))
                     {
                         <form asp-action="RemoveGroupFromProject" method="post" style="display:inline;">
                             <input type="hidden" name="projectId" value="@Model.Id" />
@@ -30,7 +30,7 @@
         </ul>
     </div>
 
-    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+    @if (Model.ProjectCreatorId == int.Parse(ViewBag.UserId) || Model.ProjectLeadId == int.Parse(ViewBag.UserId))
     {
         <h4>Assign Group to Project</h4>
         <form asp-action="AssignGroupToProject" method="post">

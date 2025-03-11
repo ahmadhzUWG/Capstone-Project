@@ -210,7 +210,7 @@ namespace TaskManagerWebsite.Controllers
             var sentGroupRequests = await _context.GroupRequests
                 .Include(gr => gr.Group)
                 .Include(gr => gr.Project)
-                .Where(gr => gr.SenderId == int.Parse(userId) && gr.Response != null)
+                .Where(gr => gr.SenderId == int.Parse(userId))
                 .ToListAsync();
             ViewBag.SentGroupRequests = sentGroupRequests;
 
@@ -224,9 +224,16 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A view with a list of users and groups available for selection.</returns>
         public async Task<IActionResult> CreateProject()
         {
-            var users = await _context.Users.ToListAsync();
-            ViewBag.ProjectLeads = users;
-            ViewBag.Groups = await _context.Groups.ToListAsync();
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group => group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
             return View();
         }
 
@@ -256,6 +263,17 @@ namespace TaskManagerWebsite.Controllers
 
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
+
+                var selectedGroupIds = Request.Form["GroupId"].ToList();
+                if (selectedGroupIds.Count > 0)
+                {
+                    foreach (var groupId in selectedGroupIds)
+                    {
+                        await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    }
+
+                }
+
                 return RedirectToAction(nameof(Projects));
             }
 
@@ -321,7 +339,22 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g => g.ManagerId)
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
             return View(project);
         }
 
@@ -372,7 +405,22 @@ namespace TaskManagerWebsite.Controllers
                 }
             }
 
-            ViewBag.ProjectLeads = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g => g.ManagerId) 
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
             return View(project);
         }
 
