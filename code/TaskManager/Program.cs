@@ -6,8 +6,11 @@ using TaskManagerWebsite.Authorization;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
 using Microsoft.AspNetCore.Authorization;
+using TaskManagerWebsite.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -70,6 +73,8 @@ builder.Services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
 
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddSingleton<EmailService>();
 
 builder.Services.AddControllersWithViews();
 

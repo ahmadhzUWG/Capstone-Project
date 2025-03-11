@@ -1,0 +1,57 @@
+﻿@model TaskManagerWebsite.ViewModels.ForgotPasswordViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/Login/login_index.css" />
+
+<div style="text-align: center">
+    <h4>Forgot Password</h4>
+</div>
+
+<form asp-action="Index" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div>
+        <label asp-for="Username"></label>
+        <input asp-for="Username" />
+        <span asp-validation-for="Username"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+    
+    <div>
+        <label asp-for="ConfirmPassword"></label>
+        <input asp-for="ConfirmPassword" />
+        <span asp-validation-for="ConfirmPassword"></span>
+    </div>
+
+    <button type="submit">Change Password</button>
+</form>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" style="margin-top: 15px; text-align: center">
+        <strong>Success!</strong> @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" style="margin-top: 15px; text-align: center">
+        <strong>Error!</strong> @TempData["ErrorMessage"]
+    </div>
+}
+
+<div style="text-align: center">
+    <a href="@Url.Action("Index", "Login")" class="btn btn-cancel">Back to Login</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
