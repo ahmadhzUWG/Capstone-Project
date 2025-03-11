@@ -3,9 +3,9 @@ Context:
 			Manager is viewing projects
 		Primary Flow:
 			1. Manager selects a project
-			2. Manager clicks "Confirm" Button
+			2. Manager selects delete
 			5. System warns user to confirm
 			6. Manager confirms
 		Alternate Flow 2:
 				A1. From primary flow step 2
-				A2. Manager clicks "Cancel"
+				A2. Manager selects "Cancel"
