@@ -198,11 +198,23 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> DeleteGroup(int id)
         {
             var group = await context.Groups.FindAsync(id);
+
             if (group != null)
             {
+                bool isAssignedToProject = await context.GroupProjects
+                    .AnyAsync(gp => gp.GroupId == id);
+
+                if (isAssignedToProject)
+                {
+                    TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
+                    return RedirectToAction(nameof(Groups));
+                }
+
                 context.Groups.Remove(group);
                 await context.SaveChangesAsync();
+
             }
+
             return RedirectToAction(nameof(Groups));
         }
 
