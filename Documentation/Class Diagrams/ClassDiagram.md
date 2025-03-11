@@ -14,9 +14,8 @@
     }
   }
 }%%
-
 classDiagram
-    %% Grouping Entities into Packages
+    %% Models Namespace
     namespace Models {
         class User {
             +int Id
@@ -47,11 +46,18 @@ classDiagram
             +int Id
             +string Name
             +string Description
-            +ICollection<User> Users
+            +ICollection<UserGroup> UserGroups
             +ICollection<GroupManager> Managers
             +int? PrimaryManagerId
             +User? PrimaryManager
             +ICollection<GroupProject> GroupProjects
+        }
+
+        class UserGroup {
+            +int UserId
+            +User User
+            +int GroupId
+            +Group Group
         }
 
         class GroupManager {
@@ -85,18 +91,38 @@ classDiagram
             +int ProjectLeadId
             +User ProjectLead
             +int? ProjectCreatorId
-            +ICollection<GroupProject> ProjectGroups
+            +ICollection<GroupProject> GroupProjects
+            +ProjectBoard Board
+            +ICollection<Stage> Stages
+        }
+
+        class ProjectBoard {
+            +int Id
+            +string Title
+            +string? Description
+        }
+
+        class Stage {
+            +int Id
+            +string Name
+            +int Order
+            +string? Description
         }
     }
 
+    %% Database Namespace
     namespace Database {
         class ApplicationDbContext {
             +DbSet<User> Users
+            +DbSet<Admin> Admins
             +DbSet<Group> Groups
+            +DbSet<UserGroup> UserGroups
             +DbSet<GroupManager> GroupManagers
             +DbSet<GroupProject> GroupProjects
             +DbSet<GroupRequest> GroupRequests
             +DbSet<Project> Projects
+            +DbSet<ProjectBoard> ProjectBoards
+            +DbSet<Stage> Stages
             +ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         }
 
@@ -105,6 +131,7 @@ classDiagram
         }
     }
 
+    %% Controllers Namespace
     namespace Controllers {
         class EmployeeController {
             +Users()
@@ -156,38 +183,47 @@ classDiagram
         }
     }
 
-    %% Relationships
-    ApplicationDbContext <|-- User : Contains
-    ApplicationDbContext <|-- Group : Contains
-    ApplicationDbContext <|-- GroupManager : Manages
-    ApplicationDbContext <|-- GroupProject : Manages
-    ApplicationDbContext <|-- GroupRequest : Stores
-    ApplicationDbContext <|-- Project : Contains
+    %% Relationships between ApplicationDbContext and Models
+    Database.ApplicationDbContext <|-- Models.User : Contains
+    Database.ApplicationDbContext <|-- Models.Admin : Contains
+    Database.ApplicationDbContext <|-- Models.Group : Contains
+    Database.ApplicationDbContext <|-- Models.UserGroup : Contains
+    Database.ApplicationDbContext <|-- Models.GroupManager : Contains
+    Database.ApplicationDbContext <|-- Models.GroupProject : Contains
+    Database.ApplicationDbContext <|-- Models.GroupRequest : Contains
+    Database.ApplicationDbContext <|-- Models.Project : Contains
+    Database.ApplicationDbContext <|-- Models.ProjectBoard : Contains
+    Database.ApplicationDbContext <|-- Models.Stage : Contains
+    Database.DataSeeder ..> Database.ApplicationDbContext : seeds
 
-    AdminController --> User : Manages
-    AdminController --> Group : Manages
-    AdminController --> Project : Manages
+    %% Controller Relationships
+    AdminController --> Models.User : Manages
+    AdminController --> Models.Group : Manages
+    AdminController --> Models.Project : Manages
 
-    EmployeeController --> User : Views
-    EmployeeController --> Group : Views
-    EmployeeController --> Project : Views
+    EmployeeController --> Models.User : Views
+    EmployeeController --> Models.Group : Views
+    EmployeeController --> Models.Project : Views
 
-    ManagerController --> User : Manages
-    ManagerController --> Group : Manages
-    ManagerController --> Project : Manages
-    ManagerController --> GroupManager : Assigns
-    ManagerController --> GroupProject : Assigns
-    ManagerController --> GroupRequest : Processes
+    ManagerController --> Models.User : Manages
+    ManagerController --> Models.Group : Manages
+    ManagerController --> Models.Project : Manages
+    ManagerController --> Models.GroupManager : Assigns
+    ManagerController --> Models.GroupProject : Assigns
+    ManagerController --> Models.GroupRequest : Processes
 
-    HomeController --> User : Displays
-    LoginController --> User : Authenticates
+    HomeController --> Models.User : Displays
+    LoginController --> Models.User : Authenticates
 
-    Group --> User : Contains
-    Group --> GroupManager : ManagedBy
-    Group --> GroupProject : Includes
-    Group --> User : PrimaryManager
-    GroupRequest --> Group : References
-    GroupRequest --> Project : References
-    Project --> GroupProject : Includes
-    Project --> User : ProjectLead
-
+    %% Domain Relationships
+    Models.Group "1" o-- "0..*" Models.UserGroup : contains
+    Models.User "1" o-- "0..*" Models.UserGroup : belongsTo
+    Models.Group "1" o-- "0..*" Models.GroupManager : managedBy
+    Models.User "1" o-- "0..*" Models.GroupManager : manages
+    Models.Group "1" o-- "0..*" Models.GroupProject : includes
+    Models.Project "1" o-- "0..*" Models.GroupProject : assignedTo
+    Models.GroupRequest --> Models.Group : references
+    Models.GroupRequest --> Models.Project : references
+    Models.Project "1" --> "1" Models.ProjectBoard : has
+    Models.Project "1" o-- "0..*" Models.Stage : contains
+    Models.Project --> Models.User : projectLead
