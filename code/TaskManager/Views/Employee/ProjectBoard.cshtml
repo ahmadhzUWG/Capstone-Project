@@ -43,6 +43,9 @@
     {
         <hr />
         <h3>Add Stage</h3>
+
+        @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "text-danger" })
+
         <form asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@Model.Project.Id" method="post">
             @Html.AntiForgeryToken()
 
