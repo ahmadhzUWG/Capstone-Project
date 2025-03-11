@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\Stage.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerWebsite.Models
+{
+    /// &lt;summary&gt;
+    /// Represents a single column (stage) on a Kanban board.
+    /// &lt;/summary&gt;
+    public class Stage
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the identifier.
+        /// &lt;/summary&gt;
+        public int Id { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the name.
+        /// &lt;/summary&gt;
+        public string Name { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the position.
+        /// &lt;/summary&gt;
+        public int Position { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the project board identifier.
+        /// &lt;/summary&gt;
+        public int ProjectBoardId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the project board.
+        /// &lt;/summary&gt;
+        public ProjectBoard ProjectBoard { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator group identifier.
+        /// &lt;/summary&gt;
+        public int? CreatorGroupId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator group.
+        /// &lt;/summary&gt;
+        public Group? CreatorGroup { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator user identifier.
+        /// &lt;/summary&gt;
+        public int CreatorUserId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator user.
+        /// &lt;/summary&gt;
+        public User CreatorUser { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the assigned group identifier.
+        /// &lt;/summary&gt;
+        public int? AssignedGroupId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the assigned group.
+        /// &lt;/summary&gt;
+        public Group AssignedGroup { get; set; }
+
+    }
+    
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,25,11,29,1],[11,30,11,34,1],[16,30,16,34,1],[16,35,16,39,1],[21,31,21,35,1],[21,36,21,40,1],[26,37,26,41,1],[26,42,26,46,1],[31,44,31,48,1],[31,49,31,53,1],[36,38,36,42,1],[36,43,36,47,1],[41,38,41,42,1],[41,43,41,47,1],[46,36,46,40,1],[46,41,46,45,1],[51,35,51,39,1],[51,40,51,44,1],[56,39,56,43,1],[56,44,56,48,1],[61,38,61,42,1],[61,43,61,47,1]]);
+    </script>
+  </body>
+</html>

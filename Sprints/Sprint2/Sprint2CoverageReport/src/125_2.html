@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Components\ManagerSearch.razor</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@using System.Linq
+@using TaskManagerWebsite.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+&lt;input type=&quot;text&quot; @bind=&quot;searchText&quot; @bind:event=&quot;oninput&quot; placeholder=&quot;Search managers...&quot; class=&quot;form-control mb-2&quot; /&gt;
+
+&lt;select @bind=&quot;selectedManagerId&quot; class=&quot;form-control&quot;&gt;
+    &lt;option value=&quot;&quot;&gt;-- Select a Manager --&lt;/option&gt;
+    @foreach (var manager in FilteredManagers)
+    {
+        &lt;option value=&quot;@manager.Id&quot;&gt;@manager.UserName (@manager.Email)&lt;/option&gt;
+    }
+&lt;/select&gt;
+
+&lt;input type=&quot;hidden&quot; name=&quot;SelectedManagerId&quot; @bind=&quot;selectedManagerId&quot; /&gt;
+
+@code {
+    [Parameter]
+    public List&lt;User&gt; Managers { get; set; } = new List&lt;User&gt;();
+
+    [Parameter]
+    public int? SelectedManagerId { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;int?&gt; SelectedManagerIdChanged { get; set; }
+
+    private int? selectedManagerId
+    {
+        get =&gt; SelectedManagerId;
+        set
+        {
+            if (SelectedManagerId != value)
+            {
+                SelectedManagerId = value;
+                SelectedManagerIdChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    private string searchText = &quot;&quot;;
+
+    private IEnumerable&lt;User&gt; FilteredManagers =&gt;
+        string.IsNullOrWhiteSpace(searchText)
+            ? Managers
+            : Managers.Where(m =&gt;
+                m.UserName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                m.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,6,10,13,0],[10,15,10,26,0],[10,27,10,29,0],[10,30,10,46,0],[11,5,11,6,0],[12,38,12,55,0],[12,57,12,71,0],[13,5,13,6,0],[20,34,20,38,0],[20,39,20,43,0],[20,48,20,64,0],[23,37,23,41,0],[23,42,23,46,0],[26,59,26,63,0],[26,64,26,68,0],[30,16,30,33,0],[32,9,32,10,0],[33,13,33,44,0],[34,13,34,14,0],[35,17,35,43,0],[36,17,36,61,0],[37,13,37,14,0],[38,9,38,10,0],[41,5,41,36,0],[44,9,47,17,0],[47,17,48,81,0],[48,81,48,82,0]]);
+    </script>
+  </body>
+</html>

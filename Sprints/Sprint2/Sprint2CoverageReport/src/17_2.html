@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Authorization\UserRelationshipHandler.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.Authorization;
+
+public class UserRelationshipHandler : AuthorizationHandler&lt;UserRelationshipRequirement, User&gt;
+{
+    private readonly ApplicationDbContext _context;
+
+    public UserRelationshipHandler(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRelationshipRequirement requirement, User targetUser)
+    {
+        // Convert userId from string to int
+        if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return; // Exit if conversion fails
+        }
+
+        // ✅ Check if the user is a &quot;Manager&quot; of the same group as the targetUser
+        bool isManager = await _context.UserGroups
+            .AnyAsync(ug =&gt; ug.UserId == userId &amp;&amp; ug.Role == &quot;Manager&quot; &amp;&amp;
+                            _context.UserGroups.Any(ug2 =&gt; ug2.UserId == targetUser.Id &amp;&amp; ug2.GroupId == ug.GroupId));
+
+        if (isManager)
+        {
+            context.Succeed(requirement);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,5,14,65,0],[15,5,15,6,0],[16,9,16,28,0],[17,5,17,6,0],[20,5,20,6,0],[22,9,22,99,0],[23,9,23,10,0],[24,13,24,20,0],[28,9,30,119,0],[32,9,32,23,0],[33,9,33,10,0],[34,13,34,42,0],[35,9,35,10,0],[36,5,36,6,0]]);
+    </script>
+  </body>
+</html>

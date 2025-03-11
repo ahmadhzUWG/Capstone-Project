@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\DataSeeder.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+
+namespace TaskManagerWebsite.Models;
+
+/// &lt;summary&gt;
+/// Provides methods for seeding default roles and multiple test users into the database.
+/// &lt;/summary&gt;
+public static class DataSeeder
+{
+    /// &lt;summary&gt;
+    /// Seeds predefined roles and multiple users into the database if they do not already exist.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;serviceProvider&quot;&gt;The service provider used to resolve dependencies.&lt;/param&gt;
+    /// &lt;returns&gt;A task that represents the asynchronous operation.&lt;/returns&gt;
+    public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+        var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;User&gt;&gt;();
+
+        string[] roles = { &quot;Admin&quot;, &quot;Employee&quot; };
+
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole&lt;int&gt;(role));
+            }
+        }
+
+        var testUsers = new List&lt;(string UserName, string Email, string Role, string Password)&gt;
+        {
+            (&quot;Admin&quot;, &quot;admin@gmail.com&quot;, &quot;Admin&quot;, &quot;Admin1!&quot;),
+            (&quot;Manager1&quot;, &quot;manager1@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Manager2&quot;, &quot;manager2@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee1&quot;, &quot;employee1@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee2&quot;, &quot;employee2@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee3&quot;, &quot;employee3@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+        };
+
+        foreach (var (userName, email, role, password) in testUsers)
+        {
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser == null)
+            {
+                var newUser = new User
+                {
+                    UserName = userName,
+                    Email = email,
+                    EmailConfirmed = true
+                };
+
+                var createUserResult = await userManager.CreateAsync(newUser, password);
+                if (createUserResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newUser, role);
+                }
+            }
+            else
+            {
+                if (!await userManager.IsInRoleAsync(existingUser, role))
+                {
+                    await userManager.AddToRoleAsync(existingUser, role);
+                }
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,5,16,6,1],[17,9,17,96,1],[18,9,18,83,1],[20,9,20,50,1],[22,9,22,16,1],[22,18,22,26,1],[22,27,22,29,1],[22,30,22,35,1],[23,9,23,10,1],[24,13,24,58,1],[25,13,25,14,1],[26,17,26,76,1],[27,13,27,14,1],[28,9,28,10,1],[30,9,38,11,1],[40,9,40,16,1],[40,18,40,55,1],[40,56,40,58,1],[40,59,40,68,1],[41,9,41,10,1],[42,13,42,74,1],[43,13,43,38,1],[44,13,44,14,1],[45,17,50,19,1],[52,17,52,89,1],[53,17,53,48,1],[54,17,54,18,1],[55,21,55,69,1],[56,17,56,18,1],[57,13,57,14,1],[59,13,59,14,1],[60,17,60,74,1],[61,17,61,18,1],[62,21,62,74,1],[63,17,63,18,1],[64,13,64,14,1],[65,9,65,10,1],[66,5,66,6,1]]);
+    </script>
+  </body>
+</html>

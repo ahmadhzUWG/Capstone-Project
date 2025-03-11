@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\ProjectBoard.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerWebsite.Models
+{
+    /// &lt;summary&gt;
+    /// Represents a Kanban Board for a Project
+    /// &lt;/summary&gt;
+    public class ProjectBoard
+    {
+        public int Id { get; set; }
+
+        /// &lt;summary&gt;
+        /// Foreign key to the associated project.
+        /// &lt;/summary&gt;
+        public int ProjectId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Associated project.
+        /// &lt;/summary&gt;
+        public Project Project { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the board creator identifier.
+        /// &lt;/summary&gt;
+        public int BoardCreatorId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the board creator.
+        /// &lt;/summary&gt;
+        public User BoardCreator { get; set; }
+
+        /// &lt;summary&gt;
+        /// Collection of stages (columns) on this board.
+        /// &lt;/summary&gt;
+        public ICollection&lt;Stage&gt; Stages { get; set; }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,25,8,29,1],[8,30,8,34,1],[13,32,13,36,1],[13,37,13,41,1],[18,34,18,38,1],[18,39,18,43,1],[23,37,23,41,1],[23,42,23,46,1],[28,36,28,40,1],[28,41,28,45,1],[33,44,33,48,1],[33,49,33,53,1]]);
+    </script>
+  </body>
+</html>

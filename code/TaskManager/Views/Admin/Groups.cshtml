@@ -8,8 +8,14 @@
 
 <div class="groups-container">
     <h1>Groups</h1>
-    
-    <!-- Create Group Button -->
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <div style="text-align: center">
         <a href="@Url.Action("CreateGroup", "Admin")" class="btn btn-primary">Create New Group</a>
     </div>
@@ -17,10 +23,9 @@
     <table class="table">
         <thead>
         <tr>
-            <th style="color: black;">Manager</th>
-            <th style="color: black;">Name</th>
-            <th style="color: black;">Description</th>
-            <th style="color: black;">Actions</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -28,30 +33,22 @@
         {
             <tr>
                 <td>
-                    @group.Manager!.UserName
-                </td>
-                <td>
                     <a href="@Url.Action("GroupDetails", "Admin", new { id = group.Id })">
                         @group.Name
                     </a>
                 </td>
                 <td>@group.Description</td>
                 <td>
-                    <!-- Delete Group Form -->
-                    <form asp-action="DeleteGroup" asp-controller="Admin" method="post" style="display:inline;">
-
-                        <input type="hidden" name="id" value="@group.Id"/>
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this group?');">Delete</button>
+                    <form asp-action="DeleteGroup"
+                          asp-controller="Admin"
+                          method="post"
+                          style="display:inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this group?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@group.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                 </td>
-            </tr>
-            <tr>
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-warning" style="margin-top: 15px;">
-                            <strong>Warning!</strong> @TempData["ErrorMessage"]
-                        </div>
-                    }
             </tr>
         }
         </tbody>

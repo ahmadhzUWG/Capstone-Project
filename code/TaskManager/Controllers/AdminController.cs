@@ -18,7 +18,6 @@ namespace TaskManagerWebsite.Controllers
     /// </summary>
     public class AdminController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager) : Controller
     {
-
         /// <summary>
         /// Retrieves and displays a list of all users.
         /// </summary>
@@ -106,12 +105,6 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await context.Groups.ToListAsync();
-
-            foreach (var group in groups)
-            {
-                group.Manager = await context.Users.FindAsync(group.ManagerId);
-            }
-
             return View(groups);
         }
 
@@ -187,36 +180,34 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("Groups");
         }
 
-
         /// <summary>
-        /// Deletes a group based on the provided ID.
+        /// Deletes the group.
         /// </summary>
-        /// <param name="id">The ID of the group to be deleted.</param>
-        /// <returns>A redirect to the Groups list.</returns>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroup(int id)
         {
             var group = await context.Groups.FindAsync(id);
-
-            if (group != null)
+            if (group == null)
             {
-                bool isAssignedToProject = await context.GroupProjects
-                    .AnyAsync(gp => gp.GroupId == id);
+                return RedirectToAction(nameof(Groups));
+            }
 
-                if (isAssignedToProject)
-                {
-                    TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
-                    return RedirectToAction(nameof(Groups));
-                }
-
+            try
+            {
                 context.Groups.Remove(group);
                 await context.SaveChangesAsync();
-
+            }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] = "Unable to delete this group because it is referenced elsewhere. Check project assignments";
             }
 
             return RedirectToAction(nameof(Groups));
         }
+
 
         /// <summary>
         /// Retrieves and displays detailed information for a specific group, including its users and managers,
@@ -447,12 +438,6 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Projects()
         {
             var projects = await context.Projects.ToListAsync();
-
-            foreach (var project in projects)
-            {
-                project.ProjectLead = await context.Users.FindAsync(project.ProjectLeadId);
-            }
-
             return View(projects);
         }
 

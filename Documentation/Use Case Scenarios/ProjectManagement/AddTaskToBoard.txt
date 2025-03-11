@@ -2,16 +2,16 @@ Add Task to Project Board
 Context:
 	Admin/Project lead wants to add a task to column/stage to project board and is viewing the board.
 	Primary Flow:
-		1. User clicks + on stage
-		2. System loads sidebar requesting task name, desc, and assigned employee
+		1. User selects add task on stage
+		2. System loads UI requesting task name, desc, and assigned employee
 		3. User provides necessary information
-		4. User clicks Add
+		4. User selects Add
 	Alternative Flow: User provides no information for new task
 		1. Resume from primary flow step 2
 		2. User provides no information
 		3. System warns user to provide information
 		4. Resume primary flow step 3
-	Alternative Flow 2: User provides duplicate task name for stage
+	Alternative Flow 2: User provides duplicate task name for board
 		1. Resume from primary flow step 2
 		2. User provides duplicate task name
 		3. System warns user that duplicate name is not allowed

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\Groups.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model IEnumerable&lt;Group&gt;
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Admin/groups.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;div class=&quot;groups-container&quot;&gt;
+    &lt;h1&gt;Groups&lt;/h1&gt;
+
+    @if (TempData[&quot;ErrorMessage&quot;] != null)
+    {
+        &lt;div class=&quot;alert alert-danger text-center&quot;&gt;
+            @TempData[&quot;ErrorMessage&quot;]
+        &lt;/div&gt;
+    }
+
+    &lt;div style=&quot;text-align: center&quot;&gt;
+        &lt;a href=&quot;@Url.Action(&quot;CreateGroup&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-primary&quot;&gt;Create New Group&lt;/a&gt;
+    &lt;/div&gt;
+
+    &lt;table class=&quot;table&quot;&gt;
+        &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Name&lt;/th&gt;
+            &lt;th&gt;Description&lt;/th&gt;
+            &lt;th&gt;Actions&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+        @foreach (var group in Model)
+        {
+            &lt;tr&gt;
+                &lt;td&gt;
+                    &lt;a href=&quot;@Url.Action(&quot;GroupDetails&quot;, &quot;Admin&quot;, new { id = group.Id })&quot;&gt;
+                        @group.Name
+                    &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td&gt;@group.Description&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;form asp-action=&quot;DeleteGroup&quot;
+                          asp-controller=&quot;Admin&quot;
+                          method=&quot;post&quot;
+                          style=&quot;display:inline;&quot;
+                          onsubmit=&quot;return confirm(&#39;Are you sure you want to delete this group?&#39;);&quot;&gt;
+                        @Html.AntiForgeryToken()
+                        &lt;input type=&quot;hidden&quot; name=&quot;id&quot; value=&quot;@group.Id&quot; /&gt;
+                        &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot;&gt;Delete&lt;/button&gt;
+                    &lt;/form&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        }
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+
+    &lt;div style=&quot;text-align: center;&quot;&gt;
+        &lt;a href=&quot;@Url.Action(&quot;Index&quot;, &quot;Home&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Home&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[7,1,7,74,0],[12,6,12,43,0],[13,5,13,6,0],[15,14,15,39,0],[17,5,17,6,0],[20,18,20,54,0],[32,10,32,17,0],[32,19,32,28,0],[32,29,32,31,0],[32,32,32,37,0],[33,9,33,10,0],[36,30,36,90,0],[37,26,37,37,0],[40,22,40,40,0],[47,26,47,50,0],[48,63,48,73,0],[53,9,53,10,0],[58,18,58,47,0]]);
+    </script>
+  </body>
+</html>

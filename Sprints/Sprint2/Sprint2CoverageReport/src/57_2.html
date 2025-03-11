@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250307210805_AddProjectBoardAndStage.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddProjectBoardAndStage : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            // 2) Make ProjectCreatorId in Projects nullable
+            migrationBuilder.AlterColumn&lt;int&gt;(
+                name: &quot;ProjectCreatorId&quot;,
+                table: &quot;Projects&quot;,
+                type: &quot;int&quot;,
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: &quot;int&quot;
+            );
+
+            // 3) Create the ProjectBoards table
+            migrationBuilder.CreateTable(
+                name: &quot;ProjectBoards&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    ProjectId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_ProjectBoards&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_ProjectBoards_Projects_ProjectId&quot;,
+                        column: x =&gt; x.ProjectId,
+                        principalTable: &quot;Projects&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            // 4) Create the Stages table
+            migrationBuilder.CreateTable(
+                name: &quot;Stages&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false),
+                    Position = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ProjectBoardId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    CreatorGroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: true),
+                    CreatorUserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    AssignedGroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Stages&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_Stages_AspNetUsers_CreatorUserId&quot;,
+                        column: x =&gt; x.CreatorUserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict
+                    );
+                    table.ForeignKey(
+                        name: &quot;FK_Stages_Groups_AssignedGroupId&quot;,
+                        column: x =&gt; x.AssignedGroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict
+                    );
+                    table.ForeignKey(
+                        name: &quot;FK_Stages_Groups_CreatorGroupId&quot;,
+                        column: x =&gt; x.CreatorGroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict
+                    );
+                    table.ForeignKey(
+                        name: &quot;FK_Stages_ProjectBoards_ProjectBoardId&quot;,
+                        column: x =&gt; x.ProjectBoardId,
+                        principalTable: &quot;ProjectBoards&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_ProjectBoards_ProjectId&quot;,
+                table: &quot;ProjectBoards&quot;,
+                column: &quot;ProjectId&quot;
+            );
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Stages_AssignedGroupId&quot;,
+                table: &quot;Stages&quot;,
+                column: &quot;AssignedGroupId&quot;
+            );
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Stages_CreatorGroupId&quot;,
+                table: &quot;Stages&quot;,
+                column: &quot;CreatorGroupId&quot;
+            );
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Stages_CreatorUserId&quot;,
+                table: &quot;Stages&quot;,
+                column: &quot;CreatorUserId&quot;
+            );
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Stages_ProjectBoardId&quot;,
+                table: &quot;Stages&quot;,
+                column: &quot;ProjectBoardId&quot;
+            );
+
+            // 7) If your DB does NOT already have the FK for PrimaryManagerId,
+            //    uncomment this block. Otherwise, skip it to avoid duplicates.
+
+            /*
+            migrationBuilder.AddForeignKey(
+                name: &quot;FK_Groups_AspNetUsers_PrimaryManagerId&quot;,
+                table: &quot;Groups&quot;,
+                column: &quot;PrimaryManagerId&quot;,
+                principalTable: &quot;AspNetUsers&quot;,
+                principalColumn: &quot;Id&quot;,
+                onDelete: ReferentialAction.Restrict
+            );
+            */
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            // Reverse the above operations
+
+            // 1) Drop the new tables
+            migrationBuilder.DropTable(name: &quot;Stages&quot;);
+            migrationBuilder.DropTable(name: &quot;ProjectBoards&quot;);
+
+            // 2) Remove the newly added indexes (if EF hasn&#39;t already done so)
+            // GroupRequests indexes, etc. — EF usually handles these with DropTable calls, 
+            // but we can remove them if needed.
+
+            // 3) Revert ProjectCreatorId to non-null
+            migrationBuilder.AlterColumn&lt;int&gt;(
+                name: &quot;ProjectCreatorId&quot;,
+                table: &quot;Projects&quot;,
+                type: &quot;int&quot;,
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: &quot;int&quot;,
+                oldNullable: true
+            );
+
+            // 4) If you re-linked the foreign key for Groups -&gt; AspNetUsers in Up, drop it here
+            /*
+            migrationBuilder.DropForeignKey(
+                name: &quot;FK_Groups_AspNetUsers_PrimaryManagerId&quot;,
+                table: &quot;Groups&quot;
+            );
+            */
+            migrationBuilder.AddColumn&lt;bool&gt;(
+                name: &quot;IsPrimaryManager&quot;,
+                table: &quot;GroupManagers&quot;,
+                type: &quot;bit&quot;,
+                nullable: false,
+                defaultValue: false
+            );
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[14,13,21,15,0],[24,13,26,35,0],[26,35,31,18,0],[31,18,33,17,0],[33,17,33,18,0],[33,18,34,21,0],[34,21,34,69,0],[34,69,35,21,0],[35,21,41,23,0],[41,23,42,17,0],[42,17,42,18,0],[42,18,43,15,0],[46,13,48,35,0],[48,35,58,18,0],[58,18,60,17,0],[60,17,60,18,0],[60,18,61,21,0],[61,21,61,62,0],[61,62,62,21,0],[62,21,68,23,0],[68,23,69,21,0],[69,21,75,23,0],[75,23,76,21,0],[76,21,82,23,0],[82,23,83,21,0],[83,21,89,23,0],[89,23,90,17,0],[90,17,90,18,0],[90,18,91,15,0],[93,13,97,15,0],[99,13,103,15,0],[105,13,109,15,0],[111,13,115,15,0],[117,13,121,15,0],[136,9,136,10,0],[140,9,140,10,0],[144,13,144,56,0],[145,13,145,63,0],[152,13,161,15,0],[170,13,176,15,0],[177,9,177,10,0]]);
+    </script>
+  </body>
+</html>

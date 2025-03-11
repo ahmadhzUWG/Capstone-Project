@@ -3,7 +3,7 @@ Context:
 	Admin/Project lead wants to remove a task from column/stage to project board and is viewing the board.
 	Primary Flow:
 		1. User selects stage
-		2. User clicks delete
+		2. User selects delete
 		3. System deletes stage
 	Alternative Flow: Stage contains task/tasks
 		1. Resume from primary flow step 2

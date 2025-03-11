@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\Users.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@{
+    ViewData[&quot;Title&quot;] = &quot;Admin Page&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Admin/users.css&quot; asp-append-version=&quot;true&quot; /&gt;
+
+&lt;div class=&quot;users-container&quot;&gt;
+    &lt;h1&gt;User List&lt;/h1&gt;
+    &lt;div style=&quot;text-align: center;&quot;&gt;
+        @Html.ActionLink(&quot;Add&quot;, &quot;UserAdd&quot;, &quot;Admin&quot;, null, new { @class = &quot;btn btn-add&quot; })
+    &lt;/div&gt;
+    &lt;table class=&quot;table&quot;&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Name&lt;/th&gt;
+            &lt;th&gt;Email&lt;/th&gt;
+            &lt;th&gt;Actions&lt;/th&gt;
+        &lt;/tr&gt;
+        @foreach (var user in Model)
+        {
+            &lt;tr&gt;
+                &lt;td&gt;@user.UserName&lt;/td&gt;
+                &lt;td&gt;@user.Email&lt;/td&gt;
+                &lt;td&gt;
+                    @Html.ActionLink(&quot;Edit&quot;, &quot;UserEdit&quot;, new { id = user.Id }, new { @class = &quot;btn btn-edit&quot; })
+                    @Html.ActionLink(&quot;Delete&quot;, &quot;UserDelete&quot;, new { id = user.Id }, new { @class = &quot;btn btn-delete&quot; })
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        }
+    &lt;/table&gt;
+    
+    &lt;div style=&quot;text-align: center;&quot;&gt;
+        @Html.ActionLink(&quot;Go Back&quot;, &quot;Index&quot;, &quot;Home&quot;, null, new { @class = &quot;btn btn-cancel&quot; })
+    &lt;/div&gt;
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[2,5,2,38,0],[5,1,5,74,0],[10,10,10,91,0],[18,10,18,17,0],[18,19,18,27,0],[18,28,18,30,0],[18,31,18,36,0],[19,9,19,10,0],[21,22,21,36,0],[22,22,22,33,0],[24,22,24,113,0],[25,22,25,119,0],[28,9,28,10,0],[32,10,32,95,0]]);
+    </script>
+  </body>
+</html>
