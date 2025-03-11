@@ -32,7 +32,6 @@ public class AdminControllerTests
         _mockRoleManager = GetMockRoleManager();
         _dbContext = TestHelper.GetDbContext();
 
-        // Setup some default roles for the RoleManager
         var mockRoles = new List<IdentityRole<int>>
         {
             new IdentityRole<int> { Id = 1, Name = "Admin" },
@@ -59,6 +58,29 @@ public class AdminControllerTests
     }
 
     // ––– Tests for User-related endpoints –––
+    [Fact]
+    public async Task UserAdd_InvalidModelState_ReturnsViewWithSameModel()
+    {
+        // Arrange
+        var controller = new AdminController(this._dbContext, this._mockUserManager.Object, this._mockRoleManager.Object);
+
+        controller.ModelState.AddModelError("UserName", "UserName is required");
+
+        var viewModel = new UserViewModel
+        {
+            UserName = "",
+            Email = "test@example.com",
+            Password = "password",
+            ConfirmPassword = "password"
+        };
+
+        // Act
+        var result = await controller.UserAdd(viewModel);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
 
     [Fact]
     public async Task Users_ReturnsViewWithUserList()
@@ -238,12 +260,10 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        // Add users for testing
         var employeeUser = new User { Id = 2, UserName = "EmployeeUser", Email = "employee@example.com" };
         dbContext.Users.Add(employeeUser);
         dbContext.SaveChanges();
 
-        // Setup IsInRoleAsync so that user 1 is Manager and user 2 is Employee
         _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 1), "Manager"))
             .ReturnsAsync(true);
         _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 2), "Manager"))
@@ -255,12 +275,10 @@ public class AdminControllerTests
 
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Setup HttpContext with required TempData services.
         var httpContext = new DefaultHttpContext();
-        // Create a minimal service provider with a dummy ITempDataProvider.
         var services = new ServiceCollection()
             .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-            .AddSingleton(_mockUserManager.Object)  // Register your mock UserManager
+            .AddSingleton(_mockUserManager.Object)
             .BuildServiceProvider();
         httpContext.RequestServices = services;
 
@@ -309,7 +327,6 @@ public class AdminControllerTests
         var employeeUser = new User { Id = 2, UserName = "EmployeeUser", Email = "employee@example.com" };
         dbContext.Users.AddRange(managerUser, employeeUser);
 
-        // ✅ Add users to `UserGroups` instead of `Group.Users`
         dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 1, Role = "Manager" });
         dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 2, Role = "Member" });
 
@@ -341,27 +358,23 @@ public class AdminControllerTests
         var dbContext = TestHelper.GetDbContext();
 
         var groupViewModel = new GroupViewModel
-        { 
+        {
             Name = "NewGroup",
             Description = "Test Description",
             SelectedManagerId = 9,
             SelectedUserIds = [3]
         };
-        // Use an invalid primaryManagerId (0)
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Create a service collection with necessary registrations.
         var services = new ServiceCollection()
             .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-            .AddSingleton<UserManager<User>>(_mockUserManager.Object)  // Register your mocked UserManager
+            .AddSingleton<UserManager<User>>(_mockUserManager.Object)
             .BuildServiceProvider();
 
-        // Create and configure a DefaultHttpContext with the service provider.
         var httpContext = new DefaultHttpContext();
         httpContext.RequestServices = services;
         controller.ControllerContext.HttpContext = httpContext;
 
-        // Manually create and set the TempData to avoid DI lookup for ITempDataDictionaryFactory.
         var tempDataProvider = services.GetRequiredService<ITempDataProvider>();
         controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
 
@@ -378,7 +391,6 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        // Add a primary manager and other users
         var primaryManager = new User { Id = 1, UserName = "Manager", Email = "pm@example.com" };
         var otherManager = new User { Id = 2, UserName = "OtherManager", Email = "om@example.com" };
         var employee = new User { Id = 3, UserName = "Employee", Email = "emp@example.com" };
@@ -393,31 +405,24 @@ public class AdminControllerTests
             SelectedUserIds = [3]
         };
 
-        // Create the controller with required mocked dependencies.
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Build a service provider with necessary services.
         var services = new ServiceCollection()
             .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
             .AddSingleton<UserManager<User>>(_mockUserManager.Object)
             .BuildServiceProvider();
 
-        // Set up the HttpContext with the service provider.
         var httpContext = new DefaultHttpContext { RequestServices = services };
         controller.ControllerContext.HttpContext = httpContext;
 
-        // Manually create and assign TempData to avoid DI lookup for ITempDataDictionaryFactory.
         var tempDataProvider = services.GetRequiredService<ITempDataProvider>();
         controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
 
-        // Assign a mocked IUrlHelper to bypass IUrlHelperFactory resolution when RedirectToAction is called.
         var mockUrlHelper = new Mock<IUrlHelper>();
         controller.Url = mockUrlHelper.Object;
 
-        // Act
         var result = await controller.CreateGroup(groupViewModel);
 
-        // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("Groups", redirectResult.ActionName);
         Assert.Equal(1, groupViewModel.SelectedManagerId);
@@ -429,7 +434,7 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var group = new Group { Id = 20, Name = "GroupToDelete", Description = "Test Description"};
+        var group = new Group { Id = 20, Name = "GroupToDelete", Description = "Test Description" };
         dbContext.Groups.Add(group);
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
@@ -583,147 +588,216 @@ public class AdminControllerTests
         Assert.Equal(2, projects.Count());
     }
 
-    //[Fact]
-    //public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    dbContext.Users.Add(new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" });
-    //    dbContext.Users.Add(new User { Id = 2, UserName = "Lead2", Email = "lead2@example.com" });
-    //    await dbContext.SaveChangesAsync();
-    //    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+    [Fact]
+    public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" });
+        dbContext.Users.Add(new User { Id = 2, UserName = "Lead2", Email = "lead2@example.com" });
+        await dbContext.SaveChangesAsync();
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+            .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = new List<SelectListItem>
-    //        {
-    //            new SelectListItem { Value = "1", Text = "Lead1" },
-    //            new SelectListItem { Value = "2", Text = "Lead2" }
-    //        }
-    //    };
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-    //    // Act
-    //    var result = await controller.CreateProject();
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+        };
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.NotNull(model.ProjectLeads);
-    //    Assert.Equal(2, model.ProjectLeads.Count);
-    //}
+        // Act
+        var result = await controller.CreateProject();
 
-    //[Fact]
-    //public async Task CreateProject_Post_InvalidModel_ReturnsView()
-    //{
-    //    CreateProjectViewModel model = new CreateProjectViewModel();
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-    //    controller.ModelState.AddModelError("Error", "Invalid");
-    //    var project = new Project { Id = 1, Name = "InvalidProject" };
-    //    var users = await dbContext.Users.ToListAsync();
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.NotNull(model.ProjectLeads);
+        Assert.Equal(2, model.ProjectLeads.Count);
+    }
 
-    //    model.ProjectLeads = users.Select(u => new SelectListItem
-    //    {
-    //        Value = u.Id.ToString(),
-    //        Text = u.UserName
-    //    }).ToList();
+    [Fact]
+    public async Task CreateProject_Post_InvalidModel_ReturnsView()
+    {
+        CreateProjectViewModel model = new CreateProjectViewModel();
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+            .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ModelState.AddModelError("Error", "Invalid");
+        var project = new Project { Id = 1, Name = "InvalidProject" };
+        var users = await dbContext.Users.ToListAsync();
 
-    //    CreateProjectViewModel viewModel = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = new List<SelectListItem>
-    //        {
-    //            new SelectListItem { Value = "1", Text = "Lead1" },
-    //            new SelectListItem { Value = "2", Text = "Lead2" }
-    //        }
-    //    };
-    //    // Act
-    //    var result = await controller.CreateProject(viewModel);
+        model.ProjectLeads = users.Select(u => new SelectListItem
+        {
+            Value = u.Id.ToString(),
+            Text = u.UserName
+        }).ToList();
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.Equal(viewModel, viewResult.Model);
-    //}
+        CreateProjectViewModel viewModel = new CreateProjectViewModel
+        {
+            ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+        };
+        // Act
+        var result = await controller.CreateProject(viewModel);
 
-    //[Fact]
-    //public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-    //    _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
-    //    var project = new Project { Id = 1, Name = "ProjectNoUser" };
-    //    var users = await dbContext.Users.ToListAsync();
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = users.Select(u => new SelectListItem
-    //        {
-    //            Value = u.Id.ToString(),
-    //            Text = u.UserName
-    //        }).ToList()
-    //    };
+    [Fact]
+    public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+            .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
 
-    //    // Act
-    //    var result = await controller.CreateProject(model);
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
+        var project = new Project { Id = 1, Name = "ProjectNoUser" };
+        var users = await dbContext.Users.ToListAsync();
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.False(controller.ModelState.IsValid);
-    //    Assert.Contains("", controller.ModelState.Keys);
-    //}
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
 
-    //[Fact]
-    //public async Task CreateProject_Post_Valid_ReturnsRedirect()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        // Act
+        var result = await controller.CreateProject(model);
 
-    //    // Setup the UserManager mock to return a user id.
-    //    _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.Contains("", controller.ModelState.Keys);
+    }
 
-    //    // Create a test user with the required claim.
-    //    var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
-    //    controller.ControllerContext.HttpContext = new DefaultHttpContext
-    //    {
-    //        User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
-    //    };
+    [Fact]
+    public async Task CreateProject_Post_Valid_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        this._mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+            .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
 
-    //    // Build a service provider with necessary services (TempData, etc.)
-    //    var services = new ServiceCollection()
-    //        .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-    //        .BuildServiceProvider();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-    //    // Configure HttpContext and TempData.
-    //    controller.ControllerContext.HttpContext.RequestServices = services;
-    //    controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
-    //        services.GetRequiredService<ITempDataProvider>());
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
 
-    //    var mockUrlHelper = new Mock<IUrlHelper>();
-    //    controller.Url = mockUrlHelper.Object;
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
+        controller.ControllerContext.HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+        };
 
-    //    var users = await dbContext.Users.ToListAsync();
+        var services = new ServiceCollection()
+            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+            .BuildServiceProvider();
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        Name = "ValidProject",
-    //        Description = "Test Description",
-    //        ProjectLeads = users.Select(u => new SelectListItem
-    //        {
-    //            Value = u.Id.ToString(),
-    //            Text = u.UserName
-    //        }).ToList()
-    //    };
+        controller.ControllerContext.HttpContext.RequestServices = services;
+        controller.ControllerContext.HttpContext.Request.ContentType = "application/x-www-form-urlencoded";
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            services.GetRequiredService<ITempDataProvider>());
 
-    //    // Act
-    //    var result = await controller.CreateProject(model);
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        controller.Url = mockUrlHelper.Object;
 
-    //    // Assert
-    //    var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-    //    Assert.Equal("Projects", redirectResult.ActionName);
-    //    Assert.True(dbContext.Projects.Any(p => p.Name == "ValidProject"));
-    //}
+        var users = await dbContext.Users.ToListAsync();
 
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            Name = "ValidProject",
+            Description = "Test Description",
+            ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
+
+        // Act
+        var result = await controller.CreateProject(model);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Projects", redirectResult.ActionName);
+        Assert.True(dbContext.Projects.Any(p => p.Name == "ValidProject"));
+    }
+
+    [Fact]
+    public async Task CreateProject_Post_WithValidGroupData_CallsAssignGroupToProject()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+
+        var validUser = new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" };
+        dbContext.Users.Add(validUser);
+        await dbContext.SaveChangesAsync();
+
+        dbContext.Groups.Add(new Group { Id = 1, ManagerId = 1, Description = "Test", Name = "TestGroup" });
+        await dbContext.SaveChangesAsync();
+
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                        .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("3");
+
+        var mockController = new Mock<AdminController>(dbContext, _mockUserManager.Object, _mockRoleManager.Object)
+        {
+            CallBase = true
+        };
+
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "3") };
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+        };
+
+        httpContext.Request.ContentType = "application/x-www-form-urlencoded";
+
+        var formData = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+        {
+            { "GroupId", new Microsoft.Extensions.Primitives.StringValues("1") }
+        };
+        httpContext.Request.Form = new FormCollection(formData);
+
+        mockController.Object.ControllerContext.HttpContext = httpContext;
+        var services = new ServiceCollection()
+            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+            .BuildServiceProvider();
+        mockController.Object.ControllerContext.HttpContext.RequestServices = services;
+        mockController.Object.TempData = new TempDataDictionary(httpContext, services.GetRequiredService<ITempDataProvider>());
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockController.Object.Url = mockUrlHelper.Object;
+
+        var model = new CreateProjectViewModel
+        {
+            Name = "ProjectWithGroups",
+            Description = "Test Description",
+            ProjectLeadId = 1
+        };
+
+        // Act
+        var result = await mockController.Object.CreateProject(model);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Projects", redirectResult.ActionName);
+
+        mockController.Verify(c => c.AssignGroupToProject(It.IsAny<int>(), 1), Times.Once);
+    }
 
     [Fact]
     public async Task ProjectDetails_ReturnsNotFoundIfProjectDoesNotExist()
@@ -751,7 +825,7 @@ public class AdminControllerTests
         Assert.IsType<NotFoundResult>(result1);
 
         // Add a project but not group
-        dbContext.Projects.Add(new Project { Id = 1, Name = "AssignProject", Description = "Test Description"});
+        dbContext.Projects.Add(new Project { Id = 1, Name = "AssignProject", Description = "Test Description" });
         await dbContext.SaveChangesAsync();
         var result2 = await controller.AssignGroupToProject(1, 99);
         Assert.IsType<NotFoundResult>(result2);
@@ -762,7 +836,7 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var project = new Project { Id = 1, Name = "AssignProject", ProjectGroups = new List<GroupProject>(), Description = "Test Description"};
+        var project = new Project { Id = 1, Name = "AssignProject", ProjectGroups = new List<GroupProject>(), Description = "Test Description" };
         var group = new Group { Id = 10, Name = "TestGroup", Description = "Test Description" };
         dbContext.Projects.Add(project);
         dbContext.Groups.Add(group);
@@ -784,8 +858,8 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var groupProject = new GroupProject { ProjectId = 1, GroupId = 10 };
-        var project = new Project { Id = 1, Name = "AssignProject", ProjectGroups = new List<GroupProject> { groupProject } , Description = "Test Description" };
-        var group = new Group { Id = 10, Name = "TestGroup" , Description = "Test Description" };
+        var project = new Project { Id = 1, Name = "AssignProject", ProjectGroups = new List<GroupProject> { groupProject }, Description = "Test Description" };
+        var group = new Group { Id = 10, Name = "TestGroup", Description = "Test Description" };
         dbContext.Projects.Add(project);
         dbContext.Groups.Add(group);
         await dbContext.SaveChangesAsync();
@@ -819,7 +893,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var groupProject = new GroupProject { ProjectId = 1, GroupId = 10 };
-        var project = new Project { Id = 1, Name = "RemoveProject", ProjectGroups = new List<GroupProject> { groupProject }, Description = "Test Description"};
+        var project = new Project { Id = 1, Name = "RemoveProject", ProjectGroups = new List<GroupProject> { groupProject }, Description = "Test Description" };
         dbContext.Projects.Add(project);
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
@@ -838,7 +912,7 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var project = new Project { Id = 50, Name = "EditProject", Description = "Test Description"};
+        var project = new Project { Id = 50, Name = "EditProject", Description = "Test Description" };
         dbContext.Projects.Add(project);
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
@@ -906,7 +980,7 @@ public class AdminControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        var project = new Project { Id = 30, Name = "ValidEdit", Description = "Test Description"};
+        var project = new Project { Id = 30, Name = "ValidEdit", Description = "Test Description" };
         dbContext.Projects.Add(project);
         await dbContext.SaveChangesAsync();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
@@ -1037,7 +1111,7 @@ public class AdminControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-        var model = new UserViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123" , ConfirmPassword = "Test@123" };
+        var model = new UserViewModel { UserName = "NewUser", Email = "new@example.com", Password = "Test@123", ConfirmPassword = "Test@123" };
 
         _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), model.Password))
             .ReturnsAsync(IdentityResult.Success);
@@ -1172,5 +1246,4 @@ public class AdminControllerTests
         _mockUserManager.Verify(um => um.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>()), Times.Once);
         _mockUserManager.Verify(um => um.AddToRoleAsync(user, "Admin"), Times.Once);
     }
-
 }

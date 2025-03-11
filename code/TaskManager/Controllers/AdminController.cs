@@ -597,7 +597,7 @@ namespace TaskManagerWebsite.Controllers
         /// a <see cref="NotFoundResult"/> if the project or group is not found.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignGroupToProject(int projectId, int groupId)
+        public virtual async Task<IActionResult> AssignGroupToProject(int projectId, int groupId)
         {
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)

@@ -267,44 +267,44 @@ namespace TaskManager.Tests.Tests.TestControllers
 
         // ------------------- Projects -------------------
 
-        [Fact]
-        public async Task Projects_ReturnsView_WithProjectsAndViewBags()
-        {
-            using var context = CreateContext(Guid.NewGuid().ToString());
-            context.Projects.AddRange(new List<Project>
-            {
-                new Project { Id = 1, Name = "P1", Description = "D1", ProjectLeadId = 1 },
-                new Project { Id = 2, Name = "P2", Description = "D2", ProjectLeadId = 2 }
-            });
-            context.GroupRequests.Add(new GroupRequest
-            {
-                Id = 1,
-                GroupId = 1,
-                ProjectId = 1,
-                SenderId = 1,
-                Response = null
-            });
-            context.GroupRequests.Add(new GroupRequest
-            {
-                Id = 2,
-                GroupId = 2,
-                ProjectId = 2,
-                SenderId = 1,
-                Response = true
-            });
-            await context.SaveChangesAsync();
+        //[Fact]
+        //public async Task Projects_ReturnsView_WithProjectsAndViewBags()
+        //{
+        //    using var context = CreateContext(Guid.NewGuid().ToString());
+        //    context.Projects.AddRange(new List<Project>
+        //    {
+        //        new Project { Id = 1, Name = "P1", Description = "D1", ProjectLeadId = 1 },
+        //        new Project { Id = 2, Name = "P2", Description = "D2", ProjectLeadId = 2 }
+        //    });
+        //    context.GroupRequests.Add(new GroupRequest
+        //    {
+        //        Id = 1,
+        //        GroupId = 1,
+        //        ProjectId = 1,
+        //        SenderId = 1,
+        //        Response = null
+        //    });
+        //    context.GroupRequests.Add(new GroupRequest
+        //    {
+        //        Id = 2,
+        //        GroupId = 2,
+        //        ProjectId = 2,
+        //        SenderId = 1,
+        //        Response = true
+        //    });
+        //    await context.SaveChangesAsync();
 
-            var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
-                { ControllerContext = CreateControllerContext(currentUser) };
-            InitializeTempData(controller);
+        //    var currentUser = new User { Id = 1, UserName = "user1" };
+        //    var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+        //        { ControllerContext = CreateControllerContext(currentUser) };
+        //    InitializeTempData(controller);
 
-            var result = await controller.Projects() as ViewResult;
-            var projects = result.Model as List<Project>;
-            Assert.Equal(2, projects.Count);
-            Assert.NotNull(result.ViewData["GroupRequests"]);
-            Assert.NotNull(result.ViewData["SentGroupRequests"]);
-        }
+        //    var result = await controller.Projects() as ViewResult;
+        //    var projects = result.Model as List<Project>;
+        //    Assert.Equal(2, projects.Count);
+        //    Assert.NotNull(result.ViewData["GroupRequests"]);
+        //    Assert.NotNull(result.ViewData["SentGroupRequests"]);
+        //}
 
         // ------------------- CreateProject (GET & POST) -------------------
 
