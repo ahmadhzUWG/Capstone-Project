@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Employee\ProjectBoard.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.ProjectBoardViewModel
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;div style=&quot;text-align:center;&quot;&gt;
+
+    &lt;h1&gt;@Model.Project.Name - Project Board&lt;/h1&gt;
+
+    @if (Model.Project.ProjectBoard == null)
+    {
+        &lt;p&gt;No board found for this project.&lt;/p&gt;
+    }
+    else
+    {
+        &lt;div class=&quot;d-flex flex-row justify-content-center&quot;&gt;
+            @foreach (var stage in Model.Project.ProjectBoard.Stages.OrderBy(s =&gt; s.Position))
+            {
+                &lt;div class=&quot;p-2 board-column&quot; style=&quot;border: 1px solid #ccc; margin: 10px;&quot;&gt;
+                    &lt;h5&gt;
+                        @if (Model.CanAddStage)
+                        {
+                            &lt;a asp-controller=&quot;Project&quot; asp-action=&quot;EditStage&quot; asp-route-stageId=&quot;@stage.Id&quot;&gt;
+                                @stage.Position - @stage.Name
+                            &lt;/a&gt;
+                        }
+                        else
+                        {
+                            @($&quot;{stage.Position} - {stage.Name}&quot;)
+                        }
+                    &lt;/h5&gt;
+                    &lt;h8&gt;
+                        Assigned Group: @stage.AssignedGroup?.Name
+                    &lt;/h8&gt;
+                &lt;/div&gt;
+            }
+        &lt;/div&gt;
+    }
+
+    @if (Model.CanAddStage)
+    {
+        &lt;hr /&gt;
+        &lt;h3&gt;Add Stage&lt;/h3&gt;
+        &lt;form asp-controller=&quot;Project&quot; asp-action=&quot;ProjectBoard&quot; asp-route-id=&quot;@Model.Project.Id&quot; method=&quot;post&quot;&gt;
+            @Html.AntiForgeryToken()
+
+            &lt;div&gt;
+                &lt;label asp-for=&quot;StageForm.Name&quot;&gt;&lt;/label&gt;
+                &lt;input asp-for=&quot;StageForm.Name&quot; /&gt;
+                &lt;span asp-validation-for=&quot;StageForm.Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div&gt;
+                &lt;label asp-for=&quot;StageForm.Position&quot;&gt;&lt;/label&gt;
+                &lt;input asp-for=&quot;StageForm.Position&quot; type=&quot;number&quot; /&gt;
+                &lt;span asp-validation-for=&quot;StageForm.Position&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div&gt;
+                &lt;label asp-for=&quot;StageForm.SelectedGroupId&quot;&gt;&lt;/label&gt;
+                &lt;select asp-for=&quot;StageForm.SelectedGroupId&quot; asp-items=&quot;Model.StageForm.AvailableGroups&quot;&gt;
+                    &lt;option value=&quot;&quot;&gt;-- Select a Group --&lt;/option&gt;
+                &lt;/select&gt;
+                &lt;span asp-validation-for=&quot;StageForm.SelectedGroupId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Add Stage&lt;/button&gt;
+        &lt;/form&gt;
+    }
+
+    &lt;a asp-controller=&quot;Employee&quot; asp-action=&quot;ProjectDetails&quot; asp-route-id=&quot;@Model.Project.Id&quot; class=&quot;btn btn-secondary mt-3&quot;&gt;
+        Go Back
+    &lt;/a&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[5,5,5,46,0],[10,10,10,29,0],[12,6,12,45,0],[13,5,13,6,0],[15,5,15,6,0],[17,5,17,6,0],[19,14,19,21,0],[19,23,19,32,0],[19,33,19,35,0],[19,36,19,83,0],[19,83,19,93,0],[19,93,19,94,0],[20,13,20,14,0],[23,26,23,48,0],[24,25,24,26,0],[25,100,25,109,0],[26,34,26,49,0],[26,52,26,63,0],[28,25,28,26,0],[30,25,30,26,0],[31,31,31,66,0],[32,25,32,26,0],[35,42,35,68,0],[38,13,38,14,0],[40,5,40,6,0],[42,6,42,28,0],[43,5,43,6,0],[46,81,46,98,0],[47,14,47,38,0],[50,1,50,151,0],[51,1,51,151,0],[52,1,52,163,0],[56,1,56,155,0],[57,1,57,155,0],[58,1,58,167,0],[62,1,62,162,0],[63,1,63,163,0],[66,1,66,174,0],[71,5,71,6,0],[73,77,73,94,0]]);
+    </script>
+  </body>
+</html>

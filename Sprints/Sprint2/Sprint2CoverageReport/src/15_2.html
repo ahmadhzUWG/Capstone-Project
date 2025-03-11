@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Authorization\ProjectRoleHandler.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Authorization;
+using TaskManagerWebsite.Data;
+
+namespace TaskManagerWebsite.Authorization;
+
+public class ProjectRoleHandler : AuthorizationHandler&lt;ProjectRoleRequirement, int&gt;
+{
+    private readonly ApplicationDbContext _context;
+
+    public ProjectRoleHandler(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ProjectRoleRequirement requirement, int projectId)
+    {
+        if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return;
+        }
+
+        bool isProjectManager = await _context.UserGroups
+            .Where(ug =&gt; ug.UserId == userId &amp;&amp; ug.Role == &quot;Manager&quot;)
+            .AnyAsync(ug =&gt; _context.GroupProjects
+                .Any(gp =&gt; gp.GroupId == ug.GroupId &amp;&amp; gp.ProjectId == projectId));
+
+        if (isProjectManager)
+        {
+            context.Succeed(requirement);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,5,14,60,0],[15,5,15,6,0],[16,9,16,28,0],[17,5,17,6,0],[20,5,20,6,0],[21,9,21,99,0],[22,9,22,10,0],[23,13,23,20,0],[26,9,29,84,0],[31,9,31,30,0],[32,9,32,10,0],[33,13,33,42,0],[34,9,34,10,0],[35,5,35,6,0]]);
+    </script>
+  </body>
+</html>

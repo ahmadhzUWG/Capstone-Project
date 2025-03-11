@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\LoginController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+
+    /// &lt;summary&gt;
+    /// Manages user authentication, including login and logout functionality.
+    /// &lt;/summary&gt;
+    public class LoginController(UserManager&lt;User&gt; userManager, SignInManager&lt;User&gt; signInManager) : Controller
+    {
+        private readonly UserManager&lt;User&gt; _userManager = userManager;
+        private readonly SignInManager&lt;User&gt; _signInManager = signInManager;
+
+
+        /// &lt;summary&gt;
+        /// Displays the login page and ensures the user is signed out before rendering.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;The login view.&lt;/returns&gt;
+        [HttpGet]
+        public async Task&lt;IActionResult&gt; Index()
+        {
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(&quot;Index&quot;, &quot;Home&quot;);
+            }
+            await _signInManager.SignOutAsync(); 
+            
+            return View();
+        }
+
+        /// &lt;summary&gt;
+        /// Processes user login requests.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;model&quot;&gt;The login credentials submitted by the user.&lt;/param&gt;
+        /// &lt;param name=&quot;returnUrl&quot;&gt;An optional return URL to redirect the user after successful login.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the return URL or the home page upon successful login.
+        /// If the login attempt fails, returns the login view with validation errors.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Index(LoginViewModel model, string? returnUrl = null)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, &quot;Invalid login attempt.&quot;);
+                return View(model);
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(returnUrl) &amp;&amp; Url.IsLocalUrl(returnUrl))
+                {
+                    return LocalRedirect(returnUrl);
+                }
+
+                return RedirectToAction(&quot;Index&quot;, &quot;Home&quot;);
+            }
+
+            ModelState.AddModelError(string.Empty, &quot;Invalid login attempt.&quot;);
+            return View(model);
+        }
+
+        /// &lt;summary&gt;
+        /// Logs the user out and redirects them to the login page.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;Redirects to the login page after signing out.&lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction(&quot;Index&quot;, &quot;Login&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,18,15,99,1],[17,9,17,71,1],[18,9,18,77,1],[27,9,27,10,1],[28,13,28,49,1],[29,13,29,14,0],[30,17,30,58,0],[32,13,32,49,1],[34,13,34,27,1],[35,9,35,10,1],[49,9,49,10,1],[50,13,50,37,1],[51,17,51,36,1],[53,13,53,75,1],[54,13,54,30,1],[55,13,55,14,1],[56,17,56,82,1],[57,17,57,36,1],[60,13,61,95,1],[63,13,63,34,1],[64,13,64,14,1],[65,17,65,83,1],[66,17,66,18,1],[67,21,67,53,1],[70,17,70,58,1],[73,13,73,78,0],[74,13,74,32,0],[75,9,75,10,1],[84,9,84,10,1],[85,13,85,49,1],[86,13,86,55,1],[87,9,87,10,1]]);
+    </script>
+  </body>
+</html>

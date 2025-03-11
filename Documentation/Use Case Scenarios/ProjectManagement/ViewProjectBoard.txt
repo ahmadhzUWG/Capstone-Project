@@ -2,5 +2,5 @@ View Project Board (Kanban board)
 Context:
 	User is viewing project details page.
 	Primary Flow:
-		1. User clicks view project board
+		1. User selects view project board
 		2. System loads the project board for the user

@@ -180,24 +180,34 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("Groups");
         }
 
-
         /// <summary>
-        /// Deletes a group based on the provided ID.
+        /// Deletes the group.
         /// </summary>
-        /// <param name="id">The ID of the group to be deleted.</param>
-        /// <returns>A redirect to the Groups list.</returns>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGroup(int id)
         {
             var group = await context.Groups.FindAsync(id);
-            if (group != null)
+            if (group == null)
+            {
+                return RedirectToAction(nameof(Groups));
+            }
+
+            try
             {
                 context.Groups.Remove(group);
                 await context.SaveChangesAsync();
             }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] = "Unable to delete this group because it is referenced elsewhere. Check project assignments";
+            }
+
             return RedirectToAction(nameof(Groups));
         }
+
 
         /// <summary>
         /// Retrieves and displays detailed information for a specific group, including its users and managers,

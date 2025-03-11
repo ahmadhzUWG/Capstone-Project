@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Models\ApplicationDbContext.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore;
+using System.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+using Microsoft.AspNetCore.Identity;
+using TaskManagerDesktop.Models;
+
+namespace TaskManagerDesktop.Data
+{
+    public class ApplicationDbContext : IdentityDbContext&lt;User, IdentityRole&lt;int&gt;, int&gt;
+    {
+        // Constructor that accepts DbContextOptions (needed by EF Core)
+        public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options) : base(options)
+        {
+        }
+
+        ////// ADD THIS PARAMETERLESS CONSTRUCTOR
+        //public ApplicationDbContext() : base(new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+        //    .UseSqlServer(ConfigurationManager.ConnectionStrings[&quot;DefaultConnection&quot;].ConnectionString)
+        //    .Options)
+        //    {
+        //}
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings[&quot;DefaultConnection&quot;].ConnectionString;
+                optionsBuilder.UseSqlServer(connectionString);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,87,13,100,1],[14,9,14,10,1],[15,9,15,10,1],[25,9,25,10,1],[26,13,26,46,1],[27,13,27,14,0],[28,17,28,120,0],[29,17,29,63,0],[30,13,30,14,0],[31,9,31,10,1]]);
+    </script>
+  </body>
+</html>

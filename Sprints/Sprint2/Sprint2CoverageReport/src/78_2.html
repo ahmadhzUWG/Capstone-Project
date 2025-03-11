@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\GroupViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagerWebsite.ViewModels;
+
+public class GroupViewModel
+{
+    [Required(ErrorMessage = &quot;Group name is required. Please provide a unique and descriptive name for the group.&quot;)]
+    [StringLength(100, MinimumLength = 3,
+        ErrorMessage = &quot;Group name must be between 3 and 100 characters.&quot;)]
+    public string Name { get; set; }
+
+    [Required(ErrorMessage = &quot;Group description is required. Provide details about the group&#39;s purpose and objectives.&quot;)]
+    [StringLength(255, MinimumLength = 10,
+        ErrorMessage = &quot;Description must be between 10 and 255 characters.&quot;)]
+    public string Description { get; set; }
+
+    [Required(ErrorMessage = &quot;Please select a manager for this group. A group must have exactly one manager.&quot;)]
+    public int? SelectedManagerId { get; set; }
+
+    public List&lt;int&gt; SelectedUserIds { get; set; } = new List&lt;int&gt;();
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,26,10,30,1],[10,31,10,35,1],[15,33,15,37,1],[15,38,15,42,1],[18,37,18,41,1],[18,42,18,46,1],[20,40,20,44,1],[20,45,20,49,1],[20,54,20,69,1]]);
+    </script>
+  </body>
+</html>

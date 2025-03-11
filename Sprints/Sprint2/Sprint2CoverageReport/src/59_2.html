@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250307215518_AddBoardCreatorToProjectBoard.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddBoardCreatorToProjectBoard : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn&lt;int&gt;(
+                name: &quot;BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;,
+                type: &quot;int&quot;,
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_ProjectBoards_BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;,
+                column: &quot;BoardCreatorId&quot;);
+
+            migrationBuilder.AddForeignKey(
+                name: &quot;FK_ProjectBoards_AspNetUsers_BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;,
+                column: &quot;BoardCreatorId&quot;,
+                principalTable: &quot;AspNetUsers&quot;,
+                principalColumn: &quot;Id&quot;,
+                onDelete: ReferentialAction.Restrict);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: &quot;FK_ProjectBoards_AspNetUsers_BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;);
+
+            migrationBuilder.DropIndex(
+                name: &quot;IX_ProjectBoards_BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;);
+
+            migrationBuilder.DropColumn(
+                name: &quot;BoardCreatorId&quot;,
+                table: &quot;ProjectBoards&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,18,34,0],[20,13,23,43,0],[25,13,31,55,0],[32,9,32,10,0],[36,9,36,10,0],[37,13,39,41,0],[41,13,43,41,0],[45,13,47,41,0],[48,9,48,10,0]]);
+    </script>
+  </body>
+</html>

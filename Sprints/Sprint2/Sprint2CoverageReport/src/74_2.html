@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\User.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+
+namespace TaskManagerWebsite.Models;
+
+/// &lt;summary&gt;
+/// Represents a user in the task management system.
+/// Inherits from &lt;see cref=&quot;IdentityUser{TKey}&quot;/&gt; to integrate with ASP.NET Identity.
+/// &lt;/summary&gt;
+public class User : IdentityUser&lt;int&gt;
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the collection of groups the user is a member of.
+    /// A user can belong to multiple groups.
+    /// &lt;/summary&gt;
+    public ICollection&lt;UserGroup&gt; UserGroups { get; set; } = new List&lt;UserGroup&gt;();
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,48,15,52,1],[15,53,15,57,1],[15,62,15,83,1]]);
+    </script>
+  </body>
+</html>
