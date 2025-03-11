@@ -10,6 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManagerWebsite.Controllers;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TaskManagerWebsite.ViewModels;
 
 namespace TaskManager.Tests.Tests.TestControllers
 {
@@ -232,6 +238,143 @@ namespace TaskManager.Tests.Tests.TestControllers
             var result = await controller.ProjectDetails(999);
 
             Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
+        {
+            // Arrange
+            var dbContext = TestHelper.GetDbContext();
+            dbContext.Users.Add(new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" });
+            dbContext.Users.Add(new User { Id = 2, UserName = "Lead2", Email = "lead2@example.com" });
+            await dbContext.SaveChangesAsync();
+            var controller = new EmployeeController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+            CreateProjectViewModel model = new CreateProjectViewModel
+            {
+                ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+            };
+
+            // Act
+            var result = await controller.CreateProject();
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.NotNull(model.ProjectLeads);
+            Assert.Equal(2, model.ProjectLeads.Count);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_InvalidModel_ReturnsView()
+        {
+            CreateProjectViewModel model = new CreateProjectViewModel();
+            // Arrange
+            var dbContext = TestHelper.GetDbContext();
+            var controller = new EmployeeController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+            controller.ModelState.AddModelError("Error", "Invalid");
+            var project = new Project { Id = 1, Name = "InvalidProject" };
+            var users = await dbContext.Users.ToListAsync();
+
+            model.ProjectLeads = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList();
+
+            CreateProjectViewModel viewModel = new CreateProjectViewModel
+            {
+                ProjectLeads = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Lead1" },
+                new SelectListItem { Value = "2", Text = "Lead2" }
+            }
+            };
+            // Act
+            var result = await controller.CreateProject(viewModel);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(viewModel, viewResult.Model);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
+        {
+            // Arrange
+            var dbContext = TestHelper.GetDbContext();
+            var controller = new EmployeeController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+            _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
+            var project = new Project { Id = 1, Name = "ProjectNoUser" };
+            var users = await dbContext.Users.ToListAsync();
+
+            CreateProjectViewModel model = new CreateProjectViewModel
+            {
+                ProjectLeads = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            // Act
+            var result = await controller.CreateProject(model);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.Contains("", controller.ModelState.Keys);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_Valid_ReturnsRedirect()
+        {
+            // Arrange
+            var dbContext = TestHelper.GetDbContext();
+            var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+            _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
+
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
+            controller.ControllerContext.HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+            };
+
+            var services = new ServiceCollection()
+                .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+                .BuildServiceProvider();
+
+            controller.ControllerContext.HttpContext.RequestServices = services;
+            controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+                services.GetRequiredService<ITempDataProvider>());
+
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            controller.Url = mockUrlHelper.Object;
+
+            var users = await dbContext.Users.ToListAsync();
+
+            CreateProjectViewModel model = new CreateProjectViewModel
+            {
+                Name = "ValidProject",
+                Description = "Test Description",
+                ProjectLeads = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            // Act
+            var result = await controller.CreateProject(model);
+
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Projects", redirectResult.ActionName);
+            Assert.True(dbContext.Projects.Any(p => p.Name == "ValidProject"));
         }
     }
 }

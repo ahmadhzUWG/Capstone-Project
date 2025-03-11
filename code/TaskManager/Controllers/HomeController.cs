@@ -35,15 +35,6 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        /// Displays the privacy policy page.
-        /// </summary>
-        /// <returns>The privacy policy view.</returns>
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        /// <summary>
         /// Displays an access denied page when a user lacks the necessary permissions.
         /// </summary>
         /// <returns>The access denied view.</returns>

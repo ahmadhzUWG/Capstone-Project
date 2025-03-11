@@ -1,4 +1,5 @@
 @model TaskManagerWebsite.Models.Project
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -12,10 +13,11 @@
         <h2>@Model.Name</h2>
         <p>Description: @Model.Description</p>
     </div>
-
-    <button type="submit" class="btn btn-success mt-2">Assign Group</button>
-    
-    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
+    {
+        <button type="submit" class="btn btn-success mt-2">Assign Group</button>
+    }
+    <a href="@Url.Action("ProjectBoard", "User", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
 
     <!-- Project Lead Info -->
     <div class="project-section">
@@ -30,17 +32,19 @@
         {
             <p class="lead-info"><strong>No project lead assigned.</strong></p>
         }
-        <a asp-action="EditProject" asp-route-id="@Model.Id" class="btn btn-info mt-2">
-            Edit Project
-        </a>
-    </div>
+        </div>
 
     <div class="project-section">
             @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
-    <a href="@Url.Action("ProjectBoard", "Admin", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
-    <a href="@Url.Action("EditProject", "Admin", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+    <a href="@Url.Action("ProjectBoard", "User", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded
+         || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
+    {
+        <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+    }
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
 

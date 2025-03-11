@@ -15,7 +15,7 @@ namespace TaskManagerWebsite.Controllers
     /// Controller for administrative tasks, accessible only to users with the "Admin" role.
     /// Provides functionalities for managing users and groups.
     /// </summary>
-    public class AdminController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager) : Controller
+    public class UserController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager) : Controller
     {
         /// <summary>
         /// Retrieves and displays a list of all users.
@@ -58,7 +58,7 @@ namespace TaskManagerWebsite.Controllers
                 var createUserRoleResult = await userManager.AddToRoleAsync(user, "Employee");
                 if (createUserRoleResult.Succeeded)
                 {
-                    return RedirectToAction("Users", "Admin");
+                    return RedirectToAction("Users", "User");
                 }
 
                 foreach (var error in createUserRoleResult.Errors)
@@ -104,6 +104,9 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> Groups()
         {
             var groups = await context.Groups.ToListAsync();
+            var userId = userManager.GetUserId(User);
+            ViewBag.UserId = userId;
+
             return View(groups);
         }
 
@@ -430,6 +433,23 @@ namespace TaskManagerWebsite.Controllers
         // Display list of projects
         public async Task<IActionResult> Projects()
         {
+            var userId = userManager.GetUserId(User);
+            ViewBag.UserId = userId;
+
+            var groupRequests = await context.GroupRequests
+                .Include(gr => gr.Group)
+                .Include(gr => gr.Project)
+                .Where(gr => gr.Group.ManagerId == int.Parse(userId) && gr.Response == null)
+                .ToListAsync();
+            ViewBag.GroupRequests = groupRequests;
+
+            var sentGroupRequests = await context.GroupRequests
+                .Include(gr => gr.Group)
+                .Include(gr => gr.Project)
+                .Where(gr => gr.SenderId == int.Parse(userId) && gr.Response != null)
+                .ToListAsync();
+            ViewBag.SentGroupRequests = sentGroupRequests;
+
             var projects = await context.Projects.ToListAsync();
             return View(projects);
         }
@@ -743,6 +763,7 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying user edit options or NotFound if the user does not exist.</returns>
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> UserEdit(string id)
         {
             var user = await userManager.FindByIdAsync(id);
@@ -772,6 +793,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A redirect to the Users list.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> UserEdit(string id, string UserName, string Email, string Role)
         {
             var user = await userManager.FindByIdAsync(id);
@@ -804,6 +826,7 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="id">The ID of the user.</param>
         /// <returns>A view displaying the user and their related groups if applicable.</returns>
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> UserDelete(int id)
         {
             var user = await context.Users.FindAsync(id);
@@ -841,6 +864,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A redirect to the Users list.</returns>
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "IsManager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await context.Users.FindAsync(id);

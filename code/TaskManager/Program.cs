@@ -27,45 +27,18 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    // Admins can manage everything
-    options.AddPolicy("CanManageUsers", policy =>
+    options.AddPolicy("IsProjectLead", policy =>
+        policy.Requirements.Add(new ProjectRoleRequirement("ProjectLead")));
+
+    options.AddPolicy("IsAdmin", policy =>
         policy.Requirements.Add(new UserRoleRequirement("Admin")));
 
-    // Managers can edit users they manage
-    options.AddPolicy("CanEditUser", policy =>
-        policy.Requirements.Add(new UserRelationshipRequirement("Manager")));
-
-    // Only Admins can delete users
-    options.AddPolicy("CanDeleteUser", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
-
-    // Admins can create groups/projects
-    options.AddPolicy("CanManageGroups", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
-    options.AddPolicy("CanManageProjects", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
-
-    // Managers can edit groups/projects they manage
-    options.AddPolicy("CanEditGroup", policy =>
-        policy.Requirements.Add(new GroupRoleRequirement("Manager")));
-    options.AddPolicy("CanEditProject", policy =>
-        policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
-
-    // Only Admins can delete groups/projects
-    options.AddPolicy("CanDeleteGroup", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
-    options.AddPolicy("CanDeleteProject", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
-
-    // Managers can manage employees within their own group/project
-    options.AddPolicy("CanManageGroupEmployees", policy =>
-        policy.Requirements.Add(new GroupRoleRequirement("Manager")));
-    options.AddPolicy("CanManageProjectEmployees", policy =>
-        policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
+    options.AddPolicy("IsManager", policy =>
+        policy.Requirements.Add(new ManagerRelationshipRequirement("Manager")));
 });
 
 builder.Services.AddScoped<IAuthorizationHandler, UserRoleHandler>();
-builder.Services.AddScoped<IAuthorizationHandler, UserRelationshipHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ManagerRelationshipHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
 

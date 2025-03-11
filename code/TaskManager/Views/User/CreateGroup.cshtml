@@ -12,7 +12,7 @@
     <div class="form-container">
         <h1 class="text-center">Create Group</h1>
 
-        <form id="createGroupForm" asp-action="CreateGroup" asp-controller="Admin" method="post" class="needs-validation" novalidate>
+        <form id="createGroupForm" asp-action="CreateGroup" asp-controller="User" method="post" class="needs-validation" novalidate>
             <div class="form-group">
                 <label asp-for="Name">Group Name</label>
                 <input asp-for="Name" class="form-control" required />
@@ -53,7 +53,7 @@
             <button type="submit" class="btn btn-success btn-block mt-3">Create</button>
         </form>
 
-        <a href="@Url.Action("Groups", "Admin")" class="btn btn-secondary btn-block mt-2">Back to Groups</a>
+        <a href="@Url.Action("Groups", "User")" class="btn btn-secondary btn-block mt-2">Back to Groups</a>
     </div>
 </div>
 

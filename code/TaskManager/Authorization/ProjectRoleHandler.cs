@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using TaskManagerWebsite.Authorization;
 using TaskManagerWebsite.Data;
-
-namespace TaskManagerWebsite.Authorization;
 
 public class ProjectRoleHandler : AuthorizationHandler<ProjectRoleRequirement, int>
 {
@@ -23,12 +20,11 @@ public class ProjectRoleHandler : AuthorizationHandler<ProjectRoleRequirement, i
             return;
         }
 
-        bool isProjectManager = await _context.UserGroups
-            .Where(ug => ug.UserId == userId && ug.Role == "Manager")
-            .AnyAsync(ug => _context.GroupProjects
-                .Any(gp => gp.GroupId == ug.GroupId && gp.ProjectId == projectId));
+        bool isProjectLead = await _context.Projects
+            .Where(p => p.Id == projectId)
+            .AnyAsync(p => p.ProjectLeadId == userId);
 
-        if (isProjectManager)
+        if (isProjectLead)
         {
             context.Succeed(requirement);
         }
