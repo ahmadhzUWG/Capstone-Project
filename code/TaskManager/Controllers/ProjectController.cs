@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
@@ -36,10 +37,10 @@ namespace TaskManagerWebsite.Controllers
         {
             var project = await context.Projects
                 .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
@@ -58,10 +59,10 @@ namespace TaskManagerWebsite.Controllers
 
                 project = await context.Projects
                     .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                        .ThenInclude(b => b.Stages)
+                        .ThenInclude(s => s.AssignedGroup)
                     .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                        .ThenInclude(pg => pg.Group)
                     .FirstOrDefaultAsync(p => p.Id == id);
             }
 
@@ -89,7 +90,7 @@ namespace TaskManagerWebsite.Controllers
                       && ug.UserId == int.Parse(userManager.GetUserId(User))
                       && ug.Role == "Manager");
 
-            vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager); // MODIFIED
+            vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
 
             if (isAdmin)
             {
@@ -103,6 +104,7 @@ namespace TaskManagerWebsite.Controllers
 
         /// <summary>
         /// Posts the project board.
+        /// If a stage position is already taken, we alert the user via validation error.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="vm">The vm.</param>
@@ -113,10 +115,10 @@ namespace TaskManagerWebsite.Controllers
         {
             var project = await context.Projects
                 .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
@@ -125,7 +127,7 @@ namespace TaskManagerWebsite.Controllers
             var currentUserId = userManager.GetUserId(User);
             var currentUser = await userManager.FindByIdAsync(currentUserId);
             bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
+            bool isProjectLead = (project.ProjectLeadId == int.Parse(currentUserId));
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             bool isGroupManager = await context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
@@ -145,48 +147,51 @@ namespace TaskManagerWebsite.Controllers
                 })
                 .ToList();
 
-            if (!ModelState.IsValid)
-            {
-                vm.Project = project;
-
-                if (isAdmin)
-                {
-                    return View("~/Views/Admin/ProjectBoard.cshtml", vm);
-                }
-                else
-                {
-                    return View("~/Views/Employee/ProjectBoard.cshtml", vm);
-                }
-            }
-
-            var duplicateStage = await context.Stages
-                .Include(s => s.ProjectBoard)
-                .FirstOrDefaultAsync(s => s.ProjectBoard.ProjectId == id && s.Name == vm.StageForm.Name);
-
-            if (duplicateStage != null)
-            {
-                ModelState.AddModelError("StageForm.Name", "A stage with this name already exists in this project.");
-                vm.Project = project;
-                if (isAdmin)
-                {
-                    return View("~/Views/Admin/ProjectBoard.cshtml", vm);
-                }
-                else
-                {
-                    return View("~/Views/Employee/ProjectBoard.cshtml", vm);
-                }
-            }
+            vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
+            vm.Project = project;
 
             if (project.ProjectBoard == null)
             {
                 var newBoard = new ProjectBoard
                 {
                     ProjectId = project.Id,
-                    BoardCreatorId = int.Parse(currentUserId)
+                    BoardCreatorId = int.Parse(currentUserId),
+                    Stages = new List<Stage>()
                 };
                 context.ProjectBoards.Add(newBoard);
                 await context.SaveChangesAsync();
                 project.ProjectBoard = newBoard;
+            }
+
+            var occupant = project.ProjectBoard.Stages
+                .FirstOrDefault(s => s.Position == vm.StageForm.Position);
+
+            if (occupant != null)
+            {
+                ModelState.AddModelError("StageForm.Position", "This position is already taken by another stage.");
+            }
+
+            var duplicateStage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.ProjectBoard.ProjectId == id && s.Name == vm.StageForm.Name);
+
+            if (!string.IsNullOrWhiteSpace(vm.StageForm.Name) && duplicateStage != null)
+            {
+                ModelState.AddModelError("StageForm.Name", "A stage with this name already exists in this project.");
+            }
+
+            this.ForceProjectValid(ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                if (isAdmin)
+                {
+                    return View("~/Views/Admin/ProjectBoard.cshtml", vm);
+                }
+                else
+                {
+                    return View("~/Views/Employee/ProjectBoard.cshtml", vm);
+                }
             }
 
             var newStage = new Stage
@@ -202,6 +207,7 @@ namespace TaskManagerWebsite.Controllers
 
             return RedirectToAction(nameof(ProjectBoard), new { id });
         }
+
 
         /// <summary>
         /// Edits the stage. (GET)
@@ -220,10 +226,10 @@ namespace TaskManagerWebsite.Controllers
 
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null)
@@ -282,10 +288,10 @@ namespace TaskManagerWebsite.Controllers
 
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null) return NotFound();
@@ -314,7 +320,6 @@ namespace TaskManagerWebsite.Controllers
                 return View("EditStage", vm);
             }
 
-
             bool nameExists = await context.Stages
                 .AnyAsync(s => s.ProjectBoardId == stage.ProjectBoardId
                                && s.Id != stage.Id
@@ -337,7 +342,6 @@ namespace TaskManagerWebsite.Controllers
             }
 
             stage.Position = vm.Position;
-
             stage.Name = vm.Name;
             stage.AssignedGroupId = vm.SelectedGroupId;
 
@@ -365,10 +369,10 @@ namespace TaskManagerWebsite.Controllers
 
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                .ThenInclude(b => b.Stages)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null)
@@ -392,5 +396,19 @@ namespace TaskManagerWebsite.Controllers
 
             return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
+
+        private void ForceProjectValid(ModelStateDictionary modelState)
+        {
+            if (modelState.ContainsKey("Project"))
+            {
+                var entry = modelState["Project"];
+                if (entry != null && entry.ValidationState == ModelValidationState.Invalid)
+                {
+                    entry.Errors.Clear();
+                    entry.ValidationState = ModelValidationState.Valid;
+                }
+            }
+        }
+
     }
 }
