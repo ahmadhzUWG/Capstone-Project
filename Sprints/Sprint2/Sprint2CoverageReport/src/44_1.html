@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestViewModels\ProjectBoardViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+using Xunit;
+
+namespace TaskManager.Tests.Tests.TestViewModels
+{
+    public class ProjectBoardViewModelTests
+    {
+        [Fact]
+        public void DefaultConstructor_PropertiesAreNullOrDefault()
+        {
+            var vm = new ProjectBoardViewModel();
+
+            Assert.Null(vm.Project);
+            Assert.Null(vm.StageForm);
+            Assert.False(vm.CanAddStage);
+        }
+
+        [Fact]
+        public void Project_CanBeSetAndRetrieved()
+        {
+            var vm = new ProjectBoardViewModel();
+            var project = new Project { Id = 123, Name = &quot;Test Project&quot; };
+
+            vm.Project = project;
+
+            Assert.NotNull(vm.Project);
+            Assert.Equal(123, vm.Project.Id);
+            Assert.Equal(&quot;Test Project&quot;, vm.Project.Name);
+        }
+
+        [Fact]
+        public void StageForm_CanBeSetAndRetrieved()
+        {
+            var vm = new ProjectBoardViewModel();
+            var form = new CreateStageViewModel { Name = &quot;New Stage&quot; };
+
+            vm.StageForm = form;
+
+            Assert.NotNull(vm.StageForm);
+            Assert.Equal(&quot;New Stage&quot;, vm.StageForm.Name);
+        }
+
+        [Fact]
+        public void CanAddStage_CanBeSetAndRetrieved()
+        {
+            var vm = new ProjectBoardViewModel();
+
+            vm.CanAddStage = true;
+            Assert.True(vm.CanAddStage);
+
+            vm.CanAddStage = false;
+            Assert.False(vm.CanAddStage);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[12,13,12,50,1],[14,13,14,37,1],[15,13,15,39,1],[16,13,16,42,1],[17,9,17,10,1],[21,9,21,10,1],[22,13,22,50,1],[23,13,23,75,1],[25,13,25,34,1],[27,13,27,40,1],[28,13,28,46,1],[29,13,29,59,1],[30,9,30,10,1],[34,9,34,10,1],[35,13,35,50,1],[36,13,36,72,1],[38,13,38,33,1],[40,13,40,42,1],[41,13,41,58,1],[42,9,42,10,1],[46,9,46,10,1],[47,13,47,50,1],[49,13,49,35,1],[50,13,50,41,1],[52,13,52,36,1],[53,13,53,42,1],[54,9,54,10,1]]);
+    </script>
+  </body>
+</html>

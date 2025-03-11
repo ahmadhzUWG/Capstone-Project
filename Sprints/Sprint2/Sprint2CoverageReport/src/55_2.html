@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250302002910_InitialCreate.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class InitialCreate : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetRoles&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    NormalizedName = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetRoles&quot;, x =&gt; x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetUsers&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    UserName = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    Email = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column&lt;string&gt;(type: &quot;nvarchar(256)&quot;, maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: false),
+                    PasswordHash = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    SecurityStamp = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    ConcurrencyStamp = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    PhoneNumber = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    PhoneNumberConfirmed = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: false),
+                    TwoFactorEnabled = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: false),
+                    LockoutEnd = table.Column&lt;DateTimeOffset&gt;(type: &quot;datetimeoffset&quot;, nullable: true),
+                    LockoutEnabled = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: false),
+                    AccessFailedCount = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetUsers&quot;, x =&gt; x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetRoleClaims&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    RoleId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ClaimType = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    ClaimValue = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetRoleClaims&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetRoleClaims_AspNetRoles_RoleId&quot;,
+                        column: x =&gt; x.RoleId,
+                        principalTable: &quot;AspNetRoles&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;Admins&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Admins&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_Admins_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetUserClaims&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ClaimType = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    ClaimValue = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetUserClaims&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetUserClaims_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetUserLogins&quot;,
+                columns: table =&gt; new
+                {
+                    LoginProvider = table.Column&lt;string&gt;(type: &quot;nvarchar(450)&quot;, nullable: false),
+                    ProviderKey = table.Column&lt;string&gt;(type: &quot;nvarchar(450)&quot;, nullable: false),
+                    ProviderDisplayName = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true),
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetUserLogins&quot;, x =&gt; new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetUserLogins_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetUserRoles&quot;,
+                columns: table =&gt; new
+                {
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    RoleId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetUserRoles&quot;, x =&gt; new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetUserRoles_AspNetRoles_RoleId&quot;,
+                        column: x =&gt; x.RoleId,
+                        principalTable: &quot;AspNetRoles&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetUserRoles_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;AspNetUserTokens&quot;,
+                columns: table =&gt; new
+                {
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    LoginProvider = table.Column&lt;string&gt;(type: &quot;nvarchar(450)&quot;, nullable: false),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(450)&quot;, nullable: false),
+                    Value = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_AspNetUserTokens&quot;, x =&gt; new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: &quot;FK_AspNetUserTokens_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;Groups&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(100)&quot;, maxLength: 100, nullable: false),
+                    Description = table.Column&lt;string&gt;(type: &quot;nvarchar(500)&quot;, maxLength: 500, nullable: false),
+                    ManagerId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Groups&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_Groups_AspNetUsers_ManagerId&quot;,
+                        column: x =&gt; x.ManagerId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;Projects&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(100)&quot;, maxLength: 100, nullable: false),
+                    Description = table.Column&lt;string&gt;(type: &quot;nvarchar(500)&quot;, maxLength: 500, nullable: false),
+                    ProjectLeadId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ProjectCreatorId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Projects&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_Projects_AspNetUsers_ProjectLeadId&quot;,
+                        column: x =&gt; x.ProjectLeadId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;GroupManagers&quot;,
+                columns: table =&gt; new
+                {
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupManagers&quot;, x =&gt; new { x.UserId, x.GroupId });
+                    table.ForeignKey(
+                        name: &quot;FK_GroupManagers_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupManagers_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;UserGroups&quot;,
+                columns: table =&gt; new
+                {
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    Role = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_UserGroups&quot;, x =&gt; new { x.UserId, x.GroupId });
+                    table.ForeignKey(
+                        name: &quot;FK_UserGroups_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_UserGroups_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;GroupProjects&quot;,
+                columns: table =&gt; new
+                {
+                    ProjectId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupProjects&quot;, x =&gt; new { x.ProjectId, x.GroupId });
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProjects_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupProjects_Projects_ProjectId&quot;,
+                        column: x =&gt; x.ProjectId,
+                        principalTable: &quot;Projects&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;GroupRequests&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    SenderId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    GroupId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    ProjectId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    Response = table.Column&lt;bool&gt;(type: &quot;bit&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_GroupRequests&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupRequests_Groups_GroupId&quot;,
+                        column: x =&gt; x.GroupId,
+                        principalTable: &quot;Groups&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_GroupRequests_Projects_ProjectId&quot;,
+                        column: x =&gt; x.ProjectId,
+                        principalTable: &quot;Projects&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Admins_UserId&quot;,
+                table: &quot;Admins&quot;,
+                column: &quot;UserId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_AspNetRoleClaims_RoleId&quot;,
+                table: &quot;AspNetRoleClaims&quot;,
+                column: &quot;RoleId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;RoleNameIndex&quot;,
+                table: &quot;AspNetRoles&quot;,
+                column: &quot;NormalizedName&quot;,
+                unique: true,
+                filter: &quot;[NormalizedName] IS NOT NULL&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_AspNetUserClaims_UserId&quot;,
+                table: &quot;AspNetUserClaims&quot;,
+                column: &quot;UserId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_AspNetUserLogins_UserId&quot;,
+                table: &quot;AspNetUserLogins&quot;,
+                column: &quot;UserId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_AspNetUserRoles_RoleId&quot;,
+                table: &quot;AspNetUserRoles&quot;,
+                column: &quot;RoleId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;EmailIndex&quot;,
+                table: &quot;AspNetUsers&quot;,
+                column: &quot;NormalizedEmail&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;UserNameIndex&quot;,
+                table: &quot;AspNetUsers&quot;,
+                column: &quot;NormalizedUserName&quot;,
+                unique: true,
+                filter: &quot;[NormalizedUserName] IS NOT NULL&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupManagers_GroupId&quot;,
+                table: &quot;GroupManagers&quot;,
+                column: &quot;GroupId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupProjects_GroupId&quot;,
+                table: &quot;GroupProjects&quot;,
+                column: &quot;GroupId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupRequests_GroupId&quot;,
+                table: &quot;GroupRequests&quot;,
+                column: &quot;GroupId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_GroupRequests_ProjectId&quot;,
+                table: &quot;GroupRequests&quot;,
+                column: &quot;ProjectId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Groups_ManagerId&quot;,
+                table: &quot;Groups&quot;,
+                column: &quot;ManagerId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Projects_ProjectLeadId&quot;,
+                table: &quot;Projects&quot;,
+                column: &quot;ProjectLeadId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_UserGroups_GroupId&quot;,
+                table: &quot;UserGroups&quot;,
+                column: &quot;GroupId&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;Admins&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetRoleClaims&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetUserClaims&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetUserLogins&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetUserRoles&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetUserTokens&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;GroupManagers&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;GroupProjects&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;GroupRequests&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;UserGroups&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetRoles&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;Projects&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;Groups&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;AspNetUsers&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,9,13,10,0],[14,13,16,35,0],[16,35,23,18,0],[23,18,25,17,0],[25,17,25,18,0],[25,18,26,21,0],[26,21,26,67,0],[26,67,27,17,0],[27,17,27,18,0],[27,18,27,20,0],[29,13,31,35,0],[31,35,49,18,0],[49,18,51,17,0],[51,17,51,18,0],[51,18,52,21,0],[52,21,52,67,0],[52,67,53,17,0],[53,17,53,18,0],[53,18,53,20,0],[55,13,57,35,0],[57,35,64,18,0],[64,18,66,17,0],[66,17,66,18,0],[66,18,67,21,0],[67,21,67,72,0],[67,72,68,21,0],[68,21,73,62,0],[73,62,74,17,0],[74,17,74,18,0],[74,18,74,20,0],[76,13,78,35,0],[78,35,83,18,0],[83,18,85,17,0],[85,17,85,18,0],[85,18,86,21,0],[86,21,86,62,0],[86,62,87,21,0],[87,21,92,62,0],[92,62,93,17,0],[93,17,93,18,0],[93,18,93,20,0],[95,13,97,35,0],[97,35,104,18,0],[104,18,106,17,0],[106,17,106,18,0],[106,18,107,21,0],[107,21,107,72,0],[107,72,108,21,0],[108,21,113,62,0],[113,62,114,17,0],[114,17,114,18,0],[114,18,114,20,0],[116,13,118,35,0],[118,35,124,18,0],[124,18,126,17,0],[126,17,126,18,0],[126,18,127,21,0],[127,21,127,106,0],[127,106,128,21,0],[128,21,133,62,0],[133,62,134,17,0],[134,17,134,18,0],[134,18,134,20,0],[136,13,138,35,0],[138,35,142,18,0],[142,18,144,17,0],[144,17,144,18,0],[144,18,145,21,0],[145,21,145,93,0],[145,93,146,21,0],[146,21,151,62,0],[151,62,152,21,0],[152,21,157,62,0],[157,62,158,17,0],[158,17,158,18,0],[158,18,158,20,0],[160,13,162,35,0],[162,35,168,18,0],[168,18,170,17,0],[170,17,170,18,0],[170,18,171,21,0],[171,21,171,109,0],[171,109,172,21,0],[172,21,177,62,0],[177,62,178,17,0],[178,17,178,18,0],[178,18,178,20,0],[180,13,182,35,0],[182,35,189,18,0],[189,18,191,17,0],[191,17,191,18,0],[191,18,192,21,0],[192,21,192,62,0],[192,62,193,21,0],[193,21,197,48,0],[197,48,198,17,0],[198,17,198,18,0],[198,18,198,20,0],[200,13,202,35,0],[202,35,210,18,0],[210,18,212,17,0],[212,17,212,18,0],[212,18,213,21,0],[213,21,213,64,0],[213,64,214,21,0],[214,21,219,63,0],[219,63,220,17,0],[220,17,220,18,0],[220,18,220,20,0],[222,13,224,35,0],[224,35,228,18,0],[228,18,230,17,0],[230,17,230,18,0],[230,18,231,21,0],[231,21,231,92,0],[231,92,232,21,0],[232,21,237,62,0],[237,62,238,21,0],[238,21,243,62,0],[243,62,244,17,0],[244,17,244,18,0],[244,18,244,20,0],[246,13,248,35,0],[248,35,253,18,0],[253,18,255,17,0],[255,17,255,18,0],[255,18,256,21,0],[256,21,256,89,0],[256,89,257,21,0],[257,21,262,62,0],[262,62,263,21,0],[263,21,268,62,0],[268,62,269,17,0],[269,17,269,18,0],[269,18,269,20,0],[271,13,273,35,0],[273,35,277,18,0],[277,18,279,17,0],[279,17,279,18,0],[279,18,280,21,0],[280,21,280,95,0],[280,95,281,21,0],[281,21,286,62,0],[286,62,287,21,0],[287,21,292,62,0],[292,62,293,17,0],[293,17,293,18,0],[293,18,293,20,0],[295,13,297,35,0],[297,35,305,18,0],[305,18,307,17,0],[307,17,307,18,0],[307,18,308,21,0],[308,21,308,69,0],[308,69,309,21,0],[309,21,314,62,0],[314,62,315,21,0],[315,21,320,62,0],[320,62,321,17,0],[321,17,321,18,0],[321,18,321,20,0],[323,13,326,35,0],[328,13,331,35,0],[333,13,338,57,0],[340,13,343,35,0],[345,13,348,35,0],[350,13,353,35,0],[355,13,358,44,0],[360,13,365,61,0],[367,13,370,36,0],[372,13,375,36,0],[377,13,380,36,0],[382,13,385,38,0],[387,13,390,38,0],[392,13,395,42,0],[397,13,400,36,0],[401,9,401,10,0],[405,9,405,10,0],[406,13,407,33,0],[409,13,410,43,0],[412,13,413,43,0],[415,13,416,43,0],[418,13,419,42,0],[421,13,422,43,0],[424,13,425,40,0],[427,13,428,40,0],[430,13,431,40,0],[433,13,434,37,0],[436,13,437,38,0],[439,13,440,35,0],[442,13,443,33,0],[445,13,446,38,0],[447,9,447,10,0]]);
+    </script>
+  </body>
+</html>

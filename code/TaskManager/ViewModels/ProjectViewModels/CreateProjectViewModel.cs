@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace TaskManagerWebsite.ViewModels
+namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {
     /// <summary>
     /// ViewModel used for creating a new project.

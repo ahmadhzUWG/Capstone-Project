@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Authorization\UserRoleHandler.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Authorization;
+
+namespace TaskManagerWebsite.Authorization;
+
+public class UserRoleHandler : AuthorizationHandler&lt;UserRoleRequirement&gt;
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRoleRequirement requirement)
+    {
+        var userRole = context.User.FindFirstValue(ClaimTypes.Role);
+
+        if (userRole == requirement.RequiredRole)
+        {
+            context.Succeed(requirement);
+        }
+
+        return Task.CompletedTask;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,5,11,6,0],[12,9,12,69,0],[14,9,14,50,0],[15,9,15,10,0],[16,13,16,42,0],[17,9,17,10,0],[19,9,19,35,0],[20,5,20,6,0]]);
+    </script>
+  </body>
+</html>

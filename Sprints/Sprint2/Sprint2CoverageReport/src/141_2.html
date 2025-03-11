@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Employee\GroupDetails.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model Group
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/Admin/groupDetails.css&quot; /&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;group-header&quot;&gt;
+        &lt;h2&gt;@Model.Name&lt;/h2&gt;
+        &lt;p&gt;Description: @Model.Description&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Display the Current Manager --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Manager of this Group&lt;/h3&gt;
+        @if (Model.Manager != null)
+        {
+            &lt;p class=&quot;manager-info&quot;&gt;&lt;strong&gt;@Model.Manager.UserName (@Model.Manager.Email)&lt;/strong&gt;&lt;/p&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;manager-info&quot;&gt;&lt;strong&gt;No manager assigned.&lt;/strong&gt;&lt;/p&gt;
+        }
+    &lt;/div&gt;
+
+    &lt;!-- Change Manager Section --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Change Manager&lt;/h3&gt;
+        &lt;form asp-action=&quot;ChangeManager&quot; asp-controller=&quot;Employee&quot; method=&quot;post&quot;&gt;
+            &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+            &lt;label for=&quot;newManagerId&quot;&gt;Select New Manager:&lt;/label&gt;
+            &lt;select name=&quot;newManagerId&quot; class=&quot;form-control&quot;&gt;
+                @if (ViewBag.AvailableManagers != null &amp;&amp; ViewBag.AvailableManagers.Count &gt; 0)
+                {
+                    @foreach (var manager in ViewBag.AvailableManagers)
+                    {
+                        &lt;option value=&quot;@manager.Id&quot;&gt;@manager.UserName (@manager.Email)&lt;/option&gt;
+                    }
+                }
+                else
+                {
+                    &lt;option value=&quot;&quot; disabled&gt;No available employees to promote&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-warning mt-2&quot; @(ViewBag.AvailableManagers.Count == 0 ? &quot;disabled&quot; : &quot;&quot;)&gt;Change Manager&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+
+    &lt;!-- List of Employees in the Group --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Employees in this Group&lt;/h3&gt;
+        @if (ViewBag.GroupUsers != null)
+        {
+            &lt;ul class=&quot;employee-list&quot;&gt;
+                @foreach (var userGroup in ViewBag.GroupUsers)
+                {
+                    &lt;li class=&quot;employee-item&quot;&gt;
+                        @userGroup.User.UserName (@userGroup.User.Email)
+                        @if (userGroup.Role != &quot;Manager&quot;) // Prevent removing managers directly
+                        {
+                            &lt;form asp-action=&quot;RemoveUserFromGroup&quot; asp-controller=&quot;Employee&quot; method=&quot;post&quot; class=&quot;inline-form&quot;&gt;
+                                &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+                                &lt;input type=&quot;hidden&quot; name=&quot;userId&quot; value=&quot;@userGroup.UserId&quot; /&gt;
+                                &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot;&gt;Remove&lt;/button&gt;
+                            &lt;/form&gt;
+                        }
+                        else
+                        {
+                            &lt;span class=&quot;badge badge-info&quot;&gt;Manager&lt;/span&gt;
+                        }
+                    &lt;/li&gt;
+                }
+            &lt;/ul&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;no-employees&quot;&gt;No employees assigned to this group.&lt;/p&gt;
+        }
+    &lt;/div&gt;
+
+    &lt;!-- Form to Add Employees to the Group --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Add Employee to Group&lt;/h3&gt;
+        &lt;form asp-action=&quot;AddUserToGroup&quot; asp-controller=&quot;Employee&quot; method=&quot;post&quot;&gt;
+            &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+            &lt;label for=&quot;userId&quot;&gt;Select Employee:&lt;/label&gt;
+            &lt;select name=&quot;userId&quot; class=&quot;form-control&quot;&gt;
+                @if (ViewBag.Users != null &amp;&amp; ViewBag.Users.Count &gt; 0)
+                {
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName (@user.Email)&lt;/option&gt;
+                    }
+                }
+                else
+                {
+                    &lt;option value=&quot;&quot; disabled&gt;No available employees&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-success mt-2&quot; @(ViewBag.Users.Count == 0 ? &quot;disabled&quot; : &quot;&quot;)&gt;Add Employee&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Back to Groups Button --&gt;
+    &lt;div class=&quot;back-button&quot;&gt;
+        &lt;a href=&quot;@Url.Action(&quot;Groups&quot;, &quot;Employee&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Groups&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[11,14,11,25,0],[12,26,12,44,0],[18,10,18,36,0],[19,9,19,10,0],[20,46,20,69,0],[20,71,20,91,0],[21,9,21,10,0],[23,9,23,10,0],[25,9,25,10,0],[32,56,32,66,0],[35,18,35,95,0],[36,17,36,18,0],[37,22,37,29,0],[37,31,37,42,0],[37,43,37,45,0],[37,46,37,71,0],[38,21,38,22,0],[39,41,39,52,0],[39,54,39,71,0],[39,73,39,87,0],[40,21,40,22,0],[41,17,41,18,0],[43,17,43,18,0],[45,17,45,18,0],[47,66,47,121,0],[54,10,54,41,0],[55,9,55,10,0],[57,18,57,25,0],[57,27,57,40,0],[57,41,57,43,0],[57,44,57,62,0],[58,17,58,18,0],[60,26,60,50,0],[60,52,60,73,0],[61,26,61,58,0],[62,25,62,26,0],[64,76,64,86,0],[65,75,65,93,0],[68,25,68,26,0],[70,25,70,26,0],[72,25,72,26,0],[74,17,74,18,0],[76,9,76,10,0],[78,9,78,10,0],[80,9,80,10,0],[87,56,87,66,0],[90,18,90,71,0],[91,17,91,18,0],[92,22,92,29,0],[92,31,92,39,0],[92,40,92,42,0],[92,43,92,56,0],[93,21,93,22,0],[94,41,94,49,0],[94,51,94,65,0],[94,67,94,78,0],[95,21,95,22,0],[96,17,96,18,0],[98,17,98,18,0],[100,17,100,18,0],[102,66,102,109,0],[108,18,108,52,0]]);
+    </script>
+  </body>
+</html>

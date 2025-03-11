@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\UserViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagerWebsite.ViewModels
+{
+    /// &lt;summary&gt;
+    /// Represents the data model for creating an admin user.
+    /// &lt;/summary&gt;
+    public class UserViewModel
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the username for the admin.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;User name is required. Please provide a unique user name for this admin.&quot;)]
+        [Display(Name = &quot;User Name&quot;)]
+        public required string UserName { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the email address of the admin.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Email address is required. Please provide a valid email for this admin.&quot;)]
+        [EmailAddress(ErrorMessage = &quot;Please provide a valid email address (e.g., user@example.com).&quot;)]
+        [Display(Name = &quot;Email&quot;)]
+        public required string Email { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the password for the admin.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;A password is required. Please use at least 8 characters, mixing letters and digits.&quot;)]
+        [DataType(DataType.Password)]
+        [Display(Name = &quot;Password&quot;)]
+        public required string Password { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the confirmation password, which must match the password.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Please confirm your password to ensure accuracy.&quot;)]
+        [DataType(DataType.Password)]
+        [Compare(&quot;Password&quot;, ErrorMessage = &quot;Passwords do not match. Make sure both fields are the same.&quot;)]
+        [Display(Name = &quot;Confirm Password&quot;)]
+        public required string ConfirmPassword { get; set; }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,43,15,47,1],[15,48,15,52,1],[23,40,23,44,1],[23,45,23,49,1],[31,43,31,47,1],[31,48,31,52,1],[40,50,40,54,1],[40,55,40,59,1]]);
+    </script>
+  </body>
+</html>

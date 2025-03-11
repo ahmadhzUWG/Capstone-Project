@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="~/css/Admin/projectDetails.css" />
 
 <div class="container">
-    <!-- Project Header -->
+
     <div class="project-header">
         <h2>@Model.Name</h2>
         <p>Description: @Model.Description</p>
@@ -19,7 +19,8 @@
     }
     <a href="@Url.Action("ProjectBoard", "User", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
 
-    <!-- Project Lead Info -->
+    <button type="submit" class="btn btn-success mt-2">Assign Group</button>
+
     <div class="project-section">
         <h3>Project Lead</h3>
         @if (Model.ProjectLead != null)
@@ -35,7 +36,7 @@
         </div>
 
     <div class="project-section">
-            @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
+        @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
     <a href="@Url.Action("ProjectBoard", "User", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
@@ -45,6 +46,8 @@
     {
         <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="btn btn-warning">Edit</a>
     }
+    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+    <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="btn btn-warning">Edit</a>
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
 

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestModels\StageTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerWebsite.Models;
+
+namespace TaskManager.Tests.Tests.TestModels
+{
+    public class StageTests
+    {
+        [Fact]
+        public void Stage_Id_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { Id = 1 };
+            Assert.Equal(1, stage.Id);
+        }
+
+        [Fact]
+        public void Stage_Name_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { Name = &quot;In Progress&quot; };
+            Assert.Equal(&quot;In Progress&quot;, stage.Name);
+        }
+
+        [Fact]
+        public void Stage_Position_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { Position = 2 };
+            Assert.Equal(2, stage.Position);
+        }
+
+        [Fact]
+        public void Stage_ProjectBoardId_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { ProjectBoardId = 10 };
+            Assert.Equal(10, stage.ProjectBoardId);
+        }
+
+        [Fact]
+        public void Stage_ProjectBoard_CanBeAssignedAndRetrieved()
+        {
+            var board = new ProjectBoard { Id = 5, BoardCreatorId = 1, ProjectId = 15 };
+            var stage = new Stage { ProjectBoard = board };
+            Assert.NotNull(stage.ProjectBoard);
+            Assert.Equal(5, stage.ProjectBoard.Id);
+        }
+
+        [Fact]
+        public void Stage_CreatorGroupId_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { CreatorGroupId = 3 };
+            Assert.Equal(3, stage.CreatorGroupId);
+        }
+
+        [Fact]
+        public void Stage_CreatorGroup_CanBeAssignedAndRetrieved()
+        {
+            var group = new Group { Id = 7, Name = &quot;Development&quot;, Description = &quot;Dev Group&quot; };
+            var stage = new Stage { CreatorGroup = group };
+            Assert.NotNull(stage.CreatorGroup);
+            Assert.Equal(7, stage.CreatorGroup.Id);
+            Assert.Equal(&quot;Development&quot;, stage.CreatorGroup.Name);
+        }
+
+        [Fact]
+        public void Stage_CreatorUserId_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { CreatorUserId = 4 };
+            Assert.Equal(4, stage.CreatorUserId);
+        }
+
+        [Fact]
+        public void Stage_CreatorUser_CanBeAssignedAndRetrieved()
+        {
+            var user = new User { Id = 9, UserName = &quot;CreatorUser&quot; };
+            var stage = new Stage { CreatorUser = user };
+            Assert.NotNull(stage.CreatorUser);
+            Assert.Equal(9, stage.CreatorUser.Id);
+            Assert.Equal(&quot;CreatorUser&quot;, stage.CreatorUser.UserName);
+        }
+
+        [Fact]
+        public void Stage_AssignedGroupId_CanBeSetAndRetrieved()
+        {
+            var stage = new Stage { AssignedGroupId = 8 };
+            Assert.Equal(8, stage.AssignedGroupId);
+        }
+
+        [Fact]
+        public void Stage_AssignedGroup_CanBeAssignedAndRetrieved()
+        {
+            var group = new Group { Id = 11, Name = &quot;QA&quot;, Description = &quot;Quality Assurance&quot; };
+            var stage = new Stage { AssignedGroup = group };
+            Assert.NotNull(stage.AssignedGroup);
+            Assert.Equal(11, stage.AssignedGroup.Id);
+            Assert.Equal(&quot;QA&quot;, stage.AssignedGroup.Name);
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,9,9,10,1],[10,13,10,46,1],[11,13,11,39,1],[12,9,12,10,1],[16,9,16,10,1],[17,13,17,60,1],[18,13,18,53,1],[19,9,19,10,1],[23,9,23,10,1],[24,13,24,52,1],[25,13,25,45,1],[26,9,26,10,1],[30,9,30,10,1],[31,13,31,59,1],[32,13,32,52,1],[33,9,33,10,1],[37,9,37,10,1],[38,13,38,89,1],[39,13,39,60,1],[40,13,40,48,1],[41,13,41,52,1],[42,9,42,10,1],[46,9,46,10,1],[47,13,47,58,1],[48,13,48,51,1],[49,9,49,10,1],[53,9,53,10,1],[54,13,54,95,1],[55,13,55,60,1],[56,13,56,48,1],[57,13,57,52,1],[58,13,58,66,1],[59,9,59,10,1],[63,9,63,10,1],[64,13,64,57,1],[65,13,65,50,1],[66,9,66,10,1],[70,9,70,10,1],[71,13,71,70,1],[72,13,72,58,1],[73,13,73,47,1],[74,13,74,51,1],[75,13,75,69,1],[76,9,76,10,1],[80,9,80,10,1],[81,13,81,59,1],[82,13,82,52,1],[83,9,83,10,1],[87,9,87,10,1],[88,13,88,95,1],[89,13,89,61,1],[90,13,90,49,1],[91,13,91,54,1],[92,13,92,58,1],[93,9,93,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,7 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     Layout = "_Layout";
-    string userRole = ViewBag.UserRole ?? "Guest";
     string userName = User.Identity.IsAuthenticated ? User.Identity.Name : "Guest";
 }
 
