@@ -5,13 +5,13 @@ Context:
 		1. User selects task
 		2. System loads sidebar requesting task name, desc, and assigned employee, and status
 		3. User provides necessary information
-		4. User clicks Edit
+		4. User selects Edit
 	Alternative Flow: User provides no information for new task
 		1. Resume from primary flow step 2
 		2. User provides no information
 		3. System warns user to provide information
 		4. Resume primary flow step 3
-	Alternative Flow 2: User provides duplicate task name for stage
+	Alternative Flow 2: User provides duplicate task name for board
 		1. Resume from primary flow step 2
 		2. User provides duplicate task name
 		3. System warns user that duplicate name is not allowed

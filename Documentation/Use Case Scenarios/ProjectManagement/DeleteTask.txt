@@ -3,5 +3,5 @@ Context:
 	Admin/Project lead wants to remove a task from column/stage to project board and is viewing the board.
 	Primary Flow:
 		1. User selects task
-		2. User clicks delete
+		2. User selects delete
 		3. System deletes task
