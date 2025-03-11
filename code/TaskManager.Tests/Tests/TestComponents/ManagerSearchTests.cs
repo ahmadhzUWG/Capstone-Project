@@ -6,7 +6,7 @@ using TaskManagerWebsite.Components;
 using Microsoft.AspNetCore.Components;
 using Org.BouncyCastle.Tls;
 
-namespace TaskManagerWebsite.Tests
+namespace TaskManager.Tests.Tests.TestComponents
 {
     public class ManagerSearchTests : TestContext
     {
@@ -23,7 +23,7 @@ namespace TaskManagerWebsite.Tests
             // Act: Render the component with no selected manager.
             var cut = RenderComponent<ManagerSearch>(parameters => parameters
                 .Add(p => p.Managers, managers)
-                .Add(p => p.SelectedManagerId, (int?)null)
+                .Add(p => p.SelectedManagerId, null)
             );
 
             // Assert: There should be the default option plus an option for each manager.
@@ -45,7 +45,7 @@ namespace TaskManagerWebsite.Tests
 
             var cut = RenderComponent<ManagerSearch>(parameters => parameters
                 .Add(p => p.Managers, managers)
-                .Add(p => p.SelectedManagerId, (int?)null)
+                .Add(p => p.SelectedManagerId, null)
             );
 
             // Act: Simulate typing "alice" in the search input.
@@ -72,8 +72,8 @@ namespace TaskManagerWebsite.Tests
             int? callbackValue = null;
             var cut = RenderComponent<ManagerSearch>(parameters => parameters
                 .Add(p => p.Managers, managers)
-                .Add(p => p.SelectedManagerId, (int?)null)
-                .Add<EventCallback<int?>>(p => p.SelectedManagerIdChanged, EventCallback.Factory.Create<int?>(this, val => callbackValue = val))
+                .Add(p => p.SelectedManagerId, null)
+                .Add(p => p.SelectedManagerIdChanged, EventCallback.Factory.Create<int?>(this, val => callbackValue = val))
             );
 
             // Act: Change the selection to manager with Id "2".
