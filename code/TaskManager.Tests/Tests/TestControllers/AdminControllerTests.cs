@@ -1246,4 +1246,109 @@ public class AdminControllerTests
         _mockUserManager.Verify(um => um.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>()), Times.Once);
         _mockUserManager.Verify(um => um.AddToRoleAsync(user, "Admin"), Times.Once);
     }
+
+    [Fact]
+    public async Task ChangeManager_GroupNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "Manager", Email = "manager@example.com" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ChangeManager(1, 1);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Groups.Add(new Group { Id = 1, Name = "Group 1", Description = "Test" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ChangeManager(1, 99);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_NoPreviousManager_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group { Id = 1, Name = "Group 1", ManagerId = null, Description = "Test" };
+        dbContext.Groups.Add(group);
+        var newManager = new User { Id = 2, UserName = "NewManager", Email = "newmanager@example.com" };
+        dbContext.Users.Add(newManager);
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        // Act
+        var result = await controller.ChangeManager(1, 2);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("GroupDetails", redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var userGroup = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 2);
+        Assert.NotNull(userGroup);
+        Assert.Equal("Manager", userGroup.Role);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_WithPreviousManager_UpdatesPreviousManagerEntry()
+    {
+        // Arrange:
+        var dbContext = TestHelper.GetDbContext();
+        var previousManager = new User { Id = 1, UserName = "OldManager", Email = "oldmanager@example.com" };
+        var newManager = new User { Id = 2, UserName = "NewManager", Email = "newmanager@example.com" };
+        dbContext.Users.Add(previousManager);
+        dbContext.Users.Add(newManager);
+        var group = new Group { Id = 1, Name = "Group 1", ManagerId = 1, Description = "Test" };
+        dbContext.Groups.Add(group);
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 1, UserId = 1, Role = "Manager" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        // Act
+        var result = await controller.ChangeManager(1, 2);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("GroupDetails", redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var newManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 2);
+        Assert.NotNull(newManagerEntry);
+        Assert.Equal("Manager", newManagerEntry.Role);
+
+        var previousManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 1);
+        Assert.NotNull(previousManagerEntry);
+        Assert.Equal("Member", previousManagerEntry.Role);
+    }
 }
