@@ -21,7 +21,9 @@
             {
                 <div class="p-2 board-column" style="border: 1px solid #ccc; margin: 10px;">
                     <h5>
-                        @if (Model.CanAddStage && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
+                        @if ((Model.CanAddStage
+                              && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded) 
+                             || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                         {
                             <a asp-controller="Project" asp-action="EditStage" asp-route-stageId="@stage.Id">
                                 @stage.Position - @stage.Name
@@ -41,7 +43,9 @@
 
     }
 
-    @if (Model.CanAddStage && (await AuthorizationService.AuthorizeAsync(User, ViewBag.Project.Id, "IsProjectLead")).Succeeded)
+    @if ((Model.CanAddStage
+          && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded) 
+         || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
     {
         <hr />
         <h3>Add Stage</h3>

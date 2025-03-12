@@ -902,5 +902,81 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction(nameof(Users));
         }
 
+        /// <summary>
+        /// Accepts a pending group request and assigns the group to the project.
+        /// </summary>
+        /// <param name="requestId">The ID of the request to accept.</param>
+        /// <returns>Redirects to the projects list after approval.</returns>
+        [HttpPost]
+        public async Task<IActionResult> AcceptRequest(int requestId)
+        {
+            var request = await context.GroupRequests.FindAsync(requestId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            bool isAlreadyAssigned = await context.GroupProjects
+                .AnyAsync(gp => gp.ProjectId == request.ProjectId && gp.GroupId == request.GroupId);
+
+            if (!isAlreadyAssigned)
+            {
+                var groupProject = new GroupProject
+                {
+                    ProjectId = request.ProjectId,
+                    GroupId = request.GroupId
+                };
+
+                context.GroupProjects.Add(groupProject);
+            }
+
+            request.Response = true;
+            await context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "The group request has been accepted.";
+            return RedirectToAction("Projects");
+        }
+
+        /// <summary>
+        /// Denies a pending group request.
+        /// </summary>
+        /// <param name="requestId">The ID of the request to deny.</param>
+        /// <returns>Redirects to the projects list after denial.</returns>
+        [HttpPost]
+        public async Task<IActionResult> DenyRequest(int requestId)
+        {
+            var request = await context.GroupRequests.FindAsync(requestId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            request.Response = false;
+            await context.SaveChangesAsync();
+
+            TempData["ErrorMessage"] = "The group request has been denied.";
+            return RedirectToAction("Projects");
+        }
+
+        /// <summary>
+        /// Deletes a group request from the system.
+        /// </summary>
+        /// <param name="requestId">The ID of the group request to delete.</param>
+        /// <returns>Redirects to the projects list after deletion.</returns>
+        [HttpPost]
+        public async Task<IActionResult> DeleteGroupRequest(int requestId)
+        {
+            var groupRequest = await context.GroupRequests.FirstOrDefaultAsync(g => g.Id == requestId);
+            if (groupRequest != null)
+            {
+                context.GroupRequests.Remove(groupRequest);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Projects");
+        }
+
     }
 }
