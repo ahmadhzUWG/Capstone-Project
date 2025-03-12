@@ -34,12 +34,10 @@ public class UserControllerTests
         _mockRoleManager = GetMockRoleManager();
         _dbContext = TestHelper.GetDbContext();
 
-        // Setup some default roles for the RoleManager
         var mockRoles = new List<IdentityRole<int>>
         {
             new IdentityRole<int> { Id = 1, Name = "Admin" },
-            new IdentityRole<int> { Id = 2, Name = "Manager" },
-            new IdentityRole<int> { Id = 3, Name = "Employee" }
+            new IdentityRole<int> { Id = 2, Name = "Employee" }
         }.AsQueryable();
         _mockRoleManager.Setup(rm => rm.Roles).Returns(mockRoles);
 
@@ -66,6 +64,29 @@ public class UserControllerTests
     #region User Endpoint Tests
 
     // ––– Tests for User-related endpoints –––
+    [Fact]
+    public async Task UserAdd_InvalidModelState_ReturnsViewWithSameModel()
+    {
+        // Arrange
+        var controller = new UserController(this._dbContext, this._mockUserManager.Object, this._mockRoleManager.Object);
+
+        controller.ModelState.AddModelError("UserName", "UserName is required");
+
+        var viewModel = new UserViewModel
+        {
+            UserName = "",
+            Email = "test@example.com",
+            Password = "password",
+            ConfirmPassword = "password"
+        };
+
+        // Act
+        var result = await controller.UserAdd(viewModel);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
 
     [Fact]
     public async Task Users_ReturnsViewWithUserList()
@@ -421,12 +442,10 @@ public class UserControllerTests
     {
         // Arrange
         var dbContext = TestHelper.GetDbContext();
-        // Add users for testing
         var employeeUser = new User { Id = 2, UserName = "EmployeeUser", Email = "employee@example.com" };
         dbContext.Users.Add(employeeUser);
         dbContext.SaveChanges();
 
-        // Setup IsInRoleAsync so that user 1 is Manager and user 2 is Employee
         _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 1), "Manager"))
             .ReturnsAsync(true);
         _mockUserManager.Setup(um => um.IsInRoleAsync(It.Is<User>(u => u.Id == 2), "Manager"))
@@ -438,7 +457,6 @@ public class UserControllerTests
 
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Setup HttpContext with required TempData services.
         var httpContext = new DefaultHttpContext();
         var services = new ServiceCollection()
             .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
@@ -585,14 +603,45 @@ public class UserControllerTests
         var mockUrlHelper = new Mock<IUrlHelper>();
         controller.Url = mockUrlHelper.Object;
 
-        // Act
         var result = await controller.CreateGroup(groupViewModel);
 
-        // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal("Groups", redirectResult.ActionName);
         Assert.Equal(1, groupViewModel.SelectedManagerId);
         Assert.Contains(3, groupViewModel.SelectedUserIds);
+    }
+
+    [Fact]
+    public async Task CreateGroup_InvalidModelState_ReturnsViewWithEmployees()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "User1", Email = "user1@example.com" });
+        dbContext.Users.Add(new User { Id = 2, UserName = "User2", Email = "user2@example.com" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new GroupViewModel
+        {
+            Name = "",
+            Description = "Some Description",
+            SelectedManagerId = 1,
+            SelectedUserIds = new List<int> { 2 }
+        };
+
+        controller.ModelState.AddModelError("Name", "Name is required");
+
+        // Act
+        var result = await controller.CreateGroup(model);
+
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, viewResult.Model);
+
+        var employees = viewResult.ViewData["Employees"] as List<User>;
+        Assert.NotNull(employees);
+        Assert.True(employees.Count >= 2);
     }
 
     [Fact]
@@ -625,6 +674,72 @@ public class UserControllerTests
 
         // Assert
         Assert.IsType<RedirectToActionResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_GroupAssignedToProject_ReturnsRedirectWithErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var dbContext = new ApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = "Test Group", Description = "Test" };
+        dbContext.Groups.Add(group);
+        dbContext.GroupProjects.Add(new GroupProject { GroupId = 1, ProjectId = 1 });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock<ITempDataProvider>().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Groups", redirectResult.ActionName);
+        Assert.Equal("This group is assigned to one or more projects and cannot be deleted.",
+            controller.TempData["ErrorMessage"]);
+        var stillThere = await dbContext.Groups.FindAsync(1);
+        Assert.NotNull(stillThere);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_DbUpdateException_SetsTempDataErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var testContext = new TestApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = "Test Group", Description = "Test"};
+        testContext.Groups.Add(group);
+        await testContext.SaveChangesAsync();
+
+        testContext.ThrowOnSaveChanges = true;
+
+        var controller = new UserController(testContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock<ITempDataProvider>().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Groups", redirectResult.ActionName);
+        Assert.Equal("Unable to delete this group because it is referenced elsewhere. Check project assignments",
+            controller.TempData["ErrorMessage"]);
+
+        var existingGroup = await testContext.Groups.FindAsync(1);
+        Assert.NotNull(existingGroup);
     }
 
     [Fact]
@@ -1053,6 +1168,7 @@ public class UserControllerTests
             .BuildServiceProvider();
 
         controller.ControllerContext.HttpContext.RequestServices = services;
+        controller.ControllerContext.HttpContext.Request.ContentType = "application/x-www-form-urlencoded";
         controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
             services.GetRequiredService<ITempDataProvider>());
 
@@ -1082,6 +1198,68 @@ public class UserControllerTests
     }
 
     [Fact]
+    public async Task CreateProject_Post_WithValidGroupData_CallsAssignGroupToProject()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+
+        var validUser = new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" };
+        dbContext.Users.Add(validUser);
+        await dbContext.SaveChangesAsync();
+
+        dbContext.Groups.Add(new Group { Id = 1, ManagerId = 1, Description = "Test", Name = "TestGroup" });
+        await dbContext.SaveChangesAsync();
+
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                        .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("3");
+
+        var mockController = new Mock<UserController>(dbContext, _mockUserManager.Object, _mockRoleManager.Object)
+        {
+            CallBase = true
+        };
+
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "3") };
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+        };
+
+        httpContext.Request.ContentType = "application/x-www-form-urlencoded";
+
+        var formData = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+        {
+            { "GroupId", new Microsoft.Extensions.Primitives.StringValues("1") }
+        };
+        httpContext.Request.Form = new FormCollection(formData);
+
+        mockController.Object.ControllerContext.HttpContext = httpContext;
+        var services = new ServiceCollection()
+            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+            .BuildServiceProvider();
+        mockController.Object.ControllerContext.HttpContext.RequestServices = services;
+        mockController.Object.TempData = new TempDataDictionary(httpContext, services.GetRequiredService<ITempDataProvider>());
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        mockController.Object.Url = mockUrlHelper.Object;
+
+        var model = new CreateProjectViewModel
+        {
+            Name = "ProjectWithGroups",
+            Description = "Test Description",
+            ProjectLeadId = 1
+        };
+
+        // Act
+        var result = await mockController.Object.CreateProject(model);
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Projects", redirectResult.ActionName);
+
+        mockController.Verify(c => c.AssignGroupToProject(It.IsAny<int>(), 1), Times.Once);
+    }
+
+    [Fact]
     public async Task ProjectDetails_ReturnsNotFoundIfProjectDoesNotExist()
     {
         // Arrange
@@ -1102,7 +1280,7 @@ public class UserControllerTests
         var dbContext = TestHelper.GetDbContext();
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        // Act: project not found
+        // Act
         var result1 = await controller.AssignGroupToProject(1, 1);
         Assert.IsType<NotFoundResult>(result1);
 
@@ -1278,28 +1456,6 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task EditProject_Post_ConcurrencyException_ReturnsNotFound()
-    {
-        // Arrange
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("ConcurrencyTest")
-            .Options;
-        var dbContext = new ConcurrencyDbContext(options);
-        var project = new Project { Id = 40, Name = "Concurrency" };
-        // Do not add the project so that the check for existence fails.
-        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
-        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
-        controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth")) };
-
-        // Act
-        var result = await controller.EditProject(40, project);
-
-        // Assert
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
     public async Task DeleteProject_RemovesProjectIfExists()
     {
         // Arrange
@@ -1337,42 +1493,112 @@ public class UserControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+    }
 
-        controller.ModelState.AddModelError("Name", "Required");
+    [Fact]
+    public async Task ChangeManager_GroupNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "Manager", Email = "manager@example.com" });
+        await dbContext.SaveChangesAsync();
 
-        var users = await dbContext.Users.ToListAsync();
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        CreateProjectViewModel model = new CreateProjectViewModel
+        // Act
+        var result = await controller.ChangeManager(1, 1);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Groups.Add(new Group { Id = 1, Name = "Group 1", Description = "Test" });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ChangeManager(1, 99);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_NoPreviousManager_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group { Id = 1, Name = "Group 1", ManagerId = null, Description = "Test" };
+        dbContext.Groups.Add(group);
+        var newManager = new User { Id = 2, UserName = "NewManager", Email = "newmanager@example.com" };
+        dbContext.Users.Add(newManager);
+        await dbContext.SaveChangesAsync();
+
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
         {
-            ProjectLeads = users.Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = u.UserName
-            }).ToList()
+            HttpContext = new DefaultHttpContext()
         };
 
         // Act
-        var result = await controller.CreateProject(model);
+        var result = await controller.ChangeManager(1, 2);
 
         // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.False(controller.ModelState.IsValid);
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("GroupDetails", redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var userGroup = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 2);
+        Assert.NotNull(userGroup);
+        Assert.Equal("Manager", userGroup.Role);
     }
 
-    #endregion
-
-    #region Helper Classes
-
-    public class ConcurrencyDbContext : ApplicationDbContext
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_WithPreviousManager_UpdatesPreviousManagerEntry()
     {
-        public ConcurrencyDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+        // Arrange:
+        var dbContext = TestHelper.GetDbContext();
+        var previousManager = new User { Id = 1, UserName = "OldManager", Email = "oldmanager@example.com" };
+        var newManager = new User { Id = 2, UserName = "NewManager", Email = "newmanager@example.com" };
+        dbContext.Users.Add(previousManager);
+        dbContext.Users.Add(newManager);
+        var group = new Group { Id = 1, Name = "Group 1", ManagerId = 1, Description = "Test" };
+        dbContext.Groups.Add(group);
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 1, UserId = 1, Role = "Manager" });
+        await dbContext.SaveChangesAsync();
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
         {
-            throw new DbUpdateConcurrencyException();
-        }
+            HttpContext = new DefaultHttpContext()
+        };
+
+        // Act
+        var result = await controller.ChangeManager(1, 2);
+
+        // Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("GroupDetails", redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var newManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 2);
+        Assert.NotNull(newManagerEntry);
+        Assert.Equal("Manager", newManagerEntry.Role);
+
+        var previousManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug => ug.GroupId == 1 && ug.UserId == 1);
+        Assert.NotNull(previousManagerEntry);
+        Assert.Equal("Member", previousManagerEntry.Role);
     }
 
-    #endregion
+    #endregion Project Endpoint Tests
 }

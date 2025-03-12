@@ -27,5 +27,10 @@
                 </div>
             }
         </div>
+        
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="@Url.Action("Index", "Login")" class="btn btn-primary">Login</a>
+        }
     </div>
 </main>
