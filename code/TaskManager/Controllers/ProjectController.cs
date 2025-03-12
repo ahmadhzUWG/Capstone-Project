@@ -92,13 +92,16 @@ namespace TaskManagerWebsite.Controllers
 
             vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
 
+            ViewBag.Project = project;
+            ViewBag.UserId = this.userManager.GetUserId(User);
+
             if (isAdmin)
             {
-                return View("~/Views/Admin/ProjectBoard.cshtml", vm);
+                return View("~/Views/User/ProjectBoard.cshtml", vm);
             }
             else
             {
-                return View("~/Views/Employee/ProjectBoard.cshtml", vm);
+                return View("~/Views/User/ProjectBoard.cshtml", vm);
             }
         }
 
@@ -186,11 +189,11 @@ namespace TaskManagerWebsite.Controllers
             {
                 if (isAdmin)
                 {
-                    return View("~/Views/Admin/ProjectBoard.cshtml", vm);
+                    return View("~/Views/User/ProjectBoard.cshtml", vm);
                 }
                 else
                 {
-                    return View("~/Views/Employee/ProjectBoard.cshtml", vm);
+                    return View("~/Views/User/ProjectBoard.cshtml", vm);
                 }
             }
 

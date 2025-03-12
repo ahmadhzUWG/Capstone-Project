@@ -9,25 +9,7 @@
 <main class="home-container">
     <div class="card">
         <h2>Welcome, @userName!</h2>
-        <p>Select an option below:</p>
 
-        <div class="button-container">
-
-                @Html.ActionLink("View Employees", "Users", "User", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("View Groups", "Groups", "User", null, new { @class = "btn btn-primary" })
-                @Html.ActionLink("View Projects", "Projects", "User", null, new { @class = "btn btn-primary" })
-
-            @if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
-            {
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <form action="@Url.Action("Index", "Login")" method="get" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" style="cursor: pointer">Go to Login</button>
-                    </form>
-                </div>
-            }
-        </div>
-        
         @if (!User.Identity.IsAuthenticated)
         {
             <a href="@Url.Action("Index", "Login")" class="btn btn-primary">Login</a>

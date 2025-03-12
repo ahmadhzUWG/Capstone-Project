@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model TaskManagerWebsite.ViewModels.ProjectViewModels.ProjectBoardViewModel
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -20,11 +21,11 @@
             {
                 <div class="p-2 board-column" style="border: 1px solid #ccc; margin: 10px;">
                     <h5>
-                        @if (Model.CanAddStage)
+                        @if (Model.CanAddStage && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
                         {
                             <a asp-controller="Project" asp-action="EditStage" asp-route-stageId="@stage.Id">
                                 @stage.Position - @stage.Name
-                            </a>
+                                </a>
                         }
                         else
                         {
@@ -40,7 +41,7 @@
 
     }
 
-    @if (Model.CanAddStage)
+    @if (Model.CanAddStage && (await AuthorizationService.AuthorizeAsync(User, ViewBag.Project.Id, "IsProjectLead")).Succeeded)
     {
         <hr />
         <h3>Add Stage</h3>

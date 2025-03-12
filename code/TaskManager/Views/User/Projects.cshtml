@@ -60,12 +60,12 @@
                     <td>@groupRequest.Group.Name</td>
                     <td>@groupRequest.Project.Name</td>
                     <td>
-                        <form method="post" action="@Url.Action("AcceptRequest", "Employee")" style="display:inline;">
+                        <form method="post" action="@Url.Action("AcceptRequest", "User")" style="display:inline;">
                             <input type="hidden" name="requestId" value="@groupRequest.Id" />
                             <button type="submit" class="btn btn-info btn-sm">Accept</button>
                         </form>
 
-                        <form method="post" action="@Url.Action("DenyRequest", "Employee")" style="display:inline;">
+                        <form method="post" action="@Url.Action("DenyRequest", "User")" style="display:inline;">
                             <input type="hidden" name="requestId" value="@groupRequest.Id" />
                             <button type="submit" class="btn btn-danger btn-sm">Deny</button>
                         </form>
@@ -116,7 +116,7 @@
                             <span class="badge bg-danger equal-height">Denied</span>
                         }
 
-                        <form action="@Url.Action("DeleteGroupRequest", "Employee")" method="post" style="display:inline;">
+                        <form action="@Url.Action("DeleteGroupRequest", "User")" method="post" style="display:inline;">
                             <input type="hidden" name="requestId" value="@groupRequest.Id" />
                             <button type="submit" class="btn btn-sm btn-primary equal-height">OK</button>
                         </form>

@@ -39,14 +39,11 @@
         @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
     </div>
 
-    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
-
     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded
          || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
     {
         <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="btn btn-warning">Edit</a>
     }
-    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
     <a asp-action="Projects" class="btn btn-primary">Back to Projects</a>
 </div>
 

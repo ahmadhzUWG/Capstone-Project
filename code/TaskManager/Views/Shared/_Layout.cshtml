@@ -22,22 +22,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
-                        
-                    @if (User.IsInRole("Employee")) 
-                    {
-                        <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Users">Employees</a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Projects">Projects</a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Groups">Groups</a>
-                        </li>
-                    }
 
-                    @if (User.IsInRole("Admin")) 
-                    {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Users">Employees</a>
                         </li>
@@ -47,7 +32,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Groups">Groups</a>
                         </li>
-                    }
                         
                     @if (User.Identity.IsAuthenticated)
                     {
