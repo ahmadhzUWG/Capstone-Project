@@ -12,7 +12,9 @@ public static class DataSeeder
     /// Seeds predefined roles and multiple users into the database if they do not already exist.
     /// </summary>
     /// <param name="serviceProvider">The service provider used to resolve dependencies.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
     public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
