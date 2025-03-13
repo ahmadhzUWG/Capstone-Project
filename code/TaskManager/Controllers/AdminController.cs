@@ -773,7 +773,7 @@ namespace TaskManagerWebsite.Controllers
             var roles = roleManager.Roles.Select(r => r.Name).ToList();
 
             var userRoles = await userManager.GetRolesAsync(user);
-            string currentRole = userRoles.FirstOrDefault();
+            string currentRole = userRoles.FirstOrDefault() ?? string.Empty;
 
             ViewBag.Roles = roles;
             ViewBag.CurrentRole = currentRole;
@@ -791,7 +791,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>A redirect to the Users list.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UserEdit(string id, string UserName, string Email, string Role)
+        public async Task<IActionResult> UserEdit(string id, string userName, string email, string role)
         {
             var user = await userManager.FindByIdAsync(id);
             if (user == null)
@@ -799,8 +799,8 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            user.UserName = UserName;
-            user.Email = Email;
+            user.UserName = userName;
+            user.Email = email;
             await userManager.UpdateAsync(user);
 
             var userRoles = await userManager.GetRolesAsync(user);
@@ -810,9 +810,9 @@ namespace TaskManagerWebsite.Controllers
                 await userManager.RemoveFromRolesAsync(user, userRoles);
             }
 
-            if (!string.IsNullOrEmpty(Role))
+            if (!string.IsNullOrEmpty(role))
             {
-                await userManager.AddToRoleAsync(user, Role);
+                await userManager.AddToRoleAsync(user, role);
             }
 
             return RedirectToAction("Users");
