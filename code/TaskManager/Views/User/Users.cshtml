@@ -2,41 +2,49 @@
 
 @{
     ViewData["Title"] = "Admin Page";
+
 }
 
-<link rel="stylesheet" href="~/css/Admin/users.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/user/projects.css" asp-append-version="true" />
 
-<div class="users-container">
-    <h1>User List</h1>
-    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded) 
-    {
-     <div style="text-align: center;">
-                @Html.ActionLink("Add", "UserAdd", "User", null, new { @class = "btn btn-add" })
-                </div>
-    }
+<div class="container">
+    <div class="header">
+        <h1>User List</h1>
+        @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+        {
+            <div>
+                @Html.ActionLink("Add Employee", "UserAdd", "User", null, new { @class = "btn btn-primary" })
+            </div>
+        }
+    </div>
+
     <table class="table">
+        <thead>
         <tr>
             <th>Name</th>
             <th>Email</th>
             <th>Actions</th>
         </tr>
+        </thead>
+        <tbody>
         @foreach (var user in Model)
         {
             <tr>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>
-                @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
-                {
-                    @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-edit" })
-                    @Html.ActionLink("Delete", "UserDelete", new { id = user.Id }, new { @class = "btn btn-delete" })
-                }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                    {
+                        @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-info btn-sm" })
+                        @Html.ActionLink("Delete", "UserDelete", new { id = user.Id }, new { @class = "btn btn-danger btn-sm" })
+                    }
                 </td>
             </tr>
         }
+        </tbody>
     </table>
-    
-    <div style="text-align: center;">
+
+    <div class="back-link">
         @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
     </div>
 </div>

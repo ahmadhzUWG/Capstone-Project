@@ -5,19 +5,23 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/Admin/groups.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/user/projects.css" asp-append-version="true" />
+
+<div class="container">
 
 <div class="groups-container">
-    <h1>Groups</h1>
-    
-    <!-- Create Group Button -->
-    <div style="text-align: center">
-    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
-    {
-        <a href="@Url.Action("CreateGroup", "User")" class="btn btn-primary">Create New Group</a>
-    }
+    <div class="header">
+
+        <h1>Groups</h1>
+
+        <!-- Create Group Button -->
+        <div style="text-align: center">
+            @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+            {
+                <a href="@Url.Action("CreateGroup", "User")" class="btn btn-primary">Create New Group</a>
+            }
+        </div>
     </div>
-    
     <table class="table">
         <thead>
         <tr>
@@ -54,4 +58,5 @@
     <div style="text-align: center;">
         <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
     </div>
+</div>
 </div>

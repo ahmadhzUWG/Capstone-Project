@@ -1,0 +1,99 @@
+﻿/* Container styling similar to groupDetails */
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+/* Header styling */
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+    .header h1 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+/* Table styling */
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+    .table th,
+    .table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .table th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+
+/* Button styling for consistency */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.btn btn-success mt-2 {
+    margin-top: 0 !important;
+}
+
+.btn-primary btn-edit{
+    background-color: #3498db;
+}
+
+.btn-info {
+    background-color: #1abc9c;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+}
+
+.btn-cancel {
+    background-color: #7f8c8d;
+}
+
+a {
+    margin-right: 10px;
+}
+
+/* Badge styling */
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+/* Equal height for badges/buttons if needed */
+.equal-height {
+    line-height: 2;
+}
+
+/* Back link container */
+.back-link {
+    text-align: center;
+    margin-top: 20px;
+}
