@@ -12,16 +12,25 @@ namespace TaskManagerWebsite.Controllers
     /// <summary>
     /// Manages user authentication, including login and logout functionality.
     /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
     public class LoginController(UserManager<User> userManager, SignInManager<User> signInManager) : Controller
     {
+        /// <summary>
+        /// The user manager
+        /// </summary>
         private readonly UserManager<User> _userManager = userManager;
+        /// <summary>
+        /// The sign in manager
+        /// </summary>
         private readonly SignInManager<User> _signInManager = signInManager;
 
 
         /// <summary>
         /// Displays the login page and ensures the user is signed out before rendering.
         /// </summary>
-        /// <returns>The login view.</returns>
+        /// <returns>
+        /// The login view.
+        /// </returns>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -77,7 +86,9 @@ namespace TaskManagerWebsite.Controllers
         /// <summary>
         /// Logs the user out and redirects them to the login page.
         /// </summary>
-        /// <returns>Redirects to the login page after signing out.</returns>
+        /// <returns>
+        /// Redirects to the login page after signing out.
+        /// </returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
