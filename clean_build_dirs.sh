@@ -11,6 +11,10 @@ TO_REMOVE=(
     "code/TaskManager.Tests/bin/"
     "code/TaskManager.Tests/obj/"
     "code/.vs/"
+    "code/.DS_Store"
+    "code/TaskManager/.DS_Store"
+    "code/TaskManager/Views/.DS_Store"
+    "Documentation/Class Diagrams/.DS_Store"
     "code/G4CapstoneProject.sln.DotSettings.user"
 )
 
