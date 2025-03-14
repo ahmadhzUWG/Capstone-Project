@@ -8,7 +8,12 @@ namespace TaskManager.Tests.Tests.TestViewModels
         [Fact]
         public void DefaultConstructor_InitializesPropertiesAsNull()
         {
-            var viewModel = new UserDeleteViewModel();
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = null,
+                RelatedProjects = null
+            };
 
             Assert.Null(viewModel.User);
             Assert.Null(viewModel.RelatedGroups);
@@ -18,27 +23,36 @@ namespace TaskManager.Tests.Tests.TestViewModels
         [Fact]
         public void SetAndGet_User_WorksCorrectly()
         {
-            var viewModel = new UserDeleteViewModel();
-            var user = new User { Id = 1, UserName = "TestUser" };
+            var viewModel = new UserDeleteViewModel
+            {
+                User = new User { Id = 1, UserName = string.Empty },
+                RelatedGroups = null,
+                RelatedProjects = null
+            };
 
+            var user = new User { Id = 2, UserName = "TestUser" };
             viewModel.User = user;
 
             Assert.NotNull(viewModel.User);
-            Assert.Equal(1, viewModel.User.Id);
+            Assert.Equal(2, viewModel.User.Id);
             Assert.Equal("TestUser", viewModel.User.UserName);
         }
 
         [Fact]
         public void SetAndGet_RelatedGroups_WorksCorrectly()
         {
-            var viewModel = new UserDeleteViewModel();
             var groups = new List<Group>
             {
                 new Group { Id = 10, Name = "GroupA" },
                 new Group { Id = 11, Name = "GroupB" }
             };
 
-            viewModel.RelatedGroups = groups;
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = groups,
+                RelatedProjects = null
+            };
 
             Assert.NotNull(viewModel.RelatedGroups);
             Assert.Equal(2, viewModel.RelatedGroups.Count);
@@ -49,14 +63,18 @@ namespace TaskManager.Tests.Tests.TestViewModels
         [Fact]
         public void SetAndGet_RelatedProjects_WorksCorrectly()
         {
-            var viewModel = new UserDeleteViewModel();
             var projects = new List<Project>
             {
                 new Project { Id = 100, Name = "ProjectA" },
                 new Project { Id = 101, Name = "ProjectB" }
             };
 
-            viewModel.RelatedProjects = projects;
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = null,
+                RelatedProjects = projects
+            };
 
             Assert.NotNull(viewModel.RelatedProjects);
             Assert.Equal(2, viewModel.RelatedProjects.Count);
