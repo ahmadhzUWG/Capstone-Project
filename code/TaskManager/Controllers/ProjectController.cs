@@ -15,11 +15,17 @@ namespace TaskManagerWebsite.Controllers
     /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
     public class ProjectController : Controller
     {
+        /// <summary>
+        /// The context
+        /// </summary>
         private readonly ApplicationDbContext context;
+        /// <summary>
+        /// The user manager
+        /// </summary>
         private readonly UserManager<User> userManager;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProjectController"/> class.
+        /// Initializes a new instance of the <see cref="ProjectController" /> class.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="userManager">The user manager.</param>
@@ -32,6 +38,8 @@ namespace TaskManagerWebsite.Controllers
         /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).
         /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> ProjectBoard(int id)
         {
@@ -406,6 +414,10 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
 
+        /// <summary>
+        /// Forces the project valid.
+        /// </summary>
+        /// <param name="modelState">State of the model.</param>
         private void ForceProjectValid(ModelStateDictionary modelState)
         {
             if (modelState.ContainsKey("Project"))

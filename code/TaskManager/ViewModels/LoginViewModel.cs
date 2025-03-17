@@ -12,7 +12,7 @@ namespace TaskManagerWebsite.ViewModels
         /// This field is required.
         /// </summary>
         [Required]
-        public string UserName { get; set; } = string.Empty;
+        public required string UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password for login authentication.
@@ -20,6 +20,6 @@ namespace TaskManagerWebsite.ViewModels
         /// </summary>
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public required string Password { get; set; }
     }
 }

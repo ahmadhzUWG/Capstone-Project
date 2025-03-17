@@ -34,13 +34,13 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new ProjectRoleRequirement("ProjectLead")));
 
     options.AddPolicy("IsAdmin", policy =>
-        policy.Requirements.Add(new UserRoleRequirement("Admin")));
+        policy.Requirements.Add(new AdminRoleRequirement("Admin")));
 
     options.AddPolicy("IsManager", policy =>
         policy.Requirements.Add(new ManagerRelationshipRequirement("Manager")));
 });
 
-builder.Services.AddScoped<IAuthorizationHandler, UserRoleHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, AdminRoleHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ManagerRelationshipHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
