@@ -28,6 +28,7 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// The user ID of the project lead.
         /// </summary>
         [Required(ErrorMessage = "Please select a project lead.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid project lead.")]
         public int ProjectLeadId { get; set; }
 
         /// <summary>
