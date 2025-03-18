@@ -1,33 +1,3 @@
-function setupDropdownSearch(inputId, dropdownId) {
-    var input = document.getElementById(inputId);
-    var dropdown = document.getElementById(dropdownId);
-
-    var originalOptions = Array.from(dropdown.querySelectorAll("option"));
-
-    input.addEventListener("keyup", function () {
-        var searchValue = input.value.toLowerCase();
-
-        var filteredOptions = originalOptions.filter(function (option) {
-            return option.getAttribute("data-removed") !== "true" &&
-                option.text.toLowerCase().includes(searchValue);
-        });
-
-        dropdown.innerHTML = "";
-
-        if (filteredOptions.length === 0) {
-            var noOption = document.createElement("option");
-            noOption.text = "No matching managers";
-            noOption.disabled = true;
-            dropdown.add(noOption);
-        } else {
-            filteredOptions.forEach(function (option) {
-                dropdown.add(option);
-            });
-        }
-    });
-}
-
-
 function setupSearch(inputId, containerId) {
     var input = document.getElementById(inputId);
     input.addEventListener("keyup", function () {
@@ -84,6 +54,5 @@ document.querySelectorAll(".employee-checkbox").forEach(function (checkbox) {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    setupDropdownSearch("searchBoxManagers", "managerDropdown");
     setupSearch("searchBoxEmployees", "employeeContainer");
 });

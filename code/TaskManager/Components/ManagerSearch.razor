@@ -2,6 +2,7 @@
 @using TaskManagerWebsite.Models
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@using TaskManagerWebsite.ViewModels
 
 <input type="text" @bind="searchText" @bind:event="oninput" placeholder="Search managers..." class="form-control mb-2" />
 
@@ -13,7 +14,7 @@
     }
 </select>
 
-<input type="hidden" name="SelectedManagerId" @bind="selectedManagerId" />
+<input type="text" name="SelectedManagerId" @bind="selectedManagerId" class="visually-hidden"/>
 
 @code {
     [Parameter]

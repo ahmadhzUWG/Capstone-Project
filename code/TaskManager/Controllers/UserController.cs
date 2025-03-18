@@ -125,13 +125,9 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public IActionResult CreateGroup()
         {
-            var users = context.Users.ToList();
-
-            ViewBag.Employees = users;
-
+            ViewBag.Employees = context.Users.ToList();
             return View();
         }
-
 
         /// <summary>
         /// Creates the group.

@@ -1,12 +1,11 @@
 ﻿@model TaskManagerWebsite.ViewModels.GroupViewModel
 @using TaskManagerWebsite.Components
 
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="/css/Admin/createGroups.css" />
+<link rel="stylesheet" href="/css/User/createGroups.css" />
 
 <div class="container">
     <div class="form-container">
@@ -24,13 +23,15 @@
                 <input asp-for="Description" class="form-control" required />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-
+            
             <div class="form-group">
                 <label>Select Manager</label>
+
                 <component type="typeof(ManagerSearch)"
                            render-mode="ServerPrerendered"
                            param-Managers="@(ViewBag.Employees ?? new List<User>())"
-                           param-SelectedManagerId="@(Model?.SelectedManagerId ?? 0)" />
+                           param-SelectedManagerId="@(Model?.SelectedManagerId ?? null)" />
+                <input id="SelectedManagerId" type="text" asp-for="SelectedManagerId" class="visually-hidden" />
                 <span asp-validation-for="SelectedManagerId" class="text-danger"></span>
             </div>
 
