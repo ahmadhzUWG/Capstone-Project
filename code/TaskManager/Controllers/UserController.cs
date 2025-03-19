@@ -109,11 +109,24 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public async Task<IActionResult> Groups()
         {
-            var groups = await context.Groups.ToListAsync();
+            var model = new GroupsViewModel();
+
+            if (TempData.ContainsKey("SuccessMessage"))
+            {
+                model.SuccessMessage = TempData["SuccessMessage"] as string;
+            }
+
+            if (TempData.ContainsKey("ErrorMessage"))
+            {
+                model.ErrorMessage = TempData["ErrorMessage"] as string;
+            }
+
+            model.Groups = await context.Groups.ToListAsync();
+
             var userId = userManager.GetUserId(User);
             ViewBag.UserId = userId;
 
-            return View(groups);
+            return View(model);
         }
 
         /// <summary>
@@ -126,7 +139,7 @@ namespace TaskManagerWebsite.Controllers
         public IActionResult CreateGroup()
         {
             ViewBag.Employees = context.Users.ToList();
-            GroupViewModel model = new GroupViewModel
+            CreateGroupViewModel model = new CreateGroupViewModel
             {
                 Name= string.Empty,
                 Description = string.Empty,
@@ -143,7 +156,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateGroup(GroupViewModel model)
+        public async Task<IActionResult> CreateGroup(CreateGroupViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -195,6 +208,9 @@ namespace TaskManagerWebsite.Controllers
             }
 
             await context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Group '{model.Name}' created successfully!";
+
             return RedirectToAction("Groups");
         }
 
@@ -218,7 +234,7 @@ namespace TaskManagerWebsite.Controllers
 
             if (isAssignedToProject)
             {
-                TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
+                TempData["ErrorMessage"] = $"The group '{group.Name}' is assigned to one or more projects and cannot be deleted.";
                 return RedirectToAction(nameof(Groups));
             }
 

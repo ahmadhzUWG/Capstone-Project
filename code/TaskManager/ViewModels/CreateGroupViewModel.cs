@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.ViewModels;
 
 /// <summary>
 /// Represents the model used for creating a new group.
 /// </summary>
-public class GroupViewModel
+public class CreateGroupViewModel
 {
     /// <summary>
     /// Gets or sets the name.

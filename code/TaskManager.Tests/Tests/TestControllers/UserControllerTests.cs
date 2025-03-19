@@ -539,7 +539,7 @@ public class UserControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
 
-        var groupViewModel = new GroupViewModel
+        var groupViewModel = new CreateGroupViewModel
         {
             Name = "NewGroup",
             Description = "Test Description",
@@ -579,7 +579,7 @@ public class UserControllerTests
         dbContext.Users.AddRange(primaryManager, otherManager, employee);
         await dbContext.SaveChangesAsync();
 
-        var groupViewModel = new GroupViewModel
+        var groupViewModel = new CreateGroupViewModel
         {
             Name = "NewGroup",
             Description = "Test Description",
@@ -622,7 +622,7 @@ public class UserControllerTests
 
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-        var model = new GroupViewModel
+        var model = new CreateGroupViewModel
         {
             Name = "",
             Description = "Some Description",
