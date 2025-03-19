@@ -2,11 +2,13 @@
 @using TaskManagerWebsite.Models
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
 @using TaskManagerWebsite.ViewModels
+@inject IJSRuntime JsRuntime
 
 <input type="text" @bind="searchText" @bind:event="oninput" placeholder="Search managers..." class="form-control mb-2" />
 
-<select @bind="selectedManagerId" class="form-control">
+<select @bind="selectedManagerId" @bind:after="OnManagerChanged" class="form-control">
     <option value="">-- Select a Manager --</option>
     @foreach (var manager in FilteredManagers)
     {
@@ -14,12 +16,12 @@
     }
 </select>
 
-<input type="text" name="SelectedManagerId" @bind="selectedManagerId" class="visually-hidden"/>
+<input type="text" name="SelectedManagerId" @bind="selectedManagerId" class="visually-hidden" />
 
 @code {
     [Parameter]
     public List<User> Managers { get; set; } = new List<User>();
-
+    
     [Parameter]
     public int? SelectedManagerId { get; set; }
 
@@ -47,4 +49,9 @@
             : Managers.Where(m =>
                 m.UserName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                 m.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    private async Task OnManagerChanged()
+    {
+        await JsRuntime.InvokeVoidAsync("clearValidationError", "SelectedManagerId");
+    }
 }

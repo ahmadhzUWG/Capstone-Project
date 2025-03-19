@@ -126,7 +126,14 @@ namespace TaskManagerWebsite.Controllers
         public IActionResult CreateGroup()
         {
             ViewBag.Employees = context.Users.ToList();
-            return View();
+            GroupViewModel model = new GroupViewModel
+            {
+                Name= string.Empty,
+                Description = string.Empty,
+                SelectedManagerId = null,
+                SelectedUserIds = new List<int>()
+            };
+            return View(model);
         }
 
         /// <summary>

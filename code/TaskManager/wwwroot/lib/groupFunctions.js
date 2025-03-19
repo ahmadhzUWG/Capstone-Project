@@ -1,5 +1,9 @@
 function setupSearch(inputId, containerId) {
     var input = document.getElementById(inputId);
+    if (!input) {
+        console.error("Element with id '" + inputId + "' not found.");
+        return;
+    }
     input.addEventListener("keyup", function () {
         let searchValue = input.value.toLowerCase();
         let checkboxes = document.querySelectorAll("#" + containerId + " .employee-box");
@@ -9,6 +13,17 @@ function setupSearch(inputId, containerId) {
         });
     });
 }
+
+window.clearValidationError = function (elementId) {
+    var input = document.getElementById(elementId);
+    if (input) {
+        input.classList.remove("input-validation-error");
+        var errorSpan = document.querySelector('span[data-valmsg-for="' + input.name + '"]');
+        if (errorSpan) {
+            errorSpan.innerText = "";
+        }
+    }
+};
 
 document.addEventListener("DOMContentLoaded", function () {
     var managerDropdown = document.getElementById("managerDropdown");
@@ -56,3 +71,4 @@ document.querySelectorAll(".employee-checkbox").forEach(function (checkbox) {
 document.addEventListener("DOMContentLoaded", function () {
     setupSearch("searchBoxEmployees", "employeeContainer");
 });
+

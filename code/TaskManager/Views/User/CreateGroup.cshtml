@@ -1,5 +1,7 @@
 ﻿@model TaskManagerWebsite.ViewModels.GroupViewModel
 @using TaskManagerWebsite.Components
+@using Microsoft.AspNetCore.Components
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -26,13 +28,13 @@
             
             <div class="form-group">
                 <label>Select Manager</label>
-
-                <component type="typeof(ManagerSearch)"
-                           render-mode="ServerPrerendered"
-                           param-Managers="@(ViewBag.Employees ?? new List<User>())"
-                           param-SelectedManagerId="@(Model?.SelectedManagerId ?? null)" />
-                <input id="SelectedManagerId" type="text" asp-for="SelectedManagerId" class="visually-hidden" />
-                <span asp-validation-for="SelectedManagerId" class="text-danger"></span>
+                <component type="typeof(ManagerSearch)" render-mode="ServerPrerendered"
+                           param-Managers="ViewBag.Employees"
+                           param-SelectedManagerId="@Model.SelectedManagerId"
+                           param-SelectedManagerIdChanged="EventCallback.Factory.Create<int?>(this, 
+                            value => Model.SelectedManagerId = value)" />
+                <input type="hidden" asp-for="@Model.SelectedManagerId" />
+                <span asp-validation-for="@Model.SelectedManagerId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
