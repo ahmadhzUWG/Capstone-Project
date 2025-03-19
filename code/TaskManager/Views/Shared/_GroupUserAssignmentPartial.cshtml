@@ -19,8 +19,10 @@
                     <li class="employee-item">
                         @userGroup.User.UserName (@userGroup.User.Email)
                         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded
-                       || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                            || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                         {
+                            @if (userGroup.UserId != Model.ManagerId)
+                            {
                             <form asp-action="RemoveUserFromGroup" asp-controller="User" method="post"
                                   data-ajax="true"
                                   data-ajax-method="POST"
@@ -32,6 +34,7 @@
                                 <input type="hidden" name="userId" value="@userGroup.UserId" />
                                 <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                             </form>
+                            }
                         }
                         else
                         {
