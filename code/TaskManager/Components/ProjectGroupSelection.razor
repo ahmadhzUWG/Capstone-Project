@@ -9,13 +9,13 @@
     <label>Assign Group to Project</label>
     <input type="text" @bind="groupSearchText" @bind:event="oninput" placeholder="Search groups..." class="form-control mb-2" />
 
-    <div class="scrollable-checkbox-container">
+    <div class="group-list" id="groupContainer" >
         @foreach (var group in FilteredGroups)
         {
-            <div class="form-check">
-                <input type="checkbox" id="group_@group.Id"
+            <div class="form-check group-box">
+                <input type="checkbox"
                        @onchange="() => ToggleGroupSelection(group.Id)"
-                       checked="@SelectedGroupIds.Contains(group.Id)" class="form-check-input" />
+                       checked="@SelectedGroupIds.Contains(group.Id)" class="form-check-input group-checkbox" />
                 <label class="form-check-label" for="group_@group.Id">@group.Name</label>
             </div>
         }

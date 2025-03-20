@@ -546,9 +546,7 @@ namespace TaskManagerWebsite.Controllers
 
                 Groups = await context.Groups.ToListAsync(),
 
-                GroupIds = context.Groups
-                    .Select(g => g.Id)
-                    .ToList()
+                GroupIds = new List<int>()
             };
 
             return View(model);
