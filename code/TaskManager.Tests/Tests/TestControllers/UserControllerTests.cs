@@ -1059,143 +1059,121 @@ public class UserControllerTests
         Assert.Equal(2, projects.Count());
     }
 
-    //[Fact]
-    //public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    dbContext.Users.Add(new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" });
-    //    dbContext.Users.Add(new User { Id = 2, UserName = "Lead2", Email = "lead2@example.com" });
-    //    await dbContext.SaveChangesAsync();
-    //    var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+    [Fact]
+    public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = "Lead1", Email = "lead1@example.com" });
+        dbContext.Users.Add(new User { Id = 2, UserName = "Lead2", Email = "lead2@example.com" });
+        await dbContext.SaveChangesAsync();
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = new List<SelectListItem>
-    //        {
-    //            new SelectListItem { Value = "1", Text = "Lead1" },
-    //            new SelectListItem { Value = "2", Text = "Lead2" }
-    //        }
-    //    };
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = dbContext.Users.ToList()
+        };
 
-    //    // Act
-    //    var result = await controller.CreateProject();
+        // Act
+        var result = await controller.CreateProject();
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.NotNull(model.ProjectLeads);
-    //    Assert.Equal(2, model.ProjectLeads.Count);
-    //}
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.NotNull(model.ProjectLeads);
+        Assert.Equal(2, model.ProjectLeads.Count);
+    }
 
-    //[Fact]
-    //public async Task CreateProject_Post_InvalidModel_ReturnsView()
-    //{
-    //    CreateProjectViewModel model = new CreateProjectViewModel();
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-    //    controller.ModelState.AddModelError("Error", "Invalid");
-    //    var project = new Project { Id = 1, Name = "InvalidProject" };
-    //    var users = await dbContext.Users.ToListAsync();
+    [Fact]
+    public async Task CreateProject_Post_InvalidModel_ReturnsView()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ModelState.AddModelError("Error", "Invalid");
+        var project = new Project { Id = 1, Name = "InvalidProject" };
+        var users = await dbContext.Users.ToListAsync();
 
-    //    model.ProjectLeads = users.Select(u => new SelectListItem
-    //    {
-    //        Value = u.Id.ToString(),
-    //        Text = u.UserName
-    //    }).ToList();
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = dbContext.Users.ToList()
+        };
+        // Act
+        var result = await controller.CreateProject(model);
 
-    //    CreateProjectViewModel viewModel = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = new List<SelectListItem>
-    //        {
-    //            new SelectListItem { Value = "1", Text = "Lead1" },
-    //            new SelectListItem { Value = "2", Text = "Lead2" }
-    //        }
-    //    };
-    //    // Act
-    //    var result = await controller.CreateProject(viewModel);
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal(model, viewResult.Model);
+    }
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.Equal(viewModel, viewResult.Model);
-    //}
+    [Fact]
+    public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
+        var project = new Project { Id = 1, Name = "ProjectNoUser" };
+        var users = await dbContext.Users.ToListAsync();
 
-    //[Fact]
-    //public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-    //    _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
-    //    var project = new Project { Id = 1, Name = "ProjectNoUser" };
-    //    var users = await dbContext.Users.ToListAsync();
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = dbContext.Users.ToList()
+        };
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        ProjectLeads = users.Select(u => new SelectListItem
-    //        {
-    //            Value = u.Id.ToString(),
-    //            Text = u.UserName
-    //        }).ToList()
-    //    };
+        // Act
+        var result = await controller.CreateProject(model);
 
-    //    // Act
-    //    var result = await controller.CreateProject(model);
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.Contains("", controller.ModelState.Keys);
+    }
 
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.False(controller.ModelState.IsValid);
-    //    Assert.Contains("", controller.ModelState.Keys);
-    //}
+    [Fact]
+    public async Task CreateProject_Post_Valid_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
 
-    //[Fact]
-    //public async Task CreateProject_Post_Valid_ReturnsRedirect()
-    //{
-    //    // Arrange
-    //    var dbContext = TestHelper.GetDbContext();
-    //    var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
 
-    //    _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("1");
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
+        controller.ControllerContext.HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+        };
 
-    //    var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "1") };
-    //    controller.ControllerContext.HttpContext = new DefaultHttpContext
-    //    {
-    //        User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
-    //    };
+        var services = new ServiceCollection()
+            .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
+            .BuildServiceProvider();
 
-    //    var services = new ServiceCollection()
-    //        .AddSingleton<ITempDataProvider>(new Mock<ITempDataProvider>().Object)
-    //        .BuildServiceProvider();
+        controller.ControllerContext.HttpContext.RequestServices = services;
+        controller.ControllerContext.HttpContext.Request.ContentType = "application/x-www-form-urlencoded";
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            services.GetRequiredService<ITempDataProvider>());
 
-    //    controller.ControllerContext.HttpContext.RequestServices = services;
-    //    controller.ControllerContext.HttpContext.Request.ContentType = "application/x-www-form-urlencoded";
-    //    controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
-    //        services.GetRequiredService<ITempDataProvider>());
+        var mockUrlHelper = new Mock<IUrlHelper>();
+        controller.Url = mockUrlHelper.Object;
 
-    //    var mockUrlHelper = new Mock<IUrlHelper>();
-    //    controller.Url = mockUrlHelper.Object;
+        var users = await dbContext.Users.ToListAsync();
 
-    //    var users = await dbContext.Users.ToListAsync();
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            Name = "ValidProject",
+            Description = "Test Description",
+            ProjectLeads = dbContext.Users.ToList()
 
-    //    CreateProjectViewModel model = new CreateProjectViewModel
-    //    {
-    //        Name = "ValidProject",
-    //        Description = "Test Description",
-    //        ProjectLeads = users.Select(u => new SelectListItem
-    //        {
-    //            Value = u.Id.ToString(),
-    //            Text = u.UserName
-    //        }).ToList()
-    //    };
+        };
 
-    //    // Act
-    //    var result = await controller.CreateProject(model);
+        // Act
+        var result = await controller.CreateProject(model);
 
-    //    // Assert
-    //    var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-    //    Assert.Equal("Projects", redirectResult.ActionName);
-    //    Assert.True(dbContext.Projects.Any(p => p.Name == "ValidProject"));
-    //}
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Projects", redirectResult.ActionName);
+        Assert.True(dbContext.Projects.Any(p => p.Name == "ValidProject"));
+    }
 
     [Fact]
     public async Task CreateProject_Post_WithValidGroupData_CallsAssignGroupToProject()
