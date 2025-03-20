@@ -244,8 +244,7 @@ namespace TaskManagerWebsite.Controllers
             var currentUser = await _userManager.GetUserAsync(User); 
 
             
-            var isManager = await _context.Groups
-                                          .AnyAsync(g => g.ManagerId == currentUser.Id);
+            var isManager = await _context.Groups.AnyAsync(g => g.ManagerId == currentUser.Id);
 
             ViewBag.IsManager = isManager;
 
@@ -299,11 +298,7 @@ namespace TaskManagerWebsite.Controllers
             // Build the view model
             var model = new CreateProjectViewModel
             {
-                ProjectLeads = leads.Select(u => new SelectListItem
-                {
-                    Value = u.Id.ToString(),
-                    Text = u.UserName
-                }).ToList()
+                ProjectLeads = leads
             };
 
             return View(model);
@@ -333,11 +328,7 @@ namespace TaskManagerWebsite.Controllers
 
             var leads = new List<User> { currentUser };
 
-            model.ProjectLeads = leads.Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = u.UserName
-            }).ToList();
+            model.ProjectLeads = leads;
 
             if (ModelState.IsValid)
             {
@@ -351,7 +342,7 @@ namespace TaskManagerWebsite.Controllers
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    ProjectLeadId = model.ProjectLeadId,
+                    ProjectLeadId = model.SelectedProjectLeadId,
                     ProjectCreatorId = int.Parse(currentUserId)
                 };
 

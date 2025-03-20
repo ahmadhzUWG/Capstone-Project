@@ -97,7 +97,7 @@ namespace TaskManager.Tests.Tests.TestViewModels
             // Arrange
             var model = new CreateProjectViewModel
             {
-                ProjectLeadId = 0 // Invalid selection for project lead
+                SelectedProjectLeadId = 0 // Invalid selection for project lead
             };
 
             // Act

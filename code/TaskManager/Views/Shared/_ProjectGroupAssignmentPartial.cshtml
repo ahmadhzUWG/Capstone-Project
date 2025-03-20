@@ -63,7 +63,10 @@
                     {
                         @foreach (var group in ViewBag.Groups)
                         {
-                            <option value="@group.Id">@group.Name</option>
+                            @if (Model.ProjectGroups.All(pg => pg.GroupId != group.Id)) // Only show groups not already assigned
+                            {
+                                <option value="@group.Id">@group.Name</option>
+                            }
                         }
                     }
                     else

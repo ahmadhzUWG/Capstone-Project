@@ -1,0 +1,59 @@
+﻿@using System.Linq
+@using TaskManagerWebsite.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@inject IJSRuntime JsRuntime
+
+<div class="form-group">
+    <label>Assign Group to Project</label>
+    <input type="text" @bind="groupSearchText" @bind:event="oninput" placeholder="Search groups..." class="form-control mb-2" />
+
+    <div class="scrollable-checkbox-container">
+        @foreach (var group in FilteredGroups)
+        {
+            <div class="form-check">
+                <input type="checkbox" id="group_@group.Id"
+                       @onchange="() => ToggleGroupSelection(group.Id)"
+                       checked="@SelectedGroupIds.Contains(group.Id)" class="form-check-input" />
+                <label class="form-check-label" for="group_@group.Id">@group.Name</label>
+            </div>
+        }
+    </div>
+
+    @foreach (var id in SelectedGroupIds)
+    {
+        <input type="hidden" name="GroupIds" value="@id" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Group> Groups { get; set; } = new List<Group>();
+
+    [Parameter]
+    public List<int> SelectedGroupIds { get; set; } = new List<int>();
+
+    [Parameter]
+    public EventCallback<List<int>> SelectedGroupIdsChanged { get; set; }
+
+    private string groupSearchText = "";
+
+    private IEnumerable<Group> FilteredGroups =>
+        string.IsNullOrWhiteSpace(groupSearchText)
+            ? Groups
+            : Groups.Where(g => g.Name.Contains(groupSearchText, StringComparison.OrdinalIgnoreCase));
+
+    private async Task ToggleGroupSelection(int groupId)
+    {
+        if (SelectedGroupIds.Contains(groupId))
+        {
+            SelectedGroupIds.Remove(groupId);
+        }
+        else
+        {
+            SelectedGroupIds.Add(groupId);
+        }
+        await SelectedGroupIdsChanged.InvokeAsync(SelectedGroupIds);
+    }
+}

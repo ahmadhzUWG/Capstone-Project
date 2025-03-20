@@ -28,7 +28,8 @@
             
             <div class="form-group">
                 <label>Select Manager</label>
-                <component type="typeof(ManagerSearch)" render-mode="ServerPrerendered"
+                <component type="typeof(ManagerSearch)" 
+                           render-mode="ServerPrerendered"
                            param-Managers="ViewBag.Employees"
                            param-SelectedManagerId="@Model.SelectedManagerId"
                            param-SelectedManagerIdChanged="EventCallback.Factory.Create<int?>(this, 

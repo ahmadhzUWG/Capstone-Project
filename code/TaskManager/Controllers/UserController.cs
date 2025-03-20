@@ -529,7 +529,6 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public async Task<IActionResult> CreateProject()
         {
-            var users = await context.Users.ToListAsync();
             var leads = context.Groups
                 .Where(g => g.ManagerId != null) 
                 .AsEnumerable()
@@ -538,19 +537,18 @@ namespace TaskManagerWebsite.Controllers
                 .Distinct() 
                 .ToList();
 
-
-            var currentAdmin = await userManager.GetUserAsync(User);
-            leads.Add(currentAdmin);
-            ViewBag.Groups = await context.Groups.ToListAsync();
-
-            // Build the view model
             var model = new CreateProjectViewModel
             {
-                ProjectLeads = leads.Select(u => new SelectListItem
-                {
-                    Value = u.Id.ToString(),
-                    Text = u.UserName
-                }).ToList()
+                Name = string.Empty,
+                Description = string.Empty,
+                SelectedProjectLeadId = 0,
+                ProjectLeads = leads,
+
+                Groups = await context.Groups.ToListAsync(),
+
+                GroupIds = context.Groups
+                    .Select(g => g.Id)
+                    .ToList()
             };
 
             return View(model);
@@ -581,11 +579,7 @@ namespace TaskManagerWebsite.Controllers
             leads.Add(currentAdmin);
             ViewBag.Groups = await context.Groups.ToListAsync();
 
-            model.ProjectLeads = leads.Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = u.UserName
-            }).ToList();
+            model.ProjectLeads = leads;
 
             if (!ModelState.IsValid)
             {
@@ -605,19 +599,19 @@ namespace TaskManagerWebsite.Controllers
             {
                 Name = model.Name,
                 Description = model.Description,
-                ProjectLeadId = model.ProjectLeadId,
+                ProjectLeadId = model.SelectedProjectLeadId,
                 ProjectCreatorId = int.Parse(currentUserId)
             };
 
             context.Projects.Add(project);
             await context.SaveChangesAsync();
 
-            var selectedGroupIds = Request.Form["GroupId"].ToList();
+            var selectedGroupIds = model.GroupIds;
             if (selectedGroupIds.Count > 0)
             {
                 foreach (var groupId in selectedGroupIds)
                 {
-                    await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    await this.AssignGroupToProject(project.Id, groupId);
                 }
 
             }
@@ -645,6 +639,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 return NotFound();
             }
+
             ViewBag.Groups = await context.Groups.ToListAsync();
             return View(project);
         }

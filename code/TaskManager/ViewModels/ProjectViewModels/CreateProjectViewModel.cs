@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {
@@ -27,13 +28,23 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// <summary>
         /// The user ID of the project lead.
         /// </summary>
-        [Required(ErrorMessage = "Please select a project lead.")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid project lead.")]
-        public int ProjectLeadId { get; set; }
+        public int SelectedProjectLeadId { get; set; }
 
         /// <summary>
         /// Drop-down list items for potential project leads.
         /// </summary>
-        public List<SelectListItem> ProjectLeads { get; set; } = new();
+        public List<User> ProjectLeads { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the group ids.
+        /// </summary>
+        /// <value>
+        /// The group ids.
+        /// </value>
+        public List<int> GroupIds { get; set; } = new List<int>();
+
+        public List<Group> Groups { get; set; } = new List<Group>();
+
     }
 }

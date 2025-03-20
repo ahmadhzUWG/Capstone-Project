@@ -351,7 +351,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             context.Users.Add(new User { Id = 1, UserName = "user1" });
             await context.SaveChangesAsync();
 
-            var model = new CreateProjectViewModel { Name = "NewProj", Description = "NewDesc", ProjectLeadId = 1 };
+            var model = new CreateProjectViewModel { Name = "NewProj", Description = "NewDesc", SelectedProjectLeadId = 1 };
             var currentUser = new User { Id = 1, UserName = "user1" };
             var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
                 { ControllerContext = CreateControllerContext(currentUser) };
