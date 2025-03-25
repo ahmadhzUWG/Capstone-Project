@@ -1,0 +1,83 @@
+﻿@using System.Linq
+@using TaskManagerWebsite.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using TaskManagerWebsite.ViewModels
+@typeparam TItem
+
+<input type="text" @bind="searchText" @bind:event="oninput" placeholder="Search..." class="form-control mb-2" />
+
+<select @bind="selectedItemId" class="form-control">
+    <option value="0">-- Select An Option --</option>
+    @foreach (var item in FilteredItems)
+    {
+        <option value="@GetId(item)">@GetDisplayText(item)</option>
+    }
+</select>
+
+@if (!string.IsNullOrWhiteSpace(HiddenInputName))
+{
+    <input type="hidden" name="@HiddenInputName" value="@SelectedItemId" />
+}
+
+@code {
+    [Parameter]
+    public List<TItem> Items { get; set; } = new List<TItem>();
+
+    [Parameter]
+    public int SelectedItemId { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedItemIdChanged { get; set; }
+
+    [Parameter]
+    public string IdProperty { get; set; } = "";
+
+    [Parameter]
+    public string DisplayTextProperty { get; set; } = "";
+
+    [Parameter]
+    public string? HiddenInputName { get; set; }
+
+    private int selectedItemId
+    {
+        get => SelectedItemId;
+        set
+        {
+            if (SelectedItemId != value)
+            {
+                SelectedItemId = value;
+                SelectedItemIdChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    private string searchText = "";
+
+    private IEnumerable<TItem> FilteredItems =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? Items
+            : Items.Where(item =>
+                GetDisplayText(item).Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    private int GetId(TItem item)
+    {
+        var prop = typeof(TItem).GetProperty(IdProperty);
+        if (prop == null)
+        {
+            throw new InvalidOperationException($"Property '{IdProperty}' not found on type '{typeof(TItem).Name}'.");
+        }
+        return (int)prop.GetValue(item)!;
+    }
+
+    private string GetDisplayText(TItem item)
+    {
+        var prop = typeof(TItem).GetProperty(DisplayTextProperty);
+        if (prop == null)
+        {
+            throw new InvalidOperationException($"Property '{DisplayTextProperty}' not found on type '{typeof(TItem).Name}'.");
+        }
+        return prop.GetValue(item)?.ToString() ?? "";
+    }
+}

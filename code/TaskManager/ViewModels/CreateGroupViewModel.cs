@@ -37,7 +37,8 @@ public class CreateGroupViewModel
     /// The selected manager identifier.
     /// </value>
     [Required(ErrorMessage = "Please select a manager for this group. A group must have a manager.")]
-    public int? SelectedManagerId { get; set; }
+    [Range(1, int.MaxValue, ErrorMessage = "Please select a manager for this group. A group must have a manager.")]
+    public int SelectedManagerId { get; set; }
 
     /// <summary>
     /// Gets or sets the selected user ids.

@@ -143,7 +143,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 Name= string.Empty,
                 Description = string.Empty,
-                SelectedManagerId = null,
+                SelectedManagerId = 0,
                 SelectedUserIds = new List<int>()
             };
             return View(model);

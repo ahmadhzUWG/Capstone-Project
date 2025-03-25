@@ -28,13 +28,14 @@
             
             <div class="form-group">
                 <label>Select Manager</label>
-                <component type="typeof(ManagerSearch)" 
+                <component type="typeof(GenericSelect<User>)" 
                            render-mode="ServerPrerendered"
-                           param-Managers="ViewBag.Employees"
-                           param-SelectedManagerId="@Model.SelectedManagerId"
-                           param-SelectedManagerIdChanged="EventCallback.Factory.Create<int?>(this, 
-                            value => Model.SelectedManagerId = value)" />
-                <input type="hidden" asp-for="@Model.SelectedManagerId" />
+                           param-Items="ViewBag.Employees"
+                           param-SelectedItemId="Model.SelectedManagerId"
+                           param-SelectedItemIdChanged="EventCallback.Factory.Create<int>(this, value => Model.SelectedManagerId = value)"
+                           param-IdProperty=@("Id")
+                           param-DisplayTextProperty=@("UserName")
+                           param-HiddenInputName=@("SelectedManagerId") />
                 <span asp-validation-for="@Model.SelectedManagerId" class="text-danger"></span>
             </div>
 
