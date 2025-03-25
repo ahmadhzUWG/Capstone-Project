@@ -28,12 +28,13 @@
         
             <div class="form-group">
                 <label>Project Lead</label>
-                <component type="typeof(ProjectLeadSelection)"
+                <component type="typeof(GenericSelect<User>)"
                            render-mode="ServerPrerendered"
-                           param-ProjectLeads="Model.ProjectLeads"
-                           param-SelectedProjectLeadId="@Model.SelectedProjectLeadId"
-                           param-SelectedProjectLeadIdChanged="EventCallback.Factory.Create<int>(this, v => Model.SelectedProjectLeadId = v)"/>
-                <input type="hidden" asp-for="@Model.SelectedProjectLeadId"/>
+                           param-Items="Model.ProjectLeads"
+                           param-SelectedItemId="@Model.SelectedProjectLeadId" 
+                           param-IdProperty=@("Id")
+                           param-DisplayTextProperty=@("UserName")
+                           param-HiddenInputName=@("SelectedProjectLeadId") />
                 <span asp-validation-for="@Model.SelectedProjectLeadId" class="text-danger"></span>
 
             </div>

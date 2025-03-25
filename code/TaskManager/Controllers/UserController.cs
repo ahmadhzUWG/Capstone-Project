@@ -496,6 +496,18 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public async Task<IActionResult> Projects()
         {
+            var model = new ProjectsViewModel();
+
+            if (TempData.ContainsKey("SuccessMessage"))
+            {
+                model.SuccessMessage = TempData["SuccessMessage"] as string;
+            }
+
+            if (TempData.ContainsKey("ErrorMessage"))
+            {
+                model.ErrorMessage = TempData["ErrorMessage"] as string;
+            }
+
             var userId = userManager.GetUserId(User);
             ViewBag.UserId = userId;
 
@@ -504,23 +516,18 @@ namespace TaskManagerWebsite.Controllers
                 .Include(gr => gr.Project)
                 .Where(gr => gr.Group.ManagerId == int.Parse(userId) && gr.Response != null)
                 .ToListAsync();
-            ViewBag.GroupRequests = groupRequests;
+            model.GroupRequests = groupRequests;
 
             var sentGroupRequests = await context.GroupRequests
                 .Include(gr => gr.Group)
                 .Include(gr => gr.Project)
                 .Where(gr => gr.SenderId == int.Parse(userId) && gr.Response != null)
                 .ToListAsync();
-            ViewBag.SentGroupRequests = sentGroupRequests;
+            model.SentGroupRequests = sentGroupRequests;
 
-            var projects = await context.Projects.ToListAsync();
+            model.Projects = await context.Projects.ToListAsync();
 
-            foreach (var project in projects)
-            {
-                project.ProjectLead = await context.Users.FindAsync(project.ProjectLeadId);
-            }
-
-            return View(projects);
+            return View(model);
         }
 
         /// <summary>
@@ -615,6 +622,8 @@ namespace TaskManagerWebsite.Controllers
                 }
 
             }
+
+            TempData["SuccessMessage"] = $"Project '{model.Name}' created successfully!";
 
             return RedirectToAction(nameof(Projects));
         }
@@ -813,11 +822,15 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> DeleteProject(int id)
         {
             var project = await context.Projects.FindAsync(id);
+
             if (project != null)
             {
                 context.Projects.Remove(project);
                 await context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Project '{project.Name}' has been deleted";
+
             }
+
             return RedirectToAction(nameof(Projects));
         }
 
