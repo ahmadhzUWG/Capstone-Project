@@ -32,11 +32,10 @@
                            render-mode="ServerPrerendered"
                            param-Items="ViewBag.Employees"
                            param-SelectedItemId="Model.SelectedManagerId"
-                           param-SelectedItemIdChanged="EventCallback.Factory.Create<int>(this, value => Model.SelectedManagerId = value)"
                            param-IdProperty=@("Id")
                            param-DisplayTextProperty=@("UserName")
                            param-HiddenInputName=@("SelectedManagerId") />
-                <span asp-validation-for="@Model.SelectedManagerId" class="text-danger"></span>
+                <span name="SelectedManagerId" asp-validation-for="@Model.SelectedManagerId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
