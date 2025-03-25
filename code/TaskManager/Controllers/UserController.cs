@@ -248,6 +248,8 @@ namespace TaskManagerWebsite.Controllers
                 TempData["ErrorMessage"] = "Unable to delete this group because it is referenced elsewhere. Check project assignments";
             }
 
+            TempData["ErrorMessage"] = $"Group '{group.Name}' has been deleted";
+
             return RedirectToAction(nameof(Groups));
         }
 
