@@ -21,7 +21,7 @@
 
 @if (!string.IsNullOrWhiteSpace(HiddenInputName))
 {
-    <input type="hidden" name="@HiddenInputName" value="@SelectedItemId" />
+    <input type="text" name="@HiddenInputName" value="@SelectedItemId" class="visually-hidden"/>
 }
 
 @code {

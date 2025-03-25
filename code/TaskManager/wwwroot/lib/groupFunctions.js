@@ -13,17 +13,19 @@ function setupSearch(inputId, containerId) {
         });
     });
 }
+function clearValidationError(fieldName) {
+    var $field = $('[name="' + fieldName + '"]');
+    if ($field.length) {
+        $field.removeClass("input-validation-error");
 
-window.clearValidationError = function (elementId) {
-    var input = document.getElementById(elementId);
-    if (input) {
-        input.classList.remove("input-validation-error");
-        var errorSpan = document.querySelector('span[data-valmsg-for="' + input.name + '"]');
-        if (errorSpan) {
-            errorSpan.innerText = "";
-        }
+        $field.trigger("change");
     }
-};
+
+    var $errorSpan = $('[data-valmsg-for="' + fieldName + '"]');
+    $errorSpan.empty()
+        .removeClass("field-validation-error")
+        .addClass("field-validation-valid");
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     var managerDropdown = document.getElementById("managerDropdown");
