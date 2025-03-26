@@ -24,10 +24,39 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>
         /// A view displaying all users.
         /// </returns>
-        public async Task<IActionResult> Users()
+        public async Task<IActionResult> Users(UsersViewModel incomingModel)
         {
-            var users = await context.Users.ToListAsync();
-            return View(users);
+            var model = new UsersViewModel();
+
+            model.UndeletedUserId = incomingModel.UndeletedUserId;
+
+            if (TempData.ContainsKey("SuccessMessage"))
+            {
+                model.SuccessMessage = TempData["SuccessMessage"] as string;
+            }
+
+            if (TempData.ContainsKey("ErrorMessage"))
+            {
+                model.ErrorMessage = TempData["ErrorMessage"] as string;
+            }
+
+            var managedGroups = await context.Groups
+                .Where(g => g.ManagerId == model.UndeletedUserId)
+                .ToListAsync();
+
+            var managedGroupIds = managedGroups.Select(g => g.Id).ToList();
+
+            var projects = await context.GroupProjects
+                .Where(gp => managedGroupIds.Contains(gp.GroupId))
+                .Select(gp => gp.Project)
+                .Distinct()
+                .ToListAsync();
+
+            model.Users = await context.Users.ToListAsync();
+            model.RelatedGroups = managedGroups;
+            model.RelatedProjects = projects;
+
+            return View(model);
         }
 
         /// <summary>
@@ -51,7 +80,9 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> UserAdd(UserViewModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
             var user = new User { UserName = model.UserName.Trim(), Email = model.Email };
 
@@ -79,6 +110,115 @@ namespace TaskManagerWebsite.Controllers
             }
 
             return View(model);
+        }
+
+        /// <summary>
+        /// Displays the edit page for a specific user.
+        /// </summary>
+        /// <param name="id">The ID of the user.</param>
+        /// <returns>A view displaying user edit options or NotFound if the user does not exist.</returns>
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> UserEdit(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = roleManager.Roles.Select(r => r.Name).ToList();
+
+            var userRoles = await userManager.GetRolesAsync(user);
+            string currentRole = userRoles.FirstOrDefault() ?? string.Empty;
+
+            ViewBag.Roles = roles;
+            ViewBag.CurrentRole = currentRole;
+
+            return View(user);
+        }
+
+        /// <summary>
+        /// Updates the details of a specific user, including their username, email, and role.
+        /// </summary>
+        /// <param name="id">The ID of the user.</param>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="email">The email.</param>
+        /// <param name="role">The role.</param>
+        /// <returns>
+        /// A redirect to the Users list.
+        /// </returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> UserEdit(string id, string userName, string email, string role)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.UserName = userName;
+            user.Email = email;
+            await userManager.UpdateAsync(user);
+
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            if (userRoles.Any())
+            {
+                await userManager.RemoveFromRolesAsync(user, userRoles);
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                await userManager.AddToRoleAsync(user, role);
+            }
+
+            return RedirectToAction("Users");
+        }
+
+        /// <summary>
+        /// Confirms and executes the deletion of a user along with related groups if they are a manager.
+        /// </summary>
+        /// <param name="id">The ID of the user to be deleted.</param>
+        /// <returns>
+        /// A redirect to the Users list.
+        /// </returns>
+        [HttpPost, ActionName("DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var user = await context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var managedGroups = await context.Groups
+                .Where(g => g.ManagerId == id)
+                .ToListAsync();
+
+            var isProjectLead = await context.Projects
+                .AnyAsync(p => p.ProjectLeadId == id);
+
+            if (managedGroups.Any() || isProjectLead)
+            {
+                TempData["ErrorMessage"] = "Cannot delete this user because they are a manager of a group or a project lead.";
+
+                var model = new UsersViewModel
+                {
+                    UndeletedUserId = id
+                };
+
+                return RedirectToAction(nameof(Users), model);
+            }
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"User {user.UserName} deleted successfully!";
+
+            return RedirectToAction(nameof(this.Users));
         }
 
         /// <summary>
@@ -832,141 +972,6 @@ namespace TaskManagerWebsite.Controllers
             }
 
             return RedirectToAction(nameof(Projects));
-        }
-
-        /// <summary>
-        /// Displays the edit page for a specific user.
-        /// </summary>
-        /// <param name="id">The ID of the user.</param>
-        /// <returns>A view displaying user edit options or NotFound if the user does not exist.</returns>
-        [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> UserEdit(string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var roles = roleManager.Roles.Select(r => r.Name).ToList();
-
-            var userRoles = await userManager.GetRolesAsync(user);
-            string currentRole = userRoles.FirstOrDefault() ?? string.Empty;
-
-            ViewBag.Roles = roles;
-            ViewBag.CurrentRole = currentRole;
-
-            return View(user);
-        }
-
-        /// <summary>
-        /// Updates the details of a specific user, including their username, email, and role.
-        /// </summary>
-        /// <param name="id">The ID of the user.</param>
-        /// <param name="userName">Name of the user.</param>
-        /// <param name="email">The email.</param>
-        /// <param name="role">The role.</param>
-        /// <returns>
-        /// A redirect to the Users list.
-        /// </returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> UserEdit(string id, string userName, string email, string role)
-        {
-            var user = await userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            user.UserName = userName;
-            user.Email = email;
-            await userManager.UpdateAsync(user);
-
-            var userRoles = await userManager.GetRolesAsync(user);
-
-            if (userRoles.Any())
-            {
-                await userManager.RemoveFromRolesAsync(user, userRoles);
-            }
-
-            if (!string.IsNullOrEmpty(role))
-            {
-                await userManager.AddToRoleAsync(user, role);
-            }
-
-            return RedirectToAction("Users");
-        }
-
-        /// <summary>
-        /// Displays the confirmation page for deleting a user, checking if they are a manager of any groups.
-        /// </summary>
-        /// <param name="id">The ID of the user.</param>
-        /// <returns>A view displaying the user and their related groups if applicable.</returns>
-        [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> UserDelete(int id)
-        {
-            var user = await context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var managedGroups = await context.Groups
-                .Where(g => g.ManagerId == id)
-                .ToListAsync();
-
-            var managedGroupIds = managedGroups.Select(g => g.Id).ToList();
-
-            var projects = await context.GroupProjects
-                .Where(gp => managedGroupIds.Contains(gp.GroupId)) 
-                .Select(gp => gp.Project)
-                .Distinct()
-                .ToListAsync();
-
-            var viewModel = new UserDeleteViewModel
-            {
-                User = user,
-                RelatedGroups = managedGroups,
-                RelatedProjects = projects
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Confirms and executes the deletion of a user along with related groups if they are a manager.
-        /// </summary>
-        /// <param name="id">The ID of the user to be deleted.</param>
-        /// <returns>
-        /// A redirect to the Users list.
-        /// </returns>
-        [HttpPost, ActionName("DeleteConfirmed")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "IsManager")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var user = await context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var managedGroups = await context.Groups
-                .Where(g => g.ManagerId == id)
-                .ToListAsync();
-
-            if (managedGroups.Any())
-            {
-                TempData["ErrorMessage"] = "Cannot delete this user because they are a manager of a group or a group they manage is referenced in a project.";
-                return RedirectToAction(nameof(UserDelete), new { id });
-            }
-
-            context.Users.Remove(user);
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Users));
         }
 
         /// <summary>

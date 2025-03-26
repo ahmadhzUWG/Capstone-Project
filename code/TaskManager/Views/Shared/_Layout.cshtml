@@ -19,29 +19,35 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Users">Employees</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Projects">Projects</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Groups">Groups</a>
-                        </li>
-                        
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item">
-                            <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="nav-link text-dark" style="border: none; background: none; cursor: pointer">Sign Out</button>
-                            </form>
-                        </li>
-                    }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Users">Employees</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Projects">Projects</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Groups">Groups</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form action="@Url.Action("Logout", "Login")" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="nav-link text-dark" style="border: none; background: none; cursor: pointer">Sign Out</button>
+                                </form>
+                            </li>
+                        }
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Sign In</a>
+                            </li>
+                        }
 
                 </ul>
             </div>
@@ -52,6 +58,8 @@
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
+
+        <div id="modal-container"></div>
 </div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

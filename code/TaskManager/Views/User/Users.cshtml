@@ -1,13 +1,59 @@
-﻿@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
+﻿@model TaskManagerWebsite.ViewModels.UsersViewModel
+
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 
 @{
     ViewData["Title"] = "Admin Page";
-
 }
 
 <link rel="stylesheet" href="~/css/user/projects.css" asp-append-version="true" />
 
 <div class="container">
+    
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+    @if (Model.RelatedGroups.Any()) 
+    {
+        <div class="alert alert-warning">
+
+            <strong>Warning!</strong>
+
+            <br/><br/>
+            This user cannot be deleted because they manage groups or those groups are referenced in projects.
+            <br/><br/>
+
+            <p>The user manages the following groups:</p>
+
+            <ul>
+                @foreach (var group in Model.RelatedGroups)
+                {
+                    <li>@group.Name</li>
+                }
+            </ul>
+
+            @if (Model.RelatedProjects.Any())
+            {
+                <p>The following projects reference those groups:</p>
+                <ul>
+                    @foreach (var project in Model.RelatedProjects)
+                    {
+                        <li>@project.Name</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
     <div class="header">
         <h1>User List</h1>
         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
@@ -27,7 +73,7 @@
         </tr>
         </thead>
         <tbody>
-        @foreach (var user in Model)
+        @foreach (var user in Model.Users)
         {
             <tr>
                 <td>@user.UserName</td>
@@ -36,7 +82,13 @@
                     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                     {
                         @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-info btn-sm" })
-                        @Html.ActionLink("Delete", "UserDelete", new { id = user.Id }, new { @class = "btn btn-danger btn-sm" })
+
+                        <form asp-action="DeleteConfirmed" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@user.Id">
+                            <input type="hidden" name="id" value="@user.Id"/>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="showConfirmDialog('group','@user.Id')">
+                                Delete
+                            </button>
+                        </form>
                     }
                 </td>
             </tr>
@@ -48,3 +100,10 @@
         @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
     </div>
 </div>
+
+@await Html.PartialAsync("_ConfirmModal")
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/messageModal.js"></script>
+}

@@ -1,31 +1,33 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using TaskManagerWebsite.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
 
-namespace TaskManagerWebsite.Authorization;
-
-/// <summary>
-/// Represents a handler for the <see cref="AdminRoleRequirement"/>.
-/// </summary>
-/// <seealso cref="Microsoft.AspNetCore.Authorization.AuthorizationHandler&lt;TaskManagerWebsite.Authorization.UserRoleRequirement&gt;" />
-public class AdminRoleHandler : AuthorizationHandler<AdminRoleRequirement>
+namespace TaskManagerWebsite.Authorization
 {
-    /// <summary>
-    /// Makes a decision if authorization is allowed based on a specific requirement.
-    /// </summary>
-    /// <param name="context">The authorization context.</param>
-    /// <param name="requirement">The requirement to evaluate.</param>
-    /// <returns></returns>
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AdminRoleRequirement requirement)
+    public class AdminRoleHandler(ApplicationDbContext context) : AuthorizationHandler<AdminRoleRequirement>
     {
-        var userRole = context.User.FindFirstValue(ClaimTypes.Role);
-
-        if (userRole == requirement.RequiredRole)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context1, AdminRoleRequirement requirement)
         {
-            context.Succeed(requirement);
-        }
+            if (!int.TryParse(context1.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+            {
+                return;
+            }
 
-        return Task.CompletedTask;
+            var userRole = await context.UserRoles
+                .Where(ur => ur.UserId == userId)
+                .Join(
+                    context.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => r.Name
+                )
+                .FirstOrDefaultAsync();
+
+            if (userRole == requirement.RequiredRole)
+            {
+                context1.Succeed(requirement);
+            }
+        }
     }
 }
