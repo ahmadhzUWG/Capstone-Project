@@ -23,7 +23,19 @@
             @Model.ErrorMessage
         </div>
     }
+    @if (Model.RelatedProjects.Any())
+    {
+        <div class="alert alert-warning">
 
+            <p>The following projects reference the group:</p>
+            <ul>
+                @foreach (var project in Model.RelatedProjects)
+                {
+                    <li>@project.Name</li>
+                }
+            </ul>
+        </div>
+    }
     <div class="groups-container">
         <div class="header">
             <h1>Groups</h1>

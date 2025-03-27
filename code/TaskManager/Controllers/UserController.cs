@@ -247,9 +247,10 @@ namespace TaskManagerWebsite.Controllers
         /// <returns>
         /// A view displaying all groups.
         /// </returns>
-        public async Task<IActionResult> Groups()
+        public async Task<IActionResult> Groups(GroupsViewModel incomingModel)
         {
             var model = new GroupsViewModel();
+            model.UndeletedGroupId = incomingModel.UndeletedGroupId;
 
             if (TempData.ContainsKey("SuccessMessage"))
             {
@@ -261,7 +262,15 @@ namespace TaskManagerWebsite.Controllers
                 model.ErrorMessage = TempData["ErrorMessage"] as string;
             }
 
+            var projects = await context.GroupProjects
+                .Where(gp => gp.GroupId == model.UndeletedGroupId)
+                .Select(gp => gp.Project)
+                .Distinct()
+                .ToListAsync();
+
             model.Groups = await context.Groups.ToListAsync();
+
+            model.RelatedProjects = projects;
 
             var userId = userManager.GetUserId(User);
             ViewBag.UserId = userId;
@@ -375,7 +384,13 @@ namespace TaskManagerWebsite.Controllers
             if (isAssignedToProject)
             {
                 TempData["ErrorMessage"] = $"The group '{group.Name}' is assigned to one or more projects and cannot be deleted.";
-                return RedirectToAction(nameof(Groups));
+
+                var model = new GroupsViewModel()
+                {
+                    UndeletedGroupId = id
+                };
+
+                return RedirectToAction(nameof(Groups), model);
             }
 
             try
