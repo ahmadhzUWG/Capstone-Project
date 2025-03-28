@@ -6,134 +6,131 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="/css/user/projects.css" asp-append-version="true" />
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-<div class="container">
+<div class="tm-container">
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
-        <div class="alert alert-success">
+        <div class="tm-alert tm-alert--success">
             @Model.SuccessMessage
         </div>
     }
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger">
+        <div class="tm-alert tm-alert--danger">
             @Model.ErrorMessage
         </div>
     }
-    <div class="header">
-        <h1>Projects</h1>
+    <div class="tm-header tm-header--with-actions">
+        <h1 class="tm-header__title">Projects</h1>
         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded
-             || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded)
+        || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded)
         {
-            <a href="@Url.Action("CreateProject", "User")" class="btn btn-primary">Create New Project</a>
+            <a href="@Url.Action("CreateProject", "User")" class="tm-btn tm-btn--primary">Create New Project</a>
         }
     </div>
 
-    <table class="table table-bordered">
+    <table class="tm-table tm-table--bordered">
         <thead>
-        <tr>
-            <th>Project Name</th>
-            <th>Actions</th>
-        </tr>
+            <tr>
+                <th>Project Name</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var project in Model.Projects.OrderBy(p => p.Name))
-        {
-            <tr>
-                <td>@project.Name</td>
-                <td>
-                    <a href="@Url.Action("ProjectDetails", "User", new { id = project.Id })" class="btn btn-info btn-sm">View</a>
-                    @if (project.ProjectLeadId == int.Parse(ViewBag.UserId) || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
-                    {
+            @foreach (var project in Model.Projects.OrderBy(p => p.Name))
+            {
+                <tr>
+                    <td>@project.Name</td>
+                    <td>
+                        <a href="@Url.Action("ProjectDetails", "User", new { id = project.Id })" class="tm-btn tm-btn--info tm-btn--small">View</a>
+                        @if (project.ProjectLeadId == int.Parse(ViewBag.UserId) || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                        {
                             <form asp-action="DeleteProject" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@project.Id">
-                            <input type="hidden" name="id" value="@project.Id"/>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="showConfirmDialog('group','@project.Id')">
-                                Delete
-                            </button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
+                                <input type="hidden" name="id" value="@project.Id" />
+                                <button type="button" class="tm-btn tm-btn--danger tm-btn--small" onclick="showConfirmDialog('group','@project.Id')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 
     @if (Model.GroupRequests.Count > 0)
     {
-        <h3>Your Group Requests Inbox</h3>
-        <table class="table table-bordered">
+        <h3 class="tm-header__title">Your Group Requests Inbox</h3>
+        <table class="tm-table tm-table--bordered">
             <thead>
-            <tr>
-                <th>Requested Group</th>
-                <th>Project Requesting Group</th>
-                <th>Decision</th>
-            </tr>
+                <tr>
+                    <th>Requested Group</th>
+                    <th>Project Requesting Group</th>
+                    <th>Decision</th>
+                </tr>
             </thead>
             <tbody>
-            @foreach (var groupRequest in Model.GroupRequests)
-            {
-                <tr>
-                    <td>@groupRequest.Group.Name</td>
-                    <td>@groupRequest.Project.Name</td>
-                    <td>
-                        <form method="post" action="@Url.Action("AcceptRequest", "User")" style="display:inline;">
-                            <input type="hidden" name="requestId" value="@groupRequest.Id"/>
-                            <button type="submit" class="btn btn-info btn-sm">Accept</button>
-                        </form>
-                        <form method="post" action="@Url.Action("DenyRequest", "User")" style="display:inline;">
-                            <input type="hidden" name="requestId" value="@groupRequest.Id"/>
-                            <button type="submit" class="btn btn-danger btn-sm">Deny</button>
-                        </form>
-                    </td>
-                </tr>
-            }
+                @foreach (var groupRequest in Model.GroupRequests)
+                {
+                    <tr>
+                        <td>@groupRequest.Group.Name</td>
+                        <td>@groupRequest.Project.Name</td>
+                        <td>
+                            <form method="post" action="@Url.Action("AcceptRequest", "User")" style="display:inline;">
+                                <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                                <button type="submit" class="tm-btn tm-btn--info tm-btn--small">Accept</button>
+                            </form>
+                            <form method="post" action="@Url.Action("DenyRequest", "User")" style="display:inline;">
+                                <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                                <button type="submit" class="tm-btn tm-btn--danger tm-btn--small">Deny</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     }
 
     @if (Model.SentGroupRequests.Count > 0)
     {
-        <h3>Your Sent Group Requests</h3>
-        <table class="table table-bordered">
+        <h3 class="tm-header__title">Your Sent Group Requests</h3>
+        <table class="tm-table tm-table--bordered">
             <thead>
-            <tr>
-                <th>Requested Group</th>
-                <th>Project Requesting Group</th>
-                <th>Response</th>
-            </tr>
+                <tr>
+                    <th>Requested Group</th>
+                    <th>Project Requesting Group</th>
+                    <th>Response</th>
+                </tr>
             </thead>
             <tbody>
-            @foreach (var groupRequest in Model.SentGroupRequests)
-            {
-                <tr>
-                    <td>@(groupRequest.Group?.Name ?? "No Group Assigned")</td>
-                    <td>@(groupRequest.Project?.Name ?? "No Project Assigned")</td>
-                    <td>
-                        @if (groupRequest.Response == true)
-                        {
-                            <span class="badge bg-success equal-height">Accepted</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger equal-height">Denied</span>
-                        }
-                        <form action="@Url.Action("DeleteGroupRequest", "User")" method="post" style="display:inline;">
-                            <input type="hidden" name="requestId" value="@groupRequest.Id"/>
-                            <button type="submit" class="btn btn-sm btn-primary equal-height">OK</button>
-                        </form>
-                    </td>
-                </tr>
-            }
+                @foreach (var groupRequest in Model.SentGroupRequests)
+                {
+                    <tr>
+                        <td>@(groupRequest.Group?.Name ?? "No Group Assigned")</td>
+                        <td>@(groupRequest.Project?.Name ?? "No Project Assigned")</td>
+                        <td>
+                            @if (groupRequest.Response == true)
+                            {
+                                <span class="tm-badge tm-badge--success">Accepted</span>
+                            }
+                            else
+                            {
+                                <span class="tm-badge tm-badge--danger">Denied</span>
+                            }
+                            <form action="@Url.Action("DeleteGroupRequest", "User")" method="post" style="display:inline;">
+                                <input type="hidden" name="requestId" value="@groupRequest.Id" />
+                                <button type="submit" class="tm-btn tm-btn--primary tm-btn--small">OK</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     }
-    
+
     @await Html.PartialAsync("_ConfirmModal")
 
-    <div class="back-link">
-        @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
-    </div>
 </div>
 
 @section Scripts {

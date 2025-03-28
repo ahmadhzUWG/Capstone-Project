@@ -7,57 +7,56 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="/css/User/createGroups.css" />
+<link rel="stylesheet" href="/css/main.css" />
 
-<div class="container">
-    <div class="form-container">
-        <h1 class="text-center">Create Group</h1>
+<div class="tm-container">
+    <div class="tm-form-container">
+        <h1 class="tm-header__title tm-text--center">Create Group</h1>
 
-        <form id="createGroupForm" asp-action="CreateGroup" asp-controller="User" method="post" class="needs-validation" novalidate>
-            <div class="form-group">
-                <label asp-for="Name">Group Name</label>
-                <input asp-for="Name" class="form-control" required />
-                <span asp-validation-for="Name" class="text-danger"></span>
+        <form id="createGroupForm" asp-action="CreateGroup" asp-controller="User" method="post" class="tm-form needs-validation" novalidate>
+            <div class="tm-form__group">
+                <label asp-for="Name" class="tm-form__label">Group Name</label>
+                <input asp-for="Name" class="tm-form__input" required />
+                <span asp-validation-for="Name" class="tm-form__error"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Description">Group Description</label>
-                <input asp-for="Description" class="form-control" required />
-                <span asp-validation-for="Description" class="text-danger"></span>
+            <div class="tm-form__group">
+                <label asp-for="Description" class="tm-form__label">Group Description</label>
+                <input asp-for="Description" class="tm-form__input" required />
+                <span asp-validation-for="Description" class="tm-form__error"></span>
             </div>
-            
-            <div class="form-group">
-                <label>Select Manager</label>
-                <component type="typeof(GenericSelect<User>)" 
+
+            <div class="tm-form__group">
+                <label class="tm-form__label">Select Manager</label>
+                <component type="typeof(GenericSelect<User>)"
                            render-mode="ServerPrerendered"
                            param-Items="ViewBag.Employees"
                            param-SelectedItemId="Model.SelectedManagerId"
                            param-IdProperty=@("Id")
                            param-DisplayTextProperty=@("UserName")
                            param-HiddenInputName=@("SelectedManagerId") />
-                <span asp-validation-for="@Model.SelectedManagerId" class="text-danger"></span>
+                <span asp-validation-for="@Model.SelectedManagerId" class="tm-form__error"></span>
             </div>
 
-            <div class="form-group">
-                <label>Select Employees</label>
-
-                <input type="text" id="searchBoxEmployees" class="form-control mb-2" placeholder="Search employees...">
-                <div id="employeeContainer" class="employee-list">
+            <div class="tm-form__group">
+                <label class="tm-form__label">Select Employees</label>
+                <input type="text" id="searchBoxEmployees" class="tm-form__input mb-2" placeholder="Search employees...">
+                <div id="employeeContainer" class="tm-employee-list">
                     @foreach (var user in ViewBag.Employees ?? new List<User>())
                     {
-                        <div class="form-check employee-box" data-user-id="@user.Id">
-                            <input type="checkbox" name="SelectedUserIds" value="@user.Id" class="form-check-input employee-checkbox"
+                        <div class="tm-form-check tm-employee-box" data-user-id="@user.Id">
+                            <input type="checkbox" name="SelectedUserIds" value="@user.Id" class="tm-form-check__input tm-employee-checkbox"
                             @(Model?.SelectedUserIds != null && Model.SelectedUserIds.Contains(user.Id) ? "checked" : "") />
-                            <label class="form-check-label">@user.UserName (@user.Email)</label>
+                            <label class="tm-form-check__label">@user.UserName (@user.Email)</label>
                         </div>
                     }
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block mt-3">Create</button>
+            <button type="submit" class="tm-btn tm-btn--success tm-btn--block mt-3">Create</button>
         </form>
 
-        <a href="@Url.Action("Groups", "User")" class="btn btn-secondary btn-block mt-2">Back to Groups</a>
+        <a href="@Url.Action("Groups", "User")" class="tm-btn tm-btn--secondary tm-btn--block mt-2">Back to Groups</a>
     </div>
 </div>
 

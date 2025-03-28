@@ -6,9 +6,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div style="text-align:center;">
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-    <h1>@Model.Project.Name - Project Board</h1>
+<div class="tm-container" style="text-align:center;">
+    <h1 class="tm-header__title">@Model.Project.Name - Project Board</h1>
 
     @if (Model.Project.ProjectBoard == null)
     {
@@ -16,70 +17,69 @@
     }
     else
     {
-        <div class="d-flex flex-row justify-content-center">
+        <div class="tm-board">
             @foreach (var stage in Model.Project.ProjectBoard.Stages.OrderBy(s => s.Position))
             {
-                <div class="p-2 board-column" style="border: 1px solid #ccc; margin: 10px;">
-                    <h5>
+                <div class="tm-board__column" style="border: 1px solid #ccc; margin: 10px;">
+                    <h5 class="tm-board__title">
                         @if ((Model.CanAddStage
-                              && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded) 
-                             || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                       && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
+                       || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                         {
                             <a asp-controller="Project" asp-action="EditStage" asp-route-stageId="@stage.Id">
                                 @stage.Position - @stage.Name
-                                </a>
+                            </a>
                         }
                         else
                         {
                             @($"{stage.Position} - {stage.Name}")
                         }
                     </h5>
-                    <h8>
+                    <div class="tm-board__assigned">
                         Assigned Group: @stage.AssignedGroup?.Name
-                    </h8>
+                    </div>
                 </div>
             }
         </div>
-
     }
 
     @if ((Model.CanAddStage
-          && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded) 
-         || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+    && (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
+    || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
     {
         <hr />
-        <h3>Add Stage</h3>
+        <h3 class="tm-header__title">Add Stage</h3>
 
-        @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "text-danger" })
+        @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "tm-form__error" })
 
-        <form asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@Model.Project.Id" method="post">
+        <form asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@Model.Project.Id" method="post" class="tm-form">
             @Html.AntiForgeryToken()
 
-            <div>
-                <label asp-for="StageForm.Name"></label>
-                <input asp-for="StageForm.Name" />
-                <span asp-validation-for="StageForm.Name" class="text-danger"></span>
+            <div class="tm-form__group">
+                <label asp-for="StageForm.Name" class="tm-form__label"></label>
+                <input asp-for="StageForm.Name" class="tm-form__input" />
+                <span asp-validation-for="StageForm.Name" class="tm-form__error"></span>
             </div>
 
-            <div>
-                <label asp-for="StageForm.Position"></label>
-                <input asp-for="StageForm.Position" type="number" />
-                <span asp-validation-for="StageForm.Position" class="text-danger"></span>
+            <div class="tm-form__group">
+                <label asp-for="StageForm.Position" class="tm-form__label"></label>
+                <input asp-for="StageForm.Position" type="number" class="tm-form__input" />
+                <span asp-validation-for="StageForm.Position" class="tm-form__error"></span>
             </div>
 
-            <div>
-                <label asp-for="StageForm.SelectedGroupId"></label>
-                <select asp-for="StageForm.SelectedGroupId" asp-items="Model.StageForm.AvailableGroups">
+            <div class="tm-form__group">
+                <label asp-for="StageForm.SelectedGroupId" class="tm-form__label"></label>
+                <select asp-for="StageForm.SelectedGroupId" asp-items="Model.StageForm.AvailableGroups" class="tm-form__input">
                     <option value="">-- Select a Group --</option>
                 </select>
-                <span asp-validation-for="StageForm.SelectedGroupId" class="text-danger"></span>
+                <span asp-validation-for="StageForm.SelectedGroupId" class="tm-form__error"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Add Stage</button>
+            <button type="submit" class="tm-btn tm-btn--primary">Add Stage</button>
         </form>
     }
 
-    <a asp-controller="User" asp-action="ProjectDetails" asp-route-id="@Model.Project.Id" class="btn btn-secondary mt-3">
+    <a asp-controller="User" asp-action="ProjectDetails" asp-route-id="@Model.Project.Id" class="tm-btn tm-btn--secondary mt-3">
         Go Back
     </a>
 </div>

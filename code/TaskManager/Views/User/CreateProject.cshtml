@@ -7,50 +7,47 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/User/createProject.css" asp-append-version="true" />
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-<h2 class="text-center">Create New Project</h2>
+<h2 class="tm-header__title tm-text--center">Create New Project</h2>
 
-<div class="container">
-    <div class="form-container">
-        <form asp-action="CreateProject" method="post">
-            <div class="form-group">
-                <label asp-for="Name"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+<div class="tm-container">
+    <div class="tm-form-container">
+        <form asp-action="CreateProject" method="post" class="tm-form">
+            <div class="tm-form__group">
+                <label asp-for="Name" class="tm-form__label"></label>
+                <input asp-for="Name" class="tm-form__input" />
+                <span asp-validation-for="Name" class="tm-form__error"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Description"></label>
-                <textarea asp-for="Description" class="form-control"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
+            <div class="tm-form__group">
+                <label asp-for="Description" class="tm-form__label"></label>
+                <textarea asp-for="Description" class="tm-form__input"></textarea>
+                <span asp-validation-for="Description" class="tm-form__error"></span>
             </div>
-        
-            <div class="form-group">
-                <label>Project Lead</label>
+
+            <div class="tm-form__group">
+                <label class="tm-form__label">Project Lead</label>
                 <component type="typeof(GenericSelect<User>)"
                            render-mode="ServerPrerendered"
                            param-Items="Model.ProjectLeads"
-                           param-SelectedItemId="@Model.SelectedProjectLeadId" 
+                           param-SelectedItemId="@Model.SelectedProjectLeadId"
                            param-IdProperty=@("Id")
                            param-DisplayTextProperty=@("UserName")
                            param-HiddenInputName=@("SelectedProjectLeadId") />
-                <span asp-validation-for="@Model.SelectedProjectLeadId" class="text-danger"></span>
-
+                <span asp-validation-for="@Model.SelectedProjectLeadId" class="tm-form__error"></span>
             </div>
 
-            <div class="form-group">
-
-                <component type="typeof(ProjectGroupSelection)" 
-                           render-mode="ServerPrerendered" 
-                           param-Groups="Model.Groups" 
+            <div class="tm-form__group">
+                <component type="typeof(ProjectGroupSelection)"
+                           render-mode="ServerPrerendered"
+                           param-Groups="Model.Groups"
                            param-SelectedGroupIds="Model.GroupIds" />
-                <span asp-validation-for="@Model.GroupIds" class="text-danger"></span>
-
+                <span asp-validation-for="@Model.GroupIds" class="tm-form__error"></span>
             </div>
 
-            <button type="submit" class="btn btn-success">Create</button>
-            <a asp-action="Projects" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="tm-btn tm-btn--success">Create</button>
+            <a asp-action="Projects" class="tm-btn tm-btn--secondary">Cancel</a>
         </form>
     </div>
 </div>

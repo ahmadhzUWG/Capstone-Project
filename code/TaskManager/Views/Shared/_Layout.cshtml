@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - TaskManager</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" hred="~/css/main.css"/>
 </head>
 <body>
 <header>
@@ -67,6 +68,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
+<script src="~/lib/jquery.unobtrusive-ajax.js"></script>
+<script src="~/js/groupFunctions.js"></script>
+<script src="~/js/messageModal.js"></script>
 <script src="_framework/blazor.server.js"></script>
 
 @await RenderSectionAsync("Scripts", required: false)

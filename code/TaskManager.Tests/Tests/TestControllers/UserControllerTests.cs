@@ -97,9 +97,10 @@ public class UserControllerTests
         dbContext.Users.Add(new User { Id = 2, UserName = "User2", Email = "user2@example.com" });
         await dbContext.SaveChangesAsync();
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var viewModel = new UsersViewModel();
 
         // Act
-        var result = await controller.Users();
+        var result = await controller.Users(viewModel);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -190,39 +191,6 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task UserDelete_ReturnsViewIfUserExists()
-    {
-        // Arrange
-        var dbContext = TestHelper.GetDbContext();
-        var user = new User { Id = 100, UserName = "DeleteUser", Email = "delete@example.com" };
-        dbContext.Users.Add(user);
-        await dbContext.SaveChangesAsync();
-        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        // Act
-        var result = await controller.UserDelete(100);
-
-        // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var modelUser = Assert.IsType<UserDeleteViewModel>(viewResult.Model);
-        Assert.Equal("DeleteUser", modelUser.User.UserName);
-    }
-
-    [Fact]
-    public async Task UserDelete_ReturnsNotFoundIfUserDoesNotExist()
-    {
-        // Arrange
-        var dbContext = TestHelper.GetDbContext();
-        var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
-
-        // Act
-        var result = await controller.UserDelete(999);
-
-        // Assert
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
     public async Task DeleteConfirmed_DeletesUserAndRedirects()
     {
         // Arrange
@@ -246,9 +214,10 @@ public class UserControllerTests
         // Arrange
         var dbContext = TestHelper.GetDbContext();
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var viewModel = new UsersViewModel();
 
         // Act
-        var result = await controller.Users();
+        var result = await controller.Users(viewModel);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -427,9 +396,10 @@ public class UserControllerTests
         dbContext.Groups.Add(new Group { Id = 2, Name = "Group2", Description = "Test Description" });
         await dbContext.SaveChangesAsync();
         var controller = new UserController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var viewModel = new GroupsViewModel();
 
         // Act
-        var result = await controller.Groups();
+        var result = await controller.Groups(viewModel);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);

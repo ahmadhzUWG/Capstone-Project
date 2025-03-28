@@ -27,6 +27,10 @@ function clearValidationError(fieldName) {
         .addClass("field-validation-valid");
 }
 
+function refreshGroupAssignment(htmlSnippet) {
+    $("#group-assignment-container").html(htmlSnippet);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     var managerDropdown = document.getElementById("managerDropdown");
     if (managerDropdown) {

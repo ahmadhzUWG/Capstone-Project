@@ -5,60 +5,47 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/User/projectDetails.css" />
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-<div class="container">
-
-    <div class="project-header">
-        <h2>@Model.Name</h2>
-        <p>Description: @Model.Description</p>
+<div class="tm-container">
+    <div class="tm-project-header">
+        <h2 class="tm-header__title">@Model.Name</h2>
+        <p class="tm-project__description">Description: @Model.Description</p>
     </div>
     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
     {
-        <button type="submit" class="btn btn-success mt-2">Assign Group</button>
+        <button type="submit" class="tm-btn tm-btn--success mt-2">Assign Group</button>
     }
-    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="btn btn-info">View Project Board</a>
+    <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="tm-btn tm-btn--info">View Project Board</a>
 
-    <div class="project-section">
-        <h3>Project Lead</h3>
+    <div class="tm-project-section">
+        <h3 class="tm-header__title">Project Lead</h3>
         @if (Model.ProjectLead != null)
         {
-            <p class="lead-info">
+            <p class="tm-lead-info">
                 <strong>@Model.ProjectLead.UserName (@Model.ProjectLead.Email)</strong>
             </p>
         }
         else
         {
-            <p class="lead-info"><strong>No project lead assigned.</strong></p>
+            <p class="tm-lead-info"><strong>No project lead assigned.</strong></p>
         }
         
         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded
              || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsProjectLead")).Succeeded)
         {
-            <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="btn btn-warning">Edit Project</a>
+            <a href="@Url.Action("EditProject", "User", new { id = Model.Id })" class="tm-btn tm-btn--warning">Edit Project</a>
         }
-
     </div>
     
-
-    <div class="project-section">
-        @await Html.PartialAsync("_ProjectGroupAssignmentPartial", Model)
+    <div class="tm-project-section">
+        @await Html.PartialAsync("_ProjectGroupAssignmentPartial")
     </div>
 
-    <a asp-action="Projects" class="btn btn-info">Back to Projects</a>
+    <a asp-action="Projects" class="tm-btn tm-btn--info">Back to Projects</a>
 </div>
 
 @section Scripts {
     <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
-    <script src="~/lib/groupFunctions.js"></script>
-    <script>
-        function refreshGroupAssignment(htmlSnippet) {
-            $("#group-assignment-container").html(htmlSnippet);
-        }
-
-        function groupActionFailed(xhr, status, error) {
-            alert("An error occurred while processing the request.");
-            console.error("Error:", error);
-        }
-    </script>
+    <script src="~/js/groupFunctions.js"></script>
 }

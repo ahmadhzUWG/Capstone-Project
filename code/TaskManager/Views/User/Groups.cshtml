@@ -1,32 +1,29 @@
 ﻿@model TaskManagerWebsite.ViewModels.GroupsViewModel
-
 @inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
-
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/user/projects.css" asp-append-version="true" />
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-<div class="container">
+<div class="tm-container">
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
-        <div class="alert alert-success">
+        <div class="tm-alert tm-alert--success">
             @Model.SuccessMessage
         </div>
     }
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger">
+        <div class="tm-alert tm-alert--danger">
             @Model.ErrorMessage
         </div>
     }
     @if (Model.RelatedProjects.Any())
     {
-        <div class="alert alert-warning">
-
+        <div class="tm-alert tm-alert--warning">
             <p>The following projects reference the group:</p>
             <ul>
                 @foreach (var project in Model.RelatedProjects)
@@ -36,56 +33,50 @@
             </ul>
         </div>
     }
-    <div class="groups-container">
-        <div class="header">
-            <h1>Groups</h1>
-            <!-- Create Group Button -->
-            <div style="text-align: center">
+    <div class="tm-groups-container">
+        <div class="tm-header tm-header--with-actions">
+            <h1 class="tm-header__title">Groups</h1>
+            <div class="tm-header__actions" style="text-align: center">
                 @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                 {
-                    <a href="@Url.Action("CreateGroup", "User")" class="btn btn-primary">Create New Group</a>
+                    <a href="@Url.Action("CreateGroup", "User")" class="tm-btn tm-btn--primary">Create New Group</a>
                 }
             </div>
         </div>
-        <table class="table">
+        <table class="tm-table">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var group in Model.Groups)
-                {
-                    <tr>
-                        <td>@group.Name</td>
-                        <td>@group.Description</td>
-                        <td>
-                            <a href="@Url.Action("GroupDetails", "User", new { id = group.Id })" class="btn btn-info btn-sm">View</a>
-                            @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "IsManager")).Succeeded ||
-                           (await AuthorizationService.AuthorizeAsync(User, null, "IsAdmin")).Succeeded)
-                            {
-                                <form asp-action="DeleteGroup" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@group.Id">
-                                    <input type="hidden" name="id" value="@group.Id" />
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="showConfirmDialog('group','@group.Id')">
-                                        Delete
-                                    </button>
-                                </form>
-                            }
-                        </td>
-                    </tr>
-                }
+            @foreach (var group in Model.Groups)
+            {
+                <tr>
+                    <td>@group.Name</td>
+                    <td>@group.Description</td>
+                    <td>
+                        <a href="@Url.Action("GroupDetails", "User", new { id = group.Id })" class="tm-btn tm-btn--info tm-btn--small">View</a>
+                        @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "IsManager")).Succeeded ||
+                             (await AuthorizationService.AuthorizeAsync(User, null, "IsAdmin")).Succeeded)
+                        {
+                            <form asp-action="DeleteGroup" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@group.Id">
+                                <input type="hidden" name="id" value="@group.Id" />
+                                <button type="button" class="tm-btn tm-btn--danger tm-btn--small" onclick="showConfirmDialog('group','@group.Id')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
-
-        <div style="text-align: center;">
-            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
-        </div>
     </div>
 </div>
 
-<!-- Render the generic modal partial -->
 @await Html.PartialAsync("_ConfirmModal")
 
 @section Scripts {

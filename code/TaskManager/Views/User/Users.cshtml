@@ -1,46 +1,40 @@
 ﻿@model TaskManagerWebsite.ViewModels.UsersViewModel
-
 @inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 
 @{
     ViewData["Title"] = "Admin Page";
 }
 
-<link rel="stylesheet" href="~/css/user/projects.css" asp-append-version="true" />
+<link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
-<div class="container">
-    
+<div class="tm-container">
+
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
-        <div class="alert alert-success">
+        <div class="tm-alert tm-alert--success">
             @Model.SuccessMessage
         </div>
     }
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <div class="alert alert-danger">
+        <div class="tm-alert tm-alert--danger">
             @Model.ErrorMessage
         </div>
     }
-    @if (Model.RelatedGroups.Any()) 
+    @if (Model.RelatedGroups.Any())
     {
-        <div class="alert alert-warning">
-
+        <div class="tm-alert tm-alert--warning">
             <strong>Warning!</strong>
-
-            <br/><br/>
+            <br /><br />
             This user cannot be deleted because they manage groups or those groups are referenced in projects.
-            <br/><br/>
-
+            <br /><br />
             <p>The user manages the following groups:</p>
-
             <ul>
                 @foreach (var group in Model.RelatedGroups)
                 {
                     <li>@group.Name</li>
                 }
             </ul>
-
             @if (Model.RelatedProjects.Any())
             {
                 <p>The following projects reference those groups:</p>
@@ -54,56 +48,51 @@
         </div>
     }
 
-    <div class="header">
-        <h1>User List</h1>
+    <div class="tm-header tm-header--with-actions">
+        <h1 class="tm-header__title">User List</h1>
         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
         {
-            <div>
-                @Html.ActionLink("Add Employee", "UserAdd", "User", null, new { @class = "btn btn-primary" })
+            <div class="tm-header__actions">
+                @Html.ActionLink("Add Employee", "UserAdd", "User", null, new { @class = "tm-btn tm-btn--primary" })
             </div>
         }
     </div>
 
-    <table class="table">
+    <table class="tm-table">
         <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var user in Model.Users)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>
-                    @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
-                    {
-                        @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "btn btn-info btn-sm" })
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                        {
+                            @Html.ActionLink("Edit", "UserEdit", new { id = user.Id }, new { @class = "tm-btn tm-btn--info tm-btn--small" })
 
-                        <form asp-action="DeleteConfirmed" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@user.Id">
-                            <input type="hidden" name="id" value="@user.Id"/>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="showConfirmDialog('group','@user.Id')">
-                                Delete
-                            </button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
+                            <form asp-action="DeleteConfirmed" asp-controller="User" method="post" style="display:inline;" id="deleteForm-group-@user.Id">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="button" class="tm-btn tm-btn--danger tm-btn--small" onclick="showConfirmDialog('group','@user.Id')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
-
-    <div class="back-link">
-        @Html.ActionLink("Go Back", "Index", "Home", null, new { @class = "btn btn-cancel" })
-    </div>
 </div>
 
 @await Html.PartialAsync("_ConfirmModal")
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/messageModal.js"></script>
 }

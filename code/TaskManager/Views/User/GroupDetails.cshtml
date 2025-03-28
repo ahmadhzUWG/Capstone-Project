@@ -5,40 +5,38 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="/css/User/groupDetails.css" />
+<link rel="stylesheet" href="/css/main.css" />
 
-<div class="container">
-    <div class="group-header">
-        <h2>@Model.Name</h2>
-        <p>Description: @Model.Description</p>
+<div class="tm-container">
+    <div class="tm-group-header">
+        <h2 class="tm-header__title">@Model.Name</h2>
+        <p class="tm-group__description">Description: @Model.Description</p>
     </div>
 
-    <!-- Display the Current Manager -->
-    <div class="group-section">
-        <h3>Manager of this Group</h3>
+    <div class="tm-group-section">
+        <h3 class="tm-header__title">Manager of this Group</h3>
         @if (Model.Manager != null)
         {
-            <p class="manager-info">
+            <p class="tm-manager-info">
                 <strong>@Model.Manager.UserName (@Model.Manager.Email)</strong>
             </p>
         }
         else
         {
-            <p class="manager-info"><strong>No manager assigned.</strong></p>
+            <p class="tm-manager-info"><strong>No manager assigned.</strong></p>
         }
     </div>
-    
+
     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded
     || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
     {
-        <!-- Change Manager Section -->
-        <div class="group-section">
-            <h3>Change Manager</h3>
-            <form asp-action="ChangeManager" asp-controller="User" method="post">
+        <div class="tm-group-section">
+            <h3 class="tm-header__title">Change Manager</h3>
+            <form asp-action="ChangeManager" asp-controller="User" method="post" class="tm-form">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="groupId" value="@Model.Id"/>
-                <label for="newManagerId">Select New Manager:</label>
-                <select name="newManagerId" class="form-control">
+                <input type="hidden" name="groupId" value="@Model.Id" />
+                <label for="newManagerId" class="tm-form__label">Select New Manager:</label>
+                <select name="newManagerId" class="tm-form__input">
                     @if (ViewBag.AvailableManagers != null && ViewBag.AvailableManagers.Count > 0)
                     {
                         @foreach (var manager in ViewBag.AvailableManagers)
@@ -51,30 +49,18 @@
                         <option value="" disabled>No available employees to promote</option>
                     }
                 </select>
-                <button type="submit" class="btn btn-warning mt-2" @(ViewBag.AvailableManagers.Count == 0 ? "disabled" : "")>Change Manager</button>
+                <button type="submit" class="tm-btn tm-btn--warning mt-2" @(ViewBag.AvailableManagers.Count == 0 ? "disabled" : "")>Change Manager</button>
             </form>
-
         </div>
     }
-    <!-- Combined Employee Assignment Section (Partial View) -->
-        <div class="group-section" id="group-assignment-section">
-            @await Html.PartialAsync("_GroupUserAssignmentPartial", Model)
-        </div>
-    <!-- Back to Groups Button -->
-    <div class="back-button">
-        <a href="@Url.Action("Groups", "User")" class="btn btn-secondary">Back to Groups</a>
+    <div class="tm-group-section" id="group-assignment-section">
+        @await Html.PartialAsync("_GroupUserAssignmentPartial")
+    </div>
+    <div class="tm-back-link">
+        <a href="@Url.Action("Groups", "User")" class="tm-btn tm-btn--secondary">Back to Groups</a>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
-    <script>
-        function refreshGroupAssignment(htmlSnippet) {
-            $("#group-assignment-section").html(htmlSnippet);
-        }
-        function groupActionFailed(xhr, status, error) {
-            alert("An error occurred while processing the group update.");
-            console.error("Error:", error);
-        }
-    </script>
+
 }
