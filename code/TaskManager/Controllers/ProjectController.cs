@@ -60,7 +60,22 @@ namespace TaskManagerWebsite.Controllers
                 var newBoard = new ProjectBoard
                 {
                     ProjectId = project.Id,
-                    BoardCreatorId = int.Parse(currentUserId)
+                    BoardCreatorId = int.Parse(currentUserId),
+                    Stages = new List<Stage>
+                    {
+                        new Stage
+                        {
+                            Name = "To Do",
+                            Position = 1,
+                            CreatorUserId = int.Parse(currentUserId),
+                        },
+                        new Stage
+                        {
+                            Name = "Done",
+                            Position = 2,
+                            CreatorUserId = int.Parse(currentUserId),
+                        }
+                    }
                 };
                 context.ProjectBoards.Add(newBoard);
                 await context.SaveChangesAsync();
@@ -164,7 +179,21 @@ namespace TaskManagerWebsite.Controllers
                 {
                     ProjectId = project.Id,
                     BoardCreatorId = int.Parse(currentUserId),
-                    Stages = new List<Stage>()
+                    Stages = new List<Stage>
+                    {
+                        new Stage
+                        {
+                            Name = "To Do",
+                            Position = 1,
+                            CreatorUserId = int.Parse(currentUserId),
+                        },
+                        new Stage
+                        {
+                            Name = "Done",
+                            Position = 2,
+                            CreatorUserId = int.Parse(currentUserId),
+                        }
+                    }
                 };
                 context.ProjectBoards.Add(newBoard);
                 await context.SaveChangesAsync();
