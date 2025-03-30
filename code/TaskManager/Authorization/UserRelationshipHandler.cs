@@ -33,7 +33,7 @@ public class UserRelationshipHandler : AuthorizationHandler<UserRelationshipRequ
     /// <param name="context">The context.</param>
     /// <param name="requirement">The requirement.</param>
     /// <param name="targetUser">The target user.</param>
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRelationshipRequirement requirement, User targetUser)
+    protected override async System.Threading.Tasks.Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRelationshipRequirement requirement, User targetUser)
     {
         // Convert userId from string to int
         if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
