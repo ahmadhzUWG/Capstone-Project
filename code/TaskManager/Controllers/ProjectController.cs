@@ -71,8 +71,14 @@ namespace TaskManagerWebsite.Controllers
                         },
                         new Stage
                         {
-                            Name = "Done",
+                            Name = "In Progess",
                             Position = 2,
+                            CreatorUserId = int.Parse(currentUserId),
+                        },
+                        new Stage
+                        {
+                            Name = "Done",
+                            Position = 3,
                             CreatorUserId = int.Parse(currentUserId),
                         }
                     }
@@ -189,8 +195,14 @@ namespace TaskManagerWebsite.Controllers
                         },
                         new Stage
                         {
-                            Name = "Done",
+                            Name = "In Progress",
                             Position = 2,
+                            CreatorUserId = int.Parse(currentUserId),
+                        },
+                        new Stage
+                        {
+                            Name = "Done",
+                            Position = 3,
                             CreatorUserId = int.Parse(currentUserId),
                         }
                     }

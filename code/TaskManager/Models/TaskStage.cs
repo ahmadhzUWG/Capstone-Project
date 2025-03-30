@@ -29,5 +29,11 @@
         /// Gets or sets the completed date.
         /// </summary>
         public DateTime? CompletedDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user Id of who updated the task last
+        /// </summary>
+        public int? UpdatedByUserId { get; set; }
     }
+    
 }
