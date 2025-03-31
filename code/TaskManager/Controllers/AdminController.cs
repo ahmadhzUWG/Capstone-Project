@@ -43,7 +43,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        /// Users the add.
+        /// Adds the user
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>

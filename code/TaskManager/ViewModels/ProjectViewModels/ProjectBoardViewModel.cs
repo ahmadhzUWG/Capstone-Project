@@ -24,5 +24,10 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         ///   <c>true</c> if this instance can add stage; otherwise, <c>false</c>.
         /// </value>
         public bool CanAddStage { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance can add task.
+        /// </summary>
+        public bool CanAddTask { get; set; }
     }
 }

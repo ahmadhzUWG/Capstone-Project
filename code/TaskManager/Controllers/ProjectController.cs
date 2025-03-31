@@ -36,6 +36,123 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
+        /// Gets the create task view.
+        /// </summary>
+        /// <param name="stageId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> CreateTask(int stageId)
+        {
+            var stage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.Id == stageId);
+
+            if (stage == null)
+                return NotFound();
+
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
+                .ThenInclude(userGroup => userGroup.User)
+                .Include(p => p.ProjectBoard)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
+                .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
+
+            if (project == null)
+                return NotFound();
+
+            ViewBag.ProjectId = project.Id;
+
+            var vm = new CreateTaskViewModel {StageId = stageId};
+
+            var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
+            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
+            bool isProjectLead = (project.ProjectLeadId == int.Parse(userManager.GetUserId(User)));
+            var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+            bool isGroupManager = await context.UserGroups.AnyAsync(
+                ug => groupIds.Contains(ug.GroupId)
+                      && ug.UserId == int.Parse(userManager.GetUserId(User))
+                      && ug.Role == "Manager");
+
+            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+
+            return View("CreateTask", vm);
+        }
+
+        /// <summary>
+        ///  Creates the task.
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateTask(CreateTaskViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var task = new Models.Task
+            {
+                Name = vm.Name,
+                Description = vm.Description,
+                CreatorUserId = int.Parse(userManager.GetUserId(User)),
+                CreatorUser = await userManager.FindByIdAsync(userManager.GetUserId(User))
+            };
+
+            context.Tasks.Add(task);
+            await context.SaveChangesAsync();
+
+            var taskStage = new TaskStage
+            {
+                Task = task,
+                TaskId = task.Id,
+                Stage = context.Stages.FirstOrDefault(s => s.Id == vm.StageId),
+                StageId = vm.StageId,
+                EnteredDate = DateTime.Now,
+                CompletedDate = null,
+                UpdatedByUserId = int.Parse(userManager.GetUserId(User)),
+                UpdatedByUser = await userManager.FindByIdAsync(userManager.GetUserId(User))
+            };
+
+            context.TaskStages.Add(taskStage);
+
+            if (vm.SelectedEmployeeId != null)
+            {
+                var taskEmployee = new TaskEmployee
+                {
+                    EmployeeId = vm.SelectedEmployeeId.Value,
+                    Employee = await userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString()),
+                    Task = task,
+                    TaskId = task.Id,
+                    AssignedDate = DateTime.Now,
+                    CompletedDate = null
+                };
+
+                context.TaskEmployees.Add(taskEmployee);
+            }
+
+            await context.SaveChangesAsync();
+
+            var stage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.Id == vm.StageId);
+
+            stage.TaskStages.Add(taskStage);
+
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
+                .ThenInclude(userGroup => userGroup.User)
+                .Include(p => p.ProjectBoard)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
+                .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
+
+            return RedirectToAction(nameof(ProjectBoard), new { id =  project.Id});
+        }
+
+        /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -118,8 +235,16 @@ namespace TaskManagerWebsite.Controllers
                 ug => groupIds.Contains(ug.GroupId)
                       && ug.UserId == int.Parse(userManager.GetUserId(User))
                       && ug.Role == "Manager");
+            var isEmployeeApartOfProject = context.UserGroups
+                .Any(ug => ug.UserId == currentUser.Id &&
+                           ug.Role == "Member" &&
+                           context.GroupProjects
+                               .Any(pg => pg.GroupId == ug.GroupId && pg.ProjectId == project.Id));
 
             vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
+            vm.CanAddTask = (isAdmin || isProjectLead || isGroupManager || isEmployeeApartOfProject);
+
+            await this.addTaskStagesToStages(project.ProjectBoard.Id);
 
             if (isAdmin)
             {
@@ -469,5 +594,76 @@ namespace TaskManagerWebsite.Controllers
             }
         }
 
+        private async System.Threading.Tasks.Task addTaskStagesToStages(int projectBoardId)
+        {
+            var stages = await context.Stages
+                .Where(s => s.ProjectBoardId == projectBoardId)  
+                .Include(s => s.TaskStages)  
+                .ToListAsync();
+
+            foreach (var stage in stages)
+            {
+                var taskStages = await context.TaskStages
+                    .Where(ts => ts.StageId == stage.Id)  
+                    .ToListAsync();
+
+                foreach (var taskStage in taskStages)
+                {
+                    Models.Task task = await context.Tasks
+                        .FirstOrDefaultAsync(t => t.Id == taskStage.TaskId);
+                    taskStage.Task = task;
+                    stage.TaskStages.Add(taskStage);
+                }
+            }
+        }
+
+        private void setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
+            bool isGroupManager, User currentUser)
+        {
+            if (isAdmin)
+            {
+                vm.AvailableEmployees = userManager.Users.Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList();
+            }
+            else if (isProjectLead)
+            {
+                vm.AvailableEmployees = project.ProjectGroups
+                    .SelectMany(pg => pg.Group.UserGroups)
+                    .Where(ug => ug.Role == "Member")
+                    .Select(ug => new SelectListItem
+                    {
+                        Value = ug.UserId.ToString(),
+                        Text = ug.User.UserName
+                    })
+                    .ToList();
+            }
+            else if (isGroupManager)
+            {
+                var managedGroups = project.ProjectGroups
+                    .Where(pg => pg.Group.UserGroups
+                        .Any(ug => ug.UserId == currentUser.Id && ug.Role == "Manager"))
+                    .ToList();
+
+                vm.AvailableEmployees = managedGroups
+                    .SelectMany(pg => pg.Group.UserGroups)
+                    .Where(ug => ug.Role == "Member")
+                    .Select(ug => new SelectListItem
+                    {
+                        Value = ug.UserId.ToString(),
+                        Text = ug.User.UserName
+                    })
+                    .ToList();
+            }
+            else
+            {
+                vm.AvailableEmployees = new List<SelectListItem>
+                {
+                    new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                };
+            }
+        }
     }
 }

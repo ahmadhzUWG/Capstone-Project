@@ -1,0 +1,45 @@
+﻿@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Project/createTask.css" />
+
+<div style="text-align: center">
+    <h2>Create Task</h2>
+    
+    <form asp-controller="Project" asp-action="CreateTask" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div>
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        
+        <div>
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        
+        <div>
+            <label asp-for="SelectedEmployeeId"></label>
+            <select asp-for="SelectedEmployeeId" asp-items="Model.AvailableEmployees" class="form-control">
+                <option value="">N/A</option>
+            </select>
+            <span asp-validation-for="SelectedEmployeeId" class="text-danger"></span>
+        </div>
+        
+        <input type="hidden" asp-for="StageId" />
+
+        <button type="submit" class="btn btn-primary" onclick="return confirm('Confirmation to create task');">Create Task</button>
+    </form>
+    
+    <a asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary">Cancel</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

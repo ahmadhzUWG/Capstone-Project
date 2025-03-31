@@ -17,4 +17,9 @@ public class User : IdentityUser<int>
     /// The user groups.
     /// </value>
     public ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
+
+    /// <summary>
+    /// Gets or sets the collection of tasks the user is assigned to.
+    /// </summary>
+    public ICollection<TaskEmployee> TaskEmployees { get; set; } = new List<TaskEmployee>();
 }

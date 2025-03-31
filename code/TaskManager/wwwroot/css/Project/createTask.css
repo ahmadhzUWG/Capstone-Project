@@ -1,0 +1,72 @@
+﻿/* Center the main container with a similar style */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centers text inside the container */
+}
+
+/* Inner form container */
+.form-container {
+    padding: 20px;
+}
+
+/* Headings */
+h1, h2 {
+    margin-bottom: 20px;
+    color: #34495e;
+    text-align: center;
+}
+
+/* Form styling */
+form {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers form elements */
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Inputs (for text, email, password, etc.) */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: white;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    background: #585d61;
+    margin: 20px 3px 3px 3px;
+}
+
+
+
+

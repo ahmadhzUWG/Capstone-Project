@@ -5,6 +5,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
 <div style="text-align:center;">
 
     <h1>@Model.Project.Name - Project Board</h1>
@@ -30,10 +33,27 @@
                         {
                             @($"{stage.Position} - {stage.Name}")
                         }
+                        
+                        <a asp-controller="Project" asp-action="CreateTask" asp-route-stageId="@stage.Id" 
+                           class="btn btn-sm btn-primary" title="Create Task" style="margin-left: 10px; font-size: 12px;"> 
+                            <i class="fas fa-plus"></i>
+                        </a>
                     </h5>
                     <h8>
                         Assigned Group: @stage.AssignedGroup?.Name
                     </h8>
+
+                    @foreach (var taskStage in stage.TaskStages.OrderByDescending(ts => ts.EnteredDate).DistinctBy(ts => ts.TaskId))
+                    {
+                        <div class="p-2 board-task" style="border: 1px solid #ccc; margin: 10px;">
+                            <h5>
+                                @taskStage.Task.Name
+                            </h5>
+                            <h8>
+                                @taskStage.Task.Description
+                            </h8>
+                        </div>
+                    }
                 </div>
             }
         </div>
