@@ -567,7 +567,7 @@ namespace TaskManagerWebsite.Controllers
 
             if (existingRequest != null)
             {
-                TempData["ErrorMessage"] = "You have already requested to assign this group to the project.";
+                TempData["ErrorMessage"] = "Please remove existing request before re-requesting.";
                 return RedirectToAction("ProjectDetails", "Employee", new { id = projectId });  
             }
 

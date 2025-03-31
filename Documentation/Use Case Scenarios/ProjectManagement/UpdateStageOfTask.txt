@@ -1,0 +1,13 @@
+Edit Task to Update Stage Position
+Context:
+	User wants to move a task to a different stage.
+	Primary Flow:
+		1. User selects task
+		2. User selects the stage before or after the current stage
+		3. System asks user for confirmation
+		4. User confirms
+		5. System updates task database with proper stage, group, and potentially employee assignment
+	Alternative Flow: User cancels task movement
+		1. Resume from primary flow step 3
+		2. User cancels
+		3. Resume primary flow step 2

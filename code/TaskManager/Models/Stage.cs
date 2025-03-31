@@ -60,6 +60,11 @@
         /// </summary>
         public Group AssignedGroup { get; set; }
 
+        /// <summary>
+        /// Gets or sets the collection of stages associations linked to this task.
+        /// A task can be associated with multiple stages.
+        /// </summary>
+        public ICollection<TaskStage> TaskStages { get; set; } = new List<TaskStage>();
     }
     
 }

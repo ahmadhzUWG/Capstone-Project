@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TaskManagerWebsite.Controllers;
 using TaskManagerWebsite.Models;
 using TaskManagerWebsite.Services;
+using Task = System.Threading.Tasks.Task;
 
 namespace TaskManager.Tests.Tests.TestControllers
 {

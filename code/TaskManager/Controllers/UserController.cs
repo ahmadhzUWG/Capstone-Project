@@ -71,7 +71,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        /// Users the add.
+        /// Adds the user
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
@@ -1018,7 +1018,6 @@ namespace TaskManagerWebsite.Controllers
                 context.GroupProjects.Add(groupProject);
             }
 
-            request.Response = true;
             await context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "The group request has been accepted.";

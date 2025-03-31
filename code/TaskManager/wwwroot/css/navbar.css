@@ -1,0 +1,92 @@
+﻿/* Global Navbar Styling */
+.navbar, .navbar-brand, .navbar .nav-link, .navbar .nav-item form button {
+    font-family: 'Roboto', Arial, sans-serif !important;
+}
+
+.navbar {
+    width: 100% !important;
+    background-color: #007bff !important; /* Consistent Blue */
+    padding: 15px !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Navbar Brand (Logo/Text) */
+.navbar-brand {
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Navbar Links */
+.navbar .nav-link {
+    color: white !important;
+    font-weight: bold !important;
+    padding: 10px 15px !important;
+    transition: color 0.3s ease-in-out !important;
+}
+
+    .navbar .nav-link:hover {
+        color: #f8f9fa !important;
+        text-decoration: underline !important;
+    }
+
+/* Navbar Button (Mobile Toggle) */
+.navbar-toggler {
+    border: none !important;
+    background: none !important;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1) !important; /* Makes the icon visible on blue background */
+}
+
+/* Navbar Collapse - Ensuring Flex Layout */
+.navbar-collapse {
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+/* Active Link Styling */
+.navbar .nav-item .active {
+    border-bottom: 2px solid white !important;
+}
+
+/* Sign Out Button */
+.navbar .nav-item form button {
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+    background: none !important;
+    cursor: pointer !important;
+    padding: 10px 15px !important;
+}
+
+    .navbar .nav-item form button:hover {
+        color: #f8f9fa !important;
+        text-decoration: underline !important;
+    }
+
+/* Responsive Navbar Adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column !important;
+    }
+
+    .navbar-collapse {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .navbar .nav-item {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .navbar .nav-link {
+        display: block !important;
+        width: 100% !important;
+    }
+}

@@ -68,6 +68,21 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<Stage> Stages { get; set; }
 
     /// <summary>
+    /// Gets or sets the tasks.
+    /// </summary>
+    public DbSet<Models.Task> Tasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the task stages.
+    /// </summary>
+    public DbSet<TaskStage> TaskStages { get; set; }
+
+    /// <summary>
+    /// Gets or sets the task employees.
+    /// </summary>
+    public DbSet<TaskEmployee> TaskEmployees { get; set; }
+
+    /// <summary>
     /// Configures the entity relationships and database mappings.
     /// </summary>
     /// <param name="modelBuilder">Provides a simple API to configure entity relationships.</param>
@@ -167,6 +182,34 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .HasOne(p => p.ProjectBoard)
             .WithOne(b => b.Project)
             .HasForeignKey<ProjectBoard>(b => b.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Task -> TaskEmployee (One-to-Many)
+        modelBuilder.Entity<TaskEmployee>()
+            .HasOne(te => te.Task)
+            .WithMany(t => t.TaskEmployees)
+            .HasForeignKey(te => te.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // User -> TaskEmployee (One-to-Many)
+        modelBuilder.Entity<TaskEmployee>()
+            .HasOne(te => te.Employee)
+            .WithMany(e => e.TaskEmployees)
+            .HasForeignKey(te => te.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Task -> TaskStage (One-to-Many)
+        modelBuilder.Entity<TaskStage>()
+            .HasOne(ts => ts.Task)
+            .WithMany(t => t.TaskStages)
+            .HasForeignKey(ts => ts.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Stage -> TaskStage (One-to-Many)
+        modelBuilder.Entity<TaskStage>()
+            .HasOne(ts => ts.Stage)
+            .WithMany(s => s.TaskStages)
+            .HasForeignKey(ts => ts.StageId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
