@@ -28,7 +28,7 @@
 
             <div class="tm-form__group">
                 <label class="tm-form__label">Select Manager</label>
-                <component type="typeof(GenericSelect<User>)"
+                <component type="typeof(GenericListSelect<User>)"
                            render-mode="ServerPrerendered"
                            param-Items="ViewBag.Employees"
                            param-SelectedItemId="Model.SelectedManagerId"
@@ -62,5 +62,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/lib/groupFunctions.js"></script>
 }

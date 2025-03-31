@@ -15,7 +15,7 @@ public static class DataSeeder
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public static async void SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
+    public static async System.Threading.Tasks.Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();

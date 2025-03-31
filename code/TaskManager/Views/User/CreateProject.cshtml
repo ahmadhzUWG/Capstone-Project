@@ -28,7 +28,7 @@
 
             <div class="tm-form__group">
                 <label class="tm-form__label">Project Lead</label>
-                <component type="typeof(GenericSelect<User>)"
+                <component type="typeof(GenericListSelect<User>)"
                            render-mode="ServerPrerendered"
                            param-Items="Model.ProjectLeads"
                            param-SelectedItemId="@Model.SelectedProjectLeadId"
@@ -54,5 +54,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/lib/groupFunctions.js"></script>
 }
