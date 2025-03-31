@@ -8,57 +8,56 @@
 <link rel="stylesheet" href="/css/main.css" />
 
 <div class="tm-container">
-    <div class="tm-group-header">
+    <div class="tm-header">
         <h2 class="tm-header__title">@Model.Name</h2>
         <p class="tm-group__description">Description: @Model.Description</p>
     </div>
 
-    <div class="tm-group-section">
-        <h3 class="tm-header__title">Manager of this Group</h3>
-        @if (Model.Manager != null)
-        {
-            <p class="tm-manager-info">
-                <strong>@Model.Manager.UserName (@Model.Manager.Email)</strong>
-            </p>
-        }
-        else
-        {
-            <p class="tm-manager-info"><strong>No manager assigned.</strong></p>
-        }
-    </div>
+<div class="tm-section">
+    <h3 class="tm-header__title">Manager of this Group</h3>
+    @if (Model.Manager != null)
+    {
+        <p class="tm-manager-info">
+            <strong>@Model.Manager.UserName (@Model.Manager.Email)</strong>
+        </p>
+    }
+    else
+    {
+        <p class="tm-manager-info"><strong>No manager assigned.</strong></p>
+    }
 
     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded
-    || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+         || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
     {
-        <div class="tm-group-section">
-            <h3 class="tm-header__title">Change Manager</h3>
-            <form asp-action="ChangeManager" asp-controller="User" method="post" class="tm-form">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="groupId" value="@Model.Id" />
-                <label for="newManagerId" class="tm-form__label">Select New Manager:</label>
-                <select name="newManagerId" class="tm-form__input">
-                    @if (ViewBag.AvailableManagers != null && ViewBag.AvailableManagers.Count > 0)
+        <h3 class="tm-header__title">Change Manager</h3>
+        <form asp-action="ChangeManager" asp-controller="User" method="post" class="tm-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="groupId" value="@Model.Id" />
+            <label for="newManagerId" class="tm-form__label">Select New Manager:</label>
+            <select name="newManagerId" class="tm-form__input">
+                @if (ViewBag.AvailableManagers != null && ViewBag.AvailableManagers.Count > 0)
+                {
+                    @foreach (var manager in ViewBag.AvailableManagers)
                     {
-                        @foreach (var manager in ViewBag.AvailableManagers)
-                        {
-                            <option value="@manager.Id">@manager.UserName (@manager.Email)</option>
-                        }
+                        <option value="@manager.Id">@manager.UserName (@manager.Email)</option>
                     }
-                    else
-                    {
-                        <option value="" disabled>No available employees to promote</option>
-                    }
-                </select>
-                <button type="submit" class="tm-btn tm-btn--warning mt-2" @(ViewBag.AvailableManagers.Count == 0 ? "disabled" : "")>Change Manager</button>
-            </form>
-        </div>
+                }
+                else
+                {
+                    <option value="" disabled>No available employees to promote</option>
+                }
+            </select>
+            <button type="submit" class="tm-btn tm-btn--warning mt-2" @(ViewBag.AvailableManagers.Count == 0 ? "disabled" : "")>Change Manager</button>
+        </form>
     }
-    <div class="tm-group-section" id="group-assignment-section">
+</div>
+    <div class="tm-section" id="group-assignment-section">
         @await Html.PartialAsync("_GroupUserAssignmentPartial")
     </div>
     <div class="tm-back-link">
         <a href="@Url.Action("Groups", "User")" class="tm-btn tm-btn--secondary">Back to Groups</a>
     </div>
+
 </div>
 
 @section Scripts {

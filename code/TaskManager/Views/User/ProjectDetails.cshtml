@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/main.css" asp-append-version="true" />
 
 <div class="tm-container">
-    <div class="tm-project-header">
+    <div class="tm-header">
         <h2 class="tm-header__title">@Model.Name</h2>
         <p class="tm-project__description">Description: @Model.Description</p>
     </div>
@@ -18,7 +18,7 @@
     }
     <a href="@Url.Action("ProjectBoard", "Project", new { id = Model.Id })" class="tm-btn tm-btn--info">View Project Board</a>
 
-    <div class="tm-project-section">
+    <div class="tm-section">
         <h3 class="tm-header__title">Project Lead</h3>
         @if (Model.ProjectLead != null)
         {
@@ -38,7 +38,7 @@
         }
     </div>
     
-    <div class="tm-project-section">
+    <div class="tm-section">
         @await Html.PartialAsync("_ProjectGroupAssignmentPartial")
     </div>
 

@@ -7,37 +7,36 @@
 }
 
 <div id="group-assignment-container">
-    <!-- List of Employees in the Group -->
     <div class="group-section">
         <h3>Employees in this Group</h3>
         @if (groupUsers != null && groupUsers.Any())
         {
-            <ul class="employee-list">
+            <ul class="tm-group-list">
                 @foreach (var userGroup in ViewBag.GroupUsers)
                 {
-                    <li class="employee-item">
+                    <li class="tm-group-item">
                         @userGroup.User.UserName (@userGroup.User.Email)
                         @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded
-                            || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+                       || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
                         {
                             @if (userGroup.UserId != Model.ManagerId)
                             {
-                            <form asp-action="RemoveUserFromGroup" method="post"
-                                  data-ajax="true"
-                                  data-ajax-method="POST"
-                                  data-ajax-success="refreshGroupAssignment"
-                                  data-ajax-failure="groupActionFailed"
-                                  class="inline-form">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="groupId" value="@Model.Id" />
-                                <input type="hidden" name="userId" value="@userGroup.UserId" />
-                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
+                                <form asp-action="RemoveUserFromGroup" method="post"
+                                      data-ajax="true"
+                                      data-ajax-method="POST"
+                                      data-ajax-success="refreshGroupAssignment"
+                                      data-ajax-failure="groupActionFailed"
+                                      class="tm-inline-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="groupId" value="@Model.Id" />
+                                    <input type="hidden" name="userId" value="@userGroup.UserId" />
+                                    <button type="submit" class="tm-btn tm-btn--danger tm-btn--small">Remove</button>
+                                </form>
                             }
                         }
                         else
                         {
-                            <span class="badge badge-info">Manager</span>
+                            <span class="tm-badge tm-badge--info">Manager</span>
                         }
                     </li>
                 }
@@ -45,15 +44,13 @@
         }
         else
         {
-            <p class="no-employees">No employees assigned to this group.</p>
+            <p class="tm-no-groups">No employees assigned to this group.</p>
         }
     </div>
 
-    <!-- Form to Add Employees to the Group -->
     @if ((await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsManager")).Succeeded
-         || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
+    || (await AuthorizationService.AuthorizeAsync(User, ViewBag.UserId, "IsAdmin")).Succeeded)
     {
-
         <div class="group-section">
             <h3>Add Employee to Group</h3>
             <form id="addEmployeeForm" asp-action="AddUserToGroup" method="post"
@@ -62,9 +59,9 @@
                   data-ajax-success="refreshGroupAssignment"
                   data-ajax-failure="groupActionFailed">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="groupId" value="@Model.Id"/>
+                <input type="hidden" name="groupId" value="@Model.Id" />
                 <label for="userId">Select Employee:</label>
-                <select name="userId" class="form-control">
+                <select name="userId" class="tm-form__input">
                     @if (groupUsers != null)
                     {
                         @foreach (var user in ViewBag.Users)
@@ -77,8 +74,8 @@
                         <option value="" disabled>No available employees</option>
                     }
                 </select>
-                <button type="submit" class="btn btn-success mt-2"
-                        @(ViewBag.Users != null && ViewBag.Users.Count == 0 ? "disabled" : "")>
+                <button type="submit" class="tm-btn tm-btn--success" style="margin-top: 10px;"
+                @(ViewBag.Users != null && ViewBag.Users.Count == 0 ? "disabled" : "")>
                     Add Employee
                 </button>
             </form>
