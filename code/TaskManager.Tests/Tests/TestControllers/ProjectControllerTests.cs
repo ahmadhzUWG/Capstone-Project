@@ -506,6 +506,122 @@ namespace TaskManager.Tests.Tests
             Assert.Equal("My Task", model.Name);
         }
 
+
+        [Fact]
+        public async Task EditTask_Post_InvalidModel_ReturnsView()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_InvalidModel_ReturnsView));
+            var user = new User { Id = 1, UserName = "user" };
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+            controller.ModelState.AddModelError("Name", "Required");
+
+            var vm = new CreateTaskViewModel { TaskId = 1 };
+
+            var result = await controller.EditTask(vm);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<CreateTaskViewModel>(viewResult.Model);
+        }
+
+        [Fact]
+        public async Task EditTask_Post_DuplicateName_ReturnsModelError()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_DuplicateName_ReturnsModelError));
+
+            var user = new User { Id = 1 };
+            var project = new Project { Id = 1, ProjectLeadId = user.Id, Name = "Test Project" ,Description = "Test Description"};
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board , Name = "Test Stage"};
+            var task1 = new TaskManagerWebsite.Models.Task { Id = 1, Name = "Original Task", CreatorUserId = user.Id , Description = "Task"};
+            var task2 = new TaskManagerWebsite.Models.Task { Id = 2, Name = "Duplicate Name", CreatorUserId = user.Id , Description = "Task"};
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.AddRange(task1, task2);
+            context.TaskStages.AddRange(
+                new TaskStage { Task = task1, Stage = stage },
+                new TaskStage { Task = task2, Stage = stage }
+            );
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 1,
+                Name = "Duplicate Name"  // Duplicate
+            };
+
+            var result = await controller.EditTask(vm);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.True(controller.ModelState.ContainsKey("Name"));
+        }
+
+        [Fact]
+        public async Task EditTask_Post_TaskNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_TaskNotFound_ReturnsNotFound));
+            var user = new User { Id = 1 };
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 999, // Non-existent
+                Name = "New Name"
+            };
+
+            var result = await controller.EditTask(vm);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Post_ValidUpdate_UpdatesTaskAndRedirects()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_ValidUpdate_UpdatesTaskAndRedirects));
+
+            var user = new User { Id = 1, UserName = "admin" };
+            var project = new Project { Id = 1, ProjectLeadId = user.Id, Name = "Test Project", Description = "Test Description" };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test"};
+            var task = new TaskManagerWebsite.Models.Task { Id = 1, Name = "Old Task", Description = "Old Desc", CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Task = task, Stage = stage };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var userManager = CreateUserManager(user, false);
+            var controller = new ProjectController(context, userManager);
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 1,
+                Name = "Updated Task",
+                Description = "Updated Desc"
+            };
+
+            var result = await controller.EditTask(vm);
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("ProjectBoard", redirect.ActionName);
+
+            var updatedTask = await context.Tasks.FindAsync(1);
+            Assert.Equal("Updated Task", updatedTask.Name);
+            Assert.Equal("Updated Desc", updatedTask.Description);
+        }
+
+
         // DELETE: DeleteStage
 
         [Fact]
