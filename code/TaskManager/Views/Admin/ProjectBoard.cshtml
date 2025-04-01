@@ -43,7 +43,10 @@
                         Assigned Group: @stage.AssignedGroup?.Name
                     </h8>
 
-                    @foreach (var taskStage in stage.TaskStages.OrderByDescending(ts => ts.EnteredDate).DistinctBy(ts => ts.TaskId))
+                    @foreach (var taskStage in stage.TaskStages
+                                  .Where(ts => ts.CompletedDate == null)
+                                  .OrderByDescending(ts => ts.EnteredDate)
+                                  .DistinctBy(ts => ts.TaskId))
                     {
                         <div class="p-2 board-task" style="border: 1px solid #ccc; margin: 10px;">
                             <h5>
@@ -53,6 +56,20 @@
                                 @taskStage.Task.Description
                             </h8>
                         </div>
+
+                        <form asp-controller="Project" asp-action="MoveTask" method="post" style="margin-top: 10px;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="taskId" value="@taskStage.TaskId" />
+                            <input type="hidden" name="currentStageId" value="@taskStage.StageId" />
+                            <select name="newStageId">
+                                @foreach (var targetStage in Model.Project.ProjectBoard.Stages.Where(s => s.Id != taskStage.StageId))
+                                {
+                                    <option value="@targetStage.Id">@targetStage.Name</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-secondary">Move</button>
+                        </form>
+
                     }
                 </div>
             }

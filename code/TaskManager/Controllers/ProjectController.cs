@@ -152,6 +152,43 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction(nameof(ProjectBoard), new { id =  project.Id});
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId)
+        {
+            var currentUser = await userManager.GetUserAsync(User);
+            var task = await context.Tasks.FindAsync(taskId);
+
+            if (task == null)
+                return NotFound();
+
+            var currentTaskStage = await context.TaskStages
+                .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.StageId == currentStageId && ts.CompletedDate == null);
+
+            if (currentTaskStage != null)
+            {
+                currentTaskStage.CompletedDate = DateTime.Now;
+                currentTaskStage.UpdatedByUserId = currentUser.Id;
+            }
+
+            var newTaskStage = new TaskStage
+            {
+                TaskId = taskId,
+                StageId = newStageId,
+                EnteredDate = DateTime.Now,
+                CompletedDate = null,
+                UpdatedByUserId = currentUser.Id
+            };
+
+            context.TaskStages.Add(newTaskStage);
+            await context.SaveChangesAsync();
+
+            var newStage = await context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
+            var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
+
+            return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
+        }
+
         /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).
         /// </summary>
