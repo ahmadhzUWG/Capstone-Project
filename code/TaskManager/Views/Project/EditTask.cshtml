@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
+
+@{
+    ViewBag.Title = "Edit Task";
+}
+
+<h2>Edit Task</h2>
+
+<form asp-action="EditTask" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="TaskId" />
+
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="SelectedEmployeeId">Assign to</label>
+        <select asp-for="SelectedEmployeeId" asp-items="Model.AvailableEmployees" class="form-control">
+            <option value="">-- None --</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+    <a asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary mt-3">Cancel</a>
+</form>

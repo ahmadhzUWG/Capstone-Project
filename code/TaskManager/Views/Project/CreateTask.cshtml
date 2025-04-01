@@ -26,7 +26,7 @@
         
         <div>
             <label asp-for="SelectedEmployeeId"></label>
-            <select asp-for="SelectedEmployeeId" asp-items="Model.AvailableEmployees" class="form-control">
+            <select asp-for="SelectedEmployeeId" class="form-control">
                 <option value="">N/A</option>
             </select>
             <span asp-validation-for="SelectedEmployeeId" class="text-danger"></span>

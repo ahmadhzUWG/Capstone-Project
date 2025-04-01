@@ -36,5 +36,7 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// Gets or sets the stage identifier.
         /// </summary>
         public int StageId { get; set; }
+
+        public int TaskId { get; set; }
     }
 }
