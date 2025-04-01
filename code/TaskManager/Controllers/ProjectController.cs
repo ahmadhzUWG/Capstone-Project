@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 using Task = System.Threading.Tasks.Task;
 
@@ -468,8 +469,23 @@ namespace TaskManagerWebsite.Controllers
                                .Any(pg => pg.GroupId == ug.GroupId && pg.ProjectId == project.Id));
 
             vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
-            vm.CanAddTask = (isAdmin || isProjectLead || isGroupManager || isEmployeeApartOfProject);
             vm.CanDeleteAnyTask = (isAdmin || isProjectLead);
+
+            var userGroupIds = context.UserGroups
+                .Where(ug => ug.UserId == currentUser.Id)
+                .Select(ug => ug.GroupId)
+                .ToList();
+
+            var stagesWithPermissions = project.ProjectBoard.Stages
+                .Select(stage => new StagePermissionViewModel
+                {
+                    Stage = stage,
+                    IsUserAssignedToGroup = stage.AssignedGroup != null && userGroupIds.Contains(stage.AssignedGroup.Id),
+                    IsAdminOrLead = isAdmin || isProjectLead
+                })
+                .ToList();
+
+            ViewBag.StagesWithPermissions = stagesWithPermissions;
 
             await setViewBagManagedUsers(isGroupManager, currentUser, project);
 
@@ -859,7 +875,7 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="project">The project.</param>
         /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
         /// <param name="currentUser">The current user.</param>
-        private async void setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
+        private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
             bool isGroupManager, User currentUser)
         {
             if (isAdmin)
