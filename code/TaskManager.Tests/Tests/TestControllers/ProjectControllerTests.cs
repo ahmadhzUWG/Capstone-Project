@@ -420,6 +420,92 @@ namespace TaskManager.Tests.Tests
             Assert.Equal(2, swapped.Position);
         }
 
+
+        [Fact]
+        public async Task EditTask_Get_TaskNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = "user" };
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.EditTask(taskId: 999);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_ProjectNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Tasks.Add(new TaskManagerWebsite.Models.Task { Id = 1, Name = "Test", Description = "Test Task"});
+            await context.SaveChangesAsync();
+            var user = new User { Id = 1, UserName = "user" };
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.EditTask(1);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_UserNotAuthorized_ReturnsForbid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var task = new TaskManagerWebsite.Models.Task { Id = 1, Name = "Task", Description = "Test Description"};
+            var project = new Project { Id = 1, ProjectLeadId = 999, Name = "Task", Description = "Test Description" };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test Stage"};
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Stage = stage, Task = task };
+
+            context.Tasks.Add(task);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var userManager =this.CreateUserManager(new User { Id = 1, UserName = "test" }, false);
+            var controller = new ProjectController(context, userManager);
+
+            var result = await controller.EditTask(1);
+
+            Assert.IsType<ForbidResult>(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_Valid_ReturnsViewWithModel()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = "user" };
+            var project = new Project { Id = 1, ProjectLeadId = 1, Name = "Test Project", Description = "Test Description"};
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test Stage" };
+            var task = new TaskManagerWebsite.Models.Task { Id = 2, Name = "My Task", Description = "Test Description", CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Id = 1, TaskId = task.Id, Task = task, Stage = stage };
+            var assignment = new TaskEmployee { TaskId = 2, EmployeeId = user.Id, Employee = user };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            context.TaskEmployees.Add(assignment);
+            await context.SaveChangesAsync();
+
+            var userManager = this.CreateUserManager(user, isAdmin: true);
+            var controller = new ProjectController(context, userManager);
+
+            var result = await controller.EditTask(task.Id);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsType<CreateTaskViewModel>(viewResult.Model);
+            Assert.Equal("My Task", model.Name);
+        }
+
         // DELETE: DeleteStage
 
         [Fact]
