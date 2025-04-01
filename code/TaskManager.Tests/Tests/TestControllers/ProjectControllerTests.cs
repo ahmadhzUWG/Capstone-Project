@@ -499,5 +499,59 @@ namespace TaskManager.Tests.Tests
             Assert.Equal(nameof(ProjectController.ProjectBoard), result.ActionName);
             Assert.Null(await context.Stages.FindAsync(1200));
         }
+
+        [Fact]
+        public async Task DeleteTask_ValidId_DeletesTaskAndRedirects()
+        {
+            // Arrange
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = "test" };
+            var project = new Project { Id = 1, Name = "Test", Description = "Test Description" };
+            var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
+            var stage = new Stage { Name = "Stage1", Id = 1, ProjectBoardId = 1, ProjectBoard = board };
+            var task = new TaskManagerWebsite.Models.Task { Description = "TestDescription", Id = 1, Name = "Task1", CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 1, Stage = stage };
+            var taskEmployee = new TaskEmployee { TaskId = 1, EmployeeId = 2 };
+
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            context.TaskEmployees.Add(taskEmployee);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, true));
+
+            // Act
+            var result = await controller.DeleteTask(taskStage.Id);
+
+            // Assert
+            Assert.IsType<RedirectToActionResult>(result);
+            Assert.False(context.Tasks.Any());
+            Assert.False(context.TaskStages.Any());
+            Assert.False(context.TaskEmployees.Any());
+        }
+
+        [Fact]
+        public async Task DeleteTask_StageNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = "test" };
+            var task = new TaskManagerWebsite.Models.Task { Description = "TestDescription", Id = 1, Name = "Task1", CreatorUserId = 1 };
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 42 }; // stageId 42 doesn't exist
+
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.DeleteTask(taskStage.Id);
+
+            Assert.IsType<NotFoundResult>(result);
+        }
     }
 }
