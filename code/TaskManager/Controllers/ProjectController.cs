@@ -897,7 +897,7 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
         /// <param name="currentUser">The current user.</param>
         private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
-            bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
+    bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
         {
             if (isAssignedGroup)
             {
@@ -909,9 +909,9 @@ namespace TaskManagerWebsite.Controllers
                 if (!isAdmin && !isProjectLead && !isGroupManager)
                 {
                     vm.AvailableEmployees = new List<SelectListItem>
-                    {
-                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-                    };
+            {
+                new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+            };
                 }
                 else
                 {
@@ -957,6 +957,8 @@ namespace TaskManagerWebsite.Controllers
                     vm.AvailableEmployees = managedGroups
                         .SelectMany(pg => pg.Group.UserGroups)
                         .Where(ug => ug.Role == "Member")
+                        .GroupBy(ug => ug.UserId)
+                        .Select(g => g.First())
                         .Select(ug => new SelectListItem
                         {
                             Value = ug.UserId.ToString(),
@@ -967,61 +969,13 @@ namespace TaskManagerWebsite.Controllers
                 else
                 {
                     vm.AvailableEmployees = new List<SelectListItem>
-                    {
-                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-                    };
+            {
+                new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+            };
                 }
             }
-
-            if (isAdmin)
-            {
-                var employees = await userManager.GetUsersInRoleAsync("Employee");
-                vm.AvailableEmployees = employees.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = e.UserName 
-                }).ToList();
-            }
-            else if (isProjectLead)
-            {
-                vm.AvailableEmployees = project.ProjectGroups
-                    .SelectMany(pg => pg.Group.UserGroups)
-                    .Where(ug => ug.Role == "Member")
-                    .Select(ug => new SelectListItem
-                    {
-                        Value = ug.UserId.ToString(),
-                        Text = ug.User.UserName
-                    })
-                    .ToList();
-            }
-            else if (isGroupManager)
-            {
-                var managedGroups = project.ProjectGroups
-                    .Where(pg => pg.Group.UserGroups
-                        .Any(ug => ug.UserId == currentUser.Id && ug.Role == "Manager"))
-                    .ToList();
-
-                vm.AvailableEmployees = managedGroups
-                    .SelectMany(pg => pg.Group.UserGroups)
-                    .Where(ug => ug.Role == "Member")
-                    .GroupBy(ug => ug.UserId)
-                    .Select(g => g.First())
-                    .Select(ug => new SelectListItem
-                    {
-                        Value = ug.UserId.ToString(),
-                        Text = ug.User.UserName
-                    })
-                    .ToList();
-            }
-
-            else
-            {
-                vm.AvailableEmployees = new List<SelectListItem>
-                {
-                    new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-                };
-            }
         }
+
 
         private async Task setViewBagManagedUsers(bool isGroupManager, User currentUser, Project project)
         {
