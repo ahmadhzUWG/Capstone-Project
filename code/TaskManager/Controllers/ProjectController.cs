@@ -102,6 +102,7 @@ namespace TaskManagerWebsite.Controllers
 
             var vm = new CreateTaskViewModel {StageId = stageId};
 
+            var isAssignedGroup = stage.AssignedGroup != null;
             var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
             bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
             bool isProjectLead = (project.ProjectLeadId == int.Parse(userManager.GetUserId(User)));
@@ -111,7 +112,7 @@ namespace TaskManagerWebsite.Controllers
                       && ug.UserId == int.Parse(userManager.GetUserId(User))
                       && ug.Role == "Manager");
 
-            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, stage, isAssignedGroup);
 
             return View("CreateTask", vm);
         }
@@ -300,7 +301,7 @@ namespace TaskManagerWebsite.Controllers
                 SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId
             };
 
-            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, taskStage.Stage, taskStage.Stage.AssignedGroup != null);
 
             ViewBag.ProjectId = project.Id;
 
@@ -876,8 +877,82 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
         /// <param name="currentUser">The current user.</param>
         private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
-            bool isGroupManager, User currentUser)
+            bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
         {
+            if (isAssignedGroup)
+            {
+                var assignedUsers = context.UserGroups
+                    .Where(ug => ug.GroupId == stage.AssignedGroup.Id)
+                    .Select(ug => ug.User)
+                    .ToList();
+
+                if (!isAdmin && !isProjectLead && !isGroupManager)
+                {
+                    vm.AvailableEmployees = new List<SelectListItem>
+                    {
+                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                    };
+                }
+                else
+                {
+                    vm.AvailableEmployees = assignedUsers
+                        .Select(e => new SelectListItem
+                        {
+                            Value = e.Id.ToString(),
+                            Text = e.UserName
+                        })
+                        .ToList();
+                }
+            }
+            else
+            {
+                if (isAdmin)
+                {
+                    var employees = await userManager.GetUsersInRoleAsync("Employee");
+                    vm.AvailableEmployees = employees.Select(e => new SelectListItem
+                    {
+                        Value = e.Id.ToString(),
+                        Text = e.UserName
+                    }).ToList();
+                }
+                else if (isProjectLead)
+                {
+                    vm.AvailableEmployees = project.ProjectGroups
+                        .SelectMany(pg => pg.Group.UserGroups)
+                        .Where(ug => ug.Role == "Member")
+                        .Select(ug => new SelectListItem
+                        {
+                            Value = ug.UserId.ToString(),
+                            Text = ug.User.UserName
+                        })
+                        .ToList();
+                }
+                else if (isGroupManager)
+                {
+                    var managedGroups = project.ProjectGroups
+                        .Where(pg => pg.Group.UserGroups
+                            .Any(ug => ug.UserId == currentUser.Id && ug.Role == "Manager"))
+                        .ToList();
+
+                    vm.AvailableEmployees = managedGroups
+                        .SelectMany(pg => pg.Group.UserGroups)
+                        .Where(ug => ug.Role == "Member")
+                        .Select(ug => new SelectListItem
+                        {
+                            Value = ug.UserId.ToString(),
+                            Text = ug.User.UserName
+                        })
+                        .ToList();
+                }
+                else
+                {
+                    vm.AvailableEmployees = new List<SelectListItem>
+                    {
+                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                    };
+                }
+            }
+
             if (isAdmin)
             {
                 var employees = await userManager.GetUsersInRoleAsync("Employee");
