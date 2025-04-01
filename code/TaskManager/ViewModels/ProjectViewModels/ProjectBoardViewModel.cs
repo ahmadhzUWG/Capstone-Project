@@ -29,5 +29,10 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// Gets or sets a value indicating whether this instance can add task.
         /// </summary>
         public bool CanAddTask { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance can delete any task.
+        /// </summary>
+        public bool CanDeleteAnyTask { get; set; }
     }
 }

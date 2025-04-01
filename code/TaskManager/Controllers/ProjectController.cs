@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
 using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
+using Task = System.Threading.Tasks.Task;
 
 namespace TaskManagerWebsite.Controllers
 {
@@ -33,6 +34,40 @@ namespace TaskManagerWebsite.Controllers
         {
             this.context = context;
             this.userManager = userManager;
+        }
+
+        public async Task<IActionResult> DeleteTask(int taskStageId)
+        {
+            var taskStage = await context.TaskStages
+                .Include(ts => ts.Task)
+                .FirstOrDefaultAsync(ts => ts.Id == taskStageId);
+
+            var stage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.Id == taskStage.StageId);
+
+            if (stage == null)
+                return NotFound();
+
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
+                .ThenInclude(userGroup => userGroup.User)
+                .Include(p => p.ProjectBoard)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
+                .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
+
+            if (project == null)
+                return NotFound();
+
+            context.TaskEmployees.RemoveRange(context.TaskEmployees.Where(te => te.TaskId == taskStage.TaskId));
+            context.TaskStages.RemoveRange(context.TaskStages.Where(ts => ts.TaskId == taskStage.TaskId));
+            context.Tasks.Remove(context.Tasks.FirstOrDefault(t => t.Id == taskStage.TaskId));
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
 
         /// <summary>
@@ -243,6 +278,9 @@ namespace TaskManagerWebsite.Controllers
 
             vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
             vm.CanAddTask = (isAdmin || isProjectLead || isGroupManager || isEmployeeApartOfProject);
+            vm.CanDeleteAnyTask = (isAdmin || isProjectLead);
+
+            await setViewBagManagedUsers(isGroupManager, currentUser, project);
 
             await this.addTaskStagesToStages(project.ProjectBoard.Id);
 
@@ -617,15 +655,42 @@ namespace TaskManagerWebsite.Controllers
             }
         }
 
-        private void setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
+        private async Task setViewBagManagedUsers(bool isGroupManager, User currentUser, Project project)
+        {
+            if (isGroupManager)
+            {
+                var managedGroupIds = await context.UserGroups
+                    .Where(ug => ug.UserId == currentUser.Id && ug.Role == "Manager")
+                    .Select(ug => ug.GroupId)
+                    .ToListAsync();
+
+                var managedGroupProjects = project.ProjectGroups
+                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
+                    .ToList();
+                var managedGroups = project.ProjectGroups
+                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
+                    .ToList();
+
+                var managedUsers = context.UserGroups
+                    .Where(ug => managedGroupIds.Contains(ug.GroupId))
+                    .Select(ug => ug.User)
+                    .Distinct()
+                    .ToList();
+
+                ViewBag.ManagedUsers = managedUsers;
+            }
+        }
+
+        private async System.Threading.Tasks.Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
             bool isGroupManager, User currentUser)
         {
             if (isAdmin)
             {
-                vm.AvailableEmployees = userManager.Users.Select(u => new SelectListItem
+                var employees = await userManager.GetUsersInRoleAsync("Employee");
+                vm.AvailableEmployees = employees.Select(e => new SelectListItem
                 {
-                    Value = u.Id.ToString(),
-                    Text = u.UserName
+                    Value = e.Id.ToString(),
+                    Text = e.UserName 
                 }).ToList();
             }
             else if (isProjectLead)
