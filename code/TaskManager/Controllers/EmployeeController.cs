@@ -322,7 +322,14 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> CreateProject(CreateProjectViewModel model)
         {
             var currentUserId = _userManager.GetUserId(User);
-            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            if (string.IsNullOrEmpty(currentUserId) || !int.TryParse(currentUserId, out int userId))
+            {
+                ModelState.AddModelError("", "Unable to determine the logged-in user.");
+                return View(model);
+            }
+
+            var currentUser = await _context.Users.FindAsync(userId);
+
             var groups = await _context.Groups.ToListAsync();
             ViewBag.Groups = groups;
 
