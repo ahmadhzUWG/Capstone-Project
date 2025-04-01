@@ -127,6 +127,28 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            // ✅ Get the stage (to access the project)
+            var stage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.Id == vm.StageId);
+
+            if (stage == null)
+                return NotFound();
+
+            var projectId = stage.ProjectBoard.ProjectId;
+
+            // ✅ Check if a task with the same name already exists in this project
+            bool duplicateExists = await context.TaskStages
+                .Where(ts => ts.Stage.ProjectBoard.ProjectId == projectId)
+                .Select(ts => ts.Task)
+                .AnyAsync(t => t.Name == vm.Name);
+
+            if (duplicateExists)
+            {
+                ModelState.AddModelError("Name", "A task with this name already exists in this project.");
+                return View(vm);
+            }
+
             var task = new Models.Task
             {
                 Name = vm.Name,
@@ -142,7 +164,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 Task = task,
                 TaskId = task.Id,
-                Stage = context.Stages.FirstOrDefault(s => s.Id == vm.StageId),
+                Stage = stage,
                 StageId = vm.StageId,
                 EnteredDate = DateTime.Now,
                 CompletedDate = null,
@@ -169,11 +191,7 @@ namespace TaskManagerWebsite.Controllers
 
             await context.SaveChangesAsync();
 
-            var stage = await context.Stages
-                .Include(s => s.ProjectBoard)
-                .FirstOrDefaultAsync(s => s.Id == vm.StageId);
-
-            stage.TaskStages.Add(taskStage);
+            stage.TaskStages.Add(taskStage); // Optional if you're tracking changes to stage
 
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
@@ -184,9 +202,8 @@ namespace TaskManagerWebsite.Controllers
                 .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
-            return RedirectToAction(nameof(ProjectBoard), new { id =  project.Id});
+            return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
-
         /// <summary>
         /// Moves the task.
         /// </summary>
@@ -301,6 +318,23 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            var currProjectId = await context.TaskStages
+                .Where(ts => ts.TaskId == vm.TaskId)
+                .Include(ts => ts.Stage)
+                .ThenInclude(s => s.ProjectBoard)
+                .Select(ts => ts.Stage.ProjectBoard.ProjectId)
+                .FirstOrDefaultAsync();
+
+            bool nameExists = await context.TaskStages
+                .Where(ts => ts.Stage.ProjectBoard.ProjectId == currProjectId)
+                .Select(ts => ts.Task)
+                .AnyAsync(t => t.Name == vm.Name && t.Id != vm.TaskId);
+            if (nameExists)
+            {
+                ModelState.AddModelError("Name", "A task with this name already exists.");
+                return View(vm);
+            }
+
             var task = await context.Tasks
                 .Include(t => t.TaskEmployees)
                 .FirstOrDefaultAsync(t => t.Id == vm.TaskId);
@@ -311,6 +345,7 @@ namespace TaskManagerWebsite.Controllers
             task.Name = vm.Name;
             task.Description = vm.Description;
 
+            // Handle employee reassignment
             var currentAssignment = task.TaskEmployees.FirstOrDefault();
             if (currentAssignment != null && currentAssignment.EmployeeId != vm.SelectedEmployeeId)
             {
@@ -342,7 +377,6 @@ namespace TaskManagerWebsite.Controllers
 
             return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
         }
-
 
         /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).
