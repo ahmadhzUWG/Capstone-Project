@@ -60,5 +60,38 @@ namespace TaskManager.Tests.Tests.TestModels
             var user = new User();
             Assert.NotNull(user);
         }
+
+        [Fact]
+        public void User_TaskEmployees_DefaultsToEmptyList()
+        {
+            var user = new User();
+
+            Assert.NotNull(user.TaskEmployees);
+            Assert.Empty(user.TaskEmployees);
+        }
+
+        [Fact]
+        public void User_TaskEmployees_CanBeAssignedAndRetrieved()
+        {
+            // Arrange
+            var taskEmployees = new List<TaskEmployee>
+            {
+                new TaskEmployee { TaskId = 1 },
+                new TaskEmployee { TaskId = 2 }
+            };
+
+            var user = new User
+            {
+                TaskEmployees = taskEmployees
+            };
+
+            // Act & Assert
+            Assert.NotNull(user.TaskEmployees);
+            Assert.Equal(2, user.TaskEmployees.Count);
+            Assert.Contains(user.TaskEmployees, te => te.TaskId == 1);
+            Assert.Contains(user.TaskEmployees, te => te.TaskId == 2);
+        }
+
+
     }
 }

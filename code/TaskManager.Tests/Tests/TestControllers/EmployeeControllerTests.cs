@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using TaskManagerWebsite.Controllers;
 using TaskManagerWebsite.Data;
@@ -35,6 +36,8 @@ namespace TaskManager.Tests.Tests.TestControllers
                 .ReturnsAsync(user);
             mockUM.Setup(um => um.IsInRoleAsync(It.IsAny<User>(), "Admin"))
                 .ReturnsAsync(isAdmin);
+            mockUM.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(user);
             return mockUM.Object;
         }
 
@@ -266,46 +269,39 @@ namespace TaskManager.Tests.Tests.TestControllers
             Assert.Equal(2, updatedGroup.ManagerId);
         }
 
-        // ------------------- Projects -------------------
+        [Fact]
+        public async Task ChangeManager_ChangesManagerRoleAndDemotesPrevious_IfBothExist()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var group = new Group { Id = 1, Name = "Group1", Description = "Desc", ManagerId = 1 };
+            context.Groups.Add(group);
+            context.Users.AddRange(
+                new User { Id = 1, UserName = "OldManager" },
+                new User { Id = 2, UserName = "NewManager" }
+            );
+            context.UserGroups.AddRange(
+                new UserGroup { GroupId = 1, UserId = 1, Role = "Manager" },
+                new UserGroup { GroupId = 1, UserId = 2, Role = "Member" }
+            );
+            await context.SaveChangesAsync();
 
-        //[Fact]
-        //public async Task Projects_ReturnsView_WithProjectsAndViewBags()
-        //{
-        //    using var context = CreateContext(Guid.NewGuid().ToString());
-        //    context.Projects.AddRange(new List<Project>
-        //    {
-        //        new Project { Id = 1, Name = "P1", Description = "D1", ProjectLeadId = 1 },
-        //        new Project { Id = 2, Name = "P2", Description = "D2", ProjectLeadId = 2 }
-        //    });
-        //    context.GroupRequests.Add(new GroupRequest
-        //    {
-        //        Id = 1,
-        //        GroupId = 1,
-        //        ProjectId = 1,
-        //        SenderId = 1,
-        //        Response = null
-        //    });
-        //    context.GroupRequests.Add(new GroupRequest
-        //    {
-        //        Id = 2,
-        //        GroupId = 2,
-        //        ProjectId = 2,
-        //        SenderId = 1,
-        //        Response = true
-        //    });
-        //    await context.SaveChangesAsync();
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 2 }), CreateRoleManager())
+            {
+                ControllerContext = CreateControllerContext(new User { Id = 2 })
+            };
+            InitializeTempData(controller);
 
-        //    var currentUser = new User { Id = 1, UserName = "user1" };
-        //    var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
-        //        { ControllerContext = CreateControllerContext(currentUser) };
-        //    InitializeTempData(controller);
+            var result = await controller.ChangeManager(1, 2);
 
-        //    var result = await controller.Projects() as ViewResult;
-        //    var projects = result.Model as List<Project>;
-        //    Assert.Equal(2, projects.Count);
-        //    Assert.NotNull(result.ViewData["GroupRequests"]);
-        //    Assert.NotNull(result.ViewData["SentGroupRequests"]);
-        //}
+            Assert.IsType<RedirectToActionResult>(result);
+            var updatedGroup = await context.Groups.FindAsync(1);
+            Assert.Equal(2, updatedGroup.ManagerId);
+
+            var oldManager = await context.UserGroups.FirstOrDefaultAsync(u => u.UserId == 1 && u.GroupId == 1);
+            var newManager = await context.UserGroups.FirstOrDefaultAsync(u => u.UserId == 2 && u.GroupId == 1);
+            Assert.Equal("Member", oldManager.Role);
+            Assert.Equal("Manager", newManager.Role);
+        }
 
         // ------------------- CreateProject (GET & POST) -------------------
 
@@ -327,24 +323,6 @@ namespace TaskManager.Tests.Tests.TestControllers
             Assert.NotNull(result.ViewData["Groups"]);
         }
 
-        //[Fact]
-        //public async Task CreateProject_Post_CreatesProject_IfValid()
-        //{
-        //    using var context = CreateContext(Guid.NewGuid().ToString());
-        //    context.Users.Add(new User { Id = 1, UserName = "user1" });
-        //    await context.SaveChangesAsync();
-
-        //    var model = new CreateProjectViewModel { Name = "NewProj", Description = "NewDesc", ProjectLeadId = 1 };
-        //    var currentUser = new User { Id = 1, UserName = "user1" };
-        //    var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
-        //        { ControllerContext = CreateControllerContext(currentUser) };
-        //    InitializeTempData(controller);
-
-        //    var result = await controller.CreateProject(model) as RedirectToActionResult;
-        //    Assert.Equal("Projects", result.ActionName);
-        //    Assert.Single(context.Projects);
-        //}
-
         [Fact]
         public async Task CreateProject_Post_ReturnsView_IfInvalid()
         {
@@ -361,6 +339,85 @@ namespace TaskManager.Tests.Tests.TestControllers
 
             var result = await controller.CreateProject(model) as ViewResult;
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_ReturnsError_IfUserNotAuthenticated()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = "user1" });
+            await context.SaveChangesAsync();
+
+            var model = new CreateProjectViewModel
+            {
+                Name = "Test Project",
+                Description = "Some description",
+                ProjectLeadId = 1
+            };
+
+            var user = new User { Id = 1, UserName = "user1" };
+
+            var mockUserManager = new Mock<UserManager<User>>(new Mock<IUserStore<User>>().Object,
+                null, null, null, null, null, null, null, null);
+
+            mockUserManager.Setup(m => m.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
+            mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((User)null);
+
+            var controller = new EmployeeController(context, mockUserManager.Object, CreateRoleManager())
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            controller.ModelState.Clear();
+
+            var result = await controller.CreateProject(model) as ViewResult;
+
+            Assert.NotNull(result);
+            Assert.True(controller.ModelState.ErrorCount > 0);
+            Assert.Contains(controller.ModelState, m => m.Value.Errors.Any());
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_CreatesProjectAndAssignsGroups_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = "user1" };
+            var group = new Group { Id = 1, Name = "Group1", Description = "Test group", ManagerId = user.Id };
+
+            context.Users.Add(user);
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            var model = new CreateProjectViewModel
+            {
+                Name = "Test Project",
+                Description = "Test Desc",
+                ProjectLeadId = user.Id
+            };
+
+            var controller = new EmployeeController(context, CreateUserManager(user), CreateRoleManager())
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            var formCollection = new Mock<IFormCollection>();
+            formCollection.Setup(f => f["GroupId"]).Returns(new Microsoft.Extensions.Primitives.StringValues("1"));
+
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Form).Returns(formCollection.Object);
+
+            var mockContext = new Mock<HttpContext>();
+            mockContext.Setup(c => c.Request).Returns(mockRequest.Object);
+            controller.ControllerContext.HttpContext = mockContext.Object;
+
+            var result = await controller.CreateProject(model);
+
+            Assert.IsType<RedirectToActionResult>(result);
+            Assert.Single(context.Projects);
+            Assert.Single(context.GroupProjects);
         }
 
         // ------------------- ProjectDetails -------------------
@@ -476,6 +533,27 @@ namespace TaskManager.Tests.Tests.TestControllers
             var result = await controller.EditProject(1, proj) as RedirectToActionResult;
             Assert.Equal("ProjectDetails", result.ActionName);
             Assert.Equal("Updated", (await context.Projects.FindAsync(1)).Name);
+        }
+
+        [Fact]
+        public async Task EditProject_Post_ReturnsView_IfModelStateInvalid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var project = new Project { Id = 1, Name = "Project1", Description = "Desc", ProjectLeadId = 1 };
+            context.Projects.Add(project);
+            context.Users.Add(new User { Id = 1, UserName = "user1" });
+            await context.SaveChangesAsync();
+
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 1 }), CreateRoleManager())
+            {
+                ControllerContext = CreateControllerContext(new User { Id = 1 })
+            };
+            InitializeTempData(controller);
+            controller.ModelState.AddModelError("Error", "Invalid");
+
+            var result = await controller.EditProject(1, project);
+
+            Assert.IsType<ViewResult>(result);
         }
 
         [Fact]
@@ -769,5 +847,47 @@ namespace TaskManager.Tests.Tests.TestControllers
             Assert.Equal("ProjectDetails", result.ActionName);
             Assert.Empty(proj.ProjectGroups);
         }
+
+        // ------------------- Projects -------------------
+        [Fact]
+        public async Task Projects_ReturnsProjectsView_WithCorrectViewBags()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = "manager" };
+            var project1 = new Project { Id = 1, Name = "P1", Description = "D1", ProjectLeadId = 1 };
+            var project2 = new Project { Id = 2, Name = "P2", Description = "D2", ProjectLeadId = 1 };
+
+            var group = new Group { Id = 1, Name = "Group1", Description = "Some group", ManagerId = 1 };
+
+            var request1 = new GroupRequest { Id = 1, GroupId = 1, ProjectId = 1, SenderId = 1, Response = null };
+            var request2 = new GroupRequest { Id = 2, GroupId = 1, ProjectId = 2, SenderId = 1, Response = true };
+
+            context.Users.Add(user);
+            context.Groups.Add(group);
+            context.Projects.AddRange(project1, project2);
+            context.GroupRequests.AddRange(request1, request2);
+            await context.SaveChangesAsync();
+
+            var controller = new EmployeeController(context, CreateUserManager(user), CreateRoleManager())
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            var result = await controller.Projects() as ViewResult;
+
+            Assert.NotNull(result);
+            Assert.IsType<List<Project>>(result.Model);
+            Assert.True((bool)controller.ViewData["IsManager"]);
+            Assert.NotNull(controller.ViewData["GroupRequests"]);
+            Assert.NotNull(controller.ViewData["SentGroupRequests"]);
+        }
+
+        
+
+        
+
+
     }
 }
