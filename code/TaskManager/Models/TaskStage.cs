@@ -16,9 +16,19 @@
         public int StageId { get; set; }
 
         /// <summary>
+        /// Gets or sets the stage.
+        /// </summary>
+        public Stage Stage { get; set; }
+
+        /// <summary>
         /// Gets or sets the task identifier.
         /// </summary>
         public int TaskId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the task.
+        /// </summary>
+        public Task Task { get; set; }
 
         /// <summary>
         /// Gets or sets the entered date.
@@ -34,6 +44,11 @@
         /// Gets or sets the user Id of who updated the task last
         /// </summary>
         public int? UpdatedByUserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user who updated the task last
+        /// </summary>
+        public User? UpdatedByUser { get; set; }
     }
     
 }

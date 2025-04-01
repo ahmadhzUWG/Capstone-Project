@@ -1,4 +1,6 @@
-﻿namespace TaskManagerWebsite.Models
+﻿using System.Threading.Tasks;
+
+namespace TaskManagerWebsite.Models
 {
     /// <summary>
     /// Task that will be added to a stage on a project board
@@ -24,6 +26,23 @@
         /// Gets or sets the creator user identifier.
         /// </summary>
         public int CreatorUserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the creator user.
+        /// </summary>
+        public User CreatorUser { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of employees associations linked to this task.
+        /// A task can be associated with multiple employees.
+        /// </summary>
+        public ICollection<TaskEmployee> TaskEmployees { get; set; } = new List<TaskEmployee>();
+
+        /// <summary>
+        /// Gets or sets the collection of stages associations linked to this task.
+        /// A task can be associated with multiple stages.
+        /// </summary>
+        public ICollection<TaskStage> TaskStages { get; set; } = new List<TaskStage>();
     }
     
 }

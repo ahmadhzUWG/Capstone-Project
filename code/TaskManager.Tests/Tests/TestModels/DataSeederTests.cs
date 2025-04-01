@@ -6,6 +6,7 @@ using Xunit;
 using TaskManagerWebsite.Models;
 using Microsoft.EntityFrameworkCore;
 using TaskManagerWebsite.Data;
+using Task = System.Threading.Tasks.Task;
 
 public class DataSeederTests
 {

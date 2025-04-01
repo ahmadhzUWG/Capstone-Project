@@ -3,6 +3,9 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var showActionsColumn = Model.Any(group =>
+        (AuthorizationService.AuthorizeAsync(User, group.Id, "CanDeleteGroup").Result.Succeeded));
 }
 
 <link rel="stylesheet" href="~/css/Admin/groups.css" asp-append-version="true" />
@@ -12,11 +15,16 @@
 
     <table class="table">
         <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th style="color: black;">Name</th>
+            <th style="color: black;">Manager</th>
+            <th style="color: black;">Description</th>
+            
+            @if (showActionsColumn)
+            {
+                    <th style="color: black;">Actions</th>
+            }
+        </tr>
         </thead>
         <tbody>
             @foreach (var group in Model)
@@ -34,6 +42,7 @@
                             @group.Name
                         }
                     </td>
+                    <td>@group.Manager!.UserName</td>
                     <td>@group.Description</td>
                     <td>
                         @if ((await AuthorizationService.AuthorizeAsync(User, group.Id, "CanDeleteGroup")).Succeeded)

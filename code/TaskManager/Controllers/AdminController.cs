@@ -43,7 +43,7 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        /// Users the add.
+        /// Adds the user
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
@@ -854,6 +854,17 @@ namespace TaskManagerWebsite.Controllers
             if (!string.IsNullOrEmpty(role))
             {
                 await userManager.AddToRoleAsync(user, role);
+
+                if (role.Equals("Admin"))
+                {
+                    var admin = new Admin
+                    {
+                        UserId = user.Id
+                    };
+
+                    context.Admins.Add(admin);
+                    await context.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("Users");

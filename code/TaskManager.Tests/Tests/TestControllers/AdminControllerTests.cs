@@ -19,6 +19,7 @@ using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 using Xunit;
+using Task = System.Threading.Tasks.Task;
 
 public class AdminControllerTests
 {
