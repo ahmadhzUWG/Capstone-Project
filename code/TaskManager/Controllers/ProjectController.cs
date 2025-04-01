@@ -73,7 +73,7 @@ namespace TaskManagerWebsite.Controllers
         /// <summary>
         /// Gets the create task view.
         /// </summary>
-        /// <param name="stageId"></param>
+        /// <param name="stageId">The stage identifier.</param>
         /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> CreateTask(int stageId)
@@ -116,9 +116,9 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
-        ///  Creates the task.
+        /// Creates the task.
         /// </summary>
-        /// <param name="vm"></param>
+        /// <param name="vm">The vm.</param>
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -127,12 +127,34 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            // ✅ Get the stage (to access the project)
+            var stage = await context.Stages
+                .Include(s => s.ProjectBoard)
+                .FirstOrDefaultAsync(s => s.Id == vm.StageId);
+
+            if (stage == null)
+                return NotFound();
+
+            var projectId = stage.ProjectBoard.ProjectId;
+
+            // ✅ Check if a task with the same name already exists in this project
+            bool duplicateExists = await context.TaskStages
+                .Where(ts => ts.Stage.ProjectBoard.ProjectId == projectId)
+                .Select(ts => ts.Task)
+                .AnyAsync(t => t.Name == vm.Name);
+
+            if (duplicateExists)
+            {
+                ModelState.AddModelError("Name", "A task with this name already exists in this project.");
+                return View(vm);
+            }
+
             var task = new Models.Task
             {
                 Name = vm.Name,
                 Description = vm.Description,
                 CreatorUserId = int.Parse(userManager.GetUserId(User)),
-                CreatorUser = await userManager.FindByIdAsync(userManager.GetUserId(User))
+                CreatorUser = await userManager.FindByIdAsync(userManager.GetUserId(User)),
             };
 
             context.Tasks.Add(task);
@@ -142,7 +164,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 Task = task,
                 TaskId = task.Id,
-                Stage = context.Stages.FirstOrDefault(s => s.Id == vm.StageId),
+                Stage = stage,
                 StageId = vm.StageId,
                 EnteredDate = DateTime.Now,
                 CompletedDate = null,
@@ -169,11 +191,7 @@ namespace TaskManagerWebsite.Controllers
 
             await context.SaveChangesAsync();
 
-            var stage = await context.Stages
-                .Include(s => s.ProjectBoard)
-                .FirstOrDefaultAsync(s => s.Id == vm.StageId);
-
-            stage.TaskStages.Add(taskStage);
+            stage.TaskStages.Add(taskStage); // Optional if you're tracking changes to stage
 
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
@@ -184,7 +202,180 @@ namespace TaskManagerWebsite.Controllers
                 .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
-            return RedirectToAction(nameof(ProjectBoard), new { id =  project.Id});
+            return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
+        }
+        /// <summary>
+        /// Moves the task.
+        /// </summary>
+        /// <param name="taskId">The task identifier.</param>
+        /// <param name="currentStageId">The current stage identifier.</param>
+        /// <param name="newStageId">The new stage identifier.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId)
+        {
+            var currentUser = await userManager.GetUserAsync(User);
+            var task = await context.Tasks.FindAsync(taskId);
+
+            if (task == null)
+                return NotFound();
+
+            var currentTaskStage = await context.TaskStages
+                .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.StageId == currentStageId && ts.CompletedDate == null);
+
+            if (currentTaskStage != null)
+            {
+                currentTaskStage.CompletedDate = DateTime.Now;
+                currentTaskStage.UpdatedByUserId = currentUser.Id;
+            }
+
+            var newTaskStage = new TaskStage
+            {
+                TaskId = taskId,
+                StageId = newStageId,
+                EnteredDate = DateTime.Now,
+                CompletedDate = null,
+                UpdatedByUserId = currentUser.Id
+            };
+
+            context.TaskStages.Add(newTaskStage);
+            await context.SaveChangesAsync();
+
+            var newStage = await context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
+            var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
+
+            return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
+        }
+
+        /// <summary>
+        /// Edits the task.
+        /// </summary>
+        /// <param name="taskId">The task identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> EditTask(int taskId)
+        {
+            var task = await context.Tasks
+                .Include(t => t.TaskEmployees)
+                .ThenInclude(te => te.Employee)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+                return NotFound();
+
+            var taskStage = await context.TaskStages
+                .Include(ts => ts.Stage)
+                .ThenInclude(s => s.ProjectBoard)
+                .ThenInclude(pb => pb.Project)
+                .ThenInclude(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
+                .ThenInclude(g => g.UserGroups)
+                .ThenInclude(ug => ug.User)
+                .FirstOrDefaultAsync(ts => ts.TaskId == taskId);
+
+            var project = taskStage?.Stage?.ProjectBoard?.Project;
+
+            if (project == null)
+                return NotFound();
+
+            var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
+            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
+            bool isProjectLead = project.ProjectLeadId == currentUser.Id;
+            var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+            bool isGroupManager = await context.UserGroups.AnyAsync(
+                ug => groupIds.Contains(ug.GroupId)
+                      && ug.UserId == currentUser.Id
+                      && ug.Role == "Manager");
+
+            if (!(isAdmin || isProjectLead || isGroupManager))
+                return Forbid();
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId
+            };
+
+            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+
+            ViewBag.ProjectId = project.Id;
+
+            return View("EditTask", vm);
+        }
+
+        /// <summary>
+        /// Edits the task.
+        /// </summary>
+        /// <param name="vm">The vm.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditTask(CreateTaskViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var currProjectId = await context.TaskStages
+                .Where(ts => ts.TaskId == vm.TaskId)
+                .Include(ts => ts.Stage)
+                .ThenInclude(s => s.ProjectBoard)
+                .Select(ts => ts.Stage.ProjectBoard.ProjectId)
+                .FirstOrDefaultAsync();
+
+            bool nameExists = await context.TaskStages
+                .Where(ts => ts.Stage.ProjectBoard.ProjectId == currProjectId)
+                .Select(ts => ts.Task)
+                .AnyAsync(t => t.Name == vm.Name && t.Id != vm.TaskId);
+            if (nameExists)
+            {
+                ModelState.AddModelError("Name", "A task with this name already exists.");
+                return View(vm);
+            }
+
+            var task = await context.Tasks
+                .Include(t => t.TaskEmployees)
+                .FirstOrDefaultAsync(t => t.Id == vm.TaskId);
+
+            if (task == null)
+                return NotFound();
+
+            task.Name = vm.Name;
+            task.Description = vm.Description;
+
+            // Handle employee reassignment
+            var currentAssignment = task.TaskEmployees.FirstOrDefault();
+            if (currentAssignment != null && currentAssignment.EmployeeId != vm.SelectedEmployeeId)
+            {
+                context.TaskEmployees.Remove(currentAssignment);
+            }
+
+            if (vm.SelectedEmployeeId != null && (currentAssignment == null || currentAssignment.EmployeeId != vm.SelectedEmployeeId))
+            {
+                var employee = await userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString());
+                var newAssignment = new TaskEmployee
+                {
+                    TaskId = task.Id,
+                    EmployeeId = vm.SelectedEmployeeId.Value,
+                    Employee = employee,
+                    AssignedDate = DateTime.Now,
+                    CompletedDate = null
+                };
+                context.TaskEmployees.Add(newAssignment);
+            }
+
+            await context.SaveChangesAsync();
+
+            var projectId = await context.TaskStages
+                .Where(ts => ts.TaskId == task.Id)
+                .Include(ts => ts.Stage)
+                .ThenInclude(s => s.ProjectBoard)
+                .Select(ts => ts.Stage.ProjectBoard.ProjectId)
+                .FirstOrDefaultAsync();
+
+            return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
         }
 
         /// <summary>
@@ -632,6 +823,10 @@ namespace TaskManagerWebsite.Controllers
             }
         }
 
+        /// <summary>
+        /// Adds the task stages to stages.
+        /// </summary>
+        /// <param name="projectBoardId">The project board identifier.</param>
         private async System.Threading.Tasks.Task addTaskStagesToStages(int projectBoardId)
         {
             var stages = await context.Stages
@@ -655,33 +850,16 @@ namespace TaskManagerWebsite.Controllers
             }
         }
 
-        private async Task setViewBagManagedUsers(bool isGroupManager, User currentUser, Project project)
-        {
-            if (isGroupManager)
-            {
-                var managedGroupIds = await context.UserGroups
-                    .Where(ug => ug.UserId == currentUser.Id && ug.Role == "Manager")
-                    .Select(ug => ug.GroupId)
-                    .ToListAsync();
-
-                var managedGroupProjects = project.ProjectGroups
-                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
-                    .ToList();
-                var managedGroups = project.ProjectGroups
-                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
-                    .ToList();
-
-                var managedUsers = context.UserGroups
-                    .Where(ug => managedGroupIds.Contains(ug.GroupId))
-                    .Select(ug => ug.User)
-                    .Distinct()
-                    .ToList();
-
-                ViewBag.ManagedUsers = managedUsers;
-            }
-        }
-
-        private async System.Threading.Tasks.Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
+        /// <summary>
+        /// Sets the available employees.
+        /// </summary>
+        /// <param name="isAdmin">if set to <c>true</c> [is admin].</param>
+        /// <param name="vm">The vm.</param>
+        /// <param name="isProjectLead">if set to <c>true</c> [is project lead].</param>
+        /// <param name="project">The project.</param>
+        /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
+        /// <param name="currentUser">The current user.</param>
+        private async void setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
             bool isGroupManager, User currentUser)
         {
             if (isAdmin)
@@ -730,5 +908,32 @@ namespace TaskManagerWebsite.Controllers
                 };
             }
         }
+
+        private async Task setViewBagManagedUsers(bool isGroupManager, User currentUser, Project project)
+        {
+            if (isGroupManager)
+            {
+                var managedGroupIds = await context.UserGroups
+                    .Where(ug => ug.UserId == currentUser.Id && ug.Role == "Manager")
+                    .Select(ug => ug.GroupId)
+                    .ToListAsync();
+
+                var managedGroupProjects = project.ProjectGroups
+                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
+                    .ToList();
+                var managedGroups = project.ProjectGroups
+                    .Where(pg => managedGroupIds.Contains(pg.GroupId))
+                    .ToList();
+
+                var managedUsers = context.UserGroups
+                    .Where(ug => managedGroupIds.Contains(ug.GroupId))
+                    .Select(ug => ug.User)
+                    .Distinct()
+                    .ToList();
+
+                ViewBag.ManagedUsers = managedUsers;
+            }
+        }
+
     }
 }
