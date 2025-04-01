@@ -527,18 +527,42 @@ namespace TaskManager.Tests.Tests
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
 
+            // Arrange
             var user = new User { Id = 1, UserName = "user" };
-            var project = new Project
-                { Id = 1, ProjectLeadId = 1, Name = "Test Project", Description = "Test Description" };
-            var board = new ProjectBoard { Id = 1, Project = project };
-            var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test Stage" };
+            var group = new Group { Id = 1, Name = "G1", Description = "test" };
+            var userGroup = new UserGroup { UserId = 1, GroupId = 1, Role = "Member", User = user, Group = group };
+
+            var project = new Project { Id = 1, ProjectLeadId = 1, Name = "Test Project", Description = "Desc" };
+            var projectGroup = new GroupProject { GroupId = 1, ProjectId = 1, Group = group, Project = project };
+
+            var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = "Stage", ProjectBoard = board, AssignedGroupId = 1, AssignedGroup = group };
+
             var task = new TaskManagerWebsite.Models.Task
-                { Id = 2, Name = "My Task", Description = "Test Description", CreatorUserId = user.Id };
-            var taskStage = new TaskStage { Id = 1, TaskId = task.Id, Task = task, Stage = stage };
-            var assignment = new TaskEmployee { TaskId = 2, EmployeeId = user.Id, Employee = user };
+            {
+                Id = 2,
+                Name = "My Task",
+                Description = "Desc",
+                CreatorUserId = 1,
+                CreatorUser = user
+            };
+
+            var taskStage = new TaskStage
+            {
+                Id = 1,
+                TaskId = task.Id,
+                Task = task,
+                StageId = 1,
+                Stage = stage
+            };
+
+            var assignment = new TaskEmployee { TaskId = 2, EmployeeId = 1, Employee = user };
 
             context.Users.Add(user);
+            context.Groups.Add(group);
+            context.UserGroups.Add(userGroup);
             context.Projects.Add(project);
+            context.GroupProjects.Add(projectGroup);
             context.ProjectBoards.Add(board);
             context.Stages.Add(stage);
             context.Tasks.Add(task);
@@ -546,15 +570,18 @@ namespace TaskManager.Tests.Tests
             context.TaskEmployees.Add(assignment);
             await context.SaveChangesAsync();
 
-            var userManager = this.CreateUserManager(user, isAdmin: true);
+            var userManager = CreateUserManager(user, isAdmin: true);
             var controller = new ProjectController(context, userManager);
 
+            // Act
             var result = await controller.EditTask(task.Id);
 
+            // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsType<CreateTaskViewModel>(viewResult.Model);
             Assert.Equal("My Task", model.Name);
         }
+
 
 
         [Fact]
