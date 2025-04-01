@@ -37,6 +37,11 @@ namespace TaskManagerWebsite.Controllers
             this.userManager = userManager;
         }
 
+        /// <summary>
+        /// Deletes the task.
+        /// </summary>
+        /// <param name="taskStageId">The task stage identifier.</param>
+        /// <returns></returns>
         public async Task<IActionResult> DeleteTask(int taskStageId)
         {
             var taskStage = await context.TaskStages
@@ -128,7 +133,6 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // ✅ Get the stage (to access the project)
             var stage = await context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == vm.StageId);
@@ -138,7 +142,6 @@ namespace TaskManagerWebsite.Controllers
 
             var projectId = stage.ProjectBoard.ProjectId;
 
-            // ✅ Check if a task with the same name already exists in this project
             bool duplicateExists = await context.TaskStages
                 .Where(ts => ts.Stage.ProjectBoard.ProjectId == projectId)
                 .Select(ts => ts.Task)
@@ -267,13 +270,14 @@ namespace TaskManagerWebsite.Controllers
 
             var taskStage = await context.TaskStages
                 .Include(ts => ts.Stage)
-                .ThenInclude(s => s.ProjectBoard)
+                .ThenInclude(s => s.AssignedGroup)
+                .Include(ts => ts.Stage.ProjectBoard)
                 .ThenInclude(pb => pb.Project)
                 .ThenInclude(p => p.ProjectGroups)
                 .ThenInclude(pg => pg.Group)
                 .ThenInclude(g => g.UserGroups)
                 .ThenInclude(ug => ug.User)
-                .FirstOrDefaultAsync(ts => ts.TaskId == taskId);
+                .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.CompletedDate == null);
 
             var project = taskStage?.Stage?.ProjectBoard?.Project;
 
@@ -289,7 +293,12 @@ namespace TaskManagerWebsite.Controllers
                       && ug.UserId == currentUser.Id
                       && ug.Role == "Manager");
 
-            if (!(isAdmin || isProjectLead || isGroupManager))
+            bool isGroupMember = taskStage.Stage.AssignedGroupId != null &&
+                                 await context.UserGroups.AnyAsync(ug =>
+                                     ug.GroupId == taskStage.Stage.AssignedGroupId &&
+                                     ug.UserId == currentUser.Id);
+
+            if (!(isAdmin || isProjectLead || isGroupManager || isGroupMember))
                 return Forbid();
 
             var vm = new CreateTaskViewModel
@@ -300,12 +309,23 @@ namespace TaskManagerWebsite.Controllers
                 SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId
             };
 
-            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+            if (isAdmin || isProjectLead || isGroupManager)
+            {
+                await setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser);
+            }
+            else if (isGroupMember)
+            {
+                vm.AvailableEmployees = new List<SelectListItem>
+        {
+            new SelectListItem { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+        };
+            }
 
             ViewBag.ProjectId = project.Id;
 
             return View("EditTask", vm);
         }
+
 
         /// <summary>
         /// Edits the task.
@@ -909,6 +929,8 @@ namespace TaskManagerWebsite.Controllers
                 vm.AvailableEmployees = managedGroups
                     .SelectMany(pg => pg.Group.UserGroups)
                     .Where(ug => ug.Role == "Member")
+                    .GroupBy(ug => ug.UserId)
+                    .Select(g => g.First())
                     .Select(ug => new SelectListItem
                     {
                         Value = ug.UserId.ToString(),
@@ -916,6 +938,7 @@ namespace TaskManagerWebsite.Controllers
                     })
                     .ToList();
             }
+
             else
             {
                 vm.AvailableEmployees = new List<SelectListItem>
