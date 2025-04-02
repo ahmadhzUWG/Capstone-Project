@@ -318,7 +318,7 @@ namespace TaskManagerWebsite.Controllers
             var allUsers = await context.Users.ToListAsync();
 
             var availableEmployees = allUsers
-                .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group.Manager == null || u.Id != group.Manager.Id))
+                .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group?.Manager == null || u.Id != group.Manager.Id))
                 .ToList();
 
             ViewBag.Users = availableEmployees;
@@ -352,7 +352,7 @@ namespace TaskManagerWebsite.Controllers
             var allUsers = await context.Users.ToListAsync();
 
             var availableEmployees = allUsers
-                .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group.Manager == null || u.Id != group.Manager.Id))
+                .Where(u => groupUsers.All(gu => gu.UserId != u.Id) && (group?.Manager == null || u.Id != group.Manager.Id))
                 .ToList();
 
             ViewBag.Users = availableEmployees;

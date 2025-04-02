@@ -301,6 +301,8 @@ namespace TaskManagerWebsite.Controllers
 
                 return View(model);
             }
+
+            return View();
         }
 
         /// <summary>
