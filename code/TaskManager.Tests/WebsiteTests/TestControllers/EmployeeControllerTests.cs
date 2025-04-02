@@ -79,7 +79,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
             {
                 ControllerContext = CreateControllerContext(currentUser)
             };
@@ -102,7 +102,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
             {
                 ControllerContext = CreateControllerContext(currentUser)
             };
@@ -120,7 +120,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -149,7 +149,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 2, UserName = "manager" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -167,7 +167,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -188,7 +188,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -205,7 +205,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -221,7 +221,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -237,7 +237,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -259,7 +259,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -285,7 +285,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             );
             await context.SaveChangesAsync();
 
-            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 2 }), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 2 }))
             {
                 ControllerContext = CreateControllerContext(new User { Id = 2 })
             };
@@ -314,7 +314,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -332,7 +332,7 @@ namespace TaskManager.Tests.Tests.TestControllers
 
             var model = new CreateProjectViewModel { Name = "NewProj", Description = "NewDesc", ProjectLeadId = 1 };
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             controller.ModelState.AddModelError("Error", "Invalid");
             InitializeTempData(controller);
@@ -363,7 +363,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             mockUserManager.Setup(m => m.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(string.Empty);
             mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((User)null);
 
-            var controller = new EmployeeController(context, mockUserManager.Object, CreateRoleManager())
+            var controller = new EmployeeController(context, mockUserManager.Object)
             {
                 ControllerContext = CreateControllerContext(user)
             };
@@ -397,7 +397,7 @@ namespace TaskManager.Tests.Tests.TestControllers
                 ProjectLeadId = user.Id
             };
 
-            var controller = new EmployeeController(context, CreateUserManager(user), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(user))
             {
                 ControllerContext = CreateControllerContext(user)
             };
@@ -427,7 +427,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -460,7 +460,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -475,7 +475,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -491,7 +491,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -507,7 +507,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -525,7 +525,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -544,7 +544,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             context.Users.Add(new User { Id = 1, UserName = "user1" });
             await context.SaveChangesAsync();
 
-            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 1 }), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 1 }))
             {
                 ControllerContext = CreateControllerContext(new User { Id = 1 })
             };
@@ -564,7 +564,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -582,7 +582,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             var umMock = new Mock<UserManager<User>>(new Mock<IUserStore<User>>().Object, null, null, null, null, null,
                 null, null, null);
             umMock.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("");
-            var controller = new EmployeeController(context, umMock.Object, CreateRoleManager());
+            var controller = new EmployeeController(context, umMock.Object);
             var result = await controller.RequestGroupToProject(1, 1);
             Assert.IsType<UnauthorizedResult>(result);
         }
@@ -595,7 +595,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -618,7 +618,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -634,7 +634,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -670,7 +670,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -688,7 +688,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))    
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -724,7 +724,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -745,7 +745,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -759,7 +759,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -774,7 +774,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -799,7 +799,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -815,7 +815,7 @@ namespace TaskManager.Tests.Tests.TestControllers
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -839,7 +839,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             await context.SaveChangesAsync();
 
             var currentUser = new User { Id = 1, UserName = "user1" };
-            var controller = new EmployeeController(context, CreateUserManager(currentUser), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
                 { ControllerContext = CreateControllerContext(currentUser) };
             InitializeTempData(controller);
 
@@ -869,7 +869,7 @@ namespace TaskManager.Tests.Tests.TestControllers
             context.GroupRequests.AddRange(request1, request2);
             await context.SaveChangesAsync();
 
-            var controller = new EmployeeController(context, CreateUserManager(user), CreateRoleManager())
+            var controller = new EmployeeController(context, CreateUserManager(user))
             {
                 ControllerContext = CreateControllerContext(user)
             };
