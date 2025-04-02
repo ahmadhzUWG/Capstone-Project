@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestModels\TaskStageTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using TaskManagerWebsite.Models;
+using Xunit;
+
+public class TaskStageTests
+{
+    [Fact]
+    public void TaskStage_CanSetAndGetProperties()
+    {
+        // Arrange
+        var task = new TaskManagerWebsite.Models.Task { Id = 1, Name = &quot;Sample Task&quot; };
+        var stage = new Stage { Id = 2, Name = &quot;To Do&quot; };
+        var user = new User { Id = 3, UserName = &quot;updatedByUser&quot; };
+        var now = DateTime.UtcNow;
+
+        // Act
+        var taskStage = new TaskStage
+        {
+            Id = 10,
+            TaskId = task.Id,
+            Task = task,
+            StageId = stage.Id,
+            Stage = stage,
+            EnteredDate = now,
+            CompletedDate = now.AddDays(1),
+            UpdatedByUserId = user.Id,
+            UpdatedByUser = user
+        };
+
+        // Assert
+        Assert.Equal(10, taskStage.Id);
+        Assert.Equal(task.Id, taskStage.TaskId);
+        Assert.Equal(task, taskStage.Task);
+        Assert.Equal(stage.Id, taskStage.StageId);
+        Assert.Equal(stage, taskStage.Stage);
+        Assert.Equal(now, taskStage.EnteredDate);
+        Assert.Equal(now.AddDays(1), taskStage.CompletedDate);
+        Assert.Equal(user.Id, taskStage.UpdatedByUserId);
+        Assert.Equal(user, taskStage.UpdatedByUser);
+    }
+
+    [Fact]
+    public void TaskStage_CompletedDate_CanBeNull()
+    {
+        // Arrange &amp; Act
+        var taskStage = new TaskStage
+        {
+            CompletedDate = null
+        };
+
+        // Assert
+        Assert.Null(taskStage.CompletedDate);
+    }
+
+    [Fact]
+    public void TaskStage_UpdatedByUser_CanBeNull()
+    {
+        // Arrange &amp; Act
+        var taskStage = new TaskStage
+        {
+            UpdatedByUser = null,
+            UpdatedByUserId = null
+        };
+
+        // Assert
+        Assert.Null(taskStage.UpdatedByUser);
+        Assert.Null(taskStage.UpdatedByUserId);
+    }
+
+    [Fact]
+    public void TaskStage_CanBeCreatedWithMinimumProperties()
+    {
+        // Arrange
+        var taskStage = new TaskStage
+        {
+            TaskId = 1,
+            StageId = 2,
+            EnteredDate = DateTime.UtcNow
+        };
+
+        // Assert
+        Assert.Equal(1, taskStage.TaskId);
+        Assert.Equal(2, taskStage.StageId);
+        Assert.NotEqual(default, taskStage.EnteredDate);
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,5,9,6,1],[11,9,11,88,1],[12,9,12,58,1],[13,9,13,68,1],[14,9,14,35,1],[17,9,28,11,1],[31,9,31,40,1],[32,9,32,49,1],[33,9,33,44,1],[34,9,34,51,1],[35,9,35,46,1],[36,9,36,50,1],[37,9,37,63,1],[38,9,38,58,1],[39,9,39,53,1],[40,5,40,6,1],[44,5,44,6,1],[46,9,49,11,1],[52,9,52,46,1],[53,5,53,6,1],[57,5,57,6,1],[59,9,63,11,1],[66,9,66,46,1],[67,9,67,48,1],[68,5,68,6,1],[72,5,72,6,1],[74,9,79,11,1],[82,9,82,43,1],[83,9,83,44,1],[84,9,84,57,1],[85,5,85,6,1]]);
+    </script>
+  </body>
+</html>

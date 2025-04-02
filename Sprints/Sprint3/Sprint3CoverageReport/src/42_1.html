@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestControllers\LoginControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Policy;
+using System.Text;
+using System.Threading.Tasks;
+using Azure.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.Tests.TestControllers
+{
+    public class LoginControllerTests
+    {
+
+        private Mock&lt;SignInManager&lt;User&gt;&gt; createSignInManagerMock(ApplicationDbContext context, UserManager&lt;User&gt; userManager)
+        {
+            var mockSignInManager = new Mock&lt;SignInManager&lt;User&gt;&gt;(
+                userManager,
+                Mock.Of&lt;IHttpContextAccessor&gt;(),
+                Mock.Of&lt;IUserClaimsPrincipalFactory&lt;User&gt;&gt;(),
+                Mock.Of&lt;IOptions&lt;IdentityOptions&gt;&gt;(),
+                Mock.Of&lt;ILogger&lt;SignInManager&lt;User&gt;&gt;&gt;(),
+                Mock.Of&lt;IAuthenticationSchemeProvider&gt;(),
+                Mock.Of&lt;IUserConfirmation&lt;User&gt;&gt;()
+            );
+
+            return mockSignInManager;
+        }
+
+        private Mock&lt;UserManager&lt;User&gt;&gt; createUserManagerMock(ApplicationDbContext context)
+        {
+            var mockUserManager = new Mock&lt;UserManager&lt;User&gt;&gt;(
+                Mock.Of&lt;IUserStore&lt;User&gt;&gt;(),
+                Mock.Of&lt;IOptions&lt;IdentityOptions&gt;&gt;(),
+                Mock.Of&lt;IPasswordHasher&lt;User&gt;&gt;(),
+                Array.Empty&lt;IUserValidator&lt;User&gt;&gt;(), Array.Empty&lt;IPasswordValidator&lt;User&gt;&gt;(),
+                Mock.Of&lt;ILookupNormalizer&gt;(),
+                Mock.Of&lt;IdentityErrorDescriber&gt;(),
+                Mock.Of&lt;IServiceProvider&gt;(),
+                Mock.Of&lt;ILogger&lt;UserManager&lt;User&gt;&gt;&gt;()
+            );
+
+            return mockUserManager;
+        }
+
+        [Fact]
+        public async Task Login_ReturnsViewResult()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+            userManagerMock.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(IdentityResult.Success);
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock.Setup(sm =&gt; sm.SignInAsync(It.IsAny&lt;User&gt;(), false, null))
+                .Returns(Task.CompletedTask);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+
+            // Await the asynchronous call
+            var result = await controller.Index();
+
+            Assert.NotNull(result);
+            Assert.IsType&lt;ViewResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task LoginWithArgs_ReturnViewResult_WithModelStateError()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+            userManagerMock.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(IdentityResult.Success);
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock.Setup(sm =&gt; sm.SignInAsync(It.IsAny&lt;User&gt;(), false, null))
+                .Returns(Task.CompletedTask);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+            var model = new LoginViewModel()
+            {
+                Password = &quot;password&quot;,
+                UserName = &quot;&quot;
+            };
+
+            controller.ModelState.AddModelError(&quot;UserName&quot;, &quot;UserName is required&quot;);
+            var result = await controller.Index(model);
+
+            Assert.NotNull(result);
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.IsType&lt;LoginViewModel&gt;(viewResult.Model);
+        }
+
+        [Fact]
+        public async Task LoginWithArgs_ReturnLocalRedirectResult()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+
+            // Ensure CreateAsync returns success
+            userManagerMock
+                .Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Setup FindByNameAsync to return a valid user so login can succeed
+            userManagerMock
+                .Setup(um =&gt; um.FindByNameAsync(It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(new User { UserName = &quot;test&quot; });
+
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock
+                .Setup(sm =&gt; sm.PasswordSignInAsync(
+                    It.IsAny&lt;string&gt;(),
+                    It.IsAny&lt;string&gt;(),
+                    It.IsAny&lt;bool&gt;(),
+                    It.IsAny&lt;bool&gt;()))
+                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            var mockUrlHelper = new Mock&lt;IUrlHelper&gt;();
+            mockUrlHelper.Setup(m =&gt; m.IsLocalUrl(It.IsAny&lt;string&gt;())).Returns(true);
+
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+            controller.Url = mockUrlHelper.Object;
+
+            var model = new LoginViewModel
+            {
+                Password = &quot;password&quot;,
+                UserName = &quot;test&quot;
+            };
+
+            var result = await controller.Index(model, &quot;/Home&quot;);
+
+            Assert.NotNull(result);
+            var localRedirectResult = Assert.IsType&lt;LocalRedirectResult&gt;(result);
+            Assert.Equal(&quot;/Home&quot;, localRedirectResult.Url);
+        }
+
+
+        [Fact]
+        public async Task LoginWithArgs_ReturnRedirectToAction()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+            userManagerMock.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Set up FindByNameAsync to return a valid user.
+            userManagerMock
+                .Setup(um =&gt; um.FindByNameAsync(It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(new User { UserName = &quot;test&quot; });
+
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock.Setup(sm =&gt; sm.PasswordSignInAsync(
+                    It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), false, false))
+                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+
+            var model = new LoginViewModel
+            {
+                Password = &quot;password&quot;,
+                UserName = &quot;test&quot;
+            };
+
+            var result = await controller.Index(model);
+
+            Assert.NotNull(result);
+            var redirectToActionResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;Index&quot;, redirectToActionResult.ActionName);
+        }
+
+
+        [Fact]
+        public async Task LoginWithArgs_ReturnViewResult_WithFailedResult()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+            userManagerMock.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(IdentityResult.Success);
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock.Setup(sm =&gt; sm.PasswordSignInAsync(It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), false, false))
+                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+            var model = new LoginViewModel()
+            {
+                Password = &quot;password&quot;,
+                UserName = &quot;test&quot;
+            };
+
+            var result = await controller.Index(model);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.Equal(model, viewResult.Model);
+            Assert.True(viewResult.ViewData.ModelState.ContainsKey(&quot;&quot;));
+            var error = viewResult.ViewData.ModelState[&quot;&quot;].Errors[0].ErrorMessage;
+            Assert.Equal(&quot;Invalid login attempt.&quot;, error);
+        }
+
+        [Fact]
+        public async Task Logout_ReturnRedirectToActionResult()
+        {
+            var dbContext = TestHelper.GetDbContext();
+            var userManagerMock = createUserManagerMock(dbContext);
+            var signInManagerMock = createSignInManagerMock(dbContext, userManagerMock.Object);
+            signInManagerMock.Setup(sm =&gt; sm.SignOutAsync())
+                .Returns(Task.CompletedTask);
+            var controller = new LoginController(userManagerMock.Object, signInManagerMock.Object);
+
+            var result = await controller.Logout();
+
+            Assert.NotNull(result);
+            var redirectToActionResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;Index&quot;, redirectToActionResult.ActionName);
+        }
+    }
+
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[29,9,29,10,1],[30,13,38,15,1],[40,13,40,38,1],[41,9,41,10,1],[44,9,44,10,1],[45,13,54,15,1],[56,13,56,36,1],[57,9,57,10,1],[61,9,61,10,1],[62,13,62,55,1],[63,13,63,68,1],[64,13,65,55,1],[66,13,66,96,1],[67,13,68,46,1],[69,13,69,100,1],[72,13,72,51,1],[74,13,74,36,1],[75,13,75,47,1],[76,9,76,10,1],[80,9,80,10,1],[81,13,81,55,1],[82,13,82,68,1],[83,13,84,55,1],[85,13,85,96,1],[86,13,87,46,1],[88,13,88,100,1],[89,13,93,15,1],[95,13,95,85,1],[96,13,96,56,1],[98,13,98,36,1],[99,13,99,64,1],[100,13,100,57,1],[101,13,101,61,1],[102,9,102,10,1],[106,9,106,10,1],[107,13,107,55,1],[108,13,108,68,1],[111,13,113,55,1],[116,13,118,63,1],[120,13,120,96,1],[121,13,127,83,1],[129,13,129,56,1],[130,13,130,86,1],[132,13,132,100,1],[133,13,133,51,1],[135,13,139,15,1],[141,13,141,65,1],[143,13,143,36,1],[144,13,144,82,1],[145,13,145,60,1],[146,9,146,10,1],[151,9,151,10,1],[152,13,152,55,1],[153,13,153,68,1],[154,13,155,55,1],[158,13,160,63,1],[162,13,162,96,1],[163,13,165,83,1],[167,13,167,100,1],[169,13,173,15,1],[175,13,175,56,1],[177,13,177,36,1],[178,13,178,88,1],[179,13,179,70,1],[180,9,180,10,1],[185,9,185,10,1],[186,13,186,55,1],[187,13,187,68,1],[188,13,189,55,1],[190,13,190,96,1],[191,13,192,82,1],[193,13,193,100,1],[194,13,198,15,1],[200,13,200,56,1],[202,13,202,64,1],[203,13,203,51,1],[204,13,204,73,1],[205,13,205,83,1],[206,13,206,59,1],[207,9,207,10,1],[211,9,211,10,1],[212,13,212,55,1],[213,13,213,68,1],[214,13,214,96,1],[215,13,216,46,1],[217,13,217,100,1],[219,13,219,52,1],[221,13,221,36,1],[222,13,222,88,1],[223,13,223,70,1],[224,9,224,10,1]]);
+    </script>
+  </body>
+</html>

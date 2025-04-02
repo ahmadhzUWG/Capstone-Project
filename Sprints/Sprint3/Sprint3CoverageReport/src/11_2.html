@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Authorization\UserRelationshipRequirement.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+
+namespace TaskManagerWebsite.Authorization;
+
+/// &lt;summary&gt;
+/// Represents a requirement for a user relationship.
+/// &lt;/summary&gt;
+/// &lt;seealso cref=&quot;Microsoft.AspNetCore.Authorization.IAuthorizationRequirement&quot; /&gt;
+public class UserRelationshipRequirement(string requiredRelationship) : IAuthorizationRequirement
+{
+    /// &lt;summary&gt;
+    /// Gets the required relationship.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The required relationship.
+    /// &lt;/value&gt;
+    public string RequiredRelationship { get; } = requiredRelationship;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,14,9,70,0],[17,42,17,46,0],[17,51,17,71,0]]);
+    </script>
+  </body>
+</html>

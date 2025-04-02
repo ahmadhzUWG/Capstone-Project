@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Project\EditTask.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
+
+@{
+    ViewBag.Title = &quot;Edit Task&quot;;
+}
+@Html.ValidationSummary(true, &quot;&quot;, new { @class = &quot;text-danger&quot; })
+
+
+&lt;h2&gt;Edit Task&lt;/h2&gt;
+
+&lt;form asp-action=&quot;EditTask&quot; method=&quot;post&quot;&gt;
+    @Html.AntiForgeryToken()
+    &lt;input type=&quot;hidden&quot; asp-for=&quot;TaskId&quot; /&gt;
+
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; /&gt;
+        &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Description&quot;&gt;&lt;/label&gt;
+        &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot;&gt;&lt;/textarea&gt;
+        &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label asp-for=&quot;SelectedEmployeeId&quot;&gt;Assign to&lt;/label&gt;
+        &lt;select asp-for=&quot;SelectedEmployeeId&quot; asp-items=&quot;Model.AvailableEmployees&quot; class=&quot;form-control&quot;&gt;
+            &lt;option value=&quot;&quot;&gt;-- None --&lt;/option&gt;
+        &lt;/select&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary mt-3&quot;&gt;Save Changes&lt;/button&gt;
+    &lt;a asp-action=&quot;ProjectBoard&quot; asp-route-id=&quot;@ViewBag.ProjectId&quot; class=&quot;btn btn-secondary mt-3&quot;&gt;Cancel&lt;/a&gt;
+&lt;/form&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[5,5,5,33,0],[7,2,7,67,0],[13,6,13,30,0],[14,1,14,143,0],[17,1,17,141,0],[18,1,18,141,0],[19,1,19,153,0],[23,1,23,148,0],[24,1,24,151,0],[25,1,25,160,0],[29,1,29,155,0],[30,1,30,156,0],[36,49,36,67,0]]);
+    </script>
+  </body>
+</html>

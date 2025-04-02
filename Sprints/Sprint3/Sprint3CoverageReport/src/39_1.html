@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestControllers\FindUsernameControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.Services;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.Tests.TestControllers
+{
+    public class FindUsernameControllerTests
+    {
+        private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
+        private readonly Mock&lt;EmailService&gt; _mockEmailService;
+
+        public FindUsernameControllerTests()
+        {
+            _mockUserManager = GetMockUserManager();
+
+            _mockEmailService = new Mock&lt;EmailService&gt;();
+
+            _mockEmailService.Setup(es =&gt; es.SendEmailAsync(It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()))
+                .Returns(Task.CompletedTask);
+
+            _mockUserManager.Setup(um =&gt; um.GetRolesAsync(It.IsAny&lt;User&gt;()))
+                .ReturnsAsync(new List&lt;string&gt; { &quot;Admin&quot;, &quot;Manager&quot;, &quot;Employee&quot; });
+        }
+
+        private Mock&lt;UserManager&lt;User&gt;&gt; GetMockUserManager()
+        {
+            var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+            return new Mock&lt;UserManager&lt;User&gt;&gt;(userStoreMock.Object,
+                null, null, null, null, null, null, null, null);
+        }
+
+        [Fact]
+        public void Index_Get_ReturnsView()
+        {
+            // Act: Create a new instance of FindUsernameController
+            var controller = new FindUsernameController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            // Act
+            var result = controller.Index();
+
+            // Assert
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.Null(viewResult.Model);
+        }
+
+        [Fact]
+        public async Task Index_Post_ValidEmail_SendsEmail()
+        {
+            // Arrange
+            var email = &quot;test@example.com&quot;;
+            var user = new User { UserName = &quot;testuser&quot;, Email = email };
+
+            _mockUserManager.Setup(um =&gt; um.Users)
+                .Returns(new List&lt;User&gt; { user }.AsQueryable());
+
+            // Act: Create a new instance of FindUsernameController
+            var controller = new FindUsernameController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            // Act
+            var result = await controller.Index(email);
+
+            // Assert
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.True(controller.TempData.ContainsKey(&quot;SuccessMessage&quot;));
+            _mockEmailService.Verify(
+                es =&gt; es.SendEmailAsync(email, &quot;Task Manager - Username Recovery&quot;, It.IsAny&lt;string&gt;()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Index_Post_UserNotFound_DoesNotSendEmail()
+        {
+            // Arrange
+            var email = &quot;nonexistent@example.com&quot;;
+            var user = new User { UserName = &quot;testuser&quot;, Email = &quot;test@example.com&quot; };
+
+            // Mock UserManager to return no users with the given email
+            _mockUserManager.Setup(um =&gt; um.Users)
+                .Returns(new List&lt;User&gt; { user }.AsQueryable());
+
+            // Act: Create a new instance of FindUsernameController
+            var controller = new FindUsernameController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            // Act
+            var result = await controller.Index(email);
+
+            // Assert
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.True(controller.TempData.ContainsKey(&quot;SuccessMessage&quot;));
+            _mockEmailService.Verify(
+                es =&gt; es.SendEmailAsync(It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Index_Post_InvalidModel_DoesNotProcess()
+        {
+            // Arrange
+            var model = string.Empty; // Invalid email format
+
+            // Act: Create a new instance of FindUsernameController
+            var controller = new FindUsernameController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.ModelState.AddModelError(&quot;email&quot;, &quot;Email is required&quot;);
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            // Act
+            var result = await controller.Index(model);
+
+            // Assert
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.False(controller.ModelState.IsValid);
+            _mockEmailService.Verify(
+                es =&gt; es.SendEmailAsync(It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()), Times.Never);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,9,23,45,1],[24,9,24,10,1],[25,13,25,53,1],[27,13,27,58,1],[29,13,30,46,1],[32,13,33,84,1],[34,9,34,10,1],[37,9,37,10,1],[38,13,38,62,1],[39,13,40,65,1],[41,9,41,10,1],[45,9,45,10,1],[47,13,47,108,1],[49,13,49,114,1],[52,13,52,45,1],[55,13,55,64,1],[56,13,56,43,1],[57,9,57,10,1],[61,9,61,10,1],[63,13,63,44,1],[64,13,64,74,1],[66,13,67,65,1],[70,13,70,108,1],[72,13,72,114,1],[75,13,75,56,1],[78,13,78,64,1],[79,13,79,76,1],[80,13,81,117,1],[82,9,82,10,1],[86,9,86,10,1],[88,13,88,51,1],[89,13,89,87,1],[92,13,93,65,1],[96,13,96,108,1],[98,13,98,114,1],[101,13,101,56,1],[104,13,104,64,1],[105,13,105,76,1],[106,13,107,115,1],[108,9,108,10,1],[112,9,112,10,1],[114,13,114,38,1],[117,13,117,108,1],[119,13,119,79,1],[120,13,120,114,1],[123,13,123,56,1],[126,13,126,64,1],[127,13,127,57,1],[128,13,129,115,1],[130,9,130,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\StagePermissionViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.ViewModels
+{
+    /// &lt;summary&gt;
+    /// View model for checking if a user has permission to access a stage
+    /// &lt;/summary&gt;
+    public class StagePermissionViewModel
+    {
+        /// &lt;summary&gt;
+        /// The stage that the user is trying to access
+        /// &lt;/summary&gt;
+        public Stage Stage { get; set; }
+
+        /// &lt;summary&gt;
+        /// The user that is trying to access the stage
+        /// &lt;/summary&gt;
+        public bool IsUserAssignedToGroup { get; set; }
+
+        /// &lt;summary&gt;
+        /// Whether the user is an admin or lead
+        /// &lt;/summary&gt;
+        public bool IsAdminOrLead { get; set; }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,30,13,34,0],[13,35,13,39,1],[18,45,18,49,0],[18,50,18,54,1],[23,37,23,41,0],[23,42,23,46,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\ProjectViewModels\CreateStageViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace TaskManagerWebsite.ViewModels.ProjectViewModels
+{
+    /// &lt;summary&gt;
+    /// The ViewModel for creating a stage
+    /// &lt;/summary&gt;
+    public class CreateStageViewModel
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the name.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Stage name is required.&quot;)]
+        public string Name { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the position.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;A position number is required.&quot;)]
+        [Range(1, int.MaxValue, ErrorMessage = &quot;Position must be a positive number.&quot;)]
+        public int Position { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the selected group identifier.
+        /// &lt;/summary
+        [Display(Name = &quot;Assign Group&quot;)]
+        public int? SelectedGroupId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the available groups.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;SelectListItem&gt; AvailableGroups { get; set; } = new List&lt;SelectListItem&gt;();
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,30,15,34,1],[15,35,15,39,1],[22,31,22,35,1],[22,36,22,40,1],[28,39,28,43,1],[28,44,28,48,1],[33,62,33,66,1],[33,67,33,71,1],[33,76,33,102,1]]);
+    </script>
+  </body>
+</html>

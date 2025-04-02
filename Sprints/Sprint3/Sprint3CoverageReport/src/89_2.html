@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\Task.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Threading.Tasks;
+
+namespace TaskManagerWebsite.Models
+{
+    /// &lt;summary&gt;
+    /// Task that will be added to a stage on a project board
+    /// &lt;/summary&gt;
+    public class Task
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the identifier.
+        /// &lt;/summary&gt;
+        public int Id { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the name.
+        /// &lt;/summary&gt;
+        public string Name { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the description.
+        /// &lt;/summary&gt;
+        public string Description { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator user identifier.
+        /// &lt;/summary&gt;
+        public int CreatorUserId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the creator user.
+        /// &lt;/summary&gt;
+        public User CreatorUser { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the collection of employees associations linked to this task.
+        /// A task can be associated with multiple employees.
+        /// &lt;/summary&gt;
+        public ICollection&lt;TaskEmployee&gt; TaskEmployees { get; set; } = new List&lt;TaskEmployee&gt;();
+
+        /// &lt;summary&gt;
+        /// Gets or sets the collection of stages associations linked to this task.
+        /// A task can be associated with multiple stages.
+        /// &lt;/summary&gt;
+        public ICollection&lt;TaskStage&gt; TaskStages { get; set; } = new List&lt;TaskStage&gt;();
+    }
+    
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,25,13,29,1],[13,30,13,34,1],[18,30,18,34,1],[18,35,18,39,1],[23,37,23,41,1],[23,42,23,46,1],[28,36,28,40,1],[28,41,28,45,1],[33,35,33,39,1],[33,40,33,44,1],[39,58,39,62,1],[39,63,39,67,1],[39,72,39,96,1],[45,52,45,56,1],[45,57,45,61,1],[45,66,45,87,1]]);
+    </script>
+  </body>
+</html>

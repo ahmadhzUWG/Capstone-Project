@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\EmployeeController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+    /// &lt;summary&gt;
+    /// Manages actions for users with the &quot;Manager&quot; role, including viewing, creating, and managing projects, groups, and group requests.
+    /// &lt;/summary&gt;
+    /// &lt;seealso cref=&quot;Microsoft.AspNetCore.Mvc.Controller&quot; /&gt;
+    [Authorize(Roles = &quot;Employee&quot;)]
+    public class EmployeeController : Controller
+
+    {
+        /// &lt;summary&gt;
+        /// The context
+        /// &lt;/summary&gt;
+        private readonly ApplicationDbContext _context;
+        /// &lt;summary&gt;
+        /// The user manager
+        /// &lt;/summary&gt;
+        private readonly UserManager&lt;User&gt; _userManager;
+        /// &lt;summary&gt;
+        /// The role manager
+        /// &lt;/summary&gt;
+        private readonly RoleManager&lt;IdentityRole&lt;int&gt;&gt; _roleManager;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;EmployeeController&quot; /&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The database context for data access.&lt;/param&gt;
+        /// &lt;param name=&quot;userManager&quot;&gt;The user manager for handling user authentication.&lt;/param&gt;
+        /// &lt;param name=&quot;roleManager&quot;&gt;The role manager for handling role-related operations.&lt;/param&gt;
+        public EmployeeController(ApplicationDbContext context, UserManager&lt;User&gt; userManager, RoleManager&lt;IdentityRole&lt;int&gt;&gt; roleManager)
+        {
+            _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves a list of all users in the system.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// A view displaying the list of users.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; Users()
+        {
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves a list of all groups in the system.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// A view displaying the list of groups.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; Groups()
+        {
+            var groups = await _context.Groups.ToListAsync();
+
+            foreach (var group in groups)
+            {
+                group.Manager = await _context.Users.FindAsync(group.ManagerId);
+            }
+
+            return View(groups);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves and displays detailed information for a specific group, including its users and managers,
+        /// and also loads all users (excluding managers) and all managers from the database to allow adding new members.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The ID of the group.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// A view displaying group details or NotFound if the group does not exist.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; GroupDetails(int id)
+        {
+            var group = await _context.Groups
+                .Include(g =&gt; g.Manager)
+                .FirstOrDefaultAsync(g =&gt; g.Id == id);
+
+            if (group == null)
+                return NotFound();
+
+            var groupUsers = await _context.UserGroups
+                .Where(ug =&gt; ug.GroupId == id)
+                .Include(ug =&gt; ug.User)
+                .ToListAsync();
+
+            var allUsers = await _context.Users.ToListAsync();
+
+            var availableEmployees = allUsers
+                .Where(u =&gt; groupUsers.All(gu =&gt; gu.UserId != u.Id) &amp;&amp; (group.Manager == null || u.Id != group.Manager.Id))
+                .ToList();
+
+            var availableManagers = allUsers
+                .Where(u =&gt; group.Manager == null || u.Id != group.Manager.Id)
+                .ToList();
+
+            ViewBag.Users = availableEmployees;
+            ViewBag.AvailableManagers = availableManagers;
+            ViewBag.GroupUsers = groupUsers;
+
+            return View(group);
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the user to group.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The group identifier.&lt;/param&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user identifier.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; AddUserToGroup(int groupId, int userId)
+        {
+            var group = await _context.Groups.FindAsync(groupId);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (group == null || user == null)
+            {
+                return NotFound();
+            }
+
+            bool alreadyInGroup = await _context.UserGroups
+                .AnyAsync(ug =&gt; ug.GroupId == groupId &amp;&amp; ug.UserId == userId);
+
+            if (!alreadyInGroup)
+            {
+                _context.UserGroups.Add(new UserGroup
+                {
+                    UserId = userId,
+                    GroupId = groupId,
+                    Role = &quot;Member&quot;
+                });
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(&quot;GroupDetails&quot;, new { id = groupId });
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the user from group.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The group identifier.&lt;/param&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user identifier.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; RemoveUserFromGroup(int groupId, int userId)
+        {
+            var userGroupEntry = await _context.UserGroups
+                .FirstOrDefaultAsync(ug =&gt; ug.GroupId == groupId &amp;&amp; ug.UserId == userId);
+
+            if (userGroupEntry != null)
+            {
+                _context.UserGroups.Remove(userGroupEntry);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(&quot;GroupDetails&quot;, new { id = groupId });
+        }
+
+        /// &lt;summary&gt;
+        /// Changes the manager.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The group identifier.&lt;/param&gt;
+        /// &lt;param name=&quot;newManagerId&quot;&gt;The new manager identifier.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; ChangeManager(int groupId, int newManagerId)
+        {
+            var group = await _context.Groups
+                .Include(g =&gt; g.Manager)
+                .FirstOrDefaultAsync(g =&gt; g.Id == groupId);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var newManager = await _context.Users.FindAsync(newManagerId);
+            if (newManager == null)
+            {
+                return NotFound();
+            }
+
+            var newManagerEntry = await _context.UserGroups
+                .FirstOrDefaultAsync(ug =&gt; ug.GroupId == groupId &amp;&amp; ug.UserId == newManagerId);
+
+            if (newManagerEntry == null)
+            {
+                newManagerEntry = new UserGroup
+                {
+                    GroupId = groupId,
+                    UserId = newManagerId,
+                    Role = &quot;Manager&quot;
+                };
+                _context.UserGroups.Add(newManagerEntry);
+            }
+            else
+            {
+                newManagerEntry.Role = &quot;Manager&quot;;
+                _context.UserGroups.Update(newManagerEntry);
+            }
+
+            if (group.ManagerId.HasValue)
+            {
+                var previousManagerEntry = await _context.UserGroups
+                    .FirstOrDefaultAsync(ug =&gt; ug.GroupId == groupId &amp;&amp; ug.UserId == group.ManagerId);
+
+                if (previousManagerEntry != null)
+                {
+                    previousManagerEntry.Role = &quot;Member&quot;;
+                    _context.UserGroups.Update(previousManagerEntry);
+                }
+            }
+
+            group.ManagerId = newManagerId;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(&quot;GroupDetails&quot;, new { id = groupId });
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves a list of projects, including pending and sent group requests for the logged-in manager.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// A view displaying the projects the manager is involved in.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; Projects()
+        {
+            var currentUser = await _userManager.GetUserAsync(User); 
+
+            
+            var isManager = await _context.Groups
+                                          .AnyAsync(g =&gt; g.ManagerId == currentUser.Id);
+
+            ViewBag.IsManager = isManager;
+
+            var userId = _userManager.GetUserId(User);
+            ViewBag.UserId = userId;
+
+            var groupRequests = await _context.GroupRequests
+                .Include(gr =&gt; gr.Group)
+                .Include(gr =&gt; gr.Project)
+                .Where(gr =&gt; gr.Group.ManagerId == int.Parse(userId) &amp;&amp; gr.Response == null)
+                .ToListAsync();
+            ViewBag.GroupRequests = groupRequests;
+
+            var sentGroupRequests = await _context.GroupRequests
+                .Include(gr =&gt; gr.Group)
+                .Include(gr =&gt; gr.Project)
+                .Where(gr =&gt; gr.SenderId == int.Parse(userId))
+                .ToListAsync();
+            ViewBag.SentGroupRequests = sentGroupRequests;
+
+            var projects = await _context.Projects.ToListAsync();
+
+            foreach (var project in projects)
+            {
+                project.ProjectLead = await _context.Users.FindAsync(project.ProjectLeadId);
+            }
+
+            return View(projects);
+        }
+
+        /// &lt;summary&gt;
+        /// Displays the form for creating a new project.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// A view with a list of users and groups available for selection.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; CreateProject()
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _context.Users.FindAsync(int.Parse(currentUserId));
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group =&gt; group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
+            var leads = new List&lt;User&gt; { currentUser };
+
+            // Build the view model
+            var model = new CreateProjectViewModel
+            {
+                ProjectLeads = leads.Select(u =&gt; new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        /// &lt;summary&gt;
+        /// Handles the submission of a new project creation form.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;model&quot;&gt;The model.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the projects list upon successful creation.
+        /// If the model state is invalid or the user is not logged in, returns the form with validation errors.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; CreateProject(CreateProjectViewModel model)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(currentUserId) || !int.TryParse(currentUserId, out int userId))
+            {
+                ModelState.AddModelError(&quot;&quot;, &quot;Unable to determine the logged-in user.&quot;);
+                return View(model);
+            }
+
+            var currentUser = await _context.Users.FindAsync(userId);
+
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+            ViewBag.ProjectLead = currentUser;
+
+            var managedGroups = groups.Where(group =&gt; group.ManagerId == int.Parse(currentUserId)).ToList();
+            ViewBag.ManagedGroups = managedGroups;
+
+            var leads = new List&lt;User&gt; { currentUser };
+
+            model.ProjectLeads = leads.Select(u =&gt; new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList();
+
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    ModelState.AddModelError(&quot;&quot;, &quot;Unable to determine the logged-in user.&quot;);
+                    return View(model);
+                }
+
+                var project = new Project
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ProjectLeadId = model.ProjectLeadId,
+                    ProjectCreatorId = int.Parse(currentUserId)
+                };
+
+                project.ProjectCreatorId = int.Parse(currentUserId);
+
+                _context.Projects.Add(project);
+                await _context.SaveChangesAsync();
+
+                var selectedGroupIds = Request.Form[&quot;GroupId&quot;].ToList();
+                if (selectedGroupIds.Count &gt; 0)
+                {
+                    foreach (var groupId in selectedGroupIds)
+                    {
+                        await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    }
+
+                }
+
+                return RedirectToAction(nameof(Projects));
+            }
+
+            return View(model);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves details of a specific project, including associated groups, user roles, and management status.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The ID of the project.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Returns a view displaying project details if found;
+        /// otherwise, returns a &lt;see cref=&quot;NotFoundResult&quot; /&gt; if the project does not exist.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; ProjectDetails(int id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            ViewBag.UserId = currentUserId;
+
+            var groups = await _context.Groups.ToListAsync();
+
+            var managedGroups = groups.Where(group =&gt; group.ManagerId == int.Parse(currentUserId)).ToList();
+
+            var groupsWithGivenProject = await _context.GroupProjects
+                .Where(gp =&gt; gp.ProjectId == id)
+                .Select(gp =&gt; gp.GroupId)
+                .Distinct()
+                .ToListAsync();
+
+            managedGroups.RemoveAll(group =&gt; groupsWithGivenProject.Contains(group.Id));
+            ViewBag.ManagedGroups = managedGroups;
+
+            var unmanagedGroups = groups.Where(group =&gt; group.ManagerId != int.Parse(currentUserId)).ToList();
+
+            unmanagedGroups.RemoveAll(group =&gt; groupsWithGivenProject.Contains(group.Id));
+            ViewBag.UnmanagedGroups = unmanagedGroups;
+
+            var project = await _context.Projects
+                .Include(p =&gt; p.ProjectLead)
+                .Include(p =&gt; p.ProjectGroups)
+                .ThenInclude(pg =&gt; pg.Group)
+                .FirstOrDefaultAsync(p =&gt; p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            return View(project);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the project details for editing.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The ID of the project to edit.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Returns the edit view with the project details if found; otherwise, returns a &lt;see cref=&quot;NotFoundResult&quot; /&gt;.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; EditProject(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp =&gt; gp.ProjectId == id)
+                .Select(gp =&gt; gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g =&gt; groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g =&gt; g.ManagerId)
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u =&gt; possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
+            return View(project);
+        }
+
+        /// &lt;summary&gt;
+        /// Updates the details of an existing project.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The ID of the project being edited.&lt;/param&gt;
+        /// &lt;param name=&quot;project&quot;&gt;The updated project details.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the project details page if successful.
+        /// If the ID does not match or the project does not exist, returns a &lt;see cref=&quot;BadRequestResult&quot; /&gt; or &lt;see cref=&quot;NotFoundResult&quot; /&gt;.
+        /// If an error occurs, the edit view is returned with validation messages.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; EditProject(int id, Project project)
+        {
+            if (id != project.Id)
+            {
+                return BadRequest();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var currentUserId = _userManager.GetUserId(User);
+
+                    if (string.IsNullOrEmpty(currentUserId))
+                    {
+                        ModelState.AddModelError(&quot;&quot;, &quot;Unable to determine the logged-in user.&quot;);
+                        return View(project);
+                    }
+
+                    project.ProjectCreatorId = int.Parse(currentUserId);
+
+                    _context.Update(project);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(&quot;ProjectDetails&quot;, new { id = project.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Projects.Any(p =&gt; p.Id == project.Id))
+                    {
+                        return NotFound();
+                    }
+                    throw;
+                }
+            }
+
+            var users = await _context.Users.ToListAsync();
+            var groupProjects = await _context.GroupProjects.ToListAsync();
+
+            var groupIdsAssignedToProject = groupProjects.Where(gp =&gt; gp.ProjectId == id)
+                .Select(gp =&gt; gp.GroupId)
+                .ToList();
+
+            var possibleLeadsIds = await _context.Groups
+                .Where(g =&gt; groupIdsAssignedToProject.Contains(g.Id))
+                .Select(g =&gt; g.ManagerId) 
+                .Distinct()
+                .ToListAsync();
+
+            var possibleLeads = users.Where(u =&gt; possibleLeadsIds.Contains(u.Id)).ToList();
+
+            ViewBag.ProjectLeads = possibleLeads;
+            return View(project);
+        }
+
+        /// &lt;summary&gt;
+        /// Deletes a specified project from the system.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The ID of the project to delete.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the project list after deletion.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; DeleteProject(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project != null)
+            {
+                _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Projects));
+        }
+
+        /// &lt;summary&gt;
+        /// Sends a request to assign a group to a project.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;projectId&quot;&gt;The ID of the project.&lt;/param&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The ID of the group being requested.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the project details page after submitting the request.
+        /// If validation fails, returns an error message.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; RequestGroupToProject(int projectId, int groupId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var projectExists = await _context.Projects.AnyAsync(p =&gt; p.Id == projectId);
+            var groupExists = await _context.Groups.AnyAsync(g =&gt; g.Id == groupId);
+
+            if (!projectExists || !groupExists)
+            {
+                TempData[&quot;ErrorMessage&quot;] = &quot;No group selected&quot;;
+                return RedirectToAction(&quot;ProjectDetails&quot;, &quot;Employee&quot;, new { id = projectId });
+            }
+
+            var existingRequest = await _context.GroupRequests
+                .Where(gr =&gt; gr.SenderId == int.Parse(currentUserId) &amp;&amp; gr.ProjectId == projectId &amp;&amp; gr.GroupId == groupId)
+                .FirstOrDefaultAsync&lt;GroupRequest&gt;();
+
+            if (existingRequest != null)
+            {
+                TempData[&quot;ErrorMessage&quot;] = &quot;Please remove existing request before re-requesting.&quot;;
+                return RedirectToAction(&quot;ProjectDetails&quot;, &quot;Employee&quot;, new { id = projectId });  
+            }
+
+            var groupRequest = new GroupRequest
+            {
+                SenderId = int.Parse(currentUserId),  
+                ProjectId = projectId,     
+                GroupId = groupId,         
+                Response = null,
+                Group = _context.Groups.Find(groupId),
+                Project = _context.Projects.Find(projectId)
+            };
+
+            TempData[&quot;SuccessMessage&quot;] = &quot;You have successfully requested to assign this group to the project.&quot;;
+
+            _context.GroupRequests.Add(groupRequest);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(&quot;ProjectDetails&quot;, &quot;Employee&quot;, new {id = projectId});
+        }
+
+        /// &lt;summary&gt;
+        /// Assigns a group to a specified project if it is not already assigned.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;projectId&quot;&gt;The ID of the project.&lt;/param&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The ID of the group to be assigned.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the project details page if successful.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; AssignGroupToProject(int projectId, int groupId)
+        {
+            var userId = _userManager.GetUserId(User);
+            ViewBag.UserId = userId;
+
+            var groups = await _context.Groups.ToListAsync();
+            ViewBag.Groups = groups;
+
+
+            var project = await _context.Projects
+                .Include(p =&gt; p.ProjectGroups)
+                .FirstOrDefaultAsync(p =&gt; p.Id == projectId);
+
+            var group2 = await _context.Groups.FindAsync(groupId);
+
+            if (project == null || group2 == null)
+            {
+                TempData[&quot;AssignedErrorMessage&quot;] = &quot;No group selected&quot;;
+                return RedirectToAction(&quot;ProjectDetails&quot;, &quot;Employee&quot;, new { id = projectId });
+            }
+
+            if (!project.ProjectGroups.Any(pg =&gt; pg.GroupId == groupId))
+            {
+                project.ProjectGroups.Add(new GroupProject
+                {
+                    ProjectId = projectId,
+                    GroupId = groupId
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(&quot;ProjectDetails&quot;, new { id = projectId });
+        }
+
+        /// &lt;summary&gt;
+        /// Removes a group from a specified project if it is currently assigned.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;projectId&quot;&gt;The ID of the project.&lt;/param&gt;
+        /// &lt;param name=&quot;groupId&quot;&gt;The ID of the group to be removed.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the project details page if successful.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; RemoveGroupFromProject(int projectId, int groupId)
+        {
+            var project = await _context.Projects
+                .Include(p =&gt; p.ProjectGroups)
+                .FirstOrDefaultAsync(p =&gt; p.Id == projectId);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var projectGroup = project.ProjectGroups.FirstOrDefault(pg =&gt; pg.GroupId == groupId);
+
+            if (projectGroup != null)
+            {
+                project.ProjectGroups.Remove(projectGroup);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(&quot;ProjectDetails&quot;, new { id = projectId });
+        }
+
+        /// &lt;summary&gt;
+        /// Accepts a pending group request and assigns the group to the project.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;requestId&quot;&gt;The ID of the request to accept.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the projects list after approval.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        public async Task&lt;IActionResult&gt; AcceptRequest(int requestId)
+        {
+            var request = await _context.GroupRequests.FindAsync(requestId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            bool isAlreadyAssigned = await _context.GroupProjects
+                .AnyAsync(gp =&gt; gp.ProjectId == request.ProjectId &amp;&amp; gp.GroupId == request.GroupId);
+
+            if (!isAlreadyAssigned)
+            {
+                var groupProject = new GroupProject
+                {
+                    ProjectId = request.ProjectId,
+                    GroupId = request.GroupId
+                };
+
+                _context.GroupProjects.Add(groupProject);
+            }
+
+            request.Response = true; 
+            await _context.SaveChangesAsync();
+
+            TempData[&quot;SuccessMessage&quot;] = &quot;The group request has been accepted.&quot;;
+            return RedirectToAction(&quot;Projects&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Denies a pending group request.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;requestId&quot;&gt;The ID of the request to deny.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the projects list after denial.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        public async Task&lt;IActionResult&gt; DenyRequest(int requestId)
+        {
+            var request = await _context.GroupRequests.FindAsync(requestId);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            request.Response = false; 
+            await _context.SaveChangesAsync();
+
+            TempData[&quot;ErrorMessage&quot;] = &quot;The group request has been denied.&quot;;
+            return RedirectToAction(&quot;Projects&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Deletes a group request from the system.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;requestId&quot;&gt;The ID of the group request to delete.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// Redirects to the projects list after deletion.
+        /// &lt;/returns&gt;
+        [HttpPost]
+        public async Task&lt;IActionResult&gt; DeleteGroupRequest(int requestId)
+        {
+            var groupRequest = await _context.GroupRequests.FirstOrDefaultAsync(g =&gt; g.Id == requestId);
+            if (groupRequest != null)
+            {
+                _context.GroupRequests.Remove(groupRequest);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(&quot;Projects&quot;);  
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[40,9,40,139,1],[41,9,41,10,1],[42,13,42,32,1],[43,13,43,40,1],[44,13,44,40,1],[45,9,45,10,1],[54,9,54,10,1],[55,13,55,60,1],[56,13,56,32,1],[57,9,57,10,1],[66,9,66,10,1],[67,13,67,62,1],[69,13,69,20,1],[69,22,69,31,1],[69,32,69,34,1],[69,35,69,41,1],[70,13,70,14,1],[71,17,71,81,1],[72,13,72,14,1],[74,13,74,33,1],[75,9,75,10,1],[86,9,86,10,1],[87,13,89,55,1],[91,13,91,31,1],[92,17,92,35,1],[94,13,97,32,1],[99,13,99,63,1],[101,13,102,29,1],[102,29,102,50,1],[102,50,102,67,1],[102,67,102,123,1],[102,123,103,27,1],[105,13,106,29,1],[106,29,106,78,1],[106,78,107,27,1],[109,13,109,48,1],[110,13,110,59,1],[111,13,111,45,1],[113,13,113,32,1],[114,9,114,10,1],[125,9,125,10,1],[126,13,126,66,1],[127,13,127,63,1],[129,13,129,47,1],[130,13,130,14,1],[131,17,131,35,1],[134,13,135,79,1],[137,13,137,33,1],[138,13,138,14,1],[139,17,144,20,1],[146,17,146,51,1],[147,13,147,14,1],[149,13,149,75,1],[150,9,150,10,1],[161,9,161,10,1],[162,13,163,90,1],[165,13,165,40,1],[166,13,166,14,1],[167,17,167,60,1],[168,17,168,51,1],[169,13,169,14,1],[171,13,171,75,1],[172,9,172,10,1],[183,9,183,10,1],[184,13,186,60,1],[188,13,188,31,1],[189,13,189,14,1],[190,17,190,35,1],[193,13,193,75,1],[194,13,194,36,1],[195,13,195,14,1],[196,17,196,35,1],[199,13,200,96,1],[202,13,202,41,1],[203,13,203,14,1],[204,17,209,19,1],[210,17,210,58,1],[211,13,211,14,1],[213,13,213,14,1],[214,17,214,50,1],[215,17,215,61,1],[216,13,216,14,1],[218,13,218,42,1],[219,13,219,14,1],[220,17,221,103,1],[223,17,223,50,1],[224,17,224,18,1],[225,21,225,58,1],[226,21,226,70,1],[227,17,227,18,1],[228,13,228,14,1],[230,13,230,44,1],[231,13,231,47,1],[233,13,233,75,1],[234,9,234,10,1],[243,9,243,10,1],[244,13,244,69,1],[247,13,248,89,1],[250,13,250,43,1],[252,13,252,55,1],[253,13,253,37,1],[255,13,259,32,1],[260,13,260,51,1],[262,13,266,32,1],[267,13,267,59,1],[269,13,269,66,1],[271,13,271,20,1],[271,22,271,33,1],[271,34,271,36,1],[271,37,271,45,1],[272,13,272,14,1],[273,17,273,93,1],[274,13,274,14,1],[276,13,276,35,1],[277,9,277,10,1],[286,9,286,10,1],[287,13,287,62,1],[288,13,288,88,1],[289,13,289,62,1],[290,13,290,37,1],[292,13,292,47,1],[294,13,294,55,1],[294,55,294,98,1],[294,98,294,109,1],[295,13,295,51,1],[297,13,297,56,1],[300,13,302,50,1],[302,50,306,18,1],[306,18,307,15,1],[309,13,309,32,1],[310,9,310,10,1],[323,9,323,10,1],[324,13,324,62,1],[325,13,325,101,1],[326,13,326,14,1],[327,17,327,89,1],[328,17,328,36,1],[331,13,331,70,1],[333,13,333,62,1],[334,13,334,37,1],[336,13,336,47,1],[338,13,338,55,1],[338,55,338,98,1],[338,98,338,109,1],[339,13,339,51,1],[341,13,341,56,1],[343,13,343,52,1],[343,52,347,14,1],[347,14,347,25,1],[349,13,349,36,1],[350,13,350,14,1],[351,17,351,57,1],[352,17,352,18,0],[353,21,353,93,0],[354,21,354,40,0],[357,17,363,19,1],[365,17,365,69,1],[367,17,367,48,1],[368,17,368,51,1],[370,17,370,73,1],[371,17,371,48,1],[372,17,372,18,1],[373,21,373,28,1],[373,30,373,41,1],[373,42,373,44,1],[373,45,373,61,1],[374,21,374,22,1],[375,25,375,89,1],[376,21,376,22,1],[378,17,378,18,1],[380,17,380,59,1],[383,13,383,32,1],[384,9,384,10,1],[395,9,395,10,1],[396,13,396,62,1],[397,13,397,44,1],[399,13,399,62,1],[401,13,401,55,1],[401,55,401,98,1],[401,98,401,109,1],[403,13,407,32,1],[409,13,409,46,1],[409,46,409,87,0],[409,87,409,89,1],[410,13,410,51,1],[412,13,412,57,1],[412,57,412,100,1],[412,100,412,111,1],[414,13,414,48,1],[414,48,414,89,1],[414,89,414,91,1],[415,13,415,55,1],[417,13,421,55,1],[423,13,423,33,1],[424,13,424,14,1],[425,17,425,35,1],[428,13,428,34,1],[429,9,429,10,1],[439,9,439,10,1],[440,13,440,65,1],[441,13,441,33,1],[442,13,442,14,1],[443,17,443,35,1],[446,13,446,60,1],[447,13,447,76,1],[449,13,449,71,1],[449,71,449,89,0],[449,89,450,31,1],[450,31,450,41,0],[450,41,451,27,1],[453,13,457,32,1],[459,13,459,50,1],[459,50,459,81,0],[459,81,459,92,1],[461,13,461,50,1],[462,13,462,34,1],[463,9,463,10,1],[478,9,478,10,1],[479,13,479,34,1],[480,13,480,14,1],[481,17,481,37,1],[484,13,484,36,1],[485,13,485,14,1],[487,17,487,18,1],[488,21,488,70,1],[490,21,490,61,1],[491,21,491,22,0],[492,25,492,97,0],[493,25,493,46,0],[496,21,496,73,1],[498,21,498,46,1],[499,21,499,55,1],[500,21,500,88,1],[502,17,502,53,0],[503,17,503,18,0],[504,21,504,73,0],[505,21,505,22,0],[506,25,506,43,0],[508,21,508,27,0],[512,13,512,60,1],[513,13,513,76,1],[515,13,515,71,1],[515,71,515,89,0],[515,89,516,31,1],[516,31,516,41,0],[516,41,517,27,1],[519,13,523,32,1],[525,13,525,50,1],[525,50,525,81,1],[525,81,525,92,1],[527,13,527,50,1],[528,13,528,34,1],[529,9,529,10,1],[541,9,541,10,1],[542,13,542,65,1],[543,13,543,33,1],[544,13,544,14,1],[545,17,545,51,1],[546,17,546,51,1],[547,13,547,14,1],[548,13,548,55,1],[549,9,549,10,1],[563,9,563,10,1],[564,13,564,62,1],[566,13,566,53,1],[567,13,567,14,1],[568,17,568,39,1],[571,13,571,90,1],[572,13,572,84,1],[574,13,574,48,1],[575,13,575,14,1],[576,17,576,64,1],[577,17,577,95,1],[580,13,582,54,1],[584,13,584,41,1],[585,13,585,14,0],[586,17,586,99,0],[587,17,587,95,0],[590,13,598,15,1],[600,13,600,113,1],[602,13,602,54,1],[603,13,603,47,1],[605,13,605,89,1],[606,9,606,10,1],[619,9,619,10,1],[620,13,620,55,1],[621,13,621,37,1],[623,13,623,62,1],[624,13,624,37,1],[627,13,629,62,1],[631,13,631,67,1],[633,13,633,51,1],[634,13,634,14,1],[635,17,635,72,1],[636,17,636,95,1],[639,13,639,50,1],[639,50,639,71,0],[639,71,639,73,1],[640,13,640,14,1],[641,17,645,20,1],[646,17,646,51,1],[647,13,647,14,1],[649,13,649,79,1],[650,9,650,10,1],[663,9,663,10,1],[664,13,666,62,1],[668,13,668,33,1],[669,13,669,14,1],[670,17,670,35,1],[673,13,673,75,1],[673,75,673,96,1],[673,96,673,98,1],[675,13,675,38,1],[676,13,676,14,1],[677,17,677,60,1],[678,17,678,51,1],[679,13,679,14,1],[681,13,681,79,1],[682,9,682,10,1],[693,9,693,10,1],[694,13,694,77,1],[696,13,696,33,1],[697,13,697,14,1],[698,17,698,35,1],[701,13,702,101,1],[704,13,704,36,1],[705,13,705,14,1],[706,17,710,19,1],[712,17,712,58,1],[713,13,713,14,1],[715,13,715,37,1],[716,13,716,47,1],[718,13,718,81,1],[719,13,719,49,1],[720,9,720,10,1],[731,9,731,10,1],[732,13,732,77,1],[734,13,734,33,1],[735,13,735,14,1],[736,17,736,35,1],[739,13,739,38,1],[740,13,740,47,1],[742,13,742,77,1],[743,13,743,49,1],[744,9,744,10,1],[755,9,755,10,1],[756,13,756,105,1],[757,13,757,38,1],[758,13,758,14,1],[759,17,759,61,1],[760,17,760,51,1],[761,13,761,14,1],[763,13,763,49,1],[764,9,764,10,1]]);
+    </script>
+  </body>
+</html>

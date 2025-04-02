@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestViewModels\ForgotPasswordViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManager.Tests.Tests.TestViewModels
+{
+    public class ForgotPasswordViewModelTests
+    {
+        /// &lt;summary&gt;
+        /// Valid model should pass validation.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void ForgotPasswordViewModel_ValidData_PassesValidation()
+        {
+            // Arrange
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;adminUser&quot;,
+                Password = &quot;StrongPass1!&quot;,
+                ConfirmPassword = &quot;StrongPass1!&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.True(isValid);
+            Assert.Empty(validationResults);
+        }
+
+        /// &lt;summary&gt;
+        /// Model should fail validation when username is empty.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void ForgotPasswordViewModel_MissingUsername_FailsValidation()
+        {
+            // Arrange
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;&quot;,
+                Password = &quot;StrongPass1!&quot;,
+                ConfirmPassword = &quot;StrongPass1!&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(validationResults, v =&gt; v.ErrorMessage == &quot;Username is required&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Model should fail validation when password is missing.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void ForgotPasswordViewModel_MissingPassword_FailsValidation()
+        {
+            // Arrange
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;adminUser&quot;,
+                Password = &quot;&quot;,
+                ConfirmPassword = &quot;StrongPass1!&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(validationResults, v =&gt; v.ErrorMessage == &quot;A password is required. Please use at least 8 characters, mixing letters and digits.&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Model should fail validation when confirm password is missing.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void ForgotPasswordViewModel_MissingConfirmPassword_FailsValidation()
+        {
+            // Arrange
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;adminUser&quot;,
+                Password = &quot;StrongPass1!&quot;,
+                ConfirmPassword = &quot;&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(validationResults, v =&gt; v.ErrorMessage == &quot;Please confirm your password to ensure accuracy.&quot;);
+        }
+
+        /// &lt;summary&gt;
+        /// Model should fail validation when passwords do not match.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void ForgotPasswordViewModel_PasswordMismatch_FailsValidation()
+        {
+            // Arrange
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;adminUser&quot;,
+                Password = &quot;StrongPass1!&quot;,
+                ConfirmPassword = &quot;WrongPass2!&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(validationResults, v =&gt; v.ErrorMessage == &quot;Passwords do not match. Make sure both fields are the same.&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,9,18,10,1],[20,13,25,15,1],[27,13,27,66,1],[28,13,28,66,1],[31,13,31,107,1],[34,13,34,34,1],[35,13,35,45,1],[36,9,36,10,1],[43,9,43,10,1],[45,13,50,15,1],[52,13,52,66,1],[53,13,53,66,1],[56,13,56,107,1],[59,13,59,35,1],[60,13,60,53,1],[60,53,60,93,1],[60,93,60,95,1],[61,9,61,10,1],[68,9,68,10,1],[70,13,75,15,1],[77,13,77,66,1],[78,13,78,66,1],[81,13,81,107,1],[84,13,84,35,1],[85,13,85,53,1],[85,53,85,157,1],[85,157,85,159,1],[86,9,86,10,1],[93,9,93,10,1],[95,13,100,15,1],[102,13,102,66,1],[103,13,103,66,1],[106,13,106,107,1],[109,13,109,35,1],[110,13,110,53,1],[110,53,110,121,1],[110,121,110,123,1],[111,9,111,10,1],[118,9,118,10,1],[120,13,125,15,1],[127,13,127,66,1],[128,13,128,66,1],[131,13,131,107,1],[134,13,134,35,1],[135,13,135,53,1],[135,53,135,132,1],[135,132,135,134,1],[136,9,136,10,1]]);
+    </script>
+  </body>
+</html>

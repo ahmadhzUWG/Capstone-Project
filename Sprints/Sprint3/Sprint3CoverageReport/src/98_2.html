@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\ForgotPasswordViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Xunit.Sdk;
+
+namespace TaskManagerWebsite.ViewModels
+{
+    /// &lt;summary&gt;
+    /// Represents the data model for resetting a password.
+    /// &lt;/summary&gt;
+    public class ForgotPasswordViewModel
+    {
+        /// &lt;summary&gt;
+        ///   Gets or sets the email address for the admin.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Username is required&quot;)]
+        public required string Username { get; set; } = string.Empty;
+
+        /// &lt;summary&gt;
+        /// Gets or sets the password for the admin.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;A password is required. Please use at least 8 characters, mixing letters and digits.&quot;)]
+        [DataType(DataType.Password)]
+        [Display(Name = &quot;Password&quot;)]
+        public required string Password { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the confirmation password, which must match the password.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Please confirm your password to ensure accuracy.&quot;)]
+        [DataType(DataType.Password)]
+        [Compare(&quot;Password&quot;, ErrorMessage = &quot;Passwords do not match. Make sure both fields are the same.&quot;)]
+        [Display(Name = &quot;Confirm Password&quot;)]
+        public required string ConfirmPassword { get; set; }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,43,15,47,1],[15,48,15,52,1],[15,57,15,69,1],[23,43,23,47,1],[23,48,23,52,1],[32,50,32,54,1],[32,55,32,59,1]]);
+    </script>
+  </body>
+</html>

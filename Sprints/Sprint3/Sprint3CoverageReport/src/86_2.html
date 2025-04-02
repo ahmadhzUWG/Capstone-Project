@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\Project.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagerWebsite.Models;
+
+/// &lt;summary&gt;
+/// Represents a project within the task management system.
+/// A project is led by a user and can be associated with multiple groups.
+/// &lt;/summary&gt;
+public class Project
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the unique identifier for the project.
+    /// &lt;/summary&gt;
+    public int Id { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the name of the project.
+    /// This field is required and must not exceed 100 characters.
+    /// &lt;/summary&gt;
+    [Required(ErrorMessage = &quot;Name is required&quot;)]
+    [StringLength(100, ErrorMessage = &quot;Project Name cannot exceed 100 characters&quot;)]
+    public string Name { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the description of the project.
+    /// This field is required and must not exceed 500 characters.
+    /// &lt;/summary&gt;
+    [Required(ErrorMessage = &quot;Description is required&quot;)]
+    [StringLength(500, ErrorMessage = &quot;Description cannot exceed 500 characters&quot;)]
+    public string Description { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the user ID of the project lead.
+    /// The project lead is responsible for managing the project.
+    /// &lt;/summary&gt;
+    public int ProjectLeadId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the user entity who leads the project.
+    /// This property is not validated during model binding.
+    /// &lt;/summary&gt;
+    [ValidateNever]
+    public User ProjectLead { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the optional user ID of the project creator.
+    /// The creator is the user who originally initiated the project.
+    /// &lt;/summary&gt;
+    public int? ProjectCreatorId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the collection of group associations linked to this project.
+    /// A project can be associated with multiple groups.
+    /// &lt;/summary&gt;
+    public ICollection&lt;GroupProject&gt; ProjectGroups { get; set; } = new List&lt;GroupProject&gt;();
+
+    public ProjectBoard? ProjectBoard { get; set; }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,21,15,25,1],[15,26,15,30,1],[23,26,23,30,1],[23,31,23,35,1],[31,33,31,37,1],[31,38,31,42,1],[37,32,37,36,1],[37,37,37,41,1],[44,31,44,35,1],[44,36,44,40,1],[50,36,50,40,1],[50,41,50,45,1],[56,54,56,58,1],[56,59,56,63,1],[56,68,56,92,1],[58,41,58,45,1],[58,46,58,50,1]]);
+    </script>
+  </body>
+</html>

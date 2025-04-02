@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250307210805_AddProjectBoardAndStage.Designer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// &lt;auto-generated /&gt;
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TaskManagerWebsite.Data;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration(&quot;20250307210805_AddProjectBoardAndStage&quot;)]
+    partial class AddProjectBoardAndStage
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation(&quot;ProductVersion&quot;, &quot;8.0.12&quot;)
+                .HasAnnotation(&quot;Relational:MaxIdentifierLength&quot;, 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityRole&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;string&gt;(&quot;ConcurrencyStamp&quot;)
+                        .IsConcurrencyToken()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Name&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;NormalizedName&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;NormalizedName&quot;)
+                        .IsUnique()
+                        .HasDatabaseName(&quot;RoleNameIndex&quot;)
+                        .HasFilter(&quot;[NormalizedName] IS NOT NULL&quot;);
+
+                    b.ToTable(&quot;AspNetRoles&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityRoleClaim&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;string&gt;(&quot;ClaimType&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;ClaimValue&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;RoleId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;RoleId&quot;);
+
+                    b.ToTable(&quot;AspNetRoleClaims&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserClaim&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;string&gt;(&quot;ClaimType&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;ClaimValue&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;AspNetUserClaims&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserLogin&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;string&gt;(&quot;LoginProvider&quot;)
+                        .HasColumnType(&quot;nvarchar(450)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;ProviderKey&quot;)
+                        .HasColumnType(&quot;nvarchar(450)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;ProviderDisplayName&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;LoginProvider&quot;, &quot;ProviderKey&quot;);
+
+                    b.HasIndex(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;AspNetUserLogins&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserRole&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;RoleId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;UserId&quot;, &quot;RoleId&quot;);
+
+                    b.HasIndex(&quot;RoleId&quot;);
+
+                    b.ToTable(&quot;AspNetUserRoles&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserToken&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;string&gt;(&quot;LoginProvider&quot;)
+                        .HasColumnType(&quot;nvarchar(450)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Name&quot;)
+                        .HasColumnType(&quot;nvarchar(450)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Value&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.HasKey(&quot;UserId&quot;, &quot;LoginProvider&quot;, &quot;Name&quot;);
+
+                    b.ToTable(&quot;AspNetUserTokens&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Admin&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;Admins&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Group&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;string&gt;(&quot;Description&quot;)
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType(&quot;nvarchar(500)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Name&quot;)
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType(&quot;nvarchar(100)&quot;);
+
+                    b.Property&lt;int?&gt;(&quot;PrimaryManagerId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;PrimaryManagerId&quot;);
+
+                    b.ToTable(&quot;Groups&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupManager&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;GroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;GroupId&quot;, &quot;UserId&quot;);
+
+                    b.HasIndex(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;GroupManagers&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupProject&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;ProjectId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;GroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;ProjectId&quot;, &quot;GroupId&quot;);
+
+                    b.HasIndex(&quot;GroupId&quot;);
+
+                    b.ToTable(&quot;GroupProjects&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupRequest&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;int&gt;(&quot;GroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;ProjectId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;bool?&gt;(&quot;Response&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;int&gt;(&quot;SenderId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;GroupId&quot;);
+
+                    b.HasIndex(&quot;ProjectId&quot;);
+
+                    b.ToTable(&quot;GroupRequests&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Project&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;string&gt;(&quot;Description&quot;)
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType(&quot;nvarchar(500)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Name&quot;)
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType(&quot;nvarchar(100)&quot;);
+
+                    b.Property&lt;int?&gt;(&quot;ProjectCreatorId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;ProjectLeadId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;ProjectLeadId&quot;);
+
+                    b.ToTable(&quot;Projects&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.ProjectBoard&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;int&gt;(&quot;ProjectId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;ProjectId&quot;);
+
+                    b.ToTable(&quot;ProjectBoards&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Stage&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;int?&gt;(&quot;AssignedGroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int?&gt;(&quot;CreatorGroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;CreatorUserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Name&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;Position&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;ProjectBoardId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;AssignedGroupId&quot;);
+
+                    b.HasIndex(&quot;CreatorGroupId&quot;);
+
+                    b.HasIndex(&quot;CreatorUserId&quot;);
+
+                    b.HasIndex(&quot;ProjectBoardId&quot;);
+
+                    b.ToTable(&quot;Stages&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.User&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;));
+
+                    b.Property&lt;int&gt;(&quot;AccessFailedCount&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;string&gt;(&quot;ConcurrencyStamp&quot;)
+                        .IsConcurrencyToken()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Email&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;EmailConfirmed&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;LockoutEnabled&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;DateTimeOffset?&gt;(&quot;LockoutEnd&quot;)
+                        .HasColumnType(&quot;datetimeoffset&quot;);
+
+                    b.Property&lt;string&gt;(&quot;NormalizedEmail&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;NormalizedUserName&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;PasswordHash&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;PhoneNumber&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;PhoneNumberConfirmed&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;SecurityStamp&quot;)
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;TwoFactorEnabled&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;UserName&quot;)
+                        .HasMaxLength(256)
+                        .HasColumnType(&quot;nvarchar(256)&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.HasIndex(&quot;NormalizedEmail&quot;)
+                        .HasDatabaseName(&quot;EmailIndex&quot;);
+
+                    b.HasIndex(&quot;NormalizedUserName&quot;)
+                        .IsUnique()
+                        .HasDatabaseName(&quot;UserNameIndex&quot;)
+                        .HasFilter(&quot;[NormalizedUserName] IS NOT NULL&quot;);
+
+                    b.ToTable(&quot;AspNetUsers&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;UserGroup&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;int&gt;(&quot;GroupId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;UserId&quot;, &quot;GroupId&quot;);
+
+                    b.HasIndex(&quot;GroupId&quot;);
+
+                    b.ToTable(&quot;UserGroups&quot;, (string)null);
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityRoleClaim&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;Microsoft.AspNetCore.Identity.IdentityRole&lt;int&gt;&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;RoleId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserClaim&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserLogin&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserRole&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;Microsoft.AspNetCore.Identity.IdentityRole&lt;int&gt;&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;RoleId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;Microsoft.AspNetCore.Identity.IdentityUserToken&lt;int&gt;&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Admin&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, &quot;User&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;User&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Group&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, &quot;PrimaryManager&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;PrimaryManagerId&quot;)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation(&quot;PrimaryManager&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupManager&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, &quot;Group&quot;)
+                        .WithMany(&quot;Managers&quot;)
+                        .HasForeignKey(&quot;GroupId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, &quot;User&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;Group&quot;);
+
+                    b.Navigation(&quot;User&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupProject&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, &quot;Group&quot;)
+                        .WithMany(&quot;GroupProjects&quot;)
+                        .HasForeignKey(&quot;GroupId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Project&quot;, &quot;Project&quot;)
+                        .WithMany(&quot;ProjectGroups&quot;)
+                        .HasForeignKey(&quot;ProjectId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;Group&quot;);
+
+                    b.Navigation(&quot;Project&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.GroupRequest&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, &quot;Group&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;GroupId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Project&quot;, &quot;Project&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;ProjectId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;Group&quot;);
+
+                    b.Navigation(&quot;Project&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Project&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, &quot;ProjectLead&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;ProjectLeadId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;ProjectLead&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.ProjectBoard&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Project&quot;, &quot;Project&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;ProjectId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;Project&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Stage&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, &quot;AssignedGroup&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;AssignedGroupId&quot;)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, &quot;CreatorGroup&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;CreatorGroupId&quot;)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, &quot;CreatorUser&quot;)
+                        .WithMany()
+                        .HasForeignKey(&quot;CreatorUserId&quot;)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.ProjectBoard&quot;, &quot;ProjectBoard&quot;)
+                        .WithMany(&quot;Stages&quot;)
+                        .HasForeignKey(&quot;ProjectBoardId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;AssignedGroup&quot;);
+
+                    b.Navigation(&quot;CreatorGroup&quot;);
+
+                    b.Navigation(&quot;CreatorUser&quot;);
+
+                    b.Navigation(&quot;ProjectBoard&quot;);
+                });
+
+            modelBuilder.Entity(&quot;UserGroup&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;TaskManagerWebsite.Models.Group&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;GroupId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(&quot;TaskManagerWebsite.Models.User&quot;, null)
+                        .WithMany()
+                        .HasForeignKey(&quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Group&quot;, b =&gt;
+                {
+                    b.Navigation(&quot;GroupProjects&quot;);
+
+                    b.Navigation(&quot;Managers&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.Project&quot;, b =&gt;
+                {
+                    b.Navigation(&quot;ProjectGroups&quot;);
+                });
+
+            modelBuilder.Entity(&quot;TaskManagerWebsite.Models.ProjectBoard&quot;, b =&gt;
+                {
+                    b.Navigation(&quot;Stages&quot;);
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[20,9,20,10,0],[22,13,24,71,0],[26,13,26,78,0],[28,13,29,17,0],[29,17,29,18,0],[29,18,30,21,0],[30,21,32,47,0],[32,47,34,21,0],[34,21,34,97,0],[34,97,36,21,0],[36,21,38,57,0],[38,57,40,21,0],[40,21,42,57,0],[42,57,44,21,0],[44,21,46,57,0],[46,57,48,21,0],[48,21,48,36,0],[48,36,50,21,0],[50,21,53,68,0],[53,68,55,21,0],[55,21,55,60,0],[55,60,56,17,0],[56,17,56,18,0],[56,18,56,20,0],[58,13,59,17,0],[59,17,59,18,0],[59,18,60,21,0],[60,21,62,47,0],[62,47,64,21,0],[64,21,64,97,0],[64,97,66,21,0],[66,21,67,57,0],[67,57,69,21,0],[69,21,70,57,0],[70,57,72,21,0],[72,21,73,47,0],[73,47,75,21,0],[75,21,75,36,0],[75,36,77,21,0],[77,21,77,42,0],[77,42,79,21,0],[79,21,79,65,0],[79,65,80,17,0],[80,17,80,18,0],[80,18,80,20,0],[82,13,83,17,0],[83,17,83,18,0],[83,18,84,21,0],[84,21,86,47,0],[86,47,88,21,0],[88,21,88,97,0],[88,97,90,21,0],[90,21,91,57,0],[91,57,93,21,0],[93,21,94,57,0],[94,57,96,21,0],[96,21,97,47,0],[97,47,99,21,0],[99,21,99,36,0],[99,36,101,21,0],[101,21,101,42,0],[101,42,103,21,0],[103,21,103,65,0],[103,65,104,17,0],[104,17,104,18,0],[104,18,104,20,0],[106,13,107,17,0],[107,17,107,18,0],[107,18,108,21,0],[108,21,109,57,0],[109,57,111,21,0],[111,21,112,57,0],[112,57,114,21,0],[114,21,115,57,0],[115,57,117,21,0],[117,21,118,47,0],[118,47,120,21,0],[120,21,120,62,0],[120,62,122,21,0],[122,21,122,42,0],[122,42,124,21,0],[124,21,124,65,0],[124,65,125,17,0],[125,17,125,18,0],[125,18,125,20,0],[127,13,128,17,0],[128,17,128,18,0],[128,18,129,21,0],[129,21,130,47,0],[130,47,132,21,0],[132,21,133,47,0],[133,47,135,21,0],[135,21,135,50,0],[135,50,137,21,0],[137,21,137,42,0],[137,42,139,21,0],[139,21,139,64,0],[139,64,140,17,0],[140,17,140,18,0],[140,18,140,20,0],[142,13,143,17,0],[143,17,143,18,0],[143,18,144,21,0],[144,21,145,47,0],[145,47,147,21,0],[147,21,148,57,0],[148,57,150,21,0],[150,21,151,57,0],[151,57,153,21,0],[153,21,154,57,0],[154,57,156,21,0],[156,21,156,65,0],[156,65,158,21,0],[158,21,158,65,0],[158,65,159,17,0],[159,17,159,18,0],[159,18,159,20,0],[161,13,162,17,0],[162,17,162,18,0],[162,18,163,21,0],[163,21,165,47,0],[165,47,167,21,0],[167,21,167,97,0],[167,97,169,21,0],[169,21,170,47,0],[170,47,172,21,0],[172,21,172,36,0],[172,36,174,21,0],[174,21,174,42,0],[174,42,176,21,0],[176,21,176,41,0],[176,41,177,17,0],[177,17,177,18,0],[177,18,177,20,0],[179,13,180,17,0],[180,17,180,18,0],[180,18,181,21,0],[181,21,183,47,0],[183,47,185,21,0],[185,21,185,97,0],[185,97,187,21,0],[187,21,190,57,0],[190,57,192,21,0],[192,21,195,57,0],[195,57,197,21,0],[197,21,198,47,0],[198,47,200,21,0],[200,21,200,36,0],[200,36,202,21,0],[202,21,202,52,0],[202,52,204,21,0],[204,21,204,41,0],[204,41,205,17,0],[205,17,205,18,0],[205,18,205,20,0],[207,13,208,17,0],[208,17,208,18,0],[208,18,209,21,0],[209,21,210,47,0],[210,47,212,21,0],[212,21,213,47,0],[213,47,215,21,0],[215,21,215,51,0],[215,51,217,21,0],[217,21,217,42,0],[217,42,219,21,0],[219,21,219,48,0],[219,48,220,17,0],[220,17,220,18,0],[220,18,220,20,0],[222,13,223,17,0],[223,17,223,18,0],[223,18,224,21,0],[224,21,225,47,0],[225,47,227,21,0],[227,21,228,47,0],[228,47,230,21,0],[230,21,230,54,0],[230,54,232,21,0],[232,21,232,43,0],[232,43,234,21,0],[234,21,234,48,0],[234,48,235,17,0],[235,17,235,18,0],[235,18,235,20,0],[237,13,238,17,0],[238,17,238,18,0],[238,18,239,21,0],[239,21,241,47,0],[241,47,243,21,0],[243,21,243,97,0],[243,97,245,21,0],[245,21,246,47,0],[246,47,248,21,0],[248,21,249,47,0],[249,47,251,21,0],[251,21,252,47,0],[252,47,254,21,0],[254,21,255,47,0],[255,47,257,21,0],[257,21,257,36,0],[257,36,259,21,0],[259,21,259,43,0],[259,43,261,21,0],[261,21,261,45,0],[261,45,263,21,0],[263,21,263,48,0],[263,48,264,17,0],[264,17,264,18,0],[264,18,264,20,0],[266,13,267,17,0],[267,17,267,18,0],[267,18,268,21,0],[268,21,270,47,0],[270,47,272,21,0],[272,21,272,97,0],[272,97,274,21,0],[274,21,277,57,0],[277,57,279,21,0],[279,21,282,57,0],[282,57,284,21,0],[284,21,285,47,0],[285,47,287,21,0],[287,21,288,47,0],[288,47,290,21,0],[290,21,290,36,0],[290,36,292,21,0],[292,21,292,49,0],[292,49,294,21,0],[294,21,294,43,0],[294,43,295,17,0],[295,17,295,18,0],[295,18,295,20,0],[297,13,298,17,0],[298,17,298,18,0],[298,18,299,21,0],[299,21,301,47,0],[301,47,303,21,0],[303,21,303,97,0],[303,97,305,21,0],[305,21,306,47,0],[306,47,308,21,0],[308,21,308,36,0],[308,36,310,21,0],[310,21,310,45,0],[310,45,312,21,0],[312,21,312,48,0],[312,48,313,17,0],[313,17,313,18,0],[313,18,313,20,0],[315,13,316,17,0],[316,17,316,18,0],[316,18,317,21,0],[317,21,319,47,0],[319,47,321,21,0],[321,21,321,97,0],[321,97,323,21,0],[323,21,324,47,0],[324,47,326,21,0],[326,21,327,47,0],[327,47,329,21,0],[329,21,330,47,0],[330,47,332,21,0],[332,21,334,57,0],[334,57,336,21,0],[336,21,337,47,0],[337,47,339,21,0],[339,21,340,47,0],[340,47,342,21,0],[342,21,342,36,0],[342,36,344,21,0],[344,21,344,51,0],[344,51,346,21,0],[346,21,346,50,0],[346,50,348,21,0],[348,21,348,49,0],[348,49,350,21,0],[350,21,350,50,0],[350,50,352,21,0],[352,21,352,41,0],[352,41,353,17,0],[353,17,353,18,0],[353,18,353,20,0],[355,13,356,17,0],[356,17,356,18,0],[356,18,357,21,0],[357,21,359,47,0],[359,47,361,21,0],[361,21,361,97,0],[361,97,363,21,0],[363,21,364,47,0],[364,47,366,21,0],[366,21,368,57,0],[368,57,370,21,0],[370,21,372,57,0],[372,57,374,21,0],[374,21,375,47,0],[375,47,377,21,0],[377,21,378,47,0],[378,47,380,21,0],[380,21,381,58,0],[381,58,383,21,0],[383,21,385,57,0],[385,57,387,21,0],[387,21,389,57,0],[389,57,391,21,0],[391,21,392,57,0],[392,57,394,21,0],[394,21,395,57,0],[395,57,397,21,0],[397,21,398,47,0],[398,47,400,21,0],[400,21,401,57,0],[401,57,403,21,0],[403,21,404,47,0],[404,47,406,21,0],[406,21,408,57,0],[408,57,410,21,0],[410,21,410,36,0],[410,36,412,21,0],[412,21,413,56,0],[413,56,415,21,0],[415,21,418,72,0],[418,72,420,21,0],[420,21,420,60,0],[420,60,421,17,0],[421,17,421,18,0],[421,18,421,20,0],[423,13,424,17,0],[424,17,424,18,0],[424,18,425,21,0],[425,21,426,47,0],[426,47,428,21,0],[428,21,429,47,0],[429,47,431,21,0],[431,21,431,51,0],[431,51,433,21,0],[433,21,433,43,0],[433,43,435,21,0],[435,21,435,59,0],[435,59,436,17,0],[436,17,436,18,0],[436,18,436,20,0],[438,13,439,17,0],[439,17,439,18,0],[439,18,440,21,0],[440,21,444,39,0],[444,39,445,17,0],[445,17,445,18,0],[445,18,445,20,0],[447,13,448,17,0],[448,17,448,18,0],[448,18,449,21,0],[449,21,453,39,0],[453,39,454,17,0],[454,17,454,18,0],[454,18,454,20,0],[456,13,457,17,0],[457,17,457,18,0],[457,18,458,21,0],[458,21,462,39,0],[462,39,463,17,0],[463,17,463,18,0],[463,18,463,20,0],[465,13,466,17,0],[466,17,466,18,0],[466,18,467,21,0],[467,21,471,39,0],[471,39,473,21,0],[473,21,477,39,0],[477,39,478,17,0],[478,17,478,18,0],[478,18,478,20,0],[480,13,481,17,0],[481,17,481,18,0],[481,18,482,21,0],[482,21,486,39,0],[486,39,487,17,0],[487,17,487,18,0],[487,18,487,20,0],[489,13,490,17,0],[490,17,490,18,0],[490,18,491,21,0],[491,21,495,39,0],[495,39,497,21,0],[497,21,497,42,0],[497,42,498,17,0],[498,17,498,18,0],[498,18,498,20,0],[500,13,501,17,0],[501,17,501,18,0],[501,18,502,21,0],[502,21,505,60,0],[505,60,507,21,0],[507,21,507,52,0],[507,52,508,17,0],[508,17,508,18,0],[508,18,508,20,0],[510,13,511,17,0],[511,17,511,18,0],[511,18,512,21,0],[512,21,516,39,0],[516,39,518,21,0],[518,21,522,39,0],[522,39,524,21,0],[524,21,524,43,0],[524,43,526,21,0],[526,21,526,42,0],[526,42,527,17,0],[527,17,527,18,0],[527,18,527,20,0],[529,13,530,17,0],[530,17,530,18,0],[530,18,531,21,0],[531,21,535,39,0],[535,39,537,21,0],[537,21,541,39,0],[541,39,543,21,0],[543,21,543,43,0],[543,43,545,21,0],[545,21,545,45,0],[545,45,546,17,0],[546,17,546,18,0],[546,18,546,20,0],[548,13,549,17,0],[549,17,549,18,0],[549,18,550,21,0],[550,21,554,39,0],[554,39,556,21,0],[556,21,560,39,0],[560,39,562,21,0],[562,21,562,43,0],[562,43,564,21,0],[564,21,564,45,0],[564,45,565,17,0],[565,17,565,18,0],[565,18,565,20,0],[567,13,568,17,0],[568,17,568,18,0],[568,18,569,21,0],[569,21,573,39,0],[573,39,575,21,0],[575,21,575,49,0],[575,49,576,17,0],[576,17,576,18,0],[576,18,576,20,0],[578,13,579,17,0],[579,17,579,18,0],[579,18,580,21,0],[580,21,584,39,0],[584,39,586,21,0],[586,21,586,45,0],[586,45,587,17,0],[587,17,587,18,0],[587,18,587,20,0],[589,13,590,17,0],[590,17,590,18,0],[590,18,591,21,0],[591,21,594,60,0],[594,60,596,21,0],[596,21,599,60,0],[599,60,601,21,0],[601,21,605,39,0],[605,39,607,21,0],[607,21,611,39,0],[611,39,613,21,0],[613,21,613,51,0],[613,51,615,21,0],[615,21,615,50,0],[615,50,617,21,0],[617,21,617,49,0],[617,49,619,21,0],[619,21,619,50,0],[619,50,620,17,0],[620,17,620,18,0],[620,18,620,20,0],[622,13,623,17,0],[623,17,623,18,0],[623,18,624,21,0],[624,21,628,39,0],[628,39,630,21,0],[630,21,634,39,0],[634,39,635,17,0],[635,17,635,18,0],[635,18,635,20,0],[637,13,638,17,0],[638,17,638,18,0],[638,18,639,21,0],[639,21,639,51,0],[639,51,641,21,0],[641,21,641,46,0],[641,46,642,17,0],[642,17,642,18,0],[642,18,642,20,0],[644,13,645,17,0],[645,17,645,18,0],[645,18,646,21,0],[646,21,646,51,0],[646,51,647,17,0],[647,17,647,18,0],[647,18,647,20,0],[649,13,650,17,0],[650,17,650,18,0],[650,18,651,21,0],[651,21,651,44,0],[651,44,652,17,0],[652,17,652,18,0],[652,18,652,20,0],[654,9,654,10,0]]);
+    </script>
+  </body>
+</html>

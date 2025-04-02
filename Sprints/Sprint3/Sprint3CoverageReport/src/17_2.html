@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\ForgotPasswordController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.Services;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+    /// &lt;summary&gt;
+    /// Manages the password recovery process for users who have forgotten their password.
+    /// &lt;/summary&gt;
+    public class ForgotPasswordController : Controller
+    {
+        private readonly EmailService _emailService;
+        private readonly UserManager&lt;User&gt; _userManager;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;ForgotPasswordController&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;emailService&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;userManager&quot;&gt;&lt;/param&gt;
+        public ForgotPasswordController(EmailService emailService, UserManager&lt;User&gt; userManager)
+        {
+            _emailService = emailService;
+            _userManager = userManager;
+        }
+
+        /// &lt;summary&gt;
+        ///    Displays the password recovery page.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// &lt;summary&gt;
+        /// Processes the password recovery request.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;model&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task&lt;IActionResult&gt; Index(ForgotPasswordViewModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.Username);
+
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+
+                if (result.Succeeded)
+                {
+                    TempData[&quot;SuccessMessage&quot;] = &quot;Password reset successfully&quot;;
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+
+                    TempData[&quot;ErrorMessage&quot;] = &quot;There was an error resetting your password.&quot;;
+                    return View(model);
+                }
+
+                var subject = &quot;Task Manager - Password Reset&quot;;
+                var body = &quot;Your password has been changed&quot;;
+                await _emailService.SendEmailAsync(user.Email, subject, body);
+            }
+            else
+            {
+                ModelState.AddModelError(&quot;Username&quot;, &quot;There is no user with provided Username&quot;);
+            }
+
+            return View(model);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,9,23,98,1],[24,9,24,10,1],[25,13,25,42,1],[26,13,26,40,1],[27,9,27,10,1],[34,9,34,10,1],[35,13,35,27,1],[36,9,36,10,1],[46,9,46,10,1],[47,13,47,75,1],[49,13,49,30,1],[50,13,50,14,1],[51,17,51,86,1],[53,17,53,97,1],[55,17,55,38,1],[56,17,56,18,1],[57,21,57,80,1],[58,17,58,18,1],[60,17,60,18,1],[61,21,61,28,1],[61,30,61,39,1],[61,40,61,42,1],[61,43,61,56,1],[62,21,62,22,1],[63,25,63,83,1],[64,21,64,22,1],[66,21,66,94,1],[67,21,67,40,1],[70,17,70,63,1],[71,17,71,61,1],[72,17,72,79,1],[73,13,73,14,1],[75,13,75,14,1],[76,17,76,97,1],[77,13,77,14,1],[79,13,79,32,1],[80,9,80,10,1]]);
+    </script>
+  </body>
+</html>

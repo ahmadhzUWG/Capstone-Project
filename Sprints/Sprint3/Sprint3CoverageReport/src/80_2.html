@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Models\ApplicationDbContext.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.Data;
+
+/// &lt;summary&gt;
+/// Represents the database context for the Task Manager Website application.
+/// Inherits from &lt;see cref=&quot;IdentityDbContext{TUser, TRole, TKey}&quot;/&gt; to support Identity features.
+/// &lt;/summary&gt;
+public class ApplicationDbContext : IdentityDbContext&lt;User, IdentityRole&lt;int&gt;, int&gt;
+{
+    /// &lt;summary&gt;
+    /// Initializes a new instance of the &lt;see cref=&quot;ApplicationDbContext&quot;/&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;options&quot;&gt;Database context configuration options.&lt;/param&gt;
+    public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+        : base(options)
+    {
+    }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the Users table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;User&gt; Users { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the Admins table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;Admin&gt; Admins { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the Groups table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;Group&gt; Groups { get; set; }
+
+    public DbSet&lt;UserGroup&gt; UserGroups { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the GroupManagers table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;GroupManager&gt; GroupManagers { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the Projects table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;Project&gt; Projects { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the GroupProjects table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;GroupProject&gt; GroupProjects { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the GroupRequests table.
+    /// &lt;/summary&gt;
+    public DbSet&lt;GroupRequest&gt; GroupRequests { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the project boards.
+    /// &lt;/summary&gt;
+    public DbSet&lt;ProjectBoard&gt; ProjectBoards { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the stages.
+    /// &lt;/summary&gt;
+    public DbSet&lt;Stage&gt; Stages { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the tasks.
+    /// &lt;/summary&gt;
+    public DbSet&lt;Models.Task&gt; Tasks { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the task stages.
+    /// &lt;/summary&gt;
+    public DbSet&lt;TaskStage&gt; TaskStages { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the task employees.
+    /// &lt;/summary&gt;
+    public DbSet&lt;TaskEmployee&gt; TaskEmployees { get; set; }
+
+    /// &lt;summary&gt;
+    /// Configures the entity relationships and database mappings.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;modelBuilder&quot;&gt;Provides a simple API to configure entity relationships.&lt;/param&gt;
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Many-to-Many Relationship: Users &lt;-&gt; Groups (Explicitly Define UserGroup)
+        modelBuilder.Entity&lt;UserGroup&gt;()
+            .HasKey(ug =&gt; new { ug.UserId, ug.GroupId });
+
+        modelBuilder.Entity&lt;UserGroup&gt;()
+            .HasOne(ug =&gt; ug.User)
+            .WithMany(u =&gt; u.UserGroups)
+            .HasForeignKey(ug =&gt; ug.UserId);
+
+        modelBuilder.Entity&lt;UserGroup&gt;()
+            .HasOne(ug =&gt; ug.Group)
+            .WithMany(g =&gt; g.UserGroups)
+            .HasForeignKey(ug =&gt; ug.GroupId);
+
+
+        // One-to-One: Admin &lt;-&gt; User
+        modelBuilder.Entity&lt;Admin&gt;()
+            .HasOne(a =&gt; a.User)
+            .WithMany()
+            .HasForeignKey(a =&gt; a.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity&lt;GroupManager&gt;()
+            .HasKey(gm =&gt; new { gm.UserId, gm.GroupId });
+
+        modelBuilder.Entity&lt;GroupManager&gt;()
+            .HasOne(gm =&gt; gm.Group)
+            .WithMany(g =&gt; g.Managers)
+            .HasForeignKey(gm =&gt; gm.GroupId);
+
+        modelBuilder.Entity&lt;GroupManager&gt;()
+            .HasOne(gm =&gt; gm.User)
+            .WithMany()
+            .HasForeignKey(gm =&gt; gm.UserId);
+
+        modelBuilder.Entity&lt;Project&gt;()
+            .HasOne(p =&gt; p.ProjectLead)
+            .WithMany()
+            .HasForeignKey(p =&gt; p.ProjectLeadId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Many-to-Many Relationship: Projects &lt;-&gt; Groups
+        modelBuilder.Entity&lt;GroupProject&gt;()
+            .HasKey(gp =&gt; new { gp.ProjectId, gp.GroupId });
+
+        modelBuilder.Entity&lt;GroupProject&gt;()
+            .HasOne(gp =&gt; gp.Project)
+            .WithMany(p =&gt; p.ProjectGroups)
+            .HasForeignKey(gp =&gt; gp.ProjectId);
+
+        modelBuilder.Entity&lt;GroupProject&gt;()
+            .HasOne(gp =&gt; gp.Group)
+            .WithMany(g =&gt; g.GroupProjects)
+            .HasForeignKey(gp =&gt; gp.GroupId);
+
+        // Board -&gt; Stages (One-to-Many)
+        modelBuilder.Entity&lt;Stage&gt;()
+            .HasOne(s =&gt; s.ProjectBoard)
+            .WithMany(b =&gt; b.Stages)
+            .HasForeignKey(s =&gt; s.ProjectBoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity&lt;Stage&gt;()
+            .HasOne(s =&gt; s.CreatorGroup)
+            .WithMany()
+            .HasForeignKey(s =&gt; s.CreatorGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity&lt;Stage&gt;()
+            .HasOne(s =&gt; s.CreatorUser)
+            .WithMany()
+            .HasForeignKey(s =&gt; s.CreatorUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity&lt;Stage&gt;()
+            .HasOne(s =&gt; s.AssignedGroup)
+            .WithMany()
+            .HasForeignKey(s =&gt; s.AssignedGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ProjectBoard -&gt; User (One-to-Many)
+        modelBuilder.Entity&lt;ProjectBoard&gt;()
+            .HasOne(pb =&gt; pb.BoardCreator)
+            .WithMany()
+            .HasForeignKey(pb =&gt; pb.BoardCreatorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity&lt;Project&gt;()
+            .HasOne(p =&gt; p.ProjectBoard)
+            .WithOne(b =&gt; b.Project)
+            .HasForeignKey&lt;ProjectBoard&gt;(b =&gt; b.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Task -&gt; TaskEmployee (One-to-Many)
+        modelBuilder.Entity&lt;TaskEmployee&gt;()
+            .HasOne(te =&gt; te.Task)
+            .WithMany(t =&gt; t.TaskEmployees)
+            .HasForeignKey(te =&gt; te.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // User -&gt; TaskEmployee (One-to-Many)
+        modelBuilder.Entity&lt;TaskEmployee&gt;()
+            .HasOne(te =&gt; te.Employee)
+            .WithMany(e =&gt; e.TaskEmployees)
+            .HasForeignKey(te =&gt; te.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Task -&gt; TaskStage (One-to-Many)
+        modelBuilder.Entity&lt;TaskStage&gt;()
+            .HasOne(ts =&gt; ts.Task)
+            .WithMany(t =&gt; t.TaskStages)
+            .HasForeignKey(ts =&gt; ts.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Stage -&gt; TaskStage (One-to-Many)
+        modelBuilder.Entity&lt;TaskStage&gt;()
+            .HasOne(ts =&gt; ts.Stage)
+            .WithMany(s =&gt; s.TaskStages)
+            .HasForeignKey(ts =&gt; ts.StageId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,11,19,24,1],[20,5,20,6,1],[21,5,21,6,1],[26,32,26,36,1],[26,37,26,41,1],[31,34,31,38,1],[31,39,31,43,1],[36,34,36,38,1],[36,39,36,43,1],[38,42,38,46,1],[38,47,38,51,1],[43,48,43,52,1],[43,53,43,57,1],[48,38,48,42,1],[48,43,48,47,1],[53,48,53,52,1],[53,53,53,57,1],[58,48,58,52,1],[58,53,58,57,1],[63,48,63,52,1],[63,53,63,57,1],[68,34,68,38,1],[68,39,68,43,1],[73,39,73,43,1],[73,44,73,48,1],[78,42,78,46,1],[78,47,78,51,1],[83,48,83,52,1],[83,53,83,57,1],[90,5,90,6,1],[91,9,91,44,1],[94,9,95,58,1],[97,9,100,45,1],[102,9,105,46,1],[109,9,114,47,1],[116,9,117,58,1],[119,9,122,46,1],[124,9,127,45,1],[129,9,133,48,1],[136,9,137,61,1],[139,9,142,48,1],[144,9,147,46,1],[150,9,154,47,1],[156,9,160,48,1],[162,9,166,48,1],[168,9,172,48,1],[175,9,179,48,1],[181,9,185,47,1],[188,9,192,47,1],[195,9,199,47,1],[202,9,206,47,1],[209,9,213,47,1],[214,5,214,6,1]]);
+    </script>
+  </body>
+</html>

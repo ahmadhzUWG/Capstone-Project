@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Controllers\HomeController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManagerWebsite.Controllers
+{
+    /// &lt;summary&gt;
+    /// Handles general navigation and informational pages within the application.
+    /// &lt;/summary&gt;
+    /// &lt;seealso cref=&quot;Microsoft.AspNetCore.Mvc.Controller&quot; /&gt;
+    public class HomeController : Controller
+    {
+        /// &lt;summary&gt;
+        /// The logger
+        /// &lt;/summary&gt;
+        private readonly ILogger&lt;HomeController&gt; _logger;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;HomeController&quot; /&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;logger&quot;&gt;The logger instance for logging application events.&lt;/param&gt;
+        public HomeController(ILogger&lt;HomeController&gt; logger)
+        {
+            this._logger = logger;
+        }
+
+        /// &lt;summary&gt;
+        /// Displays the home page of the application.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// The home page view.
+        /// &lt;/returns&gt;
+        public async Task&lt;IActionResult&gt; Index()
+        {
+            return View();
+        }
+
+        /// &lt;summary&gt;
+        /// Displays an access denied page when a user lacks the necessary permissions.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// The access denied view.
+        /// &lt;/returns&gt;
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        /// &lt;summary&gt;
+        /// Handles application errors and displays an error page.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;
+        /// An error view with the request ID.
+        /// &lt;/returns&gt;
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[27,9,27,62,1],[28,9,28,10,1],[29,13,29,35,1],[30,9,30,10,1],[39,9,39,10,1],[40,13,40,27,1],[41,9,41,10,1],[50,9,50,10,1],[51,13,51,27,1],[52,9,52,10,1],[62,9,62,10,1],[63,13,63,113,1],[64,9,64,10,1]]);
+    </script>
+  </body>
+</html>

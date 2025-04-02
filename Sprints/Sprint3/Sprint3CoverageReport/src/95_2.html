@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Services\EmailService.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using MimeKit;
+using MailKit.Net.Smtp;
+
+namespace TaskManagerWebsite.Services
+{
+    /// &lt;summary&gt;
+    /// Represents an email service.
+    /// &lt;/summary&gt;
+    public class EmailService
+    {
+        /// &lt;summary&gt;
+        /// The configuration
+        /// &lt;/summary&gt;
+        private readonly IConfiguration _configuration;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;EmailService&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        public EmailService()
+        {
+        }
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;EmailService&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;configuration&quot;&gt;The configuration.&lt;/param&gt;
+        public EmailService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        /// &lt;summary&gt;
+        /// Sends the email asynchronous.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;toEmail&quot;&gt;To email.&lt;/param&gt;
+        /// &lt;param name=&quot;subject&quot;&gt;The subject.&lt;/param&gt;
+        /// &lt;param name=&quot;body&quot;&gt;The body.&lt;/param&gt;
+        /// &lt;exception cref=&quot;System.InvalidOperationException&quot;&gt;Error sending email&lt;/exception&gt;
+        public virtual async Task SendEmailAsync(string toEmail, string subject, string body)
+        {
+            var emailSettings = _configuration.GetSection(&quot;EmailSettings&quot;);
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(&quot;Task Manager&quot;, emailSettings[&quot;SenderEmail&quot;]));
+            message.To.Add(new MailboxAddress(&quot;&quot;, toEmail));
+            message.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder
+            {
+                TextBody = body
+            };
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using (var client = new SmtpClient())
+            {
+                try
+                {
+                    await client.ConnectAsync(emailSettings[&quot;SmtpServer&quot;], int.Parse(emailSettings[&quot;SmtpPort&quot;]), false);
+                    
+                    await client.AuthenticateAsync(emailSettings[&quot;SenderEmail&quot;], emailSettings[&quot;SenderPassword&quot;]);
+
+                    await client.SendAsync(message);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException(&quot;Error sending email&quot;, ex);
+                }
+                finally
+                {
+                    await client.DisconnectAsync(true);
+                    client.Dispose();
+                }
+            }
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,9,19,30,1],[20,9,20,10,1],[21,9,21,10,1],[27,9,27,58,1],[28,9,28,10,1],[29,13,29,44,1],[30,9,30,10,1],[40,9,40,10,1],[41,13,41,76,1],[43,13,43,45,1],[44,13,44,96,1],[45,13,45,61,1],[46,13,46,39,1],[48,13,51,15,1],[53,13,53,56,1],[55,20,55,49,1],[56,13,56,14,1],[58,17,58,18,1],[59,21,59,121,1],[61,21,61,115,0],[63,21,63,53,0],[64,17,64,18,0],[65,17,65,37,1],[66,17,66,18,1],[67,21,67,84,1],[70,17,70,18,1],[71,21,71,56,1],[72,21,72,38,1],[73,17,73,18,1],[74,13,74,14,0],[75,9,75,10,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Project\EditStage.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.StageEditViewModel
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;div style=&quot;text-align: center;&quot;&gt;
+    &lt;h2&gt;Edit Stage&lt;/h2&gt;
+
+    @if (Model.AllStages != null &amp;&amp; Model.AllStages.Any())
+    {
+        &lt;h4&gt;All Stages in This Board&lt;/h4&gt;
+        &lt;table class=&quot;table&quot; style=&quot;margin: 0 auto;&quot;&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;Position&lt;/th&gt;
+                    &lt;th&gt;Name&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                @foreach (var s in Model.AllStages.OrderBy(s =&gt; s.Position))
+                {
+                    &lt;tr&gt;
+                        &lt;td&gt;@s.Position&lt;/td&gt;
+                        &lt;td&gt;@s.Name&lt;/td&gt;
+                    &lt;/tr&gt;
+                }
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    }
+
+    &lt;form asp-controller=&quot;Project&quot; asp-action=&quot;EditStage&quot; method=&quot;post&quot; style=&quot;display: inline-block; text-align: left; margin-top: 20px;&quot;&gt;
+        @Html.AntiForgeryToken()
+        &lt;input asp-for=&quot;StageId&quot; type=&quot;hidden&quot; /&gt;
+
+        &lt;div&gt;
+            &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Name&quot; /&gt;
+            &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+            &lt;label asp-for=&quot;Position&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Position&quot; type=&quot;number&quot; /&gt;
+            &lt;span asp-validation-for=&quot;Position&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+            &lt;label asp-for=&quot;SelectedGroupId&quot;&gt;&lt;/label&gt;
+            &lt;select asp-for=&quot;SelectedGroupId&quot; asp-items=&quot;Model.AvailableGroups&quot;&gt;
+                &lt;option value=&quot;&quot;&gt;-- Select a Group --&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;span asp-validation-for=&quot;SelectedGroupId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Save Changes&lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;form asp-controller=&quot;Project&quot; asp-action=&quot;DeleteStage&quot; method=&quot;post&quot;
+          onsubmit=&quot;return confirm(&#39;Are you sure you want to delete this stage?&#39;);&quot;
+          style=&quot;display: inline-block; margin-left: 10px;&quot;&gt;
+        @Html.AntiForgeryToken()
+        &lt;input type=&quot;hidden&quot; name=&quot;stageId&quot; value=&quot;@Model.StageId&quot; /&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger&quot;&gt;Delete&lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;div style=&quot;margin-top: 20px;&quot;&gt;
+        &lt;a asp-controller=&quot;Project&quot;
+           asp-action=&quot;ProjectBoard&quot;
+           asp-route-id=&quot;@Model.ProjectId&quot;
+           class=&quot;btn btn-secondary&quot;&gt;
+            Cancel
+        &lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[10,6,10,59,0],[11,5,11,6,0],[21,18,21,25,0],[21,27,21,32,0],[21,33,21,35,0],[21,36,21,65,0],[21,65,21,75,0],[21,75,21,76,0],[22,17,22,18,0],[24,30,24,41,0],[25,30,25,37,0],[27,17,27,18,0],[30,5,30,6,0],[33,10,33,34,0],[34,1,34,144,0],[37,1,37,141,0],[38,1,38,141,0],[39,1,39,153,0],[43,1,43,145,0],[44,1,44,145,0],[45,1,45,157,0],[49,1,49,152,0],[50,1,50,153,0],[53,1,53,164,0],[62,10,62,34,0],[63,52,63,67,0],[70,27,70,43,0]]);
+    </script>
+  </body>
+</html>

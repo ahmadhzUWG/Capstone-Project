@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestModels\DataSeederTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Moq;
+using Xunit;
+using TaskManagerWebsite.Models;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerWebsite.Data;
+using Task = System.Threading.Tasks.Task;
+
+public class DataSeederTests
+{
+    private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
+    private readonly Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt; _mockRoleManager;
+    private readonly Mock&lt;IServiceProvider&gt; _mockServiceProvider;
+    private readonly ApplicationDbContext _dbContext;
+
+    public DataSeederTests()
+    {
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: &quot;TestDatabase&quot;) 
+            .Options;
+
+        _dbContext = new ApplicationDbContext(options); 
+
+        // Setup a mock IUserStore for UserManager.
+        var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+        _mockUserManager = new Mock&lt;UserManager&lt;User&gt;&gt;(
+            userStoreMock.Object, null, null, null, null, null, null, null, null);
+
+        // Setup a mock IRoleStore for RoleManager.
+        var roleStoreMock = new Mock&lt;IRoleStore&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+        _mockRoleManager = new Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;(
+            roleStoreMock.Object, null, null, null, null);
+
+        // Configure the service provider to use GetService instead of GetRequiredService.
+        _mockServiceProvider = new Mock&lt;IServiceProvider&gt;();
+        _mockServiceProvider
+            .Setup(sp =&gt; sp.GetService(typeof(UserManager&lt;User&gt;)))
+            .Returns(_mockUserManager.Object);
+        _mockServiceProvider
+            .Setup(sp =&gt; sp.GetService(typeof(RoleManager&lt;IdentityRole&lt;int&gt;&gt;)))
+            .Returns(_mockRoleManager.Object);
+        _mockServiceProvider
+            .Setup(sp =&gt; sp.GetService(typeof(ApplicationDbContext)))
+            .Returns(_dbContext);
+
+        // Configure RoleManager so that roles do not exist and are then created.
+        _mockRoleManager
+            .Setup(rm =&gt; rm.RoleExistsAsync(It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(false);
+        _mockRoleManager
+            .Setup(rm =&gt; rm.CreateAsync(It.IsAny&lt;IdentityRole&lt;int&gt;&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+    }
+
+    [Fact]
+    public async Task SeedRolesAndUsersAsync_CreatesManagerUser_WhenNotFound()
+    {
+        // Arrange: Simulate that no user exists for any of the test emails.
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;admin@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;manager1@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;manager2@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee1@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee2@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee3@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+
+        _mockUserManager
+            .Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager
+            .Setup(um =&gt; um.AddToRoleAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act:
+        await DataSeeder.SeedRolesAndUsersAsync(_mockServiceProvider.Object);
+
+        // Assert:
+        // The seeder creates the manager1 user with email &quot;manager1@gmail.com&quot; using password &quot;User1!&quot;
+        // and then adds them to the &quot;Employee&quot; role.
+        _mockUserManager.Verify(
+            um =&gt; um.CreateAsync(
+                It.Is&lt;User&gt;(u =&gt; u.Email == &quot;manager1@gmail.com&quot;),
+                &quot;User1!&quot;),
+            Times.Once);
+        _mockUserManager.Verify(
+            um =&gt; um.AddToRoleAsync(
+                It.Is&lt;User&gt;(u =&gt; u.Email == &quot;manager1@gmail.com&quot;),
+                &quot;Employee&quot;),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SeedRolesAndUsersAsync_AddsEmployeeRole_WhenUserExists()
+    {
+        // Arrange: Simulate that a user with &quot;manager1@gmail.com&quot; already exists and is not in the &quot;Employee&quot; role.
+        var existingUser = new User { Email = &quot;manager1@gmail.com&quot; };
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;manager1@gmail.com&quot;))
+            .ReturnsAsync(existingUser);
+        _mockUserManager.Setup(um =&gt; um.IsInRoleAsync(existingUser, &quot;Employee&quot;))
+            .ReturnsAsync(false);
+        _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(existingUser, &quot;Employee&quot;))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // For other users, simulate they do not exist.
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;admin@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;manager2@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee1@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee2@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager.Setup(um =&gt; um.FindByEmailAsync(&quot;employee3@gmail.com&quot;))
+            .ReturnsAsync((User)null);
+        _mockUserManager
+            .Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act:
+        await DataSeeder.SeedRolesAndUsersAsync(_mockServiceProvider.Object);
+
+        // Assert:
+        _mockUserManager.Verify(
+            um =&gt; um.AddToRoleAsync(existingUser, &quot;Employee&quot;),
+            Times.Once);
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,5,18,29,1],[19,5,19,6,1],[20,9,22,22,1],[24,9,24,56,1],[27,9,27,58,1],[28,9,29,83,1],[32,9,32,71,1],[33,9,34,59,1],[37,9,37,61,1],[38,9,40,47,1],[41,9,43,47,1],[44,9,46,34,1],[49,9,51,34,1],[52,9,54,51,1],[55,5,55,6,1],[59,5,59,6,1],[61,9,62,39,1],[63,9,64,39,1],[65,9,66,39,1],[67,9,68,39,1],[69,9,70,39,1],[71,9,72,39,1],[74,9,76,51,1],[77,9,79,51,1],[82,9,82,78,1],[87,9,91,25,1],[92,9,96,25,1],[97,5,97,6,1],[101,5,101,6,1],[103,9,103,70,1],[104,9,105,41,1],[106,9,107,34,1],[108,9,109,51,1],[112,9,113,39,1],[114,9,115,39,1],[116,9,117,39,1],[118,9,119,39,1],[120,9,121,39,1],[122,9,124,51,1],[127,9,127,78,1],[130,9,132,25,1],[133,5,133,6,1]]);
+    </script>
+  </body>
+</html>

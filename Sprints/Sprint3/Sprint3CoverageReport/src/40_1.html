@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestControllers\ForgotPasswordControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.Services;
+using TaskManagerWebsite.ViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.Tests.TestControllers
+{
+    public class ForgotPasswordControllerTests
+    {
+        private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
+        private readonly Mock&lt;EmailService&gt; _mockEmailService;
+
+
+        public ForgotPasswordControllerTests()
+        {
+            _mockUserManager = GetMockUserManager();
+
+            _mockEmailService = new Mock&lt;EmailService&gt;();
+
+            _mockEmailService.Setup(es =&gt; es.SendEmailAsync(It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()))
+                .Returns(Task.CompletedTask); 
+
+            _mockUserManager.Setup(um =&gt; um.GetRolesAsync(It.IsAny&lt;User&gt;()))
+                .ReturnsAsync(new List&lt;string&gt; { &quot;Admin&quot;, &quot;Manager&quot;, &quot;Employee&quot; });
+        }
+
+        private Mock&lt;UserManager&lt;User&gt;&gt; GetMockUserManager()
+        {
+            var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+            return new Mock&lt;UserManager&lt;User&gt;&gt;(userStoreMock.Object,
+                null, null, null, null, null, null, null, null);
+        }
+
+        [Fact]
+        public void Index_Get_ReturnsView()
+        {
+            var controller = new ForgotPasswordController(_mockEmailService.Object, _mockUserManager.Object);
+
+            var result = controller.Index();
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.Null(viewResult.Model);
+        }
+
+        [Fact]
+        public async Task Index_Post_UserExists_ResetsPassword_SendsEmail()
+        {
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;testuser&quot;,
+                Password = &quot;NewPass1!&quot;,
+                ConfirmPassword = &quot;NewPass1!&quot;
+            };
+
+            var user = new User { UserName = &quot;testuser&quot;, Email = &quot;test@example.com&quot; };
+
+            _mockUserManager.Setup(um =&gt; um.FindByNameAsync(model.Username))
+                .ReturnsAsync(user);
+
+            _mockUserManager.Setup(um =&gt; um.GeneratePasswordResetTokenAsync(user))
+                .ReturnsAsync(&quot;valid-token&quot;);
+
+            _mockUserManager.Setup(um =&gt; um.ResetPasswordAsync(user, &quot;valid-token&quot;, model.Password))
+                .ReturnsAsync(IdentityResult.Success);
+
+            _mockEmailService.Setup(es =&gt; es.SendEmailAsync(user.Email, It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()))
+                .Returns(Task.CompletedTask);
+
+            var controller = new ForgotPasswordController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            var result = await controller.Index(model);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.True(controller.TempData.ContainsKey(&quot;SuccessMessage&quot;));
+            _mockUserManager.Verify(um =&gt; um.ResetPasswordAsync(user, &quot;valid-token&quot;, model.Password), Times.Once);
+            _mockEmailService.Verify(es =&gt; es.SendEmailAsync(user.Email, &quot;Task Manager - Password Reset&quot;, It.IsAny&lt;string&gt;()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Index_Post_UserDoesNotExist_AddsModelError()
+        {
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;nonexistentuser&quot;,
+                Password = &quot;NewPass1!&quot;,
+                ConfirmPassword = &quot;NewPass1!&quot;
+            };
+
+            _mockUserManager.Setup(um =&gt; um.FindByNameAsync(model.Username))
+                .ReturnsAsync((User)null);
+
+            var controller = new ForgotPasswordController(_mockEmailService.Object, _mockUserManager.Object);
+
+            var result = await controller.Index(model);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.Contains(controller.ModelState, kvp =&gt; kvp.Key == &quot;Username&quot; &amp;&amp; kvp.Value.Errors.Count &gt; 0);
+        }
+
+        [Fact]
+        public async Task Index_Post_ResetPasswordFails_ShowsErrors()
+        {
+            var model = new ForgotPasswordViewModel
+            {
+                Username = &quot;testuser&quot;,
+                Password = &quot;NewPass1!&quot;,
+                ConfirmPassword = &quot;NewPass1!&quot;
+            };
+
+            var user = new User { UserName = &quot;testuser&quot;, Email = &quot;test@example.com&quot; };
+
+            _mockUserManager.Setup(um =&gt; um.FindByNameAsync(model.Username))
+                .ReturnsAsync(user);
+
+            _mockUserManager.Setup(um =&gt; um.GeneratePasswordResetTokenAsync(user))
+                .ReturnsAsync(&quot;valid-token&quot;);
+
+            _mockUserManager.Setup(um =&gt; um.ResetPasswordAsync(user, &quot;valid-token&quot;, model.Password))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = &quot;Weak password.&quot; }));
+
+            var controller = new ForgotPasswordController(_mockEmailService.Object, _mockUserManager.Object);
+
+            controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of&lt;ITempDataProvider&gt;());
+
+            var result = await controller.Index(model);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.Contains(controller.ModelState, kvp =&gt; kvp.Key == &quot;&quot; &amp;&amp; kvp.Value.Errors[0].ErrorMessage == &quot;Weak password.&quot;);
+            Assert.True(controller.TempData.ContainsKey(&quot;ErrorMessage&quot;));
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[26,9,26,47,1],[27,9,27,10,1],[28,13,28,53,1],[30,13,30,58,1],[32,13,33,46,1],[35,13,36,84,1],[37,9,37,10,1],[40,9,40,10,1],[41,13,41,62,1],[42,13,43,65,1],[44,9,44,10,1],[48,9,48,10,1],[49,13,49,110,1],[51,13,51,45,1],[53,13,53,64,1],[54,13,54,43,1],[55,9,55,10,1],[59,9,59,10,1],[60,13,65,15,1],[67,13,67,87,1],[69,13,70,37,1],[72,13,73,46,1],[75,13,76,55,1],[78,13,79,46,1],[81,13,81,110,1],[83,13,83,114,1],[85,13,85,56,1],[87,13,87,64,1],[88,13,88,76,1],[89,13,89,115,1],[90,13,90,140,1],[91,9,91,10,1],[95,9,95,10,1],[96,13,101,15,1],[103,13,104,43,1],[106,13,106,110,1],[108,13,108,56,1],[110,13,110,64,1],[111,13,111,57,1],[112,13,112,59,1],[112,59,112,110,1],[112,110,112,112,1],[113,9,113,10,1],[117,9,117,10,1],[118,13,123,15,1],[125,13,125,87,1],[127,13,128,37,1],[130,13,131,46,1],[133,13,134,108,1],[136,13,136,110,1],[138,13,138,114,1],[140,13,140,56,1],[142,13,142,64,1],[143,13,143,57,1],[144,13,144,59,1],[144,59,144,128,1],[144,128,144,130,1],[145,13,145,74,1],[146,9,146,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\UserDeleteViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerWebsite.Models;
+
+namespace TaskManagerWebsite.ViewModels
+{
+    /// &lt;summary&gt;
+    /// Represents the data model for deleting a user.
+    /// &lt;/summary&gt;
+    public class UserDeleteViewModel
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the user.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The user.
+        /// &lt;/value&gt;
+
+        public required User User { get; set; }
+        /// &lt;summary&gt;
+        /// Gets or sets the related groups.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The related groups.
+        /// &lt;/value&gt;
+        public required List&lt;Group&gt; RelatedGroups { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the related projects.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The related projects.
+        /// &lt;/value&gt;
+        public required List&lt;Project&gt; RelatedProjects { get; set; }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,37,17,41,1],[17,42,17,46,1],[24,53,24,57,1],[24,58,24,62,1],[32,57,32,61,1],[32,62,32,66,1]]);
+    </script>
+  </body>
+</html>

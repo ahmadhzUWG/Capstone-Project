@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\Tests\TestControllers\AdminControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using TaskManager.Tests;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.Data;
+using TaskManagerWebsite.Models;
+using TaskManagerWebsite.ViewModels;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+using Xunit;
+using Task = System.Threading.Tasks.Task;
+
+public class AdminControllerTests
+{
+    private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
+    private readonly Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt; _mockRoleManager;
+    private readonly ApplicationDbContext _dbContext;
+
+    public AdminControllerTests()
+    {
+        _mockUserManager = GetMockUserManager();
+        _mockRoleManager = GetMockRoleManager();
+        _dbContext = TestHelper.GetDbContext();
+
+        var mockRoles = new List&lt;IdentityRole&lt;int&gt;&gt;
+        {
+            new IdentityRole&lt;int&gt; { Id = 1, Name = &quot;Admin&quot; },
+            new IdentityRole&lt;int&gt; { Id = 2, Name = &quot;Employee&quot; }
+        }.AsQueryable();
+        _mockRoleManager.Setup(rm =&gt; rm.Roles).Returns(mockRoles);
+
+        _mockUserManager.Setup(um =&gt; um.GetRolesAsync(It.IsAny&lt;User&gt;()))
+            .ReturnsAsync(new List&lt;string&gt; { &quot;Admin&quot;, &quot;Manager&quot;, &quot;Employee&quot; });
+    }
+
+    private Mock&lt;UserManager&lt;User&gt;&gt; GetMockUserManager()
+    {
+        var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+        return new Mock&lt;UserManager&lt;User&gt;&gt;(userStoreMock.Object,
+            null, null, null, null, null, null, null, null);
+    }
+
+    private Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt; GetMockRoleManager()
+    {
+        var roleStoreMock = new Mock&lt;IRoleStore&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+        return new Mock&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;(roleStoreMock.Object,
+            null, null, null, null);
+    }
+
+    // ––– Tests for User-related endpoints –––
+    [Fact]
+    public async Task UserAdd_InvalidModelState_ReturnsViewWithSameModel()
+    {
+        // Arrange
+        var controller = new AdminController(this._dbContext, this._mockUserManager.Object, this._mockRoleManager.Object);
+
+        controller.ModelState.AddModelError(&quot;UserName&quot;, &quot;UserName is required&quot;);
+
+        var viewModel = new UserViewModel
+        {
+            UserName = &quot;&quot;,
+            Email = &quot;test@example.com&quot;,
+            Password = &quot;password&quot;,
+            ConfirmPassword = &quot;password&quot;
+        };
+
+        // Act
+        var result = await controller.UserAdd(viewModel);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
+
+    [Fact]
+    public async Task Users_ReturnsViewWithUserList()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = &quot;User1&quot;, Email = &quot;user1@example.com&quot; });
+        dbContext.Users.Add(new User { Id = 2, UserName = &quot;User2&quot;, Email = &quot;user2@example.com&quot; });
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.Users();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var users = Assert.IsAssignableFrom&lt;IEnumerable&lt;User&gt;&gt;(viewResult.Model);
+        Assert.Equal(2, users.Count());
+    }
+
+    [Fact]
+    public async Task UserEdit_ReturnsNotFound_WithNoFoundUser()
+    {
+        var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var result = await controller.UserEdit(&quot;999&quot;);
+
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task UserEdit_ReturnsViewResult_WithValidUser()
+    {
+        var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var user = new User { Id = 1, UserName = &quot;User1&quot;, Email = &quot;user1@example.com&quot; };
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
+
+        _mockUserManager.Setup(um =&gt; um.FindByIdAsync(user.Id.ToString())).ReturnsAsync(user);
+        _mockUserManager.Setup(um =&gt; um.GetRolesAsync(user)).ReturnsAsync(new List&lt;string&gt; { &quot;Admin&quot; });
+
+        _mockRoleManager.Setup(rm =&gt; rm.Roles).Returns(new List&lt;IdentityRole&lt;int&gt;&gt;
+        {
+            new IdentityRole&lt;int&gt; { Name = &quot;Admin&quot; },
+            new IdentityRole&lt;int&gt; { Name = &quot;User&quot; }
+        }.AsQueryable());
+
+        var result = await controller.UserEdit(user.Id.ToString());
+
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var model = Assert.IsType&lt;User&gt;(viewResult.Model);
+        Assert.Equal(user.Id, model.Id);
+        Assert.Equal(user.UserName, model.UserName);
+
+        Assert.NotNull(controller.ViewBag.Roles);
+        Assert.Contains(&quot;Admin&quot;, controller.ViewBag.Roles);
+        Assert.Equal(&quot;Admin&quot;, controller.ViewBag.CurrentRole);
+    }
+
+    [Fact]
+    public async Task UserAdd_ReturnsViewResult()
+    {
+        var controller = new AdminController(_dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var result = controller.UserAdd();
+
+        Assert.IsType&lt;ViewResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task UserDetails_ReturnsViewWithUser_IfExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var user = new User { Id = 10, UserName = &quot;DetailUser&quot;, Email = &quot;detail@example.com&quot; };
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.UserDetails(10);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var modelUser = Assert.IsType&lt;User&gt;(viewResult.Model);
+        Assert.Equal(&quot;DetailUser&quot;, modelUser.UserName);
+    }
+
+    [Fact]
+    public async Task UserDetails_ReturnsNotFound_IfUserDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.UserDetails(999);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task UserDelete_ReturnsViewIfUserExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var user = new User { Id = 100, UserName = &quot;DeleteUser&quot;, Email = &quot;delete@example.com&quot; };
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.UserDelete(100);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var modelUser = Assert.IsType&lt;UserDeleteViewModel&gt;(viewResult.Model);
+        Assert.Equal(&quot;DeleteUser&quot;, modelUser.User.UserName);
+    }
+
+    [Fact]
+    public async Task UserDelete_ReturnsNotFoundIfUserDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.UserDelete(999);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task DeleteConfirmed_DeletesUserAndRedirects()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var user = new User { Id = 200, UserName = &quot;ConfirmedUser&quot;, Email = &quot;confirmed@example.com&quot; };
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.DeleteConfirmed(200);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.False(dbContext.Users.Any(u =&gt; u.Id == 200));
+    }
+
+    // ––– Tests for Group-related endpoints –––
+
+    [Fact]
+    public async Task Groups_ReturnsViewWithGroupList()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Groups.Add(new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Test Description&quot; });
+        dbContext.Groups.Add(new Group { Id = 2, Name = &quot;Group2&quot;, Description = &quot;Test Description&quot; });
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.Groups();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var groups = Assert.IsAssignableFrom&lt;IEnumerable&lt;Group&gt;&gt;(viewResult.Model);
+        Assert.Equal(2, groups.Count());
+    }
+
+    [Fact]
+    public void CreateGroup_Get_ReturnsViewWithManagersAndEmployees()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var employeeUser = new User { Id = 2, UserName = &quot;EmployeeUser&quot;, Email = &quot;employee@example.com&quot; };
+        dbContext.Users.Add(employeeUser);
+        dbContext.SaveChanges();
+
+        _mockUserManager.Setup(um =&gt; um.IsInRoleAsync(It.Is&lt;User&gt;(u =&gt; u.Id == 1), &quot;Manager&quot;))
+            .ReturnsAsync(true);
+        _mockUserManager.Setup(um =&gt; um.IsInRoleAsync(It.Is&lt;User&gt;(u =&gt; u.Id == 2), &quot;Manager&quot;))
+            .ReturnsAsync(false);
+        _mockUserManager.Setup(um =&gt; um.IsInRoleAsync(It.Is&lt;User&gt;(u =&gt; u.Id == 1), &quot;Employee&quot;))
+            .ReturnsAsync(false);
+        _mockUserManager.Setup(um =&gt; um.IsInRoleAsync(It.Is&lt;User&gt;(u =&gt; u.Id == 2), &quot;Employee&quot;))
+            .ReturnsAsync(true);
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var httpContext = new DefaultHttpContext();
+        var services = new ServiceCollection()
+            .AddSingleton&lt;ITempDataProvider&gt;(new Mock&lt;ITempDataProvider&gt;().Object)
+            .AddSingleton(_mockUserManager.Object)
+            .BuildServiceProvider();
+        httpContext.RequestServices = services;
+
+        controller.ControllerContext.HttpContext = httpContext;
+        controller.TempData = new TempDataDictionary(httpContext, services.GetRequiredService&lt;ITempDataProvider&gt;());
+
+        // Act
+        var result = controller.CreateGroup();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.NotNull(viewResult.ViewData[&quot;Employees&quot;]);
+        var employees = viewResult.ViewData[&quot;Employees&quot;] as List&lt;User&gt;;
+        Assert.Single(employees);
+        Assert.Equal(&quot;EmployeeUser&quot;, employees.First().UserName);
+    }
+
+    [Fact]
+    public async Task GroupDetails_ReturnsNotFoundIfGroupDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.GroupDetails(999);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task GroupDetails_ReturnsViewWithUsersAndManagers()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group
+        {
+            Id = 40,
+            Name = &quot;GroupDetails&quot;,
+            Description = &quot;Test Description&quot;
+        };
+        dbContext.Groups.Add(group);
+
+        var managerUser = new User { Id = 1, UserName = &quot;ManagerUser&quot;, Email = &quot;manager@example.com&quot; };
+        var employeeUser = new User { Id = 2, UserName = &quot;EmployeeUser&quot;, Email = &quot;employee@example.com&quot; };
+        dbContext.Users.AddRange(managerUser, employeeUser);
+
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 1, Role = &quot;Manager&quot; });
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 40, UserId = 2, Role = &quot;Member&quot; });
+
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.GroupDetails(40);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var modelGroup = Assert.IsType&lt;Group&gt;(viewResult.Model);
+        Assert.Equal(&quot;GroupDetails&quot;, modelGroup.Name);
+
+        Assert.NotNull(viewResult.ViewData[&quot;GroupUsers&quot;]);
+        var groupUsers = viewResult.ViewData[&quot;GroupUsers&quot;] as List&lt;UserGroup&gt;;
+        Assert.NotNull(groupUsers);
+        Assert.Equal(2, groupUsers.Count);
+
+        Assert.Contains(groupUsers, gu =&gt; gu.UserId == 1 &amp;&amp; gu.Role == &quot;Manager&quot;);
+        Assert.Contains(groupUsers, gu =&gt; gu.UserId == 2 &amp;&amp; gu.Role == &quot;Member&quot;);
+    }
+
+    [Fact]
+    public async Task CreateGroup_Post_InvalidPrimaryManager_ReturnsViewWithError()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+
+        var groupViewModel = new GroupViewModel
+        {
+            Name = &quot;NewGroup&quot;,
+            Description = &quot;Test Description&quot;,
+            SelectedManagerId = 9,
+            SelectedUserIds = [3]
+        };
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var services = new ServiceCollection()
+            .AddSingleton&lt;ITempDataProvider&gt;(new Mock&lt;ITempDataProvider&gt;().Object)
+            .AddSingleton&lt;UserManager&lt;User&gt;&gt;(_mockUserManager.Object)
+            .BuildServiceProvider();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.RequestServices = services;
+        controller.ControllerContext.HttpContext = httpContext;
+
+        var tempDataProvider = services.GetRequiredService&lt;ITempDataProvider&gt;();
+        controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
+
+        // Act
+        var result = await controller.CreateGroup(groupViewModel);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.False(controller.ModelState.IsValid);
+    }
+
+    [Fact]
+    public async Task CreateGroup_Post_Valid_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var primaryManager = new User { Id = 1, UserName = &quot;Manager&quot;, Email = &quot;pm@example.com&quot; };
+        var otherManager = new User { Id = 2, UserName = &quot;OtherManager&quot;, Email = &quot;om@example.com&quot; };
+        var employee = new User { Id = 3, UserName = &quot;Employee&quot;, Email = &quot;emp@example.com&quot; };
+        dbContext.Users.AddRange(primaryManager, otherManager, employee);
+        await dbContext.SaveChangesAsync();
+
+        var groupViewModel = new GroupViewModel
+        {
+            Name = &quot;NewGroup&quot;,
+            Description = &quot;Test Description&quot;,
+            SelectedManagerId = 1,
+            SelectedUserIds = [3]
+        };
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var services = new ServiceCollection()
+            .AddSingleton&lt;ITempDataProvider&gt;(new Mock&lt;ITempDataProvider&gt;().Object)
+            .AddSingleton&lt;UserManager&lt;User&gt;&gt;(_mockUserManager.Object)
+            .BuildServiceProvider();
+
+        var httpContext = new DefaultHttpContext { RequestServices = services };
+        controller.ControllerContext.HttpContext = httpContext;
+
+        var tempDataProvider = services.GetRequiredService&lt;ITempDataProvider&gt;();
+        controller.TempData = new TempDataDictionary(httpContext, tempDataProvider);
+
+        var mockUrlHelper = new Mock&lt;IUrlHelper&gt;();
+        controller.Url = mockUrlHelper.Object;
+
+        var result = await controller.CreateGroup(groupViewModel);
+
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Groups&quot;, redirectResult.ActionName);
+        Assert.Equal(1, groupViewModel.SelectedManagerId);
+        Assert.Contains(3, groupViewModel.SelectedUserIds);
+    }
+
+    [Fact]
+    public async Task CreateGroup_InvalidModelState_ReturnsViewWithEmployees()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = &quot;User1&quot;, Email = &quot;user1@example.com&quot; });
+        dbContext.Users.Add(new User { Id = 2, UserName = &quot;User2&quot;, Email = &quot;user2@example.com&quot; });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        var model = new GroupViewModel
+        {
+            Name = &quot;&quot;,
+            Description = &quot;Some Description&quot;,
+            SelectedManagerId = 1,
+            SelectedUserIds = new List&lt;int&gt; { 2 }
+        };
+
+        controller.ModelState.AddModelError(&quot;Name&quot;, &quot;Name is required&quot;);
+
+        // Act
+        var result = await controller.CreateGroup(model);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.Equal(model, viewResult.Model);
+
+        var employees = viewResult.ViewData[&quot;Employees&quot;] as List&lt;User&gt;;
+        Assert.NotNull(employees);
+        Assert.True(employees.Count &gt;= 2);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_RemovesGroupIfExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group { Id = 20, Name = &quot;GroupToDelete&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Groups.Add(group);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.DeleteGroup(20);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.False(dbContext.Groups.Any(g =&gt; g.Id == 20));
+    }
+
+    [Fact]
+    public async Task DeleteGroup_RedirectsIfGroupNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.DeleteGroup(999);
+
+        // Assert
+        Assert.IsType&lt;RedirectToActionResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_GroupAssignedToProject_ReturnsRedirectWithErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var dbContext = new ApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = &quot;Test Group&quot;, Description = &quot;Test&quot; };
+        dbContext.Groups.Add(group);
+        dbContext.GroupProjects.Add(new GroupProject { GroupId = 1, ProjectId = 1 });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock&lt;ITempDataProvider&gt;().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Groups&quot;, redirectResult.ActionName);
+        Assert.Equal(&quot;This group is assigned to one or more projects and cannot be deleted.&quot;,
+            controller.TempData[&quot;ErrorMessage&quot;]);
+        var stillThere = await dbContext.Groups.FindAsync(1);
+        Assert.NotNull(stillThere);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_DbUpdateException_SetsTempDataErrorMessage()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var testContext = new TestApplicationDbContext(options);
+
+        var group = new Group { Id = 1, Name = &quot;Test Group&quot;, Description = &quot;Test&quot;};
+        testContext.Groups.Add(group);
+        await testContext.SaveChangesAsync();
+
+        testContext.ThrowOnSaveChanges = true;
+
+        var controller = new AdminController(testContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            new Mock&lt;ITempDataProvider&gt;().Object);
+
+        // Act
+        var result = await controller.DeleteGroup(1);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Groups&quot;, redirectResult.ActionName);
+        Assert.Equal(&quot;Unable to delete this group because it is referenced elsewhere. Check project assignments&quot;,
+            controller.TempData[&quot;ErrorMessage&quot;]);
+
+        var existingGroup = await testContext.Groups.FindAsync(1);
+        Assert.NotNull(existingGroup);
+    }
+
+    [Fact]
+    public async Task AddUserToGroup_ReturnsNotFound_IfGroupOrUserNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act – group not found
+        var result1 = await controller.AddUserToGroup(1, 1);
+        Assert.IsType&lt;NotFoundResult&gt;(result1);
+
+        dbContext.Groups.Add(new Group { Id = 50, Name = &quot;AddUserGroup&quot;, Description = &quot;Test Description&quot; });
+        await dbContext.SaveChangesAsync();
+
+        var result2 = await controller.AddUserToGroup(50, 99);
+        Assert.IsType&lt;NotFoundResult&gt;(result2);
+    }
+
+    [Fact]
+    public async Task AddUserToGroup_AddsUserIfNotAlreadyAdded()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group { Id = 60, Name = &quot;UserGroup&quot;, Description = &quot;Test Description&quot; };
+        var user = new User { Id = 10, UserName = &quot;GroupUser&quot;, Email = &quot;groupuser@example.com&quot; };
+        dbContext.Groups.Add(group);
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.AddUserToGroup(60, 10);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;PartialViewResult&gt;(result);
+        Assert.Equal(&quot;_GroupUserAssignmentPartial&quot;, redirectResult.ViewName);
+
+        // ✅ Check in `UserGroups`
+        Assert.Contains(dbContext.UserGroups, ug =&gt; ug.GroupId == 60 &amp;&amp; ug.UserId == 10 &amp;&amp; ug.Role == &quot;Member&quot;);
+    }
+
+    [Fact]
+    public async Task AddManagerToGroup_ReturnsNotFound_IfGroupOrUserNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act – group not found
+        var result1 = await controller.AddManagerToGroup(1, 1, false);
+        Assert.IsType&lt;NotFoundResult&gt;(result1);
+
+        // Add group but not user
+        dbContext.Groups.Add(new Group
+        {
+            Id = 70,
+            Name = &quot;ManagerGroup&quot;,
+            Description = &quot;Test description&quot;,
+            Managers = new List&lt;GroupManager&gt;()
+        });
+        await dbContext.SaveChangesAsync();
+        var result2 = await controller.AddManagerToGroup(70, 99, false);
+        Assert.IsType&lt;NotFoundResult&gt;(result2);
+    }
+
+    [Fact]
+    public async Task AddManagerToGroup_AddsManagerAndSetsPrimaryIfTrue()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group
+        {
+            Id = 80,
+            Name = &quot;ManagerGroup&quot;,
+            Description = &quot;Test Description&quot;,
+            Managers = new List&lt;GroupManager&gt;()
+        };
+        var user = new User
+        {
+            Id = 20,
+            UserName = &quot;ManagerUser&quot;,
+            Email = &quot;manager@example.com&quot;
+        };
+        var groupManager = new GroupManager
+        {
+            GroupId = 80,
+            UserId = 20
+        };
+        dbContext.Groups.Add(group);
+        dbContext.Users.Add(user);
+        dbContext.GroupManagers.Add(groupManager);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.AddManagerToGroup(80, 20, true);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;GroupDetails&quot;, redirectResult.ActionName);
+        Assert.Contains(dbContext.GroupManagers, gm =&gt; gm.GroupId == 80 &amp;&amp; gm.UserId == 20);
+        Assert.Equal(20, group.ManagerId);
+    }
+
+
+    // ––– Tests for Project-related endpoints –––
+
+    [Fact]
+    public async Task Projects_ReturnsViewWithProjectsList()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Projects.Add(new Project { Id = 1, Name = &quot;Project1&quot;, Description = &quot;Test Description&quot; });
+        dbContext.Projects.Add(new Project { Id = 2, Name = &quot;Project2&quot;, Description = &quot;Test Description&quot; });
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.Projects();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var projects = Assert.IsAssignableFrom&lt;IEnumerable&lt;Project&gt;&gt;(viewResult.Model);
+        Assert.Equal(2, projects.Count());
+    }
+
+    [Fact]
+    public async Task CreateProject_Get_ReturnsViewWithProjectLeads()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = &quot;Lead1&quot;, Email = &quot;lead1@example.com&quot; });
+        dbContext.Users.Add(new User { Id = 2, UserName = &quot;Lead2&quot;, Email = &quot;lead2@example.com&quot; });
+        await dbContext.SaveChangesAsync();
+        _mockUserManager.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+            .ReturnsAsync(new User { Id = 3, UserName = &quot;Admin&quot;, Email = &quot;admin@example.com&quot; });
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = new List&lt;SelectListItem&gt;
+            {
+                new SelectListItem { Value = &quot;1&quot;, Text = &quot;Lead1&quot; },
+                new SelectListItem { Value = &quot;2&quot;, Text = &quot;Lead2&quot; }
+            }
+        };
+
+        // Act
+        var result = await controller.CreateProject();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.NotNull(model.ProjectLeads);
+        Assert.Equal(2, model.ProjectLeads.Count);
+    }
+
+    [Fact]
+    public async Task CreateProject_Post_InvalidModel_ReturnsView()
+    {
+        CreateProjectViewModel model = new CreateProjectViewModel();
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+            .ReturnsAsync(new User { Id = 3, UserName = &quot;Admin&quot;, Email = &quot;admin@example.com&quot; });
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ModelState.AddModelError(&quot;Error&quot;, &quot;Invalid&quot;);
+        var project = new Project { Id = 1, Name = &quot;InvalidProject&quot; };
+        var users = await dbContext.Users.ToListAsync();
+
+        model.ProjectLeads = users.Select(u =&gt; new SelectListItem
+        {
+            Value = u.Id.ToString(),
+            Text = u.UserName
+        }).ToList();
+
+        CreateProjectViewModel viewModel = new CreateProjectViewModel
+        {
+            ProjectLeads = new List&lt;SelectListItem&gt;
+            {
+                new SelectListItem { Value = &quot;1&quot;, Text = &quot;Lead1&quot; },
+                new SelectListItem { Value = &quot;2&quot;, Text = &quot;Lead2&quot; }
+            }
+        };
+        // Act
+        var result = await controller.CreateProject(viewModel);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.Equal(viewModel, viewResult.Model);
+    }
+
+    [Fact]
+    public async Task CreateProject_Post_WithoutUserId_ReturnsViewWithError()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        _mockUserManager.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+            .ReturnsAsync(new User { Id = 3, UserName = &quot;Admin&quot;, Email = &quot;admin@example.com&quot; });
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(string.Empty);
+        var project = new Project { Id = 1, Name = &quot;ProjectNoUser&quot; };
+        var users = await dbContext.Users.ToListAsync();
+
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            ProjectLeads = users.Select(u =&gt; new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
+
+        // Act
+        var result = await controller.CreateProject(model);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.Contains(&quot;&quot;, controller.ModelState.Keys);
+    }
+
+    [Fact]
+    public async Task CreateProject_Post_Valid_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        this._mockUserManager.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+            .ReturnsAsync(new User { Id = 3, UserName = &quot;Admin&quot;, Email = &quot;admin@example.com&quot; });
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(&quot;1&quot;);
+
+        var claims = new List&lt;Claim&gt; { new Claim(ClaimTypes.NameIdentifier, &quot;1&quot;) };
+        controller.ControllerContext.HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, &quot;TestAuth&quot;))
+        };
+
+        var services = new ServiceCollection()
+            .AddSingleton&lt;ITempDataProvider&gt;(new Mock&lt;ITempDataProvider&gt;().Object)
+            .BuildServiceProvider();
+
+        controller.ControllerContext.HttpContext.RequestServices = services;
+        controller.ControllerContext.HttpContext.Request.ContentType = &quot;application/x-www-form-urlencoded&quot;;
+        controller.TempData = new TempDataDictionary(controller.ControllerContext.HttpContext,
+            services.GetRequiredService&lt;ITempDataProvider&gt;());
+
+        var mockUrlHelper = new Mock&lt;IUrlHelper&gt;();
+        controller.Url = mockUrlHelper.Object;
+
+        var users = await dbContext.Users.ToListAsync();
+
+        CreateProjectViewModel model = new CreateProjectViewModel
+        {
+            Name = &quot;ValidProject&quot;,
+            Description = &quot;Test Description&quot;,
+            ProjectLeads = users.Select(u =&gt; new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = u.UserName
+            }).ToList()
+        };
+
+        // Act
+        var result = await controller.CreateProject(model);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Projects&quot;, redirectResult.ActionName);
+        Assert.True(dbContext.Projects.Any(p =&gt; p.Name == &quot;ValidProject&quot;));
+    }
+
+    [Fact]
+    public async Task CreateProject_Post_WithValidGroupData_CallsAssignGroupToProject()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+
+        var validUser = new User { Id = 1, UserName = &quot;Lead1&quot;, Email = &quot;lead1@example.com&quot; };
+        dbContext.Users.Add(validUser);
+        await dbContext.SaveChangesAsync();
+
+        dbContext.Groups.Add(new Group { Id = 1, ManagerId = 1, Description = &quot;Test&quot;, Name = &quot;TestGroup&quot; });
+        await dbContext.SaveChangesAsync();
+
+        _mockUserManager.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+                        .ReturnsAsync(new User { Id = 3, UserName = &quot;Admin&quot;, Email = &quot;admin@example.com&quot; });
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(&quot;3&quot;);
+
+        var mockController = new Mock&lt;AdminController&gt;(dbContext, _mockUserManager.Object, _mockRoleManager.Object)
+        {
+            CallBase = true
+        };
+
+        var claims = new List&lt;Claim&gt; { new Claim(ClaimTypes.NameIdentifier, &quot;3&quot;) };
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims, &quot;TestAuth&quot;))
+        };
+
+        httpContext.Request.ContentType = &quot;application/x-www-form-urlencoded&quot;;
+
+        var formData = new Dictionary&lt;string, Microsoft.Extensions.Primitives.StringValues&gt;
+        {
+            { &quot;GroupId&quot;, new Microsoft.Extensions.Primitives.StringValues(&quot;1&quot;) }
+        };
+        httpContext.Request.Form = new FormCollection(formData);
+
+        mockController.Object.ControllerContext.HttpContext = httpContext;
+        var services = new ServiceCollection()
+            .AddSingleton&lt;ITempDataProvider&gt;(new Mock&lt;ITempDataProvider&gt;().Object)
+            .BuildServiceProvider();
+        mockController.Object.ControllerContext.HttpContext.RequestServices = services;
+        mockController.Object.TempData = new TempDataDictionary(httpContext, services.GetRequiredService&lt;ITempDataProvider&gt;());
+        var mockUrlHelper = new Mock&lt;IUrlHelper&gt;();
+        mockController.Object.Url = mockUrlHelper.Object;
+
+        var model = new CreateProjectViewModel
+        {
+            Name = &quot;ProjectWithGroups&quot;,
+            Description = &quot;Test Description&quot;,
+            ProjectLeadId = 1
+        };
+
+        // Act
+        var result = await mockController.Object.CreateProject(model);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Projects&quot;, redirectResult.ActionName);
+
+        mockController.Verify(c =&gt; c.AssignGroupToProject(It.IsAny&lt;int&gt;(), 1), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProjectDetails_ReturnsNotFoundIfProjectDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ProjectDetails(9999);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task AssignGroupToProject_ReturnsNotFound_IfProjectOrGroupNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act: project not found
+        var result1 = await controller.AssignGroupToProject(1, 1);
+        Assert.IsType&lt;NotFoundResult&gt;(result1);
+
+        // Add a project but not group
+        dbContext.Projects.Add(new Project { Id = 1, Name = &quot;AssignProject&quot;, Description = &quot;Test Description&quot; });
+        await dbContext.SaveChangesAsync();
+        var result2 = await controller.AssignGroupToProject(1, 99);
+        Assert.IsType&lt;NotFoundResult&gt;(result2);
+    }
+
+    [Fact]
+    public async Task AssignGroupToProject_AddsGroupWhenNotAssigned()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 1, Name = &quot;AssignProject&quot;, ProjectGroups = new List&lt;GroupProject&gt;(), Description = &quot;Test Description&quot; };
+        var group = new Group { Id = 10, Name = &quot;TestGroup&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        dbContext.Groups.Add(group);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.AssignGroupToProject(1, 10);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;PartialViewResult&gt;(result);
+        Assert.Equal(&quot;_ProjectGroupAssignmentPartial&quot;, redirectResult.ViewName);
+        Assert.Contains(project.ProjectGroups, pg =&gt; pg.GroupId == 10);
+    }
+
+    [Fact]
+    public async Task AssignGroupToProject_DoesNotAddDuplicateGroup()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var groupProject = new GroupProject { ProjectId = 1, GroupId = 10 };
+        var project = new Project { Id = 1, Name = &quot;AssignProject&quot;, ProjectGroups = new List&lt;GroupProject&gt; { groupProject }, Description = &quot;Test Description&quot; };
+        var group = new Group { Id = 10, Name = &quot;TestGroup&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        dbContext.Groups.Add(group);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act – calling assign again should not duplicate the group assignment
+        var result = await controller.AssignGroupToProject(1, 10);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;PartialViewResult&gt;(result);
+        Assert.Equal(1, project.ProjectGroups.Count(pg =&gt; pg.GroupId == 10));
+    }
+
+    [Fact]
+    public async Task RemoveGroupFromProject_ReturnsNotFound_IfProjectNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.RemoveGroupFromProject(1, 10);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task RemoveGroupFromProject_RemovesGroupIfExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var groupProject = new GroupProject { ProjectId = 1, GroupId = 10 };
+        var project = new Project { Id = 1, Name = &quot;RemoveProject&quot;, ProjectGroups = new List&lt;GroupProject&gt; { groupProject }, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.RemoveGroupFromProject(1, 10);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;PartialViewResult&gt;(result);
+        Assert.Equal(&quot;_ProjectGroupAssignmentPartial&quot;, redirectResult.ViewName);
+        Assert.DoesNotContain(project.ProjectGroups, pg =&gt; pg.GroupId == 10);
+    }
+
+    [Fact]
+    public async Task EditProject_Get_ReturnsViewIfProjectExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 50, Name = &quot;EditProject&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.EditProject(50);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var modelProject = Assert.IsType&lt;Project&gt;(viewResult.Model);
+        Assert.Equal(&quot;EditProject&quot;, modelProject.Name);
+        Assert.NotNull(viewResult.ViewData[&quot;ProjectLeads&quot;]);
+    }
+
+    [Fact]
+    public async Task EditProject_Get_ReturnsNotFoundIfProjectDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.EditProject(9999);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task EditProject_Post_BadRequestIfIdMismatch()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 10, Name = &quot;Mismatch&quot; };
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.EditProject(5, project);
+
+        // Assert
+        Assert.IsType&lt;BadRequestResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task EditProject_Post_MissingUserId_ReturnsViewWithError()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 20, Name = &quot;MissingUser&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(string.Empty);
+
+        // Act
+        var result = await controller.EditProject(20, project);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.False(controller.ModelState.IsValid);
+    }
+
+    [Fact]
+    public async Task EditProject_Post_Valid_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 30, Name = &quot;ValidEdit&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(&quot;1&quot;);
+        var claims = new List&lt;Claim&gt; { new Claim(ClaimTypes.NameIdentifier, &quot;1&quot;) };
+        controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(claims, &quot;TestAuth&quot;)) };
+
+        // Act
+        var result = await controller.EditProject(30, project);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;ProjectDetails&quot;, redirectResult.ActionName);
+    }
+
+    public class ConcurrencyDbContext : ApplicationDbContext
+    {
+        public ConcurrencyDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+            : base(options) { }
+
+        public override Task&lt;int&gt; SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            throw new DbUpdateConcurrencyException();
+        }
+    }
+
+    [Fact]
+    public async Task EditProject_Post_ConcurrencyException_ReturnsNotFound()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+            .UseInMemoryDatabase(&quot;ConcurrencyTest&quot;)
+            .Options;
+        var dbContext = new ConcurrencyDbContext(options);
+        var project = new Project { Id = 40, Name = &quot;Concurrency&quot; };
+        // Do not add the project so that the check for existence fails.
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        _mockUserManager.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(&quot;1&quot;);
+        var claims = new List&lt;Claim&gt; { new Claim(ClaimTypes.NameIdentifier, &quot;1&quot;) };
+        controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(claims, &quot;TestAuth&quot;)) };
+
+        // Act
+        var result = await controller.EditProject(40, project);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task DeleteProject_RemovesProjectIfExists()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var project = new Project { Id = 55, Name = &quot;ToDelete&quot;, Description = &quot;Test Description&quot; };
+        dbContext.Projects.Add(project);
+        await dbContext.SaveChangesAsync();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.DeleteProject(55);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.False(dbContext.Projects.Any(p =&gt; p.Id == 55));
+    }
+
+    [Fact]
+    public async Task DeleteProject_RedirectsIfProjectNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.DeleteProject(999);
+
+        // Assert
+        Assert.IsType&lt;RedirectToActionResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task Users_ReturnsEmptyViewIfNoUsers()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.Users();
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        var model = Assert.IsAssignableFrom&lt;IEnumerable&lt;User&gt;&gt;(viewResult.Model);
+        Assert.Empty(model);
+    }
+
+    //[Fact]
+    //public async Task CreateProject_ReturnsViewWithErrors_IfModelStateInvalid()
+    //{
+    //    // Arrange
+    //    var dbContext = TestHelper.GetDbContext();
+    //    var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+    //    controller.ModelState.AddModelError(&quot;Name&quot;, &quot;Required&quot;);
+
+    //    var users = await dbContext.Users.ToListAsync();
+
+    //    CreateProjectViewModel model = new CreateProjectViewModel
+    //    {
+    //        ProjectLeads = users.Select(u =&gt; new SelectListItem
+    //        {
+    //            Value = u.Id.ToString(),
+    //            Text = u.UserName
+    //        }).ToList()
+    //    };
+
+    //    // Act
+    //    var result = await controller.CreateProject(model);
+
+    //    // Assert
+    //    var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+    //    Assert.False(controller.ModelState.IsValid);
+    //}
+
+    [Fact]
+    public async Task UserAdd_CreatesUserAndRedirects_WhenSuccessful()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var model = new UserViewModel { UserName = &quot;NewUser&quot;, Email = &quot;new@example.com&quot;, Password = &quot;Test@123&quot;, ConfirmPassword = &quot;Test@123&quot; };
+
+        _mockUserManager.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), model.Password))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(It.IsAny&lt;User&gt;(), &quot;Employee&quot;))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await controller.UserAdd(model);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Users&quot;, redirectResult.ActionName);
+    }
+
+    [Fact]
+    public async Task UserAdd_ReturnsViewWithErrors_WhenUserCreationFails()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var model = new UserViewModel { UserName = &quot;NewUser&quot;, Email = &quot;new@example.com&quot;, Password = &quot;Test@123&quot;, ConfirmPassword = &quot;Test@123&quot; };
+
+        var identityErrors = new IdentityError[] { new IdentityError { Code = &quot;Error1&quot;, Description = &quot;User creation failed&quot; } };
+        _mockUserManager.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), model.Password))
+            .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+        // Act
+        var result = await controller.UserAdd(model);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.Contains(&quot;User creation failed&quot;, controller.ModelState[string.Empty].Errors.First().ErrorMessage);
+    }
+
+    [Fact]
+    public async Task UserAdd_ReturnsViewWithErrors_WhenRoleAssignmentFails()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var model = new UserViewModel { UserName = &quot;NewUser&quot;, Email = &quot;new@example.com&quot;, Password = &quot;Test@123&quot;, ConfirmPassword = &quot;Test@123&quot; };
+
+        _mockUserManager.Setup(um =&gt; um.CreateAsync(It.IsAny&lt;User&gt;(), model.Password))
+            .ReturnsAsync(IdentityResult.Success);
+
+        var identityErrors = new IdentityError[] { new IdentityError { Code = &quot;Error2&quot;, Description = &quot;Role assignment failed&quot; } };
+        _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(It.IsAny&lt;User&gt;(), &quot;Employee&quot;))
+            .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+        // Act
+        var result = await controller.UserAdd(model);
+
+        // Assert
+        var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+        Assert.False(controller.ModelState.IsValid);
+        Assert.Contains(&quot;Role assignment failed&quot;, controller.ModelState[string.Empty].Errors.First().ErrorMessage);
+    }
+
+    [Fact]
+    public async Task UserEdit_UpdatesUserAndRedirects_WhenSuccessful()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var user = new User { Id = 1, UserName = &quot;OldUser&quot;, Email = &quot;old@example.com&quot; };
+
+        _mockUserManager.Setup(um =&gt; um.FindByIdAsync(user.Id.ToString()))
+            .ReturnsAsync(user);
+        _mockUserManager.Setup(um =&gt; um.UpdateAsync(It.IsAny&lt;User&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um =&gt; um.GetRolesAsync(user))
+            .ReturnsAsync(new List&lt;string&gt; { &quot;Employee&quot; });
+        _mockUserManager.Setup(um =&gt; um.RemoveFromRolesAsync(user, It.IsAny&lt;IEnumerable&lt;string&gt;&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(user, &quot;Admin&quot;))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await controller.UserEdit(user.Id.ToString(), &quot;UpdatedUser&quot;, &quot;updated@example.com&quot;, &quot;Admin&quot;);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Users&quot;, redirectResult.ActionName);
+        Assert.Equal(&quot;UpdatedUser&quot;, user.UserName);
+        Assert.Equal(&quot;updated@example.com&quot;, user.Email);
+    }
+
+    [Fact]
+    public async Task UserEdit_ReturnsNotFound_WhenUserDoesNotExist()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        _mockUserManager.Setup(um =&gt; um.FindByIdAsync(&quot;999&quot;))
+            .ReturnsAsync((User)null);
+
+        // Act
+        var result = await controller.UserEdit(&quot;999&quot;, &quot;UpdatedUser&quot;, &quot;updated@example.com&quot;, &quot;Admin&quot;);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task UserEdit_RemovesExistingRolesBeforeAddingNewRole()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        var user = new User { Id = 1, UserName = &quot;TestUser&quot;, Email = &quot;test@example.com&quot; };
+
+        _mockUserManager.Setup(um =&gt; um.FindByIdAsync(user.Id.ToString()))
+            .ReturnsAsync(user);
+        _mockUserManager.Setup(um =&gt; um.UpdateAsync(user))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um =&gt; um.GetRolesAsync(user))
+            .ReturnsAsync(new List&lt;string&gt; { &quot;Manager&quot;, &quot;Employee&quot; });
+        _mockUserManager.Setup(um =&gt; um.RemoveFromRolesAsync(user, It.IsAny&lt;IEnumerable&lt;string&gt;&gt;()))
+            .ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um =&gt; um.AddToRoleAsync(user, &quot;Admin&quot;))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await controller.UserEdit(user.Id.ToString(), &quot;UpdatedUser&quot;, &quot;updated@example.com&quot;, &quot;Admin&quot;);
+
+        // Assert
+        var redirectResult = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;Users&quot;, redirectResult.ActionName);
+
+        _mockUserManager.Verify(um =&gt; um.RemoveFromRolesAsync(user, It.IsAny&lt;IEnumerable&lt;string&gt;&gt;()), Times.Once);
+        _mockUserManager.Verify(um =&gt; um.AddToRoleAsync(user, &quot;Admin&quot;), Times.Once);
+    }
+
+    [Fact]
+    public async Task ChangeManager_GroupNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Users.Add(new User { Id = 1, UserName = &quot;Manager&quot;, Email = &quot;manager@example.com&quot; });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ChangeManager(1, 1);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        dbContext.Groups.Add(new Group { Id = 1, Name = &quot;Group 1&quot;, Description = &quot;Test&quot; });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+
+        // Act
+        var result = await controller.ChangeManager(1, 99);
+
+        // Assert
+        Assert.IsType&lt;NotFoundResult&gt;(result);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_NoPreviousManager_ReturnsRedirect()
+    {
+        // Arrange
+        var dbContext = TestHelper.GetDbContext();
+        var group = new Group { Id = 1, Name = &quot;Group 1&quot;, ManagerId = null, Description = &quot;Test&quot; };
+        dbContext.Groups.Add(group);
+        var newManager = new User { Id = 2, UserName = &quot;NewManager&quot;, Email = &quot;newmanager@example.com&quot; };
+        dbContext.Users.Add(newManager);
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        // Act
+        var result = await controller.ChangeManager(1, 2);
+
+        // Assert
+        var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;GroupDetails&quot;, redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var userGroup = await dbContext.UserGroups.FirstOrDefaultAsync(ug =&gt; ug.GroupId == 1 &amp;&amp; ug.UserId == 2);
+        Assert.NotNull(userGroup);
+        Assert.Equal(&quot;Manager&quot;, userGroup.Role);
+    }
+
+    [Fact]
+    public async Task ChangeManager_NewManagerEntryCreated_WithPreviousManager_UpdatesPreviousManagerEntry()
+    {
+        // Arrange:
+        var dbContext = TestHelper.GetDbContext();
+        var previousManager = new User { Id = 1, UserName = &quot;OldManager&quot;, Email = &quot;oldmanager@example.com&quot; };
+        var newManager = new User { Id = 2, UserName = &quot;NewManager&quot;, Email = &quot;newmanager@example.com&quot; };
+        dbContext.Users.Add(previousManager);
+        dbContext.Users.Add(newManager);
+        var group = new Group { Id = 1, Name = &quot;Group 1&quot;, ManagerId = 1, Description = &quot;Test&quot; };
+        dbContext.Groups.Add(group);
+        dbContext.UserGroups.Add(new UserGroup { GroupId = 1, UserId = 1, Role = &quot;Manager&quot; });
+        await dbContext.SaveChangesAsync();
+
+        var controller = new AdminController(dbContext, _mockUserManager.Object, _mockRoleManager.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        // Act
+        var result = await controller.ChangeManager(1, 2);
+
+        // Assert
+        var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+        Assert.Equal(&quot;GroupDetails&quot;, redirect.ActionName);
+
+        var updatedGroup = await dbContext.Groups.FindAsync(1);
+        Assert.Equal(2, updatedGroup.ManagerId);
+
+        var newManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug =&gt; ug.GroupId == 1 &amp;&amp; ug.UserId == 2);
+        Assert.NotNull(newManagerEntry);
+        Assert.Equal(&quot;Manager&quot;, newManagerEntry.Role);
+
+        var previousManagerEntry = await dbContext.UserGroups.FirstOrDefaultAsync(ug =&gt; ug.GroupId == 1 &amp;&amp; ug.UserId == 1);
+        Assert.NotNull(previousManagerEntry);
+        Assert.Equal(&quot;Member&quot;, previousManagerEntry.Role);
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[30,5,30,34,1],[31,5,31,6,1],[32,9,32,49,1],[33,9,33,49,1],[34,9,34,48,1],[36,9,40,25,1],[41,9,41,67,1],[43,9,44,80,1],[45,5,45,6,1],[48,5,48,6,1],[49,9,49,58,1],[50,9,51,61,1],[52,5,52,6,1],[55,5,55,6,1],[56,9,56,71,1],[57,9,58,37,1],[59,5,59,6,1],[64,5,64,6,1],[66,9,66,123,1],[68,9,68,81,1],[70,9,76,11,1],[79,9,79,58,1],[82,9,82,60,1],[83,9,83,51,1],[84,5,84,6,1],[88,5,88,6,1],[90,9,90,51,1],[91,9,91,99,1],[92,9,92,99,1],[93,9,93,44,1],[94,9,94,107,1],[97,9,97,47,1],[100,9,100,60,1],[101,9,101,82,1],[102,9,102,40,1],[103,5,103,6,1],[107,5,107,6,1],[108,9,108,108,1],[110,9,110,55,1],[112,9,112,47,1],[113,5,113,6,1],[117,5,117,6,1],[118,9,118,108,1],[119,9,119,89,1],[120,9,120,47,1],[121,9,121,45,1],[123,9,123,95,1],[124,9,124,105,1],[126,9,130,26,1],[132,9,132,68,1],[134,9,134,60,1],[135,9,135,59,1],[136,9,136,41,1],[137,9,137,53,1],[139,9,139,50,1],[140,9,140,60,1],[141,9,141,63,1],[142,5,142,6,1],[146,5,146,6,1],[147,9,147,108,1],[149,9,149,43,1],[151,9,151,43,1],[152,5,152,6,1],[156,5,156,6,1],[158,9,158,51,1],[159,9,159,96,1],[160,9,160,35,1],[161,9,161,44,1],[162,9,162,107,1],[165,9,165,55,1],[168,9,168,60,1],[169,9,169,63,1],[170,9,170,56,1],[171,5,171,6,1],[175,5,175,6,1],[177,9,177,51,1],[178,9,178,107,1],[181,9,181,56,1],[184,9,184,47,1],[185,5,185,6,1],[189,5,189,6,1],[191,9,191,51,1],[192,9,192,97,1],[193,9,193,35,1],[194,9,194,44,1],[195,9,195,107,1],[198,9,198,55,1],[201,9,201,60,1],[202,9,202,78,1],[203,9,203,61,1],[204,5,204,6,1],[208,5,208,6,1],[210,9,210,51,1],[211,9,211,107,1],[214,9,214,55,1],[217,9,217,47,1],[218,5,218,6,1],[222,5,222,6,1],[224,9,224,51,1],[225,9,225,103,1],[226,9,226,35,1],[227,9,227,44,1],[228,9,228,107,1],[231,9,231,60,1],[234,9,234,76,1],[235,9,235,61,1],[236,5,236,6,1],[242,5,242,6,1],[244,9,244,51,1],[245,9,245,103,1],[246,9,246,103,1],[247,9,247,44,1],[248,9,248,107,1],[251,9,251,48,1],[254,9,254,60,1],[255,9,255,84,1],[256,9,256,41,1],[257,5,257,6,1],[261,5,261,6,1],[263,9,263,51,1],[264,9,264,107,1],[265,9,265,43,1],[266,9,266,33,1],[268,9,269,33,1],[270,9,271,34,1],[272,9,273,34,1],[274,9,275,33,1],[277,9,277,107,1],[279,9,279,52,1],[280,9,283,37,1],[284,9,284,48,1],[286,9,286,64,1],[287,9,287,117,1],[290,9,290,47,1],[293,9,293,60,1],[294,9,294,58,1],[295,9,295,72,1],[296,9,296,34,1],[297,9,297,66,1],[298,5,298,6,1],[302,5,302,6,1],[304,9,304,51,1],[305,9,305,107,1],[308,9,308,57,1],[311,9,311,47,1],[312,5,312,6,1],[316,5,316,6,1],[318,9,318,51,1],[319,9,324,11,1],[325,9,325,37,1],[327,9,327,104,1],[328,9,328,107,1],[329,9,329,61,1],[331,9,331,96,1],[332,9,332,95,1],[334,9,334,44,1],[336,9,336,107,1],[339,9,339,56,1],[342,9,342,60,1],[343,9,343,65,1],[344,9,344,55,1],[346,9,346,59,1],[347,9,347,79,1],[348,9,348,36,1],[349,9,349,43,1],[351,9,351,43,1],[351,43,351,81,1],[351,81,351,83,1],[352,9,352,43,1],[352,43,352,80,1],[352,80,352,82,1],[353,5,353,6,1],[357,5,357,6,1],[359,9,359,51,1],[361,9,367,11,1],[368,9,368,107,1],[370,9,373,37,1],[375,9,375,52,1],[376,9,376,48,1],[377,9,377,64,1],[379,9,379,81,1],[380,9,380,85,1],[383,9,383,67,1],[386,9,386,60,1],[387,9,387,53,1],[388,5,388,6,1],[392,5,392,6,1],[394,9,394,51,1],[395,9,395,98,1],[396,9,396,101,1],[397,9,397,94,1],[398,9,398,74,1],[399,9,399,44,1],[401,9,407,11,1],[409,9,409,107,1],[411,9,414,37,1],[416,9,416,81,1],[417,9,417,64,1],[419,9,419,81,1],[420,9,420,85,1],[422,9,422,52,1],[423,9,423,47,1],[425,9,425,67,1],[427,9,427,76,1],[428,9,428,59,1],[429,9,429,59,1],[430,9,430,60,1],[431,5,431,6,1],[435,5,435,6,1],[437,9,437,51,1],[438,9,438,99,1],[439,9,439,99,1],[440,9,440,44,1],[442,9,442,107,1],[444,9,450,11,1],[452,9,452,73,1],[455,9,455,58,1],[458,9,458,60,1],[459,9,459,47,1],[461,9,461,72,1],[462,9,462,35,1],[463,9,463,43,1],[464,5,464,6,1],[468,5,468,6,1],[470,9,470,51,1],[471,9,471,101,1],[472,9,472,37,1],[473,9,473,44,1],[474,9,474,107,1],[477,9,477,55,1],[480,9,480,76,1],[481,9,481,61,1],[482,5,482,6,1],[486,5,486,6,1],[488,9,488,51,1],[489,9,489,107,1],[492,9,492,56,1],[495,9,495,55,1],[496,5,496,6,1],[500,5,500,6,1],[502,9,504,22,1],[506,9,506,65,1],[508,9,508,85,1],[509,9,509,37,1],[510,9,510,86,1],[511,9,511,44,1],[513,9,513,107,1],[514,9,514,105,1],[515,9,516,51,1],[519,9,519,54,1],[522,9,522,76,1],[523,9,523,59,1],[524,9,525,50,1],[526,9,526,62,1],[527,9,527,36,1],[528,5,528,6,1],[532,5,532,6,1],[534,9,536,22,1],[538,9,538,65,1],[540,9,540,84,1],[541,9,541,39,1],[542,9,542,46,1],[544,9,544,47,1],[546,9,546,109,1],[547,9,547,105,1],[548,9,549,51,1],[552,9,552,54,1],[555,9,555,76,1],[556,9,556,59,1],[557,9,558,50,1],[560,9,560,67,1],[561,9,561,39,1],[562,5,562,6,1],[566,5,566,6,1],[568,9,568,51,1],[569,9,569,107,1],[572,9,572,61,1],[573,9,573,48,1],[575,9,575,110,1],[576,9,576,44,1],[578,9,578,63,1],[579,9,579,48,1],[580,5,580,6,1],[584,5,584,6,1],[586,9,586,51,1],[587,9,587,97,1],[588,9,588,98,1],[589,9,589,37,1],[590,9,590,35,1],[591,9,591,44,1],[593,9,593,107,1],[596,9,596,62,1],[599,9,599,71,1],[600,9,600,78,1],[603,9,603,53,1],[603,53,603,111,1],[603,111,603,113,1],[604,5,604,6,1],[608,5,608,6,1],[610,9,610,51,1],[611,9,611,107,1],[614,9,614,71,1],[615,9,615,48,1],[618,9,624,12,1],[625,9,625,44,1],[626,9,626,73,1],[627,9,627,48,1],[628,5,628,6,1],[632,5,632,6,1],[634,9,634,51,1],[635,9,641,11,1],[642,9,647,11,1],[648,9,652,11,1],[653,9,653,37,1],[654,9,654,35,1],[655,9,655,51,1],[656,9,656,44,1],[657,9,657,107,1],[660,9,660,71,1],[663,9,663,76,1],[664,9,664,65,1],[665,9,665,56,1],[665,56,665,91,1],[665,91,665,93,1],[666,9,666,43,1],[667,5,667,6,1],[674,5,674,6,1],[676,9,676,51,1],[677,9,677,109,1],[678,9,678,109,1],[679,9,679,44,1],[680,9,680,107,1],[683,9,683,50,1],[686,9,686,60,1],[687,9,687,88,1],[688,9,688,43,1],[689,5,689,6,1],[693,5,693,6,1],[695,9,695,51,1],[696,9,696,99,1],[697,9,697,99,1],[698,9,698,44,1],[699,9,700,97,1],[702,9,702,107,1],[704,9,711,11,1],[714,9,714,55,1],[717,9,717,60,1],[718,9,718,44,1],[719,9,719,51,1],[720,5,720,6,1],[724,5,724,6,1],[725,9,725,69,1],[727,9,727,51,1],[728,9,729,97,1],[730,9,730,107,1],[731,9,731,65,1],[732,9,732,71,1],[733,9,733,57,1],[735,9,735,48,1],[735,48,739,10,0],[739,10,739,21,1],[741,9,748,11,1],[750,9,750,64,1],[753,9,753,60,1],[754,9,754,51,1],[755,5,755,6,1],[759,5,759,6,1],[761,9,761,51,1],[762,9,763,97,1],[765,9,765,107,1],[766,9,766,103,1],[767,9,767,70,1],[768,9,768,57,1],[770,9,772,46,1],[772,46,776,14,0],[776,14,777,11,1],[780,9,780,60,1],[783,9,783,60,1],[784,9,784,53,1],[785,9,785,57,1],[786,5,786,6,1],[790,5,790,6,1],[792,9,792,51,1],[793,9,794,97,1],[796,9,796,107,1],[798,9,798,94,1],[800,9,800,84,1],[801,9,804,11,1],[806,9,808,37,1],[810,9,810,77,1],[811,9,811,108,1],[812,9,813,63,1],[815,9,815,52,1],[816,9,816,47,1],[818,9,818,57,1],[820,9,824,46,1],[824,46,828,14,0],[828,14,829,11,1],[832,9,832,60,1],[835,9,835,76,1],[836,9,836,61,1],[837,9,837,76,1],[838,5,838,6,1],[842,5,842,6,1],[844,9,844,51,1],[846,9,846,94,1],[847,9,847,40,1],[848,9,848,44,1],[850,9,850,109,1],[851,9,851,44,1],[853,9,854,109,1],[855,9,855,94,1],[857,9,860,11,1],[862,9,862,84,1],[863,9,866,11,1],[868,9,868,79,1],[870,9,873,11,1],[874,9,874,65,1],[876,9,876,75,1],[877,9,879,37,1],[880,9,880,88,1],[881,9,881,128,1],[882,9,882,52,1],[883,9,883,58,1],[885,9,890,11,1],[893,9,893,71,1],[896,9,896,76,1],[897,9,897,61,1],[899,9,899,92,1],[900,5,900,6,1],[904,5,904,6,1],[906,9,906,51,1],[907,9,907,107,1],[910,9,910,60,1],[913,9,913,47,1],[914,5,914,6,1],[918,5,918,6,1],[920,9,920,51,1],[921,9,921,107,1],[924,9,924,67,1],[925,9,925,48,1],[928,9,928,114,1],[929,9,929,44,1],[930,9,930,68,1],[931,9,931,48,1],[932,5,932,6,1],[936,5,936,6,1],[938,9,938,51,1],[939,9,939,146,1],[940,9,940,97,1],[941,9,941,41,1],[942,9,942,37,1],[943,9,943,44,1],[944,9,944,107,1],[947,9,947,67,1],[950,9,950,71,1],[951,9,951,81,1],[952,9,952,54,1],[952,54,952,70,1],[952,70,952,72,1],[953,5,953,6,1],[957,5,957,6,1],[959,9,959,51,1],[960,9,960,77,1],[961,9,961,161,1],[962,9,962,97,1],[963,9,963,41,1],[964,9,964,37,1],[965,9,965,44,1],[966,9,966,107,1],[969,9,969,67,1],[972,9,972,71,1],[973,9,973,59,1],[973,59,973,75,1],[973,75,973,78,1],[974,5,974,6,1],[978,5,978,6,1],[980,9,980,51,1],[981,9,981,107,1],[984,9,984,69,1],[987,9,987,47,1],[988,5,988,6,1],[992,5,992,6,1],[994,9,994,51,1],[995,9,995,77,1],[996,9,996,161,1],[997,9,997,41,1],[998,9,998,44,1],[999,9,999,107,1],[1002,9,1002,69,1],[1005,9,1005,71,1],[1006,9,1006,81,1],[1007,9,1007,60,1],[1007,60,1007,76,0],[1007,76,1007,78,1],[1008,5,1008,6,1],[1012,5,1012,6,1],[1014,9,1014,51,1],[1015,9,1015,103,1],[1016,9,1016,41,1],[1017,9,1017,44,1],[1018,9,1018,107,1],[1021,9,1021,55,1],[1024,9,1024,60,1],[1025,9,1025,69,1],[1026,9,1026,56,1],[1027,9,1027,61,1],[1028,5,1028,6,1],[1032,5,1032,6,1],[1034,9,1034,51,1],[1035,9,1035,107,1],[1038,9,1038,57,1],[1041,9,1041,47,1],[1042,5,1042,6,1],[1046,5,1046,6,1],[1048,9,1048,51,1],[1049,9,1049,66,1],[1050,9,1050,107,1],[1053,9,1053,63,1],[1056,9,1056,49,1],[1057,5,1057,6,1],[1061,5,1061,6,1],[1063,9,1063,51,1],[1064,9,1064,103,1],[1065,9,1065,41,1],[1066,9,1066,44,1],[1067,9,1067,107,1],[1068,9,1068,103,1],[1071,9,1071,64,1],[1074,9,1074,60,1],[1075,9,1075,53,1],[1076,5,1076,6,1],[1080,5,1080,6,1],[1082,9,1082,51,1],[1083,9,1083,101,1],[1084,9,1084,41,1],[1085,9,1085,44,1],[1086,9,1086,107,1],[1087,9,1087,94,1],[1088,9,1088,84,1],[1089,9,1089,146,1],[1092,9,1092,64,1],[1095,9,1095,76,1],[1096,9,1096,67,1],[1097,5,1097,6,1],[1102,15,1102,28,1],[1102,29,1102,30,1],[1102,31,1102,32,1],[1105,9,1105,10,1],[1106,13,1106,54,1],[1112,5,1112,6,1],[1114,9,1116,22,1],[1117,9,1117,59,1],[1118,9,1118,69,1],[1120,9,1120,107,1],[1121,9,1121,94,1],[1122,9,1122,84,1],[1123,9,1123,146,1],[1126,9,1126,64,1],[1129,9,1129,47,1],[1130,5,1130,6,1],[1134,5,1134,6,1],[1136,9,1136,51,1],[1137,9,1137,100,1],[1138,9,1138,41,1],[1139,9,1139,44,1],[1140,9,1140,107,1],[1143,9,1143,57,1],[1146,9,1146,76,1],[1147,9,1147,63,1],[1148,5,1148,6,1],[1152,5,1152,6,1],[1154,9,1154,51,1],[1155,9,1155,107,1],[1158,9,1158,58,1],[1161,9,1161,55,1],[1162,5,1162,6,1],[1166,5,1166,6,1],[1168,9,1168,51,1],[1169,9,1169,107,1],[1172,9,1172,47,1],[1175,9,1175,60,1],[1176,9,1176,82,1],[1177,9,1177,29,1],[1178,5,1178,6,1],[1210,5,1210,6,1],[1212,9,1212,51,1],[1213,9,1213,107,1],[1214,9,1214,144,1],[1216,9,1217,51,1],[1218,9,1219,51,1],[1222,9,1222,54,1],[1225,9,1225,76,1],[1226,9,1226,58,1],[1227,5,1227,6,1],[1231,5,1231,6,1],[1233,9,1233,51,1],[1234,9,1234,107,1],[1235,9,1235,144,1],[1237,9,1237,130,1],[1238,9,1239,66,1],[1242,9,1242,54,1],[1245,9,1245,60,1],[1246,9,1246,53,1],[1247,9,1247,114,1],[1248,5,1248,6,1],[1252,5,1252,6,1],[1254,9,1254,51,1],[1255,9,1255,107,1],[1256,9,1256,144,1],[1258,9,1259,51,1],[1261,9,1261,132,1],[1262,9,1263,66,1],[1266,9,1266,54,1],[1269,9,1269,60,1],[1270,9,1270,53,1],[1271,9,1271,116,1],[1272,5,1272,6,1],[1276,5,1276,6,1],[1278,9,1278,51,1],[1279,9,1279,107,1],[1280,9,1280,89,1],[1282,9,1283,33,1],[1284,9,1285,51,1],[1286,9,1287,60,1],[1288,9,1289,51,1],[1290,9,1291,51,1],[1294,9,1294,115,1],[1297,9,1297,76,1],[1298,9,1298,58,1],[1299,9,1299,52,1],[1300,9,1300,57,1],[1301,5,1301,6,1],[1305,5,1305,6,1],[1307,9,1307,51,1],[1308,9,1308,107,1],[1310,9,1311,39,1],[1314,9,1314,102,1],[1317,9,1317,47,1],[1318,5,1318,6,1],[1322,5,1322,6,1],[1324,9,1324,51,1],[1325,9,1325,107,1],[1326,9,1326,91,1],[1328,9,1329,33,1],[1330,9,1331,51,1],[1332,9,1333,71,1],[1334,9,1335,51,1],[1336,9,1337,51,1],[1340,9,1340,115,1],[1343,9,1343,76,1],[1344,9,1344,58,1],[1346,9,1346,115,1],[1347,9,1347,85,1],[1348,5,1348,6,1],[1352,5,1352,6,1],[1354,9,1354,51,1],[1355,9,1355,103,1],[1356,9,1356,44,1],[1358,9,1358,107,1],[1361,9,1361,59,1],[1364,9,1364,47,1],[1365,5,1365,6,1],[1369,5,1369,6,1],[1371,9,1371,51,1],[1372,9,1372,92,1],[1373,9,1373,44,1],[1375,9,1375,107,1],[1378,9,1378,60,1],[1381,9,1381,47,1],[1382,5,1382,6,1],[1386,5,1386,6,1],[1388,9,1388,51,1],[1389,9,1389,100,1],[1390,9,1390,37,1],[1391,9,1391,105,1],[1392,9,1392,41,1],[1393,9,1393,44,1],[1395,9,1395,107,1],[1396,9,1399,11,1],[1402,9,1402,59,1],[1405,9,1405,70,1],[1406,9,1406,59,1],[1408,9,1408,64,1],[1409,9,1409,49,1],[1411,9,1411,113,1],[1412,9,1412,35,1],[1413,9,1413,49,1],[1414,5,1414,6,1],[1418,5,1418,6,1],[1420,9,1420,51,1],[1421,9,1421,110,1],[1422,9,1422,105,1],[1423,9,1423,46,1],[1424,9,1424,41,1],[1425,9,1425,97,1],[1426,9,1426,37,1],[1427,9,1427,95,1],[1428,9,1428,44,1],[1430,9,1430,107,1],[1431,9,1434,11,1],[1437,9,1437,59,1],[1440,9,1440,70,1],[1441,9,1441,59,1],[1443,9,1443,64,1],[1444,9,1444,49,1],[1446,9,1446,119,1],[1447,9,1447,41,1],[1448,9,1448,55,1],[1450,9,1450,124,1],[1451,9,1451,46,1],[1452,9,1452,59,1],[1453,5,1453,6,1]]);
+    </script>
+  </body>
+</html>
