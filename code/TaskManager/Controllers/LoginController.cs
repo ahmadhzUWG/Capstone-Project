@@ -18,11 +18,11 @@ namespace TaskManagerWebsite.Controllers
         /// <summary>
         /// The user manager
         /// </summary>
-        private readonly UserManager<User> _userManager = userManager;
+        private readonly UserManager<User> userManager = userManager;
         /// <summary>
         /// The sign in manager
         /// </summary>
-        private readonly SignInManager<User> _signInManager = signInManager;
+        private readonly SignInManager<User> signInManager = signInManager;
 
 
         /// <summary>
@@ -34,11 +34,11 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            if (_signInManager.IsSignedIn(User))
+            if (this.signInManager.IsSignedIn(User))
             {
                 return RedirectToAction("Index", "Home");
             }
-            await _signInManager.SignOutAsync(); 
+            await this.signInManager.SignOutAsync(); 
             
             return View();
         }
@@ -59,14 +59,14 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await this.userManager.FindByNameAsync(model.UserName);
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
+            var result = await this.signInManager.PasswordSignInAsync(
                 model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
@@ -93,7 +93,7 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await this.signInManager.SignOutAsync();
             return RedirectToAction("Index", "Login");
         }
     }

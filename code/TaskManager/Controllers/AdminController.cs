@@ -170,16 +170,15 @@ namespace TaskManagerWebsite.Controllers
             context.Groups.Add(group);
             await context.SaveChangesAsync();
 
-            if (model.SelectedManagerId != null)
+
+            var managerEntry = new UserGroup
             {
-                var managerEntry = new UserGroup
-                {
-                    UserId = (int)model.SelectedManagerId,
-                    GroupId = group.Id,
-                    Role = "Manager"
-                };
-                context.UserGroups.Add(managerEntry);
-            }
+                UserId = (int)model.SelectedManagerId,
+                GroupId = group.Id,
+                Role = "Manager"
+            };
+            context.UserGroups.Add(managerEntry);
+
 
             var employees = await context.Users
                 .Where(u => model.SelectedUserIds.Contains(u.Id) && u.Id != model.SelectedManagerId)
@@ -211,16 +210,16 @@ namespace TaskManagerWebsite.Controllers
             var group = await context.Groups.FindAsync(id);
             if (group == null)
             {
-                return RedirectToAction(nameof(Groups));
+                return RedirectToAction(nameof(this.Groups));
             }
 
-            bool isAssignedToProject = await context.GroupProjects
+            var isAssignedToProject = await context.GroupProjects
                 .AnyAsync(gp => gp.GroupId == id);
 
             if (isAssignedToProject)
             {
                 TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
-                return RedirectToAction(nameof(Groups));
+                return RedirectToAction(nameof(this.Groups));
             }
 
             try
@@ -233,7 +232,7 @@ namespace TaskManagerWebsite.Controllers
                 TempData["ErrorMessage"] = "Unable to delete this group because it is referenced elsewhere. Check project assignments";
             }
 
-            return RedirectToAction(nameof(Groups));
+            return RedirectToAction(nameof(this.Groups));
         }
 
 
@@ -252,7 +251,9 @@ namespace TaskManagerWebsite.Controllers
                 .FirstOrDefaultAsync(g => g.Id == id);
 
             if (group == null)
+            {
                 return NotFound();
+            }
 
             var groupUsers = await context.UserGroups
                 .Where(ug => ug.GroupId == id)
@@ -296,7 +297,7 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
-            bool alreadyInGroup = await context.UserGroups.AnyAsync(ug => ug.GroupId == groupId && ug.UserId == userId);
+            var alreadyInGroup = await context.UserGroups.AnyAsync(ug => ug.GroupId == groupId && ug.UserId == userId);
             if (!alreadyInGroup)
             {
                 context.UserGroups.Add(new UserGroup
@@ -511,7 +512,6 @@ namespace TaskManagerWebsite.Controllers
             leads.Add(currentAdmin);
             ViewBag.Groups = await context.Groups.ToListAsync();
 
-            // Build the view model
             var model = new CreateProjectViewModel
             {
                 ProjectLeads = leads.Select(u => new SelectListItem
@@ -585,12 +585,15 @@ namespace TaskManagerWebsite.Controllers
             {
                 foreach (var groupId in selectedGroupIds)
                 {
-                    await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    if (groupId != null)
+                    {
+                        await this.AssignGroupToProject(project.Id, int.Parse(groupId));
+                    }
                 }
 
             }
 
-            return RedirectToAction(nameof(Projects));
+            return RedirectToAction(nameof(this.Projects));
         }
 
         /// <summary>
@@ -636,11 +639,15 @@ namespace TaskManagerWebsite.Controllers
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null)
+            {
                 return NotFound();
+            }
 
             var group = await context.Groups.FindAsync(groupId);
             if (group == null)
+            {
                 return NotFound();
+            }
 
             if (project.ProjectGroups.All(pg => pg.GroupId != groupId))
             {
@@ -654,8 +661,8 @@ namespace TaskManagerWebsite.Controllers
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
             var allGroups = await context.Groups.ToListAsync();
-            var assignedGroupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            ViewBag.Groups = allGroups.Where(g => !assignedGroupIds.Contains(g.Id)).ToList();
+            var assignedGroupIds = project?.ProjectGroups.Select(pg => pg.GroupId).ToList();
+            ViewBag.Groups = allGroups.Where(g => assignedGroupIds != null && !assignedGroupIds.Contains(g.Id)).ToList();
 
             return PartialView("_ProjectGroupAssignmentPartial", project);
         }
@@ -791,7 +798,7 @@ namespace TaskManagerWebsite.Controllers
                 context.Projects.Remove(project);
                 await context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Projects));
+            return RedirectToAction(nameof(this.Projects));
         }
 
         /// <summary>
@@ -812,7 +819,7 @@ namespace TaskManagerWebsite.Controllers
             var roles = roleManager.Roles.Select(r => r.Name).ToList();
 
             var userRoles = await userManager.GetRolesAsync(user);
-            string currentRole = userRoles.FirstOrDefault() ?? string.Empty;
+            var currentRole = userRoles.FirstOrDefault() ?? string.Empty;
 
             ViewBag.Roles = roles;
             ViewBag.CurrentRole = currentRole;
@@ -928,16 +935,16 @@ namespace TaskManagerWebsite.Controllers
                 .Where(g => g.ManagerId == id)
                 .ToListAsync();
 
-            if (managedGroups.Any())
+            if (managedGroups.Count != 0)
             {
                 TempData["ErrorMessage"] = "Cannot delete this user because they are a manager of a group or a group they manage is referenced in a project.";
-                return RedirectToAction(nameof(UserDelete), new { id });
+                return RedirectToAction(nameof(this.UserDelete), new { id });
             }
 
             context.Users.Remove(user);
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Users));
+            return RedirectToAction(nameof(this.Users));
         }
 
     }

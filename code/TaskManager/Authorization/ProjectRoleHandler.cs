@@ -24,7 +24,7 @@ public class ProjectRoleHandler : AuthorizationHandler<ProjectRoleRequirement, i
     /// <param name="context">The context.</param>
     public ProjectRoleHandler(ApplicationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     /// <summary>
@@ -40,9 +40,9 @@ public class ProjectRoleHandler : AuthorizationHandler<ProjectRoleRequirement, i
             return;
         }
 
-        bool isProjectManager = await _context.UserGroups
+        bool isProjectManager = await this._context.UserGroups
             .Where(ug => ug.UserId == userId && ug.Role == "Manager")
-            .AnyAsync(ug => _context.GroupProjects
+            .AnyAsync(ug => this._context.GroupProjects
                 .Any(gp => gp.GroupId == ug.GroupId && gp.ProjectId == projectId));
 
         if (isProjectManager)

@@ -44,18 +44,18 @@ namespace TaskManagerWebsite.Controllers
         /// <returns></returns>
         public async Task<IActionResult> DeleteTask(int taskStageId)
         {
-            var taskStage = await context.TaskStages
+            var taskStage = await this.context.TaskStages
                 .Include(ts => ts.Task)
                 .FirstOrDefaultAsync(ts => ts.Id == taskStageId);
 
-            var stage = await context.Stages
+            var stage = await this.context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == taskStage.StageId);
 
             if (stage == null)
                 return NotFound();
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
                 .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
                 .ThenInclude(userGroup => userGroup.User)
@@ -67,11 +67,11 @@ namespace TaskManagerWebsite.Controllers
             if (project == null)
                 return NotFound();
 
-            context.TaskEmployees.RemoveRange(context.TaskEmployees.Where(te => te.TaskId == taskStage.TaskId));
-            context.TaskStages.RemoveRange(context.TaskStages.Where(ts => ts.TaskId == taskStage.TaskId));
-            context.Tasks.Remove(context.Tasks.FirstOrDefault(t => t.Id == taskStage.TaskId));
+            this.context.TaskEmployees.RemoveRange(this.context.TaskEmployees.Where(te => te.TaskId == taskStage.TaskId));
+            this.context.TaskStages.RemoveRange(this.context.TaskStages.Where(ts => ts.TaskId == taskStage.TaskId));
+            this.context.Tasks.Remove(this.context.Tasks.FirstOrDefault(t => t.Id == taskStage.TaskId));
 
-            await context.SaveChangesAsync();
+            await this.context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
@@ -84,14 +84,14 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateTask(int stageId)
         {
-            var stage = await context.Stages
-                .Include(s => s.ProjectBoard)
+            var stage = await this.context.Stages
+                .Include(s => s.ProjectBoard).Include(stage => stage.AssignedGroup)
                 .FirstOrDefaultAsync(s => s.Id == stageId);
 
             if (stage == null)
                 return NotFound();
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
                 .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
                 .ThenInclude(userGroup => userGroup.User)
@@ -108,16 +108,16 @@ namespace TaskManagerWebsite.Controllers
             var vm = new CreateTaskViewModel {StageId = stageId};
 
             var isAssignedGroup = stage.AssignedGroup != null;
-            var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = (project.ProjectLeadId == int.Parse(userManager.GetUserId(User)));
+            var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty);
+            bool isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+            bool isProjectLead = (project.ProjectLeadId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty));
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
+            bool isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
-                      && ug.UserId == int.Parse(userManager.GetUserId(User))
+                      && ug.UserId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty)
                       && ug.Role == "Manager");
 
-            setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, stage, isAssignedGroup);
+            await this.setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, stage, isAssignedGroup);
 
             return View("CreateTask", vm);
         }
@@ -134,7 +134,7 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var stage = await context.Stages
+            var stage = await this.context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == vm.StageId);
 
@@ -143,7 +143,7 @@ namespace TaskManagerWebsite.Controllers
 
             var projectId = stage.ProjectBoard.ProjectId;
 
-            bool duplicateExists = await context.TaskStages
+            bool duplicateExists = await this.context.TaskStages
                 .Where(ts => ts.Stage.ProjectBoard.ProjectId == projectId)
                 .Select(ts => ts.Task)
                 .AnyAsync(t => t.Name == vm.Name);
@@ -158,12 +158,12 @@ namespace TaskManagerWebsite.Controllers
             {
                 Name = vm.Name,
                 Description = vm.Description,
-                CreatorUserId = int.Parse(userManager.GetUserId(User)),
-                CreatorUser = await userManager.FindByIdAsync(userManager.GetUserId(User)),
+                CreatorUserId = int.Parse(this.userManager.GetUserId(User) ?? string.Empty),
+                CreatorUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty)
             };
 
-            context.Tasks.Add(task);
-            await context.SaveChangesAsync();
+            this.context.Tasks.Add(task);
+            await this.context.SaveChangesAsync();
 
             var taskStage = new TaskStage
             {
@@ -173,32 +173,32 @@ namespace TaskManagerWebsite.Controllers
                 StageId = vm.StageId,
                 EnteredDate = DateTime.Now,
                 CompletedDate = null,
-                UpdatedByUserId = int.Parse(userManager.GetUserId(User)),
-                UpdatedByUser = await userManager.FindByIdAsync(userManager.GetUserId(User))
+                UpdatedByUserId = int.Parse(this.userManager.GetUserId(User) ?? string.Empty),
+                UpdatedByUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty)
             };
 
-            context.TaskStages.Add(taskStage);
+            this.context.TaskStages.Add(taskStage);
 
             if (vm.SelectedEmployeeId != null)
             {
                 var taskEmployee = new TaskEmployee
                 {
                     EmployeeId = vm.SelectedEmployeeId.Value,
-                    Employee = await userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString()),
+                    Employee = await this.userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString()),
                     Task = task,
                     TaskId = task.Id,
                     AssignedDate = DateTime.Now,
                     CompletedDate = null
                 };
 
-                context.TaskEmployees.Add(taskEmployee);
+                this.context.TaskEmployees.Add(taskEmployee);
             }
 
-            await context.SaveChangesAsync();
+            await this.context.SaveChangesAsync();
 
-            stage.TaskStages.Add(taskStage); // Optional if you're tracking changes to stage
+            stage.TaskStages.Add(taskStage);
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
                 .ThenInclude(pg => pg.Group).ThenInclude(group => group.UserGroups)
                 .ThenInclude(userGroup => userGroup.User)
@@ -220,19 +220,19 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId)
         {
-            var currentUser = await userManager.GetUserAsync(User);
-            var task = await context.Tasks.FindAsync(taskId);
+            var currentUser = await this.userManager.GetUserAsync(User);
+            var task = await this.context.Tasks.FindAsync(taskId);
 
             if (task == null)
                 return NotFound();
 
-            var currentTaskStage = await context.TaskStages
+            var currentTaskStage = await this.context.TaskStages
                 .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.StageId == currentStageId && ts.CompletedDate == null);
 
             if (currentTaskStage != null)
             {
                 currentTaskStage.CompletedDate = DateTime.Now;
-                currentTaskStage.UpdatedByUserId = currentUser.Id;
+                currentTaskStage.UpdatedByUserId = currentUser?.Id;
             }
 
             var newTaskStage = new TaskStage
@@ -241,13 +241,13 @@ namespace TaskManagerWebsite.Controllers
                 StageId = newStageId,
                 EnteredDate = DateTime.Now,
                 CompletedDate = null,
-                UpdatedByUserId = currentUser.Id
+                UpdatedByUserId = currentUser?.Id
             };
 
-            context.TaskStages.Add(newTaskStage);
-            await context.SaveChangesAsync();
+            this.context.TaskStages.Add(newTaskStage);
+            await this.context.SaveChangesAsync();
 
-            var newStage = await context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
+            var newStage = await this.context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
             var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
 
             return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
@@ -261,7 +261,7 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> EditTask(int taskId)
         {
-            var task = await context.Tasks
+            var task = await this.context.Tasks
                 .Include(t => t.TaskEmployees)
                 .ThenInclude(te => te.Employee)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
@@ -269,7 +269,7 @@ namespace TaskManagerWebsite.Controllers
             if (task == null)
                 return NotFound();
 
-            var taskStage = await context.TaskStages
+            var taskStage = await this.context.TaskStages
                 .Include(ts => ts.Stage)
                 .ThenInclude(s => s.AssignedGroup)
                 .Include(ts => ts.Stage.ProjectBoard)
@@ -285,17 +285,17 @@ namespace TaskManagerWebsite.Controllers
             if (project == null)
                 return NotFound();
 
-            var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
+            var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User));
+            bool isAdmin = currentUser != null && await this.userManager.IsInRoleAsync(currentUser, "Admin");
             bool isProjectLead = project.ProjectLeadId == currentUser.Id;
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
+            bool isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
                       && ug.UserId == currentUser.Id
                       && ug.Role == "Manager");
 
-            bool isGroupMember = taskStage.Stage.AssignedGroupId != null &&
-                                 await context.UserGroups.AnyAsync(ug =>
+            bool isGroupMember = taskStage?.Stage?.AssignedGroupId != null &&
+                                 await this.context.UserGroups.AnyAsync(ug =>
                                      ug.GroupId == taskStage.Stage.AssignedGroupId &&
                                      ug.UserId == currentUser.Id);
 
@@ -312,14 +312,14 @@ namespace TaskManagerWebsite.Controllers
 
             if (isAdmin || isProjectLead || isGroupManager)
             {
-                await setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, taskStage.Stage, taskStage.Stage.AssignedGroup != null);
+                await this.setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, taskStage.Stage, taskStage.Stage.AssignedGroup != null);
             }
             else if (isGroupMember)
             {
                 vm.AvailableEmployees = new List<SelectListItem>
-        {
-            new SelectListItem { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-        };
+                {
+                    new SelectListItem { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                };
             }
 
             ViewBag.ProjectId = project.Id;
@@ -340,14 +340,14 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var currProjectId = await context.TaskStages
+            var currProjectId = await this.context.TaskStages
                 .Where(ts => ts.TaskId == vm.TaskId)
                 .Include(ts => ts.Stage)
                 .ThenInclude(s => s.ProjectBoard)
                 .Select(ts => ts.Stage.ProjectBoard.ProjectId)
                 .FirstOrDefaultAsync();
 
-            bool nameExists = await context.TaskStages
+            bool nameExists = await this.context.TaskStages
                 .Where(ts => ts.Stage.ProjectBoard.ProjectId == currProjectId)
                 .Select(ts => ts.Task)
                 .AnyAsync(t => t.Name == vm.Name && t.Id != vm.TaskId);
@@ -357,7 +357,7 @@ namespace TaskManagerWebsite.Controllers
                 return View(vm);
             }
 
-            var task = await context.Tasks
+            var task = await this.context.Tasks
                 .Include(t => t.TaskEmployees)
                 .FirstOrDefaultAsync(t => t.Id == vm.TaskId);
 
@@ -367,16 +367,15 @@ namespace TaskManagerWebsite.Controllers
             task.Name = vm.Name;
             task.Description = vm.Description;
 
-            // Handle employee reassignment
             var currentAssignment = task.TaskEmployees.FirstOrDefault();
             if (currentAssignment != null && currentAssignment.EmployeeId != vm.SelectedEmployeeId)
             {
-                context.TaskEmployees.Remove(currentAssignment);
+                this.context.TaskEmployees.Remove(currentAssignment);
             }
 
             if (vm.SelectedEmployeeId != null && (currentAssignment == null || currentAssignment.EmployeeId != vm.SelectedEmployeeId))
             {
-                var employee = await userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString());
+                var employee = await this.userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString());
                 var newAssignment = new TaskEmployee
                 {
                     TaskId = task.Id,
@@ -385,12 +384,12 @@ namespace TaskManagerWebsite.Controllers
                     AssignedDate = DateTime.Now,
                     CompletedDate = null
                 };
-                context.TaskEmployees.Add(newAssignment);
+                this.context.TaskEmployees.Add(newAssignment);
             }
 
-            await context.SaveChangesAsync();
+            await this.context.SaveChangesAsync();
 
-            var projectId = await context.TaskStages
+            var projectId = await this.context.TaskStages
                 .Where(ts => ts.TaskId == task.Id)
                 .Include(ts => ts.Stage)
                 .ThenInclude(s => s.ProjectBoard)
@@ -408,12 +407,12 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> ProjectBoard(int id)
         {
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
                 .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
@@ -421,42 +420,46 @@ namespace TaskManagerWebsite.Controllers
 
             if (project.ProjectBoard == null)
             {
-                var currentUserId = userManager.GetUserId(User);
-                var newBoard = new ProjectBoard
+                var currentUserId = this.userManager.GetUserId(User);
+                if (currentUserId != null)
                 {
-                    ProjectId = project.Id,
-                    BoardCreatorId = int.Parse(currentUserId),
-                    Stages = new List<Stage>
+                    var newBoard = new ProjectBoard
                     {
-                        new Stage
+                        ProjectId = project.Id,
+                        BoardCreatorId = int.Parse(currentUserId),
+                        Stages = new List<Stage>
                         {
-                            Name = "To Do",
-                            Position = 1,
-                            CreatorUserId = int.Parse(currentUserId),
-                        },
-                        new Stage
-                        {
-                            Name = "In Progess",
-                            Position = 2,
-                            CreatorUserId = int.Parse(currentUserId),
-                        },
-                        new Stage
-                        {
-                            Name = "Done",
-                            Position = 3,
-                            CreatorUserId = int.Parse(currentUserId),
+                            new Stage
+                            {
+                                Name = "To Do",
+                                Position = 1,
+                                CreatorUserId = int.Parse(currentUserId),
+                            },
+                            new Stage
+                            {
+                                Name = "In Progess",
+                                Position = 2,
+                                CreatorUserId = int.Parse(currentUserId),
+                            },
+                            new Stage
+                            {
+                                Name = "Done",
+                                Position = 3,
+                                CreatorUserId = int.Parse(currentUserId),
+                            }
                         }
-                    }
-                };
-                context.ProjectBoards.Add(newBoard);
-                await context.SaveChangesAsync();
+                    };
+                    this.context.ProjectBoards.Add(newBoard);
+                }
 
-                project = await context.Projects
+                await this.context.SaveChangesAsync();
+
+                project = await this.context.Projects
                     .Include(p => p.ProjectBoard)
-                        .ThenInclude(b => b.Stages)
-                        .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(b => b.Stages)
+                    .ThenInclude(s => s.AssignedGroup)
                     .Include(p => p.ProjectGroups)
-                        .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                     .FirstOrDefaultAsync(p => p.Id == id);
             }
 
@@ -475,24 +478,23 @@ namespace TaskManagerWebsite.Controllers
                 StageForm = stageForm
             };
 
-            var currentUser = await userManager.FindByIdAsync(userManager.GetUserId(User));
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = (project.ProjectLeadId == int.Parse(userManager.GetUserId(User)));
+            var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty);
+            var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+            var isProjectLead = (project.ProjectLeadId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty));
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
+            var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
-                      && ug.UserId == int.Parse(userManager.GetUserId(User))
+                      && ug.UserId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty)
                       && ug.Role == "Manager");
-            var isEmployeeApartOfProject = context.UserGroups
+            var isEmployeeApartOfProject = this.context.UserGroups
                 .Any(ug => ug.UserId == currentUser.Id &&
-                           ug.Role == "Member" &&
-                           context.GroupProjects
+                           ug.Role == "Member" && this.context.GroupProjects
                                .Any(pg => pg.GroupId == ug.GroupId && pg.ProjectId == project.Id));
 
             vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
             vm.CanDeleteAnyTask = (isAdmin || isProjectLead);
 
-            var userGroupIds = context.UserGroups
+            var userGroupIds = this.context.UserGroups
                 .Where(ug => ug.UserId == currentUser.Id)
                 .Select(ug => ug.GroupId)
                 .ToList();
@@ -501,14 +503,14 @@ namespace TaskManagerWebsite.Controllers
                 .Select(stage => new StagePermissionViewModel
                 {
                     Stage = stage,
-                    IsUserAssignedToGroup = stage.AssignedGroup != null && userGroupIds.Contains(stage.AssignedGroup.Id),
+                    IsUserAssignedToGroup = userGroupIds.Contains(stage.AssignedGroup.Id),
                     IsAdminOrLead = isAdmin || isProjectLead
                 })
                 .ToList();
 
             ViewBag.StagesWithPermissions = stagesWithPermissions;
 
-            await setViewBagManagedUsers(isGroupManager, currentUser, project);
+            await this.setViewBagManagedUsers(isGroupManager, currentUser, project);
 
             await this.addTaskStagesToStages(project.ProjectBoard.Id);
 
@@ -533,117 +535,122 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProjectBoard(int id, ProjectBoardViewModel vm)
         {
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
                 .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
+            {
                 return NotFound();
-
-            var currentUserId = userManager.GetUserId(User);
-            var currentUser = await userManager.FindByIdAsync(currentUserId);
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = (project.ProjectLeadId == int.Parse(currentUserId));
-            var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
-                ug => groupIds.Contains(ug.GroupId)
-                      && ug.UserId == int.Parse(currentUserId)
-                      && ug.Role == "Manager");
-
-            if (!(isAdmin || isProjectLead || isGroupManager))
-            {
-                return Forbid();
             }
 
-            vm.StageForm.AvailableGroups = project.ProjectGroups
-                .Select(pg => new SelectListItem
-                {
-                    Value = pg.Group.Id.ToString(),
-                    Text = pg.Group.Name
-                })
-                .ToList();
-
-            vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
-            vm.Project = project;
-
-            if (project.ProjectBoard == null)
+            var currentUserId = this.userManager.GetUserId(User);
+            if (currentUserId != null)
             {
-                var newBoard = new ProjectBoard
+                var currentUser = await this.userManager.FindByIdAsync(currentUserId);
+                var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+                var isProjectLead = (project.ProjectLeadId == int.Parse(currentUserId));
+                var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+                var isGroupManager = await this.context.UserGroups.AnyAsync(
+                    ug => groupIds.Contains(ug.GroupId)
+                          && ug.UserId == int.Parse(currentUserId)
+                          && ug.Role == "Manager");
+
+                if (!(isAdmin || isProjectLead || isGroupManager))
                 {
-                    ProjectId = project.Id,
-                    BoardCreatorId = int.Parse(currentUserId),
-                    Stages = new List<Stage>
+                    return Forbid();
+                }
+
+                vm.StageForm.AvailableGroups = project.ProjectGroups
+                    .Select(pg => new SelectListItem
                     {
-                        new Stage
+                        Value = pg.Group.Id.ToString(),
+                        Text = pg.Group.Name
+                    })
+                    .ToList();
+
+                vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
+                vm.Project = project;
+
+                if (project.ProjectBoard == null)
+                {
+                    var newBoard = new ProjectBoard
+                    {
+                        ProjectId = project.Id,
+                        BoardCreatorId = int.Parse(currentUserId),
+                        Stages = new List<Stage>
                         {
-                            Name = "To Do",
-                            Position = 1,
-                            CreatorUserId = int.Parse(currentUserId),
-                        },
-                        new Stage
-                        {
-                            Name = "In Progress",
-                            Position = 2,
-                            CreatorUserId = int.Parse(currentUserId),
-                        },
-                        new Stage
-                        {
-                            Name = "Done",
-                            Position = 3,
-                            CreatorUserId = int.Parse(currentUserId),
+                            new Stage
+                            {
+                                Name = "To Do",
+                                Position = 1,
+                                CreatorUserId = int.Parse(currentUserId),
+                            },
+                            new Stage
+                            {
+                                Name = "In Progress",
+                                Position = 2,
+                                CreatorUserId = int.Parse(currentUserId),
+                            },
+                            new Stage
+                            {
+                                Name = "Done",
+                                Position = 3,
+                                CreatorUserId = int.Parse(currentUserId),
+                            }
                         }
-                    }
-                };
-                context.ProjectBoards.Add(newBoard);
-                await context.SaveChangesAsync();
-                project.ProjectBoard = newBoard;
-            }
-
-            var occupant = project.ProjectBoard.Stages
-                .FirstOrDefault(s => s.Position == vm.StageForm.Position);
-
-            if (occupant != null)
-            {
-                ModelState.AddModelError("StageForm.Position", "This position is already taken by another stage.");
-            }
-
-            var duplicateStage = await context.Stages
-                .Include(s => s.ProjectBoard)
-                .FirstOrDefaultAsync(s => s.ProjectBoard.ProjectId == id && s.Name == vm.StageForm.Name);
-
-            if (!string.IsNullOrWhiteSpace(vm.StageForm.Name) && duplicateStage != null)
-            {
-                ModelState.AddModelError("StageForm.Name", "A stage with this name already exists in this project.");
-            }
-
-            this.ForceProjectValid(ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                if (isAdmin)
-                {
-                    return View("~/Views/Admin/ProjectBoard.cshtml", vm);
+                    };
+                    this.context.ProjectBoards.Add(newBoard);
+                    await this.context.SaveChangesAsync();
+                    project.ProjectBoard = newBoard;
                 }
-                else
+
+                var occupant = project.ProjectBoard.Stages
+                    .FirstOrDefault(s => s.Position == vm.StageForm.Position);
+
+                if (occupant != null)
                 {
-                    return View("~/Views/Employee/ProjectBoard.cshtml", vm);
+                    ModelState.AddModelError("StageForm.Position", "This position is already taken by another stage.");
+                }
+
+                var duplicateStage = await this.context.Stages
+                    .Include(s => s.ProjectBoard)
+                    .FirstOrDefaultAsync(s => s.ProjectBoard.ProjectId == id && s.Name == vm.StageForm.Name);
+
+                if (!string.IsNullOrWhiteSpace(vm.StageForm.Name) && duplicateStage != null)
+                {
+                    ModelState.AddModelError("StageForm.Name", "A stage with this name already exists in this project.");
+                }
+
+                this.ForceProjectValid(ModelState);
+
+                if (!ModelState.IsValid)
+                {
+                    return View(isAdmin ? "~/Views/Admin/ProjectBoard.cshtml" : "~/Views/Employee/ProjectBoard.cshtml", vm);
                 }
             }
 
-            var newStage = new Stage
+            if (project.ProjectBoard != null)
             {
-                Name = vm.StageForm.Name,
-                Position = vm.StageForm.Position,
-                ProjectBoardId = project.ProjectBoard.Id,
-                CreatorUserId = int.Parse(currentUserId),
-                AssignedGroupId = vm.StageForm.SelectedGroupId
-            };
-            context.Stages.Add(newStage);
-            await context.SaveChangesAsync();
+                if (currentUserId != null)
+                {
+                    var newStage = new Stage
+                    {
+                        Name = vm.StageForm.Name,
+                        Position = vm.StageForm.Position,
+                        ProjectBoardId = project.ProjectBoard.Id,
+                        CreatorUserId = int.Parse(currentUserId),
+                        AssignedGroupId = vm.StageForm.SelectedGroupId
+                    };
+                    this.context.Stages.Add(newStage);
+                }
+            }
+
+            await this.context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ProjectBoard), new { id });
         }
@@ -657,30 +664,30 @@ namespace TaskManagerWebsite.Controllers
         [HttpGet]
         public async Task<IActionResult> EditStage(int stageId)
         {
-            var stage = await context.Stages
+            var stage = await this.context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == stageId);
 
             if (stage == null)
                 return NotFound();
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null)
                 return NotFound();
 
-            var currentUserId = userManager.GetUserId(User);
-            var currentUser = await userManager.FindByIdAsync(currentUserId);
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
+            var currentUserId = this.userManager.GetUserId(User);
+            var currentUser = await this.userManager.FindByIdAsync(currentUserId);
+            var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+            var isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
+            var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId) && ug.UserId == int.Parse(currentUserId) && ug.Role == "Manager");
 
             if (!(isAdmin || isProjectLead || isGroupManager))
@@ -688,7 +695,7 @@ namespace TaskManagerWebsite.Controllers
                 return Forbid();
             }
 
-            var allStages = project.ProjectBoard.Stages
+            var allStages = project.ProjectBoard?.Stages
                 .OrderBy(s => s.Position)
                 .ToList();
 
@@ -720,18 +727,18 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditStage(StageEditViewModel vm)
         {
-            var stage = await context.Stages
+            var stage = await this.context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == vm.StageId);
 
             if (stage == null) return NotFound();
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null) return NotFound();
@@ -748,17 +755,20 @@ namespace TaskManagerWebsite.Controllers
 
             vm.ProjectId = project.Id;
 
-            var currentUserId = userManager.GetUserId(User);
-            var currentUser = await userManager.FindByIdAsync(currentUserId);
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
-            var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
-                ug => groupIds.Contains(ug.GroupId) && ug.UserId == int.Parse(currentUserId) && ug.Role == "Manager");
-
-            if (!(isAdmin || isProjectLead || isGroupManager))
+            var currentUserId = this.userManager.GetUserId(User);
+            if (currentUserId != null)
             {
-                return Forbid();
+                var currentUser = await this.userManager.FindByIdAsync(currentUserId);
+                var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+                var isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
+                var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
+                var isGroupManager = await this.context.UserGroups.AnyAsync(
+                    ug => groupIds.Contains(ug.GroupId) && ug.UserId == int.Parse(currentUserId) && ug.Role == "Manager");
+
+                if (!(isAdmin || isProjectLead || isGroupManager))
+                {
+                    return Forbid();
+                }
             }
 
             if (!ModelState.IsValid)
@@ -766,7 +776,7 @@ namespace TaskManagerWebsite.Controllers
                 return View("EditStage", vm);
             }
 
-            bool nameExists = await context.Stages
+            var nameExists = await this.context.Stages
                 .AnyAsync(s => s.ProjectBoardId == stage.ProjectBoardId
                                && s.Id != stage.Id
                                && s.Name == vm.Name);
@@ -776,7 +786,7 @@ namespace TaskManagerWebsite.Controllers
                 return View("EditStage", vm);
             }
 
-            var occupant = await context.Stages
+            var occupant = await this.context.Stages
                 .FirstOrDefaultAsync(s => s.ProjectBoardId == stage.ProjectBoardId
                                           && s.Position == vm.Position
                                           && s.Id != stage.Id);
@@ -791,8 +801,8 @@ namespace TaskManagerWebsite.Controllers
             stage.Name = vm.Name;
             stage.AssignedGroupId = vm.SelectedGroupId;
 
-            context.Stages.Update(stage);
-            await context.SaveChangesAsync();
+            this.context.Stages.Update(stage);
+            await this.context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
@@ -806,30 +816,32 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteStage(int stageId)
         {
-            var stage = await context.Stages
+            var stage = await this.context.Stages
                 .Include(s => s.ProjectBoard)
                 .FirstOrDefaultAsync(s => s.Id == stageId);
 
             if (stage == null)
                 return NotFound();
 
-            var project = await context.Projects
+            var project = await this.context.Projects
                 .Include(p => p.ProjectGroups)
-                    .ThenInclude(pg => pg.Group)
+                .ThenInclude(pg => pg.Group)
                 .Include(p => p.ProjectBoard)
-                    .ThenInclude(b => b.Stages)
-                    .ThenInclude(s => s.AssignedGroup)
+                .ThenInclude(b => b.Stages)
+                .ThenInclude(s => s.AssignedGroup)
                 .FirstOrDefaultAsync(p => p.ProjectBoard.Id == stage.ProjectBoardId);
 
             if (project == null)
+            {
                 return NotFound();
+            }
 
-            var currentUserId = userManager.GetUserId(User);
-            var currentUser = await userManager.FindByIdAsync(currentUserId);
-            bool isAdmin = await userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
+            var currentUserId = this.userManager.GetUserId(User);
+            var currentUser = await this.userManager.FindByIdAsync(currentUserId);
+            var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+            var isProjectLead = project.ProjectLeadId == int.Parse(currentUserId);
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            bool isGroupManager = await context.UserGroups.AnyAsync(
+            var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId) && ug.UserId == int.Parse(currentUserId) && ug.Role == "Manager");
 
             if (!(isAdmin || isProjectLead || isGroupManager))
@@ -837,8 +849,8 @@ namespace TaskManagerWebsite.Controllers
                 return Forbid();
             }
 
-            context.Stages.Remove(stage);
-            await context.SaveChangesAsync();
+            this.context.Stages.Remove(stage);
+            await this.context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ProjectBoard), new { id = project.Id });
         }
@@ -849,9 +861,8 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="modelState">State of the model.</param>
         private void ForceProjectValid(ModelStateDictionary modelState)
         {
-            if (modelState.ContainsKey("Project"))
+            if (modelState.TryGetValue("Project", out var entry))
             {
-                var entry = modelState["Project"];
                 if (entry != null && entry.ValidationState == ModelValidationState.Invalid)
                 {
                     entry.Errors.Clear();
@@ -864,22 +875,22 @@ namespace TaskManagerWebsite.Controllers
         /// Adds the task stages to stages.
         /// </summary>
         /// <param name="projectBoardId">The project board identifier.</param>
-        private async System.Threading.Tasks.Task addTaskStagesToStages(int projectBoardId)
+        private async Task addTaskStagesToStages(int projectBoardId)
         {
-            var stages = await context.Stages
+            var stages = await this.context.Stages
                 .Where(s => s.ProjectBoardId == projectBoardId)  
                 .Include(s => s.TaskStages)  
                 .ToListAsync();
 
             foreach (var stage in stages)
             {
-                var taskStages = await context.TaskStages
+                var taskStages = await this.context.TaskStages
                     .Where(ts => ts.StageId == stage.Id)  
                     .ToListAsync();
 
                 foreach (var taskStage in taskStages)
                 {
-                    Models.Task task = await context.Tasks
+                    Models.Task task = await this.context.Tasks
                         .FirstOrDefaultAsync(t => t.Id == taskStage.TaskId);
                     taskStage.Task = task;
                     stage.TaskStages.Add(taskStage);
@@ -897,11 +908,11 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
         /// <param name="currentUser">The current user.</param>
         private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
-    bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
+            bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
         {
             if (isAssignedGroup)
             {
-                var assignedUsers = context.UserGroups
+                var assignedUsers = this.context.UserGroups
                     .Where(ug => ug.GroupId == stage.AssignedGroup.Id)
                     .Select(ug => ug.User)
                     .ToList();
@@ -909,9 +920,9 @@ namespace TaskManagerWebsite.Controllers
                 if (!isAdmin && !isProjectLead && !isGroupManager)
                 {
                     vm.AvailableEmployees = new List<SelectListItem>
-            {
-                new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-            };
+                    {
+                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                    };
                 }
                 else
                 {
@@ -928,7 +939,7 @@ namespace TaskManagerWebsite.Controllers
             {
                 if (isAdmin)
                 {
-                    var employees = await userManager.GetUsersInRoleAsync("Employee");
+                    var employees = await this.userManager.GetUsersInRoleAsync("Employee");
                     vm.AvailableEmployees = employees.Select(e => new SelectListItem
                     {
                         Value = e.Id.ToString(),
@@ -969,9 +980,9 @@ namespace TaskManagerWebsite.Controllers
                 else
                 {
                     vm.AvailableEmployees = new List<SelectListItem>
-            {
-                new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-            };
+                    {
+                        new() { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+                    };
                 }
             }
         }
@@ -981,7 +992,7 @@ namespace TaskManagerWebsite.Controllers
         {
             if (isGroupManager)
             {
-                var managedGroupIds = await context.UserGroups
+                var managedGroupIds = await this.context.UserGroups
                     .Where(ug => ug.UserId == currentUser.Id && ug.Role == "Manager")
                     .Select(ug => ug.GroupId)
                     .ToListAsync();
@@ -993,7 +1004,7 @@ namespace TaskManagerWebsite.Controllers
                     .Where(pg => managedGroupIds.Contains(pg.GroupId))
                     .ToList();
 
-                var managedUsers = context.UserGroups
+                var managedUsers = this.context.UserGroups
                     .Where(ug => managedGroupIds.Contains(ug.GroupId))
                     .Select(ug => ug.User)
                     .Distinct()

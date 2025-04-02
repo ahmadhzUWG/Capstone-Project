@@ -14,6 +14,6 @@ namespace TaskManagerWebsite.ViewModels
         /// Determines whether the request ID should be displayed.
         /// Returns true if the request ID is not null or empty.
         /// </summary>
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool ShowRequestId => !string.IsNullOrEmpty(this.RequestId);
     }
 }

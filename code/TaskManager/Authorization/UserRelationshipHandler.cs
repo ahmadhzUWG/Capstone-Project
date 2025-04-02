@@ -24,7 +24,7 @@ public class UserRelationshipHandler : AuthorizationHandler<UserRelationshipRequ
     /// <param name="context">The context.</param>
     public UserRelationshipHandler(ApplicationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     /// <summary>
@@ -42,9 +42,8 @@ public class UserRelationshipHandler : AuthorizationHandler<UserRelationshipRequ
         }
 
         // ✅ Check if the user is a "Manager" of the same group as the targetUser
-        bool isManager = await _context.UserGroups
-            .AnyAsync(ug => ug.UserId == userId && ug.Role == "Manager" &&
-                            _context.UserGroups.Any(ug2 => ug2.UserId == targetUser.Id && ug2.GroupId == ug.GroupId));
+        bool isManager = await this._context.UserGroups
+            .AnyAsync(ug => ug.UserId == userId && ug.Role == "Manager" && this._context.UserGroups.Any(ug2 => ug2.UserId == targetUser.Id && ug2.GroupId == ug.GroupId));
 
         if (isManager)
         {

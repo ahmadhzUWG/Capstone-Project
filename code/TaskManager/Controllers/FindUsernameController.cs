@@ -10,8 +10,8 @@ namespace TaskManagerWebsite.Controllers
     /// </summary>
     public class FindUsernameController : Controller
     {
-        private readonly EmailService _emailService;
-        private readonly UserManager<User> _userManager;
+        private readonly EmailService emailService;
+        private readonly UserManager<User> userManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FindUsernameController"/> class.
@@ -20,8 +20,8 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="userManager"></param>
         public FindUsernameController(EmailService emailService, UserManager<User> userManager)
         {
-            _emailService = emailService;
-            _userManager = userManager;
+            this.emailService = emailService;
+            this.userManager = userManager;
         }
 
         /// <summary>
@@ -44,13 +44,13 @@ namespace TaskManagerWebsite.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _userManager.Users.FirstOrDefault(u => u.Email == email);
+                var user = this.userManager.Users.FirstOrDefault(u => u.Email == email);
                 if (user != null)
                 {
                     var subject = "Task Manager - Username Recovery";
                     var body = "Your username is: " + user.UserName;
 
-                    await _emailService.SendEmailAsync(email, subject, body);
+                    await this.emailService.SendEmailAsync(email, subject, body);
                 }
 
                 TempData["SuccessMessage"] = "A email was sent with the username if there was a username associated with the given email";

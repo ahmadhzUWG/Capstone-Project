@@ -12,8 +12,8 @@ namespace TaskManagerWebsite.Controllers
     /// </summary>
     public class ForgotPasswordController : Controller
     {
-        private readonly EmailService _emailService;
-        private readonly UserManager<User> _userManager;
+        private readonly EmailService emailService;
+        private readonly UserManager<User> userManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForgotPasswordController"/> class.
@@ -22,8 +22,8 @@ namespace TaskManagerWebsite.Controllers
         /// <param name="userManager"></param>
         public ForgotPasswordController(EmailService emailService, UserManager<User> userManager)
         {
-            _emailService = emailService;
-            _userManager = userManager;
+            this.emailService = emailService;
+            this.userManager = userManager;
         }
 
         /// <summary>
@@ -44,13 +44,13 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(ForgotPasswordViewModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await this.userManager.FindByNameAsync(model.Username);
 
             if (user != null)
             {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var token = await this.userManager.GeneratePasswordResetTokenAsync(user);
 
-                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                var result = await this.userManager.ResetPasswordAsync(user, token, model.Password);
 
                 if (result.Succeeded)
                 {
@@ -69,7 +69,7 @@ namespace TaskManagerWebsite.Controllers
 
                 var subject = "Task Manager - Password Reset";
                 var body = "Your password has been changed";
-                await _emailService.SendEmailAsync(user.Email, subject, body);
+                await this.emailService.SendEmailAsync(user.Email, subject, body);
             }
             else
             {

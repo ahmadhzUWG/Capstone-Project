@@ -24,7 +24,7 @@ public class GroupRoleHandler : AuthorizationHandler<GroupRoleRequirement, int>
     /// <param name="context">The context.</param>
     public GroupRoleHandler(ApplicationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class GroupRoleHandler : AuthorizationHandler<GroupRoleRequirement, int>
             return;
         }
 
-        bool isGroupManager = await _context.UserGroups
+        bool isGroupManager = await this._context.UserGroups
             .AnyAsync(ug => ug.UserId == userId && ug.GroupId == groupId && ug.Role == "Manager");
 
         if (isGroupManager)

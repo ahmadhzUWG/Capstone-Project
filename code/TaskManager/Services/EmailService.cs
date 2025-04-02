@@ -26,7 +26,7 @@ namespace TaskManagerWebsite.Services
         /// <param name="configuration">The configuration.</param>
         public EmailService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            this._configuration = configuration;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace TaskManagerWebsite.Services
         /// <exception cref="System.InvalidOperationException">Error sending email</exception>
         public virtual async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            var emailSettings = _configuration.GetSection("EmailSettings");
+            var emailSettings = this._configuration.GetSection("EmailSettings");
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Task Manager", emailSettings["SenderEmail"]));
