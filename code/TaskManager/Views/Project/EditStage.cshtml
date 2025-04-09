@@ -72,4 +72,11 @@
             Cancel
         </a>
     </div>
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center" style="margin-top: 15px">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 </div>

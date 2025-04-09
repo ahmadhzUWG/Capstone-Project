@@ -3,35 +3,45 @@
 
 @{
     ViewBag.Title = "Edit Task";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
+<link rel="stylesheet" href="~/css/Project/editTask.css" />
 
-<h2>Edit Task</h2>
+<div style="text-align:center;">
+    <h2>Task @Model.Name</h2>
 
-<form asp-action="EditTask" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="TaskId" />
+    <form asp-action="EditTask" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="TaskId"/>
 
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="SelectedEmployeeId">Assign to</label>
-        <select asp-for="SelectedEmployeeId" asp-items="Model.AvailableEmployees" class="form-control">
-            <option value="">-- None --</option>
-        </select>
-    </div>
+        <div class="mb-3">
+            <label asp-for="SelectedEmployeeId" class="form-label">Assign to</label>
+            <select asp-for="SelectedEmployeeId" asp-items="Model.AvailableEmployees" class="form-control">
+                <option value="">-- None --</option>
+            </select>
+        </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
-    <a asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary mt-3">Cancel</a>
-</form>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary">Cancel</a>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

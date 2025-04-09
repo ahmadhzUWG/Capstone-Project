@@ -114,14 +114,13 @@ namespace TaskManagerWebsite.Controllers
             var isAssignedGroup = stage.AssignedGroup != null;
             var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty);
             bool isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
-            bool isProjectLead = (project.ProjectLeadId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty));
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             bool isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
                       && ug.UserId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty)
                       && ug.Role == "Manager");
 
-            await this.setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, stage, isAssignedGroup);
+            await this.setAvailableEmployees(isAdmin, vm, project, isGroupManager, currentUser, stage, isAssignedGroup);
 
             return View("CreateTask", vm);
         }
@@ -301,7 +300,6 @@ namespace TaskManagerWebsite.Controllers
 
             var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User));
             var isAdmin = currentUser != null && await this.userManager.IsInRoleAsync(currentUser, "Admin");
-            var isProjectLead = project.ProjectLeadId == currentUser.Id;
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
@@ -313,7 +311,7 @@ namespace TaskManagerWebsite.Controllers
                                     ug.GroupId == taskStage.Stage.AssignedGroupId &&
                                     ug.UserId == currentUser.Id);
 
-            if (!(isAdmin || isProjectLead || isGroupManager || isGroupMember))
+            if (!(isAdmin || isGroupManager || isGroupMember))
                 return Forbid();
 
             var vm = new CreateTaskViewModel
@@ -324,9 +322,9 @@ namespace TaskManagerWebsite.Controllers
                 SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId
             };
 
-            if (isAdmin || isProjectLead || isGroupManager)
+            if (isAdmin || isGroupManager)
             {
-                await this.setAvailableEmployees(isAdmin, vm, isProjectLead, project, isGroupManager, currentUser, taskStage.Stage, taskStage.Stage.AssignedGroup != null);
+                await this.setAvailableEmployees(isAdmin, vm, project, isGroupManager, currentUser, taskStage.Stage, taskStage.Stage.AssignedGroup != null);
             }
             else if (isGroupMember)
             {
@@ -494,7 +492,6 @@ namespace TaskManagerWebsite.Controllers
 
             var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty);
             var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
-            var isProjectLead = (project.ProjectLeadId == int.Parse(this.userManager.GetUserId(User) ?? string.Empty));
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId)
@@ -505,8 +502,8 @@ namespace TaskManagerWebsite.Controllers
                            ug.Role == "Member" && this.context.GroupProjects
                                .Any(pg => pg.GroupId == ug.GroupId && pg.ProjectId == project.Id));
 
-            vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
-            vm.CanDeleteAnyTask = (isAdmin || isProjectLead);
+            vm.CanAddStage = (isAdmin || isGroupManager);
+            vm.CanDeleteAnyTask = isAdmin;
 
             var userGroupIds = this.context.UserGroups
                 .Where(ug => ug.UserId == currentUser.Id)
@@ -517,8 +514,8 @@ namespace TaskManagerWebsite.Controllers
                 .Select(stage => new StagePermissionViewModel
                 {
                     Stage = stage,
-                    IsUserAssignedToGroup = userGroupIds.Contains(stage.AssignedGroup.Id),
-                    IsAdminOrLead = isAdmin || isProjectLead
+                    IsUserAssignedToGroup = stage.AssignedGroup?.Id != null && userGroupIds.Contains(stage.AssignedGroup.Id),
+                    IsAdmin = isAdmin 
                 })
                 .ToList();
 
@@ -567,14 +564,13 @@ namespace TaskManagerWebsite.Controllers
             {
                 var currentUser = await this.userManager.FindByIdAsync(currentUserId);
                 var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
-                var isProjectLead = (project.ProjectLeadId == int.Parse(currentUserId));
                 var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
                 var isGroupManager = await this.context.UserGroups.AnyAsync(
                     ug => groupIds.Contains(ug.GroupId)
                           && ug.UserId == int.Parse(currentUserId)
                           && ug.Role == "Manager");
 
-                if (!(isAdmin || isProjectLead || isGroupManager))
+                if (!(isAdmin || isGroupManager))
                 {
                     return Forbid();
                 }
@@ -587,7 +583,7 @@ namespace TaskManagerWebsite.Controllers
                     })
                     .ToList();
 
-                vm.CanAddStage = (isAdmin || isProjectLead || isGroupManager);
+                vm.CanAddStage = (isAdmin || isGroupManager);
                 vm.Project = project;
 
                 if (project.ProjectBoard == null)
@@ -865,6 +861,14 @@ namespace TaskManagerWebsite.Controllers
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             var isGroupManager = await this.context.UserGroups.AnyAsync(
                 ug => groupIds.Contains(ug.GroupId) && ug.UserId == int.Parse(currentUserId) && ug.Role == "Manager");
+            var hasTasksInStage = await this.context.TaskStages
+                .AnyAsync(ts => ts.StageId == stage.Id && ts.CompletedDate == null);
+
+            if (hasTasksInStage)
+            {
+                TempData["ErrorMessage"] = "This stage has active tasks, please remove all tasks from stage to delete";
+                return RedirectToAction(nameof(EditStage), new { stageId = stage.Id });
+            }
 
             if (!(isAdmin || isProjectLead || isGroupManager))
             {
@@ -925,11 +929,10 @@ namespace TaskManagerWebsite.Controllers
         /// </summary>
         /// <param name="isAdmin">if set to <c>true</c> [is admin].</param>
         /// <param name="vm">The vm.</param>
-        /// <param name="isProjectLead">if set to <c>true</c> [is project lead].</param>
         /// <param name="project">The project.</param>
         /// <param name="isGroupManager">if set to <c>true</c> [is group manager].</param>
         /// <param name="currentUser">The current user.</param>
-        private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, bool isProjectLead, Project project,
+        private async Task setAvailableEmployees(bool isAdmin, CreateTaskViewModel vm, Project project,
             bool isGroupManager, User currentUser, Stage stage, bool isAssignedGroup)
         {
             if (isAssignedGroup)
@@ -939,7 +942,7 @@ namespace TaskManagerWebsite.Controllers
                     .Select(ug => ug.User)
                     .ToList();
 
-                if (!isAdmin && !isProjectLead && !isGroupManager)
+                if (!isAdmin && !isGroupManager)
                 {
                     vm.AvailableEmployees = new List<SelectListItem>
                     {
@@ -961,24 +964,12 @@ namespace TaskManagerWebsite.Controllers
             {
                 if (isAdmin)
                 {
-                    var employees = await this.userManager.GetUsersInRoleAsync("Employee");
+                    var employees = this.context.Users.ToList();
                     vm.AvailableEmployees = employees.Select(e => new SelectListItem
                     {
                         Value = e.Id.ToString(),
                         Text = e.UserName
                     }).ToList();
-                }
-                else if (isProjectLead)
-                {
-                    vm.AvailableEmployees = project.ProjectGroups
-                        .SelectMany(pg => pg.Group.UserGroups)
-                        .Where(ug => ug.Role == "Member")
-                        .Select(ug => new SelectListItem
-                        {
-                            Value = ug.UserId.ToString(),
-                            Text = ug.User.UserName
-                        })
-                        .ToList();
                 }
                 else if (isGroupManager)
                 {
@@ -989,7 +980,6 @@ namespace TaskManagerWebsite.Controllers
 
                     vm.AvailableEmployees = managedGroups
                         .SelectMany(pg => pg.Group.UserGroups)
-                        .Where(ug => ug.Role == "Member")
                         .GroupBy(ug => ug.UserId)
                         .Select(g => g.First())
                         .Select(ug => new SelectListItem
