@@ -1,6 +1,6 @@
 ﻿using TaskManagerWebsite.Models;
 
-namespace TaskManagerWebsite.ViewModels
+namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {
     /// <summary>
     /// View model for checking if a user has permission to access a stage
@@ -15,11 +15,11 @@ namespace TaskManagerWebsite.ViewModels
         /// <summary>
         /// The user that is trying to access the stage
         /// </summary>
-        public bool IsUserAssignedToGroup { get; set; }
+        public bool? IsUserAssignedToGroup { get; set; }
 
         /// <summary>
-        /// Whether the user is an admin or lead
+        /// Whether the user is an admin 
         /// </summary>
-        public bool IsAdminOrLead { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }
