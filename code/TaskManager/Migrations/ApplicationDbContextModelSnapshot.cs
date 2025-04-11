@@ -410,6 +410,36 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("TaskEmployees");
                 });
 
+            modelBuilder.Entity("TaskManagerWebsite.Models.TaskHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskHistories");
+                });
+
             modelBuilder.Entity("TaskManagerWebsite.Models.TaskStage", b =>
                 {
                     b.Property<int>("Id")
@@ -750,6 +780,25 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("TaskManagerWebsite.Models.TaskHistory", b =>
+                {
+                    b.HasOne("TaskManagerWebsite.Models.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskManagerWebsite.Models.TaskStage", b =>

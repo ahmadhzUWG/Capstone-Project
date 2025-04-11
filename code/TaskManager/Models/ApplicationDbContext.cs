@@ -83,6 +83,11 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<TaskEmployee> TaskEmployees { get; set; }
 
     /// <summary>
+    /// Gets or sets the task histories.
+    /// </summary>
+    public DbSet<TaskHistory> TaskHistories { get; set; }
+
+    /// <summary>
     /// Configures the entity relationships and database mappings.
     /// </summary>
     /// <param name="modelBuilder">Provides a simple API to configure entity relationships.</param>
@@ -211,5 +216,18 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .WithMany(s => s.TaskStages)
             .HasForeignKey(ts => ts.StageId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // TaskHistory prevents cascading deletes to avoid deleting history records when a task or user is deleted.
+        modelBuilder.Entity<TaskHistory>()
+            .HasOne(th => th.Task)
+            .WithMany()
+            .HasForeignKey(th => th.TaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TaskHistory>()
+            .HasOne(th => th.User)
+            .WithMany()
+            .HasForeignKey(th => th.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
