@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TaskManagerWebsite.ViewModels;
 
-namespace TaskManager.Tests.Tests.TestViewModels
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
 {
     public class UserViewModelTests
     {

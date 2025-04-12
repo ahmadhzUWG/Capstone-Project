@@ -8,6 +8,8 @@ TO_REMOVE=(
     "code/TaskManager/obj/"
     "code/TaskManagerDesktop/bin/"
     "code/TaskManagerDesktop/obj/"
+    "code/TaskManagerData/bin/"
+    "code/TaskManagerData/obj/"
     "code/TaskManager.Tests/bin/"
     "code/TaskManager.Tests/obj/"
     "code/.vs/"

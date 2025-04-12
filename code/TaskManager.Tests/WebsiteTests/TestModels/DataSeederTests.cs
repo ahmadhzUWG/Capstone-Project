@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Moq;
-using Xunit;
-using TaskManagerWebsite.Models;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
+using Moq;
+using TaskManagerData.Models;
 using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestModels;
 
 public class DataSeederTests
 {

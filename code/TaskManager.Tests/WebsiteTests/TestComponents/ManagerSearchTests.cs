@@ -1,12 +1,9 @@
 ﻿using Bunit;
-using Xunit;
-using System.Collections.Generic;
-using TaskManagerWebsite.Models;
-using TaskManagerWebsite.Components;
 using Microsoft.AspNetCore.Components;
-using Org.BouncyCastle.Tls;
+using TaskManagerData.Models;
+using TaskManagerWebsite.Components;
 
-namespace TaskManager.Tests.Tests.TestComponents
+namespace TaskManager.Tests.WebsiteTests.TestComponents
 {
     public class ManagerSearchTests : TestContext
     {

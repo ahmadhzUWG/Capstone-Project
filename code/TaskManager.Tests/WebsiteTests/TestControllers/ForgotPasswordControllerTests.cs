@@ -3,19 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TaskManagerData.Models;
+using TaskManagerData.Services;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
-using TaskManagerWebsite.Services;
 using TaskManagerWebsite.ViewModels;
 using Task = System.Threading.Tasks.Task;
 
-namespace TaskManager.Tests.Tests.TestControllers
+namespace TaskManager.Tests.WebsiteTests.TestControllers
 {
     public class ForgotPasswordControllerTests
     {

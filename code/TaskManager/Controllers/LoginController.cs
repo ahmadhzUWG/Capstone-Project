@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers

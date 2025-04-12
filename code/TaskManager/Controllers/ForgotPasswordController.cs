@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using TaskManagerWebsite.Models;
-using TaskManagerWebsite.Services;
+using TaskManagerData.Models;
+using TaskManagerData.Services;
 using TaskManagerWebsite.ViewModels;
 
 namespace TaskManagerWebsite.Controllers
