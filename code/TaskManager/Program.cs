@@ -6,13 +6,16 @@ using Microsoft.AspNetCore.Authorization;
 using TaskManagerData.Authorization;
 using TaskManagerData.Models;
 using TaskManagerData.Services;
+using TaskManagerWebsite.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("TaskManagerWebsite"))); // change this to the desired assembly name
 
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()

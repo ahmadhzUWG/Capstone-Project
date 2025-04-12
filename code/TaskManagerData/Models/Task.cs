@@ -41,6 +41,14 @@
         /// A task can be associated with multiple stages.
         /// </summary>
         public ICollection<TaskStage> TaskStages { get; set; } = new List<TaskStage>();
+
+        /// <summary>
+        /// Gets or sets the comments.
+        /// </summary>
+        /// <value>
+        /// The comments.
+        /// </value>
+        public ICollection<Comment>? Comments { get; set; } = new List<Comment>();
     }
     
 }

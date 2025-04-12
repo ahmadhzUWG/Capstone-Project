@@ -312,13 +312,13 @@ namespace TaskManagerWebsite.Controllers
 
             var taskStage = await this.context.TaskStages
                 .Include(ts => ts.Stage)
-                .ThenInclude(s => s.AssignedGroup)
+                    .ThenInclude(s => s.AssignedGroup)
                 .Include(ts => ts.Stage.ProjectBoard)
-                .ThenInclude(pb => pb.Project)
-                .ThenInclude(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
-                .ThenInclude(g => g.UserGroups)
-                .ThenInclude(ug => ug.User)
+                    .ThenInclude(pb => pb.Project)
+                    .ThenInclude(p => p.ProjectGroups)
+                    .ThenInclude(pg => pg.Group)
+                    .ThenInclude(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
                 .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.CompletedDate == null);
 
             var project = taskStage?.Stage?.ProjectBoard?.Project;
@@ -341,7 +341,9 @@ namespace TaskManagerWebsite.Controllers
                                     ug.GroupId == taskStage.Stage.AssignedGroupId &&
                                     ug.UserId == currentUser.Id);
 
-            if (!(isAdmin || isGroupManager || isGroupMember))
+            var isProjectLead = project.ProjectLeadId == currentUser.Id;
+
+            if (!(isAdmin || isGroupManager || isGroupMember || isProjectLead))
                 return Forbid();
 
             var history = await this.context.TaskHistories
@@ -350,6 +352,11 @@ namespace TaskManagerWebsite.Controllers
                 .OrderByDescending(h => h.Timestamp)
                 .ToListAsync();
 
+            var comments = await this.context.Comments
+                .Where(c => c.TaskId == taskId)
+                .Include(c => c.User)
+                .OrderByDescending(c => c.Timestamp)
+                .ToListAsync();
 
             var vm = new CreateTaskViewModel
             {
@@ -358,6 +365,7 @@ namespace TaskManagerWebsite.Controllers
                 Description = task.Description,
                 SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId,
                 TaskHistory = history,
+                Comments = comments,
             };
 
             if (isAdmin || isGroupManager)
@@ -367,16 +375,15 @@ namespace TaskManagerWebsite.Controllers
             else if (isGroupMember)
             {
                 vm.AvailableEmployees = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
-                };
+        {
+            new SelectListItem { Value = currentUser.Id.ToString(), Text = currentUser.UserName }
+        };
             }
 
             ViewBag.ProjectId = project.Id;
 
             return View("EditTask", vm);
         }
-
 
         /// <summary>
         /// Edits the task.
@@ -480,6 +487,43 @@ namespace TaskManagerWebsite.Controllers
 
             return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
         }
+
+        /// <summary>
+        /// Adds the comment.
+        /// </summary>
+        /// <param name="vm">The vm.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(CreateTaskViewModel vm)
+        {
+            if (string.IsNullOrWhiteSpace(vm.NewComment))
+            {
+                ModelState.AddModelError("NewComment", "Comment cannot be empty.");
+                vm.Comments = await this.context.Comments
+                    .Where(c => c.TaskId == vm.TaskId)
+                    .Include(c => c.User)
+                    .OrderByDescending(c => c.Timestamp)
+                    .ToListAsync();
+                return View("EditTask", vm);
+            }
+
+            var userId = int.Parse(this.userManager.GetUserId(User));
+
+            var comment = new Comment
+            {
+                TaskId = vm.TaskId,
+                UserId = userId,
+                Content = vm.NewComment,
+                Timestamp = DateTime.Now
+            };
+
+            this.context.Comments.Add(comment);
+            await this.context.SaveChangesAsync();
+
+            return RedirectToAction("EditTask", new { taskId = vm.TaskId });
+        }
+
 
         /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).

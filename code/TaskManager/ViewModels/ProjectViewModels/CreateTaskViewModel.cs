@@ -48,5 +48,21 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// </summary>
         public List<TaskHistory> TaskHistory { get; set; } = new List<TaskHistory>();
 
+        /// <summary>
+        /// Gets or sets the comments.
+        /// </summary>
+        /// <value>
+        /// The comments.
+        /// </value>
+        public List<Comment> Comments { get; set; }
+
+        /// <summary>
+        /// Creates new comment.
+        /// </summary>
+        /// <value>
+        /// The new comment.
+        /// </value>
+        public string NewComment { get; set; }
+
     }
 }

@@ -77,6 +77,47 @@
             </div>
         </div>
     </div>
+    
+    <div class="accordion mt-5" id="commentsAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="commentsHeader">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComments" aria-expanded="false" aria-controls="collapseComments">
+                    Comments
+                </button>
+            </h2>
+            <div id="collapseComments" class="accordion-collapse collapse" aria-labelledby="commentsHeader" data-bs-parent="#commentsAccordion">
+                <div class="accordion-body">
+                    @if (Model.Comments != null && Model.Comments.Any())
+                    {
+                        <ul class="list-group mb-3">
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@comment.Timestamp.ToString("g")</strong> – @comment.User.UserName: @comment.Content
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No comments have been added yet.</p>
+                    }
+
+                    <!-- Comment submission form inside accordion -->
+                    <form asp-action="AddComment" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="TaskId" />
+                        <div class="mb-3">
+                            <label asp-for="NewComment" class="form-label">Add Comment:</label>
+                            <textarea asp-for="NewComment" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="NewComment" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 

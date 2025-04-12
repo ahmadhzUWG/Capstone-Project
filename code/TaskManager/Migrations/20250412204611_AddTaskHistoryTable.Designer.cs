@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagerData.Models;
 
@@ -11,9 +12,11 @@ using TaskManagerData.Models;
 namespace TaskManagerWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250412204611_AddTaskHistoryTable")]
+    partial class AddTaskHistoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,36 +174,6 @@ namespace TaskManagerWebsite.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Admins");
-                });
-
-            modelBuilder.Entity("TaskManagerData.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("TaskManagerData.Models.Group", b =>
@@ -653,25 +626,6 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagerData.Models.Comment", b =>
-                {
-                    b.HasOne("TaskManagerData.Models.Task", "Task")
-                        .WithMany("Comments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TaskManagerData.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TaskManagerData.Models.Group", b =>
                 {
                     b.HasOne("TaskManagerData.Models.User", "Manager")
@@ -922,8 +876,6 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("TaskManagerData.Models.Task", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("TaskEmployees");
 
                     b.Navigation("TaskStages");

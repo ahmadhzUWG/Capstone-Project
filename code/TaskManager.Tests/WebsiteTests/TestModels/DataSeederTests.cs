@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using TaskManagerData.Models;
+using TaskManagerWebsite.Models;
 using Task = System.Threading.Tasks.Task;
 
 namespace TaskManager.Tests.WebsiteTests.TestModels;

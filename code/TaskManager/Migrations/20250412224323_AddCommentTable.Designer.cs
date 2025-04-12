@@ -12,8 +12,8 @@ using TaskManagerData.Models;
 namespace TaskManagerWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250411191911_AddTaskHistoryTable")]
-    partial class AddTaskHistoryTable
+    [Migration("20250412224323_AddCommentTable")]
+    partial class AddCommentTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,7 +158,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Admin", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Admin", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -176,7 +176,37 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Admins");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("TaskManagerData.Models.Group", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -204,7 +234,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupManager", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -219,7 +249,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("GroupManagers");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupProject", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupProject", b =>
                 {
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
@@ -234,7 +264,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("GroupProjects");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupRequest", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -263,7 +293,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("GroupRequests");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -294,7 +324,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.ProjectBoard", b =>
+            modelBuilder.Entity("TaskManagerData.Models.ProjectBoard", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -318,7 +348,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("ProjectBoards");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Stage", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Stage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -358,7 +388,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Stages");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Task", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -384,7 +414,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskEmployee", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskEmployee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -413,7 +443,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("TaskEmployees");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskHistory", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -443,7 +473,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("TaskHistories");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskStage", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskStage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -477,7 +507,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("TaskStages");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>
+            modelBuilder.Entity("TaskManagerData.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -545,7 +575,7 @@ namespace TaskManagerWebsite.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("UserGroup", b =>
+            modelBuilder.Entity("TaskManagerData.Models.UserGroup", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -575,7 +605,7 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", null)
+                    b.HasOne("TaskManagerData.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -584,7 +614,7 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", null)
+                    b.HasOne("TaskManagerData.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -599,7 +629,7 @@ namespace TaskManagerWebsite.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", null)
+                    b.HasOne("TaskManagerData.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -608,16 +638,16 @@ namespace TaskManagerWebsite.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", null)
+                    b.HasOne("TaskManagerData.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Admin", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Admin", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                    b.HasOne("TaskManagerData.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -626,24 +656,43 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Comment", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "Manager")
+                    b.HasOne("TaskManagerData.Models.Task", "Task")
+                        .WithMany("Comments")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerData.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskManagerData.Models.Group", b =>
+                {
+                    b.HasOne("TaskManagerData.Models.User", "Manager")
                         .WithMany()
                         .HasForeignKey("ManagerId");
 
                     b.Navigation("Manager");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupManager", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupManager", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                    b.HasOne("TaskManagerData.Models.Group", "Group")
                         .WithMany("Managers")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                    b.HasOne("TaskManagerData.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -654,15 +703,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupProject", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupProject", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                    b.HasOne("TaskManagerData.Models.Group", "Group")
                         .WithMany("GroupProjects")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.Project", "Project")
+                    b.HasOne("TaskManagerData.Models.Project", "Project")
                         .WithMany("ProjectGroups")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -673,15 +722,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.GroupRequest", b =>
+            modelBuilder.Entity("TaskManagerData.Models.GroupRequest", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                    b.HasOne("TaskManagerData.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.Project", "Project")
+                    b.HasOne("TaskManagerData.Models.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -692,9 +741,9 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Project", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "ProjectLead")
+                    b.HasOne("TaskManagerData.Models.User", "ProjectLead")
                         .WithMany()
                         .HasForeignKey("ProjectLeadId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -703,17 +752,17 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("ProjectLead");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.ProjectBoard", b =>
+            modelBuilder.Entity("TaskManagerData.Models.ProjectBoard", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "BoardCreator")
+                    b.HasOne("TaskManagerData.Models.User", "BoardCreator")
                         .WithMany()
                         .HasForeignKey("BoardCreatorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.Project", "Project")
+                    b.HasOne("TaskManagerData.Models.Project", "Project")
                         .WithOne("ProjectBoard")
-                        .HasForeignKey("TaskManagerWebsite.Models.ProjectBoard", "ProjectId")
+                        .HasForeignKey("TaskManagerData.Models.ProjectBoard", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -722,25 +771,25 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Stage", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Stage", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "AssignedGroup")
+                    b.HasOne("TaskManagerData.Models.Group", "AssignedGroup")
                         .WithMany()
                         .HasForeignKey("AssignedGroupId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TaskManagerWebsite.Models.Group", "CreatorGroup")
+                    b.HasOne("TaskManagerData.Models.Group", "CreatorGroup")
                         .WithMany()
                         .HasForeignKey("CreatorGroupId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TaskManagerWebsite.Models.User", "CreatorUser")
+                    b.HasOne("TaskManagerData.Models.User", "CreatorUser")
                         .WithMany()
                         .HasForeignKey("CreatorUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.ProjectBoard", "ProjectBoard")
+                    b.HasOne("TaskManagerData.Models.ProjectBoard", "ProjectBoard")
                         .WithMany("Stages")
                         .HasForeignKey("ProjectBoardId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -755,9 +804,9 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("ProjectBoard");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Task", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Task", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "CreatorUser")
+                    b.HasOne("TaskManagerData.Models.User", "CreatorUser")
                         .WithMany()
                         .HasForeignKey("CreatorUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -766,15 +815,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("CreatorUser");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskEmployee", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskEmployee", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.User", "Employee")
+                    b.HasOne("TaskManagerData.Models.User", "Employee")
                         .WithMany("TaskEmployees")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.Task", "Task")
+                    b.HasOne("TaskManagerData.Models.Task", "Task")
                         .WithMany("TaskEmployees")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -785,15 +834,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Task");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskHistory", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskHistory", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Task", "Task")
+                    b.HasOne("TaskManagerData.Models.Task", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                    b.HasOne("TaskManagerData.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -804,21 +853,21 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.TaskStage", b =>
+            modelBuilder.Entity("TaskManagerData.Models.TaskStage", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Stage", "Stage")
+                    b.HasOne("TaskManagerData.Models.Stage", "Stage")
                         .WithMany("TaskStages")
                         .HasForeignKey("StageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.Task", "Task")
+                    b.HasOne("TaskManagerData.Models.Task", "Task")
                         .WithMany("TaskStages")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", "UpdatedByUser")
+                    b.HasOne("TaskManagerData.Models.User", "UpdatedByUser")
                         .WithMany()
                         .HasForeignKey("UpdatedByUserId");
 
@@ -829,15 +878,15 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("UpdatedByUser");
                 });
 
-            modelBuilder.Entity("UserGroup", b =>
+            modelBuilder.Entity("TaskManagerData.Models.UserGroup", b =>
                 {
-                    b.HasOne("TaskManagerWebsite.Models.Group", "Group")
+                    b.HasOne("TaskManagerData.Models.Group", "Group")
                         .WithMany("UserGroups")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagerWebsite.Models.User", "User")
+                    b.HasOne("TaskManagerData.Models.User", "User")
                         .WithMany("UserGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -848,7 +897,7 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Group", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Group", b =>
                 {
                     b.Navigation("GroupProjects");
 
@@ -857,31 +906,33 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("UserGroups");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Project", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Project", b =>
                 {
                     b.Navigation("ProjectBoard");
 
                     b.Navigation("ProjectGroups");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.ProjectBoard", b =>
+            modelBuilder.Entity("TaskManagerData.Models.ProjectBoard", b =>
                 {
                     b.Navigation("Stages");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Stage", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Stage", b =>
                 {
                     b.Navigation("TaskStages");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.Task", b =>
+            modelBuilder.Entity("TaskManagerData.Models.Task", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("TaskEmployees");
 
                     b.Navigation("TaskStages");
                 });
 
-            modelBuilder.Entity("TaskManagerWebsite.Models.User", b =>
+            modelBuilder.Entity("TaskManagerData.Models.User", b =>
                 {
                     b.Navigation("TaskEmployees");
 
