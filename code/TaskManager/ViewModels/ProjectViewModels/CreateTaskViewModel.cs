@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagerWebsite.Models;
 
 namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {
@@ -41,5 +42,11 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// Gets or sets the task identifier.
         /// </summary>
         public int TaskId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the task history.
+        /// </summary>
+        public List<TaskHistory> TaskHistory { get; set; } = new List<TaskHistory>();
+
     }
 }

@@ -161,16 +161,27 @@ namespace TaskManagerWebsite.Controllers
                 return View(vm);
             }
 
+            var userId = int.Parse(this.userManager.GetUserId(User) ?? string.Empty);
+            var user = await this.userManager.FindByIdAsync(userId.ToString());
+
             var task = new Models.Task
             {
                 Name = vm.Name,
                 Description = vm.Description,
-                CreatorUserId = int.Parse(this.userManager.GetUserId(User) ?? string.Empty),
-                CreatorUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty)
+                CreatorUserId = userId,
+                CreatorUser = user
             };
 
             this.context.Tasks.Add(task);
             await this.context.SaveChangesAsync();
+
+            this.context.TaskHistories.Add(new TaskHistory
+            {
+                TaskId = task.Id,
+                UserId = userId,
+                Timestamp = DateTime.Now,
+                Action = "Created task"
+            });
 
             var taskStage = new TaskStage
             {
@@ -188,10 +199,12 @@ namespace TaskManagerWebsite.Controllers
 
             if (vm.SelectedEmployeeId != null)
             {
+                var assignedUser = await this.userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString());
+
                 var taskEmployee = new TaskEmployee
                 {
                     EmployeeId = vm.SelectedEmployeeId.Value,
-                    Employee = await this.userManager.FindByIdAsync(vm.SelectedEmployeeId.Value.ToString()),
+                    Employee = assignedUser,
                     Task = task,
                     TaskId = task.Id,
                     AssignedDate = DateTime.Now,
@@ -199,6 +212,14 @@ namespace TaskManagerWebsite.Controllers
                 };
 
                 this.context.TaskEmployees.Add(taskEmployee);
+
+                this.context.TaskHistories.Add(new TaskHistory
+                {
+                    TaskId = task.Id,
+                    UserId = userId,
+                    Timestamp = DateTime.Now,
+                    Action = $"Assigned task to {assignedUser.UserName}"
+                });
             }
 
             await this.context.SaveChangesAsync();
@@ -227,13 +248,12 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId)
         {
-            var currentUser = await this.userManager.GetUserAsync(User);
-            var task = await this.context.Tasks.FindAsync(taskId);
+            var userId = int.Parse(this.userManager.GetUserId(User));
+            var user = await this.userManager.FindByIdAsync(userId.ToString());
 
+            var task = await this.context.Tasks.FindAsync(taskId);
             if (task == null)
-            {
                 return NotFound();
-            }
 
             var currentTaskStage = await this.context.TaskStages
                 .FirstOrDefaultAsync(ts => ts.TaskId == taskId && ts.StageId == currentStageId && ts.CompletedDate == null);
@@ -241,8 +261,10 @@ namespace TaskManagerWebsite.Controllers
             if (currentTaskStage != null)
             {
                 currentTaskStage.CompletedDate = DateTime.Now;
-                currentTaskStage.UpdatedByUserId = currentUser?.Id;
+                currentTaskStage.UpdatedByUserId = user.Id;
             }
+
+            var newStage = await this.context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
 
             var newTaskStage = new TaskStage
             {
@@ -250,17 +272,25 @@ namespace TaskManagerWebsite.Controllers
                 StageId = newStageId,
                 EnteredDate = DateTime.Now,
                 CompletedDate = null,
-                UpdatedByUserId = currentUser?.Id
+                UpdatedByUserId = user.Id
             };
 
             this.context.TaskStages.Add(newTaskStage);
+
+            this.context.TaskHistories.Add(new TaskHistory
+            {
+                TaskId = taskId,
+                UserId = user.Id,
+                Timestamp = DateTime.Now,
+                Action = $"Moved task to stage \"{newStage?.Name}\""
+            });
+
             await this.context.SaveChangesAsync();
 
-            var newStage = await this.context.Stages.Include(s => s.ProjectBoard).FirstOrDefaultAsync(s => s.Id == newStageId);
             var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
-
             return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
         }
+
 
         /// <summary>
         /// Edits the task.
@@ -314,12 +344,20 @@ namespace TaskManagerWebsite.Controllers
             if (!(isAdmin || isGroupManager || isGroupMember))
                 return Forbid();
 
+            var history = await this.context.TaskHistories
+                .Where(h => h.TaskId == taskId)
+                .Include(h => h.User)
+                .OrderByDescending(h => h.Timestamp)
+                .ToListAsync();
+
+
             var vm = new CreateTaskViewModel
             {
                 TaskId = task.Id,
                 Name = task.Name,
                 Description = task.Description,
-                SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId
+                SelectedEmployeeId = task.TaskEmployees.FirstOrDefault()?.EmployeeId,
+                TaskHistory = history,
             };
 
             if (isAdmin || isGroupManager)
@@ -352,6 +390,9 @@ namespace TaskManagerWebsite.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            var userId = int.Parse(this.userManager.GetUserId(User));
+            var user = await this.userManager.FindByIdAsync(userId.ToString());
+
             var currProjectId = await this.context.TaskStages
                 .Where(ts => ts.TaskId == vm.TaskId)
                 .Include(ts => ts.Stage)
@@ -376,8 +417,29 @@ namespace TaskManagerWebsite.Controllers
             if (task == null)
                 return NotFound();
 
-            task.Name = vm.Name;
-            task.Description = vm.Description;
+            if (task.Name != vm.Name)
+            {
+                this.context.TaskHistories.Add(new TaskHistory
+                {
+                    TaskId = task.Id,
+                    UserId = userId,
+                    Timestamp = DateTime.Now,
+                    Action = $"Changed task name from \"{task.Name}\" to \"{vm.Name}\""
+                });
+                task.Name = vm.Name;
+            }
+
+            if (task.Description != vm.Description)
+            {
+                this.context.TaskHistories.Add(new TaskHistory
+                {
+                    TaskId = task.Id,
+                    UserId = userId,
+                    Timestamp = DateTime.Now,
+                    Action = "Updated task description"
+                });
+                task.Description = vm.Description;
+            }
 
             var currentAssignment = task.TaskEmployees.FirstOrDefault();
             if (currentAssignment != null && currentAssignment.EmployeeId != vm.SelectedEmployeeId)
@@ -397,6 +459,14 @@ namespace TaskManagerWebsite.Controllers
                     CompletedDate = null
                 };
                 this.context.TaskEmployees.Add(newAssignment);
+
+                this.context.TaskHistories.Add(new TaskHistory
+                {
+                    TaskId = task.Id,
+                    UserId = userId,
+                    Timestamp = DateTime.Now,
+                    Action = $"Assigned task to {employee.UserName}"
+                });
             }
 
             await this.context.SaveChangesAsync();
@@ -1031,6 +1101,12 @@ namespace TaskManagerWebsite.Controllers
                 ViewBag.ManagedUsers = managedUsers;
             }
         }
+
+        private async Task<User> GetCurrentUserAsync()
+        {
+            return await this.userManager.GetUserAsync(User);
+        }
+
 
     }
 }
