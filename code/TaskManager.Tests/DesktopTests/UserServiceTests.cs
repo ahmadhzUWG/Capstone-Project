@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using TaskManagerDesktop.Models;
-using Xunit;
-using TaskManagerDesktop.Data; // Replace with actual namespace
+using TaskManagerData.Models;
+using Task = System.Threading.Tasks.Task; // Replace with actual namespace
 
-namespace TaskManagerDesktop.Tests
+namespace TaskManager.Tests.DesktopTests
 {
     public class UserServiceTests
     {

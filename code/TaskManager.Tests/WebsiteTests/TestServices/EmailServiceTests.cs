@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
-using MimeKit;
-using Xunit;
-using TaskManagerWebsite.Services;
-using Moq;
-using Microsoft.EntityFrameworkCore.InMemory.Internal;
+﻿using Microsoft.Extensions.Configuration;
+using TaskManagerData.Services;
 
-namespace TaskManagerWebsite.Tests
+namespace TaskManager.Tests.WebsiteTests.TestServices
 {
     public class EmailServiceTests
     {

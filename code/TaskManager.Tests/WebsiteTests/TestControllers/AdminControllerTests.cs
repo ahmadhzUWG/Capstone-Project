@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,14 +7,14 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using TaskManager.Tests;
+using TaskManager.Tests.WebsiteTests.Mocks;
+using TaskManagerData.Models;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
-using Xunit;
 using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestControllers;
 
 public class AdminControllerTests
 {
@@ -851,7 +846,7 @@ public class AdminControllerTests
         await dbContext.SaveChangesAsync();
 
         _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-                        .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
+            .ReturnsAsync(new User { Id = 3, UserName = "Admin", Email = "admin@example.com" });
         _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns("3");
 
         var mockController = new Mock<AdminController>(dbContext, _mockUserManager.Object, _mockRoleManager.Object)

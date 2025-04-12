@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskManagerWebsite.Models;
+﻿using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
 
-namespace TaskManager.Tests.Tests.TestModels
+namespace TaskManager.Tests.WebsiteTests.TestModels
 {
     public class TaskEmployeeTests
     {
@@ -14,7 +10,7 @@ namespace TaskManager.Tests.Tests.TestModels
         {
             // Arrange
             var employee = new User { Id = 1, UserName = "jdoe" };
-            var task = new TaskManagerWebsite.Models.Task { Id = 42, Name = "Test Task" };
+            var task = new Task { Id = 42, Name = "Test Task" };
             var assignedDate = new DateTime(2023, 1, 1);
             var completedDate = new DateTime(2023, 1, 10);
 

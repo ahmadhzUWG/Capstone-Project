@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
+using TaskManagerData.Models;
+
+namespace TaskManager.Tests.WebsiteTests.Mocks;
 
 public class TestApplicationDbContext : ApplicationDbContext
 {

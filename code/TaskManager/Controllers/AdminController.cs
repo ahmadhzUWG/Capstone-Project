@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 using TaskManagerWebsite.ViewModels;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 

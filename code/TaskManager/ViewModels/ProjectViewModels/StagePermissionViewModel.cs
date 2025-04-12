@@ -1,4 +1,4 @@
-﻿using TaskManagerWebsite.Models;
+﻿using TaskManagerData.Models;
 
 namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {

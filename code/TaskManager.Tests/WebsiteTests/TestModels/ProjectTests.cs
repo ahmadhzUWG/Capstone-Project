@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 
-namespace TaskManager.Tests.Tests.TestModels
+namespace TaskManager.Tests.WebsiteTests.TestModels
 {
     public class ProjectTests
     {

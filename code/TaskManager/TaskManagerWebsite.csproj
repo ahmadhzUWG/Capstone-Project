@@ -49,6 +49,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskManagerData\TaskManagerData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Views\Employee\Projects.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

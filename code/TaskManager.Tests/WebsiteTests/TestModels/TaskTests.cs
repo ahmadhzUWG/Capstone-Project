@@ -1,7 +1,7 @@
-﻿using TaskManagerWebsite.Models;
-using Task = TaskManagerWebsite.Models.Task;
+﻿using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
 
-namespace TaskManager.Tests.Tests.TestModels
+namespace TaskManager.Tests.WebsiteTests.TestModels
 {
     public class TaskTests
     {

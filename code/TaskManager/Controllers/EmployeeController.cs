@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 
 namespace TaskManagerWebsite.Controllers

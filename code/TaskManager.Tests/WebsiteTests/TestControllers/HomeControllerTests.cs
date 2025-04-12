@@ -1,15 +1,13 @@
-﻿using Moq;
-using Xunit;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TaskManagerWebsite.Models;
-using Microsoft.AspNetCore.Http;
+using Moq;
+using TaskManagerData.Models;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
 using Task = System.Threading.Tasks.Task;
 
-namespace TaskManager.Tests.Tests.TestControllers
+namespace TaskManager.Tests.WebsiteTests.TestControllers
 {
     public class HomeControllerTests
     {

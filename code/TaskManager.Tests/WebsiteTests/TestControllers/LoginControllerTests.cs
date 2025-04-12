@@ -1,26 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Identity;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using TaskManagerData.Models;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels;
 using Task = System.Threading.Tasks.Task;
 
-namespace TaskManager.Tests.Tests.TestControllers
+namespace TaskManager.Tests.WebsiteTests.TestControllers
 {
     public class LoginControllerTests
     {
