@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using TaskManagerData.Models
 @model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
 
 @{
@@ -12,9 +13,10 @@
 <div style="text-align:center;">
     <h2>Task @Model.Name</h2>
 
+    <!-- Task Edit Form -->
     <form asp-action="EditTask" method="post">
         @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="TaskId"/>
+        <input type="hidden" asp-for="TaskId" />
 
         <div class="row mb-3">
             <div class="col-md-3">
@@ -37,16 +39,13 @@
             </div>
         </div>
 
-
-
         <div class="d-flex justify-content-center gap-3 mt-3">
             <button type="submit" class="btn btn-primary">Save Changes</button>
             <a asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary">Cancel</a>
         </div>
-
-
     </form>
-    
+
+    <!-- Task History Accordion -->
     <div class="accordion mt-5" id="taskHistoryAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header" id="historyHeader">
@@ -66,8 +65,6 @@
                                 </li>
                             }
                         </ul>
-
-
                     }
                     else
                     {
@@ -77,7 +74,8 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Comments Accordion -->
     <div class="accordion mt-5" id="commentsAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header" id="commentsHeader">
@@ -87,40 +85,105 @@
             </h2>
             <div id="collapseComments" class="accordion-collapse collapse" aria-labelledby="commentsHeader" data-bs-parent="#commentsAccordion">
                 <div class="accordion-body">
+                    <!-- Existing Comments & Replies -->
                     @if (Model.Comments != null && Model.Comments.Any())
                     {
-                        <ul class="list-group mb-3">
-                            @foreach (var comment in Model.Comments)
-                            {
-                                <li class="list-group-item">
-                                    <strong>@comment.Timestamp.ToString("g")</strong> – @comment.User.UserName: @comment.Content
-                                </li>
-                            }
-                        </ul>
+                        foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null))
+                        {
+                            <div class="comment-item mb-2 border rounded p-2">
+                                <p class="mb-0">
+                                    <strong>@comment.Timestamp.ToString("g")</strong> - <strong>@comment.User.UserName</strong>: @comment.Content 
+                                    <a class="btn btn-link btn-sm reply-link d-inline ms-2" data-bs-toggle="collapse" 
+                                       href="#replyCollapse_@comment.Id" role="button" 
+                                       aria-expanded="false" aria-controls="replyCollapse_@comment.Id" 
+                                       style="opacity: 1; color: inherit;">Reply</a>
+                                </p>
+                                <!-- Collapsible reply form -->
+                                <div class="collapse mt-2" id="replyCollapse_@comment.Id">
+                                    <div class="card card-body p-2">
+                                        <form asp-action="ReplyToComment" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="parentCommentId" value="@comment.Id" />
+                                            <input type="hidden" name="taskId" value="@Model.TaskId" />
+                                            <div class="mb-2">
+                                                <input type="text" name="content" class="form-control" placeholder="Write a reply..." />
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm">Post Reply</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                @* Render replies recursively if any *@
+                                @if (comment.Replies != null && comment.Replies.Any())
+                                {
+                                    <div class="ps-4">
+                                        @Html.Raw(RenderReplies(comment.Replies))
+                                    </div>
+                                }
+                            </div>
+                        }
                     }
                     else
                     {
                         <p>No comments have been added yet.</p>
                     }
 
-                    <!-- Comment submission form inside accordion -->
-                    <form asp-action="AddComment" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="TaskId" />
-                        <div class="mb-3">
-                            <label asp-for="NewComment" class="form-label">Add Comment:</label>
-                            <textarea asp-for="NewComment" class="form-control" rows="3"></textarea>
+                    <!-- Main Comment Submission Form (for root-level comments) -->
+                    <div class="mt-4">
+                        <form asp-action="AddComment" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="TaskId" />
+                            <div class="input-group">
+                                <input type="text" asp-for="NewComment" class="form-control" placeholder="Write a comment and press Enter…" />
+                                <button class="btn btn-primary" type="submit">Post</button>
+                            </div>
                             <span asp-validation-for="NewComment" class="text-danger"></span>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit Comment</button>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
+@functions {
+    // Recursive helper to render nested replies.
+    string RenderReplies(IEnumerable<Comment> replies)
+    {
+        var output = new System.Text.StringBuilder();
+        foreach (var reply in replies)
+        {
+            output.Append($@"
+                <div class='comment-item mb-2 border rounded p-2'>
+                    <p class='mb-0'>
+                        <strong>{reply.Timestamp:g}</strong> - <strong>{reply.User.UserName}</strong>: {reply.Content}
+                        <a class='btn btn-link btn-sm reply-link d-inline ms-2' data-bs-toggle='collapse'
+                           href='#replyCollapse_{reply.Id}' role='button' aria-expanded='false'
+                           aria-controls='replyCollapse_{reply.Id}' style='opacity: 1; color: inherit;'>Reply</a>
+                    </p>
+                    <div class='collapse' id='replyCollapse_{reply.Id}'>
+                        <div class='card card-body'>
+                            <form asp-action='ReplyToComment' method='post'>
+                                " + Html.AntiForgeryToken().ToString() + @"
+                                <input type='hidden' name='parentCommentId' value='" + reply.Id + @"' />
+                                <input type='hidden' name='taskId' value='" + Model.TaskId + @"' />
+                                <div class='mb-2'>
+                                    <input type='text' name='content' class='form-control' placeholder='Write a reply...' />
+                                </div>
+                                <button type='submit' class='btn btn-primary btn-sm'>Post Reply</button>
+                            </form>
+                        </div>
+                    </div>");
+            if (reply.Replies != null && reply.Replies.Any())
+            {
+                output.Append("<div class='ps-4'>");
+                output.Append(RenderReplies(reply.Replies));
+                output.Append("</div>");
+            }
+            output.Append("</div>");
+        }
+        return output.ToString();
+    }
+}
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

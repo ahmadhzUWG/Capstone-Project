@@ -235,6 +235,5 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             .WithMany(t => t.Comments)
             .HasForeignKey(c => c.TaskId)
             .OnDelete(DeleteBehavior.Restrict);
-
     }
 }

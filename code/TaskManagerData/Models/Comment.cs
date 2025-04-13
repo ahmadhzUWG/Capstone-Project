@@ -1,28 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
 
-namespace TaskManagerData.Models
+public class Comment
 {
-    public class Comment
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        // Foreign key linking to the task or entity being commented on
-        public int TaskId { get; set; }
-        public virtual Task Task { get; set; }
+    public int UserId { get; set; }
+    public User User { get; set; }
+    public int TaskId { get; set; }
+    public Task Task { get; set; }
+    public string Content { get; set; }
+    public DateTime Timestamp { get; set; }
 
-        // Foreign key linking to the user who wrote the comment
-        public int UserId { get; set; }
-        public virtual User User { get; set; }
+    public int? ParentCommentId { get; set; }
+    public Comment ParentComment { get; set; }
 
-        // The text of the comment
-        public string Content { get; set; }
-
-        // Timestamp capturing when the comment was added
-        public DateTime Timestamp { get; set; }
-    }
-
+    public ICollection<Comment> Replies { get; set; } = new List<Comment>();
 }

@@ -524,6 +524,32 @@ namespace TaskManagerWebsite.Controllers
             return RedirectToAction("EditTask", new { taskId = vm.TaskId });
         }
 
+        /// <summary>
+        /// Replies to comment.
+        /// </summary>
+        /// <param name="parentCommentId">The parent comment identifier.</param>
+        /// <param name="taskId">The task identifier.</param>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> ReplyToComment(int parentCommentId, int taskId, string content)
+        {
+            var userId = int.Parse(this.userManager.GetUserId(User));
+
+            var reply = new Comment
+            {
+                ParentCommentId = parentCommentId,
+                TaskId = taskId,
+                UserId = userId,
+                Content = content,
+                Timestamp = DateTime.Now
+            };
+
+            this.context.Comments.Add(reply);
+            await this.context.SaveChangesAsync();
+
+            return RedirectToAction("EditTask", new { taskId = taskId });
+        }
 
         /// <summary>
         /// Gets the project board (and an Add Stage form if user has perm).
