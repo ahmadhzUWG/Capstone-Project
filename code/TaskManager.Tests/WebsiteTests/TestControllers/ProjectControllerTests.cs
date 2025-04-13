@@ -140,7 +140,10 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
 
             var user = new User { Id = 1, UserName = "user" };
             var um = CreateUserManager(user, false);
-            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
 
             var vm = new ProjectBoardViewModel
                 { StageForm = new CreateStageViewModel { Name = "S1", Position = 1, SelectedGroupId = 0 } };
@@ -152,6 +155,7 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
         public async Task ProjectBoard_Post_ReturnsView_IfModelStateInvalid()
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
+
             var proj = new Project
             {
                 Id = 5,
@@ -161,20 +165,59 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
                 ProjectGroups = new List<GroupProject>()
             };
             proj.ProjectBoard = new ProjectBoard
-                { Id = 30, ProjectId = 5, BoardCreatorId = 1, Stages = new List<Stage>() };
+            {
+                Id = 30,
+                ProjectId = 5,
+                BoardCreatorId = 1,
+                Stages = new List<Stage>
+                {
+                    new Stage
+                    {
+                        Id = 200,
+                        Name = "Existing Stage",
+                        Position = 1,
+                        ProjectBoardId = 30
+                    }
+                }
+            };
             context.Projects.Add(proj);
             await context.SaveChangesAsync();
 
             var user = new User { Id = 1, UserName = "lead" };
-            var um = CreateUserManager(user, false);
-            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
-            controller.ModelState.AddModelError("Error", "Invalid");
+            var um = CreateUserManager(user, isAdmin: true);
+
+            var identity = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            }, "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
+
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext { User = principal }
+                }
+            };
 
             var vm = new ProjectBoardViewModel
-                { StageForm = new CreateStageViewModel { Name = "S1", Position = 1, SelectedGroupId = 0 } };
+            {
+                StageForm = new CreateStageViewModel
+                {
+                    Name = "S1",
+                    Position = 1,
+                    SelectedGroupId = 0
+                }
+            };
+
             var result = await controller.ProjectBoard(5, vm) as ViewResult;
+
+            Assert.NotNull(result);
+
             var model = result.Model as ProjectBoardViewModel;
             Assert.NotNull(model);
+
             Assert.Equal(5, model.Project.Id);
         }
 
@@ -182,6 +225,7 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
         public async Task ProjectBoard_Post_ReturnsView_IfDuplicateStageExists()
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
+
             var grp = new Group { Id = 1, Name = "G1", Description = "Test" };
             var proj = new Project
             {
@@ -189,11 +233,21 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
                 Name = "P6",
                 Description = "D6",
                 ProjectLeadId = 1,
-                ProjectGroups = new List<GroupProject> { new GroupProject { Group = grp, GroupId = grp.Id } }
+                ProjectGroups = new List<GroupProject>
+        {
+            new GroupProject { Group = grp, GroupId = grp.Id }
+        }
             };
+
             proj.ProjectBoard = new ProjectBoard
-                { Id = 40, ProjectId = 6, BoardCreatorId = 1, Stages = new List<Stage>() };
+            {
+                Id = 40,
+                ProjectId = 6,
+                BoardCreatorId = 1,
+                Stages = new List<Stage>()
+            };
             context.Projects.Add(proj);
+
             context.Stages.Add(new Stage
             {
                 Id = 100,
@@ -205,13 +259,28 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
             await context.SaveChangesAsync();
 
             var user = new User { Id = 1, UserName = "lead" };
-            var um = CreateUserManager(user, false);
-            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var um = CreateUserManager(user, isAdmin: true);
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
 
             var vm = new ProjectBoardViewModel
-                { StageForm = new CreateStageViewModel { Name = "Duplicate", Position = 2, SelectedGroupId = grp.Id } };
-            var result = await controller.ProjectBoard(6, vm) as ViewResult;
-            Assert.NotNull(result);
+            {
+                StageForm = new CreateStageViewModel
+                {
+                    Name = "Duplicate",
+                    Position = 2,
+                    SelectedGroupId = grp.Id
+                }
+            };
+
+            var result = await controller.ProjectBoard(6, vm);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            
+            Assert.Equal("~/Views/Admin/ProjectBoard.cshtml", viewResult.ViewName);
+
             Assert.True(controller.ModelState.ErrorCount > 0);
         }
 
