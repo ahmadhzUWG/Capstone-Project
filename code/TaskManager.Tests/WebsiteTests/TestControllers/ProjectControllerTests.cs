@@ -1,17 +1,15 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using TaskManagerData.Models;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 using Task = System.Threading.Tasks.Task;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace TaskManager.Tests.Tests
+namespace TaskManager.Tests.WebsiteTests.TestControllers
 {
     public class ProjectControllerTests
     {
@@ -486,7 +484,7 @@ namespace TaskManager.Tests.Tests
         public async Task EditTask_Get_ProjectNotFound_ReturnsNotFound()
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
-            context.Tasks.Add(new TaskManagerWebsite.Models.Task { Id = 1, Name = "Test", Description = "Test Task" });
+            context.Tasks.Add(new TaskManagerData.Models.Task { Id = 1, Name = "Test", Description = "Test Task" });
             await context.SaveChangesAsync();
             var user = new User { Id = 1, UserName = "user" };
 
@@ -501,7 +499,7 @@ namespace TaskManager.Tests.Tests
         public async Task EditTask_Get_UserNotAuthorized_ReturnsForbid()
         {
             using var context = CreateContext(Guid.NewGuid().ToString());
-            var task = new TaskManagerWebsite.Models.Task { Id = 1, Name = "Task", Description = "Test Description" };
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = "Task", Description = "Test Description" };
             var project = new Project { Id = 1, ProjectLeadId = 999, Name = "Task", Description = "Test Description" };
             var board = new ProjectBoard { Id = 1, Project = project };
             var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test Stage" };
@@ -538,7 +536,7 @@ namespace TaskManager.Tests.Tests
             var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
             var stage = new Stage { Id = 1, Name = "Stage", ProjectBoard = board, AssignedGroupId = 1, AssignedGroup = group };
 
-            var task = new TaskManagerWebsite.Models.Task
+            var task = new TaskManagerData.Models.Task
             {
                 Id = 2,
                 Name = "My Task",
@@ -611,9 +609,9 @@ namespace TaskManager.Tests.Tests
                 { Id = 1, ProjectLeadId = user.Id, Name = "Test Project", Description = "Test Description" };
             var board = new ProjectBoard { Id = 1, Project = project };
             var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test Stage" };
-            var task1 = new TaskManagerWebsite.Models.Task
+            var task1 = new TaskManagerData.Models.Task
                 { Id = 1, Name = "Original Task", CreatorUserId = user.Id, Description = "Task" };
-            var task2 = new TaskManagerWebsite.Models.Task
+            var task2 = new TaskManagerData.Models.Task
                 { Id = 2, Name = "Duplicate Name", CreatorUserId = user.Id, Description = "Task" };
 
             context.Users.Add(user);
@@ -671,7 +669,7 @@ namespace TaskManager.Tests.Tests
                 { Id = 1, ProjectLeadId = user.Id, Name = "Test Project", Description = "Test Description" };
             var board = new ProjectBoard { Id = 1, Project = project };
             var stage = new Stage { Id = 1, ProjectBoard = board, Name = "Test" };
-            var task = new TaskManagerWebsite.Models.Task
+            var task = new TaskManagerData.Models.Task
                 { Id = 1, Name = "Old Task", Description = "Old Desc", CreatorUserId = user.Id };
             var taskStage = new TaskStage { Task = task, Stage = stage };
 
@@ -805,7 +803,7 @@ namespace TaskManager.Tests.Tests
             var project = new Project { Id = 1, Name = "Test", Description = "Test Description" };
             var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
             var stage = new Stage { Name = "Stage1", Id = 1, ProjectBoardId = 1, ProjectBoard = board };
-            var task = new TaskManagerWebsite.Models.Task
+            var task = new TaskManagerData.Models.Task
                 { Description = "TestDescription", Id = 1, Name = "Task1", CreatorUserId = user.Id };
             var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 1, Stage = stage };
             var taskEmployee = new TaskEmployee { TaskId = 1, EmployeeId = 2 };
@@ -836,7 +834,7 @@ namespace TaskManager.Tests.Tests
             using var context = CreateContext(Guid.NewGuid().ToString());
 
             var user = new User { Id = 1, UserName = "test" };
-            var task = new TaskManagerWebsite.Models.Task
+            var task = new TaskManagerData.Models.Task
                 { Description = "TestDescription", Id = 1, Name = "Task1", CreatorUserId = 1 };
             var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 42 }; // stageId 42 doesn't exist
 
@@ -882,7 +880,7 @@ namespace TaskManager.Tests.Tests
             var project = new Project { Id = 1, Name = "Test Project", Description = "Some description", ProjectLeadId = user.Id };
             var board = new ProjectBoard { Id = 1, Project = project };
             var stage = new Stage { Id = 1, Name = "Stage", ProjectBoard = board };
-            var existingTask = new TaskManagerWebsite.Models.Task
+            var existingTask = new TaskManagerData.Models.Task
                 { Id = 1, Name = "Task1", Description = "desc", CreatorUserId = user.Id };
             var taskStage = new TaskStage { Task = existingTask, Stage = stage };
 
@@ -1166,7 +1164,7 @@ namespace TaskManager.Tests.Tests
             using var context = CreateContext(Guid.NewGuid().ToString());
 
             var user = new User { Id = 1 };
-            var task = new TaskManagerWebsite.Models.Task
+            var task = new TaskManagerData.Models.Task
             {
                 Id = 1,
                 CreatorUserId = user.Id,

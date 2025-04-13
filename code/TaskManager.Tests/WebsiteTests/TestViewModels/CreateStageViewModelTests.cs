@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
-using Xunit;
 
-namespace TaskManager.Tests.Tests.TestViewModels
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
 {
     public class CreateStageViewModelTests
     {

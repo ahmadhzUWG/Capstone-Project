@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 using TaskManagerWebsite.ViewModels;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 using Task = System.Threading.Tasks.Task;
@@ -69,6 +68,7 @@ namespace TaskManagerWebsite.Controllers
 
             this.context.TaskEmployees.RemoveRange(this.context.TaskEmployees.Where(te => te.TaskId == taskStage.TaskId));
             this.context.TaskStages.RemoveRange(this.context.TaskStages.Where(ts => ts.TaskId == taskStage.TaskId));
+            this.context.TaskHistories.RemoveRange(this.context.TaskHistories.Where(th => th.TaskId == taskStage.TaskId));
             this.context.Tasks.Remove(this.context.Tasks.FirstOrDefault(t => t.Id == taskStage.TaskId));
 
             await this.context.SaveChangesAsync();
@@ -164,7 +164,7 @@ namespace TaskManagerWebsite.Controllers
             var userId = int.Parse(this.userManager.GetUserId(User) ?? string.Empty);
             var user = await this.userManager.FindByIdAsync(userId.ToString());
 
-            var task = new Models.Task
+            var task = new TaskManagerData.Models.Task
             {
                 Name = vm.Name,
                 Description = vm.Description,
@@ -560,7 +560,7 @@ namespace TaskManagerWebsite.Controllers
                 StageForm = stageForm
             };
 
-            var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User) ?? string.Empty);
+            var currentUser = await this.userManager.FindByIdAsync(this.userManager.GetUserId(User));
             var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
             var groupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
             var isGroupManager = await this.context.UserGroups.AnyAsync(
@@ -986,7 +986,7 @@ namespace TaskManagerWebsite.Controllers
 
                 foreach (var taskStage in taskStages)
                 {
-                    Models.Task task = await this.context.Tasks
+                    TaskManagerData.Models.Task task = await this.context.Tasks
                         .FirstOrDefaultAsync(t => t.Id == taskStage.TaskId);
                     taskStage.Task = task;
                     stage.TaskStages.Add(taskStage);

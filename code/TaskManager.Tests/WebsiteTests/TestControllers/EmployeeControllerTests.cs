@@ -1,19 +1,16 @@
 ﻿using System.Security.Claims;
-using System.Windows.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 using Moq;
+using TaskManagerData.Models;
 using TaskManagerWebsite.Controllers;
-using TaskManagerWebsite.Data;
-using TaskManagerWebsite.Models;
 using TaskManagerWebsite.ViewModels.ProjectViewModels;
 using Task = System.Threading.Tasks.Task;
 
-namespace TaskManager.Tests.Tests.TestControllers
+namespace TaskManager.Tests.WebsiteTests.TestControllers
 {
     public class EmployeeControllerTests
     {

@@ -1,6 +1,7 @@
-﻿using System;
-using TaskManagerWebsite.Models;
-using Xunit;
+﻿using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestModels;
 
 public class TaskStageTests
 {
@@ -8,7 +9,7 @@ public class TaskStageTests
     public void TaskStage_CanSetAndGetProperties()
     {
         // Arrange
-        var task = new TaskManagerWebsite.Models.Task { Id = 1, Name = "Sample Task" };
+        var task = new Task { Id = 1, Name = "Sample Task" };
         var stage = new Stage { Id = 2, Name = "To Do" };
         var user = new User { Id = 3, UserName = "updatedByUser" };
         var now = DateTime.UtcNow;

@@ -1,6 +1,6 @@
 ﻿using TaskManagerWebsite.ViewModels;
 
-namespace TaskManager.Tests.Tests.TestViewModels
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
 {
     public class RegisterViewModelTests
     {

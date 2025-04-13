@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagerWebsite.Models;
-using TaskManagerWebsite.Services;
+using TaskManagerData.Models;
+using TaskManagerData.Services;
 
 namespace TaskManagerWebsite.Controllers
 {

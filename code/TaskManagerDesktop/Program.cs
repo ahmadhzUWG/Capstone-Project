@@ -1,20 +1,20 @@
+using System.Configuration;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Configuration;
-using System.Windows.Forms;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Protocols;
-using TaskManagerDesktop;
-using TaskManagerDesktop.Models;
-using TaskManagerDesktop.Data;
+using TaskManagerData.Models;
+using TaskManagerData.Services;
+using TaskManagerData.Authorization;
+using TaskManagerDesktop.Views;
+using Task = System.Threading.Tasks.Task;
 
-namespace WinFormsApp
+namespace TaskManagerDesktop
 {
     static class Program
     {
         [STAThread]
-        static void Main()
+        static async Task Main()
         {
             var services = new ServiceCollection();
 
@@ -24,17 +24,75 @@ namespace WinFormsApp
                 options.UseSqlServer(connectionString));
 
             services.AddIdentity<User, IdentityRole<int>>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthorization(options =>
+            {
+                // Admins can manage everything
+                options.AddPolicy("CanManageUsers", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+                // Managers can edit users they manage
+                options.AddPolicy("CanEditUser", policy =>
+                    policy.Requirements.Add(new UserRelationshipRequirement("Manager")));
+
+                // Only Admins can delete users
+                options.AddPolicy("CanDeleteUser", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+                // Admins can create groups/projects
+                options.AddPolicy("CanManageGroups", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+                options.AddPolicy("CanManageProjects", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+                // Managers can edit groups/projects they manage
+                options.AddPolicy("CanEditGroup", policy =>
+                    policy.Requirements.Add(new GroupRoleRequirement("Manager")));
+                options.AddPolicy("CanEditProject", policy =>
+                    policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
+
+                // Only Admins can delete groups/projects
+                options.AddPolicy("CanDeleteGroup", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+                options.AddPolicy("CanDeleteProject", policy =>
+                    policy.Requirements.Add(new UserRoleRequirement("Admin")));
+
+                // Managers can manage employees within their own group/project
+                options.AddPolicy("CanManageGroupEmployees", policy =>
+                    policy.Requirements.Add(new GroupRoleRequirement("Manager")));
+                options.AddPolicy("CanManageProjectEmployees", policy =>
+                    policy.Requirements.Add(new ProjectRoleRequirement("Manager")));
+            });
+
+            services.AddScoped<IAuthorizationHandler, UserRoleHandler>();
+            services.AddScoped<IAuthorizationHandler, UserRelationshipHandler>();
+            services.AddScoped<IAuthorizationHandler, GroupRoleHandler>();
+            services.AddScoped<IAuthorizationHandler, ProjectRoleHandler>();
+
+            services.AddSingleton<EmailService>();
+
+            services.AddLogging();
 
             var serviceProvider = services.BuildServiceProvider();
-            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            await DataSeeder.SeedRolesAndUsersAsync(serviceProvider);
 
-            dbContext.Database.EnsureCreated();
+            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            try
+            {
+                dbContext.Database.Migrate();
+                Console.WriteLine("Database connection successful.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database error: {ex.Message}");
+            }
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1(serviceProvider.GetRequiredService<ApplicationDbContext>()));
+            Application.Run(new Login(serviceProvider));
         }
     }
 }

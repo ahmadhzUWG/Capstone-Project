@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using TaskManagerWebsite.Models;
+using TaskManagerData.Models;
 
 namespace TaskManagerWebsite.ViewModels.ProjectViewModels
 {

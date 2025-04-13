@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskManagerWebsite.ViewModels;
+﻿using TaskManagerWebsite.ViewModels;
 
-namespace TaskManager.Tests.Tests.TestViewModels
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
 {
     public class ErrorViewModelTests
     {
