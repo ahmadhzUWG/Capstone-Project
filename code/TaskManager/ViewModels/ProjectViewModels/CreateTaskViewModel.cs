@@ -54,7 +54,7 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// <value>
         /// The comments.
         /// </value>
-        public List<Comment> Comments { get; set; }
+        public List<Comment>? Comments { get; set; }
 
         /// <summary>
         /// Creates new comment.
@@ -62,7 +62,7 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// <value>
         /// The new comment.
         /// </value>
-        public string NewComment { get; set; }
+        public string? NewComment { get; set; }
 
     }
 }
