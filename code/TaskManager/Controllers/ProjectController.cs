@@ -285,6 +285,33 @@ namespace TaskManagerWebsite.Controllers
                 Action = $"Moved task to stage \"{newStage?.Name}\""
             });
 
+            var isTaskAssignedEmployee = this.context.TaskEmployees
+                .Any(te => te.TaskId == taskId);
+
+            // Remove the current assignee from task if the new stage has an assigned group and the assignee is not part of that group
+            if (newStage.AssignedGroupId.HasValue && isTaskAssignedEmployee)
+            {
+                var assignedGroupId = newStage.AssignedGroupId.Value;
+                var currentAssigneeId = await this.context.TaskEmployees
+                    .Where(te => te.TaskId == taskId)
+                    .Select(te => te.EmployeeId)
+                    .FirstOrDefaultAsync();
+                var assigneeGroupIds = await this.context.UserGroups
+                    .Where(ug => ug.UserId == currentAssigneeId)
+                    .Select(ug => ug.GroupId)
+                    .ToListAsync();
+
+                // Check if the current assignee is part of the assigned group
+                if (!assigneeGroupIds.Contains(assignedGroupId))
+                {
+                    var taskEmployee = await this.context.TaskEmployees
+                        .FirstOrDefaultAsync(te => te.TaskId == taskId);
+
+                    this.context.TaskEmployees.Remove(taskEmployee);
+                    
+                }
+            }
+
             await this.context.SaveChangesAsync();
 
             var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
