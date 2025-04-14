@@ -1,5 +1,4 @@
-﻿using TaskManagerData.Models;
-using Task = TaskManagerData.Models.Task;
+﻿namespace TaskManagerData.Models;
 
 public class Comment
 {
