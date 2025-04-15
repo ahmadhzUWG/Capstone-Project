@@ -19,5 +19,6 @@ namespace TaskManager.Tests
             var dbContext = new ApplicationDbContext(options);
             return dbContext;
         }
+
     }
 }

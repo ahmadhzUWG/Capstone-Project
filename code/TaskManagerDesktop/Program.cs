@@ -7,7 +7,6 @@ using TaskManagerData.Models;
 using TaskManagerData.Services;
 using TaskManagerData.Authorization;
 using TaskManagerDesktop.Views;
-using TaskManagerWebsite.Models;
 using Task = System.Threading.Tasks.Task;
 
 namespace TaskManagerDesktop
