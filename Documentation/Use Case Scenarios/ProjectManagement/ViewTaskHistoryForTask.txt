@@ -1,0 +1,9 @@
+View Task History for a selected Task
+Context:
+	User is viewing a project and wants to view the history of a task
+	Primary flow:
+		1. User selects a task
+		2. User selects to view task details
+		3. System loads View Task Page
+		4. User selects to expand Task History
+		5. User can see history of task

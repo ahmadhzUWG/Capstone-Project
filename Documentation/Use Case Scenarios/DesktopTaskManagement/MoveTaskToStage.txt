@@ -1,0 +1,10 @@
+Move task to stage
+Context:
+	User is logged in on Desktop App and wants to move task to a new stage
+	Primary flow:
+		1. User is viewing home page
+		2. User selects to a task
+		3. System loads task details page
+		4. User selects the stage to move task to
+		5. User confirms update
+		6. System moves task to selected stage

@@ -1,0 +1,6 @@
+View Assigned Task
+Context:
+	User is logged in on Desktop App and wants to view Assigned Tasks
+	Primary flow:
+		1. User is viewing home page
+		2. User selects to view assigned Tasks

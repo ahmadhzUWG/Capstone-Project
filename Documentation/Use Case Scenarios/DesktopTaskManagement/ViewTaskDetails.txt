@@ -1,0 +1,7 @@
+View Task Details
+Context:
+	User is logged in on Desktop App and wants to view details of a selected task
+	Primary flow:
+		1. User is viewing home page
+		2. User selects to a task
+		3. System loads task details page
