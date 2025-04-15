@@ -681,8 +681,8 @@ namespace TaskManagerWebsite.Controllers
         public async Task<IActionResult> EmployeeTaskReport(int employeeId)
         {
             var reportItems = await this.context.TaskStages
-                .Where(ts => ts.Task.TaskEmployees.Any(te => te.EmployeeId == employeeId)
-                             && ts.Stage.CreatorGroupId != null)
+                .Where(ts => ts.Task.TaskEmployees.Any(te => te.EmployeeId == employeeId))
+                             //&& ts.Stage.CreatorGroupId != null)
                 .Select(ts => new TaskStageReportItemViewModel
                 {
                     TaskId = ts.TaskId,
