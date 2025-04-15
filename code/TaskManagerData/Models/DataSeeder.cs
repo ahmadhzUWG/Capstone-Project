@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using TaskManagerData.Models;
 
-namespace TaskManagerWebsite.Models;
+namespace TaskManagerData.Models;
 
 /// <summary>
 /// Provides methods for seeding default roles, users, groups, and projects into the database.

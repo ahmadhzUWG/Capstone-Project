@@ -18,7 +18,7 @@ namespace TaskManagerDesktop.ViewModels
     /// </summary>
     public class TaskDetailsViewModel : INotifyPropertyChanged
     {
-        private bool movedTaskToUnreachableStage = false;
+        private bool _movedTaskToUnreachableStage = false;
         private Task _task;
         private string _taskName;
         private string _taskDescription;
@@ -34,10 +34,10 @@ namespace TaskManagerDesktop.ViewModels
         /// </summary>
         public bool MovedTaskToUnreachableStage
         {
-            get => movedTaskToUnreachableStage;
+            get => _movedTaskToUnreachableStage;
             set
             {
-                movedTaskToUnreachableStage = value;
+                _movedTaskToUnreachableStage = value;
                 OnPropertyChanged(nameof(MovedTaskToUnreachableStage));
             }
         }

@@ -1,0 +1,6 @@
+View Available Task
+Context:
+	User is logged in on Desktop App and wants to view Available Tasks
+	Primary flow:
+		1. User is viewing home page
+		2. User selects to view available Tasks

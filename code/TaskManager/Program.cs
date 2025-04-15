@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using TaskManagerData.Authorization;
 using TaskManagerData.Models;
 using TaskManagerData.Services;
-using TaskManagerWebsite.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
