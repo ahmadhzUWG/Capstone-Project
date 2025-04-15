@@ -139,22 +139,23 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Add Stage</button>
+
+            <a asp-controller="Project" asp-action="EmployeeTaskReport" asp-route-employeeId="@Model.LoggedInEmployeeId"
+               class="btn btn-info" title="View Employee Report">
+                <i class="fas fa-user"></i> Employee Report
+            </a>
+            <a asp-controller="Project" asp-action="ProjectTaskReport" asp-route-projectId="@Model.Project.Id"
+               class="btn btn-success" title="View Project Report">
+                <i class="fas fa-project-diagram"></i> Project Report
+            </a>
+            <a asp-controller="Project" asp-action="GroupTaskReport" asp-route-groupId="@Model.LoggedInUserGroupId"
+               class="btn btn-primary" title="View Group Report">
+                <i class="fas fa-users"></i> Group Report
+            </a>
+
         </form>
     }
-    
-    <a asp-controller="Project" asp-action="EmployeeTaskReport" asp-route-employeeId="@Model.LoggedInEmployeeId" 
-       class="btn btn-info" title="View Employee Report">
-        <i class="fas fa-user"></i> Employee Report
-    </a>
-    <a asp-controller="Project" asp-action="ProjectTaskReport" asp-route-projectId="@Model.Project.Id" 
-       class="btn btn-success" title="View Project Report">
-        <i class="fas fa-project-diagram"></i> Project Report
-    </a>
-    <a asp-controller="Project" asp-action="GroupTaskReport" asp-route-groupId="@Model.LoggedInUserGroupId" 
-       class="btn btn-primary" title="View Group Report">
-        <i class="fas fa-users"></i> Group Report
-    </a>
-
+   
     <a asp-controller="Employee" asp-action="ProjectDetails" asp-route-id="@Model.Project.Id" class="btn btn-secondary mt-3">
         Go Back
     </a>
