@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Project\CreateTask.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+@Html.ValidationSummary(true, &quot;&quot;, new { @class = &quot;text-danger&quot; })
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Project/createTask.css&quot; /&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+    &lt;h2&gt;Create Task&lt;/h2&gt;
+    
+    &lt;form asp-controller=&quot;Project&quot; asp-action=&quot;CreateTask&quot; method=&quot;post&quot;&gt;
+
+        &lt;div&gt;
+            &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot;/&gt;
+            &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        
+        &lt;div&gt;
+            &lt;label asp-for=&quot;Description&quot;&gt;&lt;/label&gt;
+            &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot;&gt;&lt;/textarea&gt;
+            &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        
+        &lt;div&gt;
+            &lt;label asp-for=&quot;SelectedEmployeeId&quot;&gt;&lt;/label&gt;
+            &lt;select asp-for=&quot;SelectedEmployeeId&quot; asp-items=&quot;Model.AvailableEmployees&quot; class=&quot;form-control&quot;&gt;
+                &lt;option value=&quot;&quot;&gt;N/A&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;span asp-validation-for=&quot;SelectedEmployeeId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        
+        &lt;input type=&quot;hidden&quot; asp-for=&quot;StageId&quot; /&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot; onclick=&quot;return confirm(&#39;Confirmation to create task&#39;);&quot;&gt;Create Task&lt;/button&gt;
+    &lt;/form&gt;
+    
+    &lt;a asp-controller=&quot;Project&quot; asp-action=&quot;ProjectBoard&quot; asp-route-id=&quot;@ViewBag.ProjectId&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[6,2,6,67,0],[16,1,16,141,0],[17,1,17,141,0],[18,1,18,153,0],[22,1,22,148,0],[23,1,23,151,0],[24,1,24,160,0],[28,1,28,155,0],[29,1,29,156,0],[32,1,32,167,0],[35,1,35,144,0],[40,74,40,92,0]]);
+    </script>
+  </body>
+</html>

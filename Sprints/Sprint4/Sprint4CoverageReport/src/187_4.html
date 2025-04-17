@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Authorization\UserRoleHandler.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+
+namespace TaskManagerData.Authorization;
+
+/// &lt;summary&gt;
+/// Represents a handler for the &lt;see cref=&quot;UserRoleRequirement&quot;/&gt;.
+/// &lt;/summary&gt;
+/// &lt;seealso cref=&quot;Microsoft.AspNetCore.Authorization.AuthorizationHandler&amp;lt;TaskManagerWebsite.Authorization.UserRoleRequirement&amp;gt;&quot; /&gt;
+public class UserRoleHandler : AuthorizationHandler&lt;UserRoleRequirement&gt;
+{
+    /// &lt;summary&gt;
+    /// Makes a decision if authorization is allowed based on a specific requirement.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;context&quot;&gt;The authorization context.&lt;/param&gt;
+    /// &lt;param name=&quot;requirement&quot;&gt;The requirement to evaluate.&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRoleRequirement requirement)
+    {
+        var userRole = context.User.FindFirstValue(ClaimTypes.Role);
+
+        if (userRole == requirement.RequiredRole)
+        {
+            context.Succeed(requirement);
+        }
+
+        return Task.CompletedTask;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,5,19,6,0],[20,9,20,69,0],[22,9,22,50,0],[23,9,23,10,0],[24,13,24,42,0],[25,9,25,10,0],[27,9,27,35,0],[28,5,28,6,0]]);
+    </script>
+  </body>
+</html>

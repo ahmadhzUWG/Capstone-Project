@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Models\UserOption.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TaskManagerData.Models
+{
+    /// &lt;summary&gt;
+    /// Represents a user option for displaying in the desktop combobox UI component.
+    /// &lt;/summary&gt;
+    public class UserOption
+    {
+        /// &lt;summary&gt;
+        /// Gets or sets the user associated with this option.
+        /// &lt;/summary&gt;
+        public User? User { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the ID of the user.
+        /// &lt;/summary&gt;
+        public string DisplayName =&gt; User?.UserName ?? &quot;N/A&quot;;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;UserOption&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;The display name of the user&lt;/returns&gt;
+        public override string ToString() =&gt; DisplayName; 
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,29,17,33,1],[17,34,17,38,1],[22,38,22,61,1],[28,46,28,57,1]]);
+    </script>
+  </body>
+</html>

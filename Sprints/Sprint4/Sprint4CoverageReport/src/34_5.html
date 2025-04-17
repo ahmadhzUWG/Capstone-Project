@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestModels\UserOptionTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Xunit;
+using TaskManagerData.Models;
+
+namespace TaskManager.Tests.Models
+{
+    public class UserOptionTests
+    {
+        [Fact]
+        public void DisplayName_Returns_NA_WhenUserIsNull()
+        {
+            // Arrange
+            var userOption = new UserOption { User = null };
+
+            // Act
+            var displayName = userOption.DisplayName;
+
+            // Assert
+            Assert.Equal(&quot;N/A&quot;, displayName);
+        }
+
+        [Fact]
+        public void DisplayName_Returns_UserName_WhenUserIsProvided()
+        {
+            // Arrange
+            var user = new User { Id = 1, UserName = &quot;Alice&quot; };
+            var userOption = new UserOption { User = user };
+
+            // Act
+            var displayName = userOption.DisplayName;
+
+            // Assert
+            Assert.Equal(&quot;Alice&quot;, displayName);
+        }
+
+        [Fact]
+        public void ToString_Returns_SameValue_As_DisplayName()
+        {
+            // Arrange
+            var user = new User { Id = 2, UserName = &quot;Bob&quot; };
+            var userOption = new UserOption { User = user };
+
+            // Act
+            var toStringResult = userOption.ToString();
+            var displayName = userOption.DisplayName;
+
+            // Assert
+            Assert.Equal(displayName, toStringResult);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,1],[12,13,12,61,1],[15,13,15,54,1],[18,13,18,46,1],[19,9,19,10,1],[23,9,23,10,1],[25,13,25,64,1],[26,13,26,61,1],[29,13,29,54,1],[32,13,32,48,1],[33,9,33,10,1],[37,9,37,10,1],[39,13,39,62,1],[40,13,40,61,1],[43,13,43,56,1],[44,13,44,54,1],[47,13,47,55,1],[48,9,48,10,1]]);
+    </script>
+  </body>
+</html>

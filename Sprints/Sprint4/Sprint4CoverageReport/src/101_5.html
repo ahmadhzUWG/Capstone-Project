@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\DesktopTests\LoginTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Moq;
+using TaskManagerData.Models;
+using TaskManagerDesktop.ViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.DesktopTests;
+
+public class LoginTests
+{
+    private readonly Mock&lt;UserManager&lt;User&gt;&gt; _mockUserManager;
+    private readonly ApplicationDbContext _dbContext;
+
+    public LoginTests()
+    {
+        _mockUserManager = GetMockUserManager();
+        _dbContext = TestHelper.GetDbContext();
+
+        _mockUserManager.Setup(um =&gt; um.GetRolesAsync(It.IsAny&lt;User&gt;()))
+            .ReturnsAsync(new List&lt;string&gt; { &quot;Admin&quot;, &quot;Employee&quot; });
+    }
+
+    public Mock&lt;UserManager&lt;User&gt;&gt; GetMockUserManager()
+    {
+        var userStoreMock = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+        return new Mock&lt;UserManager&lt;User&gt;&gt;(userStoreMock.Object,
+            null, null, null, null, null, null, null, null);
+    }
+
+    [Fact]
+    public async Task Login_NullUsername_ReturnsFalse()
+    {
+        var loginViewModel = new LoginViewModel(_mockUserManager.Object)
+        {
+            Username = null,
+            Password = &quot;password&quot;
+        };
+        var result = await loginViewModel.Login();
+        Assert.False(result);
+        Assert.True(loginViewModel.ShowErrorUsername);
+    }
+
+    [Fact]
+    public async Task Login_NullPassword_ReturnsFalse()
+    {
+        var loginViewModel = new LoginViewModel(_mockUserManager.Object)
+        {
+            Username = &quot;username&quot;,
+            Password = null
+        };
+        var result = await loginViewModel.Login();
+        Assert.False(result);
+        Assert.True(loginViewModel.ShowErrorPassword);
+    }
+
+    [Fact]
+    public async Task Login_NullUser_ReturnsFalse()
+    {
+        var loginViewModel = new LoginViewModel(_mockUserManager.Object)
+        {
+            Username = &quot;username&quot;,
+            Password = &quot;password&quot;
+        };
+        _mockUserManager.Setup(um =&gt; um.FindByNameAsync(It.IsAny&lt;string&gt;()))
+            .ReturnsAsync((User)null);
+        var result = await loginViewModel.Login();
+        Assert.False(result);
+        Assert.True(loginViewModel.ShowErrorLogin);
+    }
+
+    [Fact]
+    public async Task Login_InvalidPassword_ReturnsFalse()
+    {
+        var loginViewModel = new LoginViewModel(_mockUserManager.Object)
+        {
+            Username = &quot;username&quot;,
+            Password = &quot;wrongpassword&quot;
+        };
+        var user = new User { UserName = &quot;username&quot; };
+        _mockUserManager.Setup(um =&gt; um.FindByNameAsync(It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(user);
+        _mockUserManager.Setup(um =&gt; um.CheckPasswordAsync(user, It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(false);
+        var result = await loginViewModel.Login();
+        Assert.False(result);
+        Assert.True(loginViewModel.ShowErrorLogin);
+    }
+
+    [Fact]
+    public async Task Login_ValidCredentials_ReturnsTrue()
+    {
+        var loginViewModel = new LoginViewModel(_mockUserManager.Object)
+        {
+            Username = &quot;username&quot;,
+            Password = &quot;password&quot;
+        };
+        var user = new User { UserName = &quot;username&quot; };
+        _mockUserManager.Setup(um =&gt; um.FindByNameAsync(It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(user);
+        _mockUserManager.Setup(um =&gt; um.CheckPasswordAsync(user, It.IsAny&lt;string&gt;()))
+            .ReturnsAsync(true);
+        var result = await loginViewModel.Login();
+        Assert.True(result);
+        Assert.False(loginViewModel.ShowErrorLogin);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,5,14,24,1],[15,5,15,6,1],[16,9,16,49,1],[17,9,17,48,1],[19,9,20,69,1],[21,5,21,6,1],[24,5,24,6,1],[25,9,25,58,1],[26,9,27,61,1],[28,5,28,6,1],[32,5,32,6,1],[33,9,37,11,1],[38,9,38,51,1],[39,9,39,30,1],[40,9,40,55,1],[41,5,41,6,1],[45,5,45,6,1],[46,9,50,11,1],[51,9,51,51,1],[52,9,52,30,1],[53,9,53,55,1],[54,5,54,6,1],[58,5,58,6,1],[59,9,63,11,1],[64,9,65,39,1],[66,9,66,51,1],[67,9,67,30,1],[68,9,68,52,1],[69,5,69,6,1],[73,5,73,6,1],[74,9,78,11,1],[79,9,79,55,1],[80,9,81,33,1],[82,9,83,34,1],[84,9,84,51,1],[85,9,85,30,1],[86,9,86,52,1],[87,5,87,6,1],[91,5,91,6,1],[92,9,96,11,1],[97,9,97,55,1],[98,9,99,33,1],[100,9,101,33,1],[102,9,102,51,1],[103,9,103,29,1],[104,9,104,53,1],[105,5,105,6,1]]);
+    </script>
+  </body>
+</html>

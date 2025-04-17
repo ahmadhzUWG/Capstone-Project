@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Home\Index.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@{
+    ViewData[&quot;Title&quot;] = &quot;Home Page&quot;;
+    Layout = &quot;_Layout&quot;;
+    string userName = User.Identity.IsAuthenticated ? User.Identity.Name : &quot;Guest&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Home/home_index.css&quot; /&gt;
+
+&lt;main class=&quot;home-container&quot;&gt;
+    &lt;div class=&quot;card&quot;&gt;
+        &lt;h2&gt;Welcome, @userName!&lt;/h2&gt;
+        
+        @if (!User.Identity.IsAuthenticated)
+        {
+            &lt;a href=&quot;@Url.Action(&quot;Index&quot;, &quot;Login&quot;)&quot; class=&quot;btn btn-primary&quot;&gt;Login&lt;/a&gt;
+        }
+    &lt;/div&gt;
+&lt;/main&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[2,5,2,37,0],[3,5,3,24,0],[4,5,4,84,0],[11,23,11,32,0],[13,10,13,45,0],[14,9,14,10,0],[15,22,15,52,0],[16,9,16,10,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestModels\CommentTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using Xunit;
+using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestModels
+{
+    public class CommentTests
+    {
+        [Fact]
+        public void Comment_Id_CanBeSetAndRetrieved()
+        {
+            var comment = new Comment { Id = 42 };
+            Assert.Equal(42, comment.Id);
+        }
+
+        [Fact]
+        public void Comment_UserId_CanBeSetAndRetrieved()
+        {
+            var comment = new Comment { UserId = 10 };
+            Assert.Equal(10, comment.UserId);
+        }
+
+        [Fact]
+        public void Comment_User_CanBeSetAndRetrieved()
+        {
+            var user = new User { Id = 1, UserName = &quot;TestUser&quot; };
+            var comment = new Comment { User = user };
+            Assert.NotNull(comment.User);
+            Assert.Equal(&quot;TestUser&quot;, comment.User.UserName);
+        }
+
+        [Fact]
+        public void Comment_TaskId_CanBeSetAndRetrieved()
+        {
+            var comment = new Comment { TaskId = 5 };
+            Assert.Equal(5, comment.TaskId);
+        }
+
+        [Fact]
+        public void Comment_Task_CanBeSetAndRetrieved()
+        {
+            // Assume Task has at least an Id property, adjust accordingly based on your Task class
+            var task = new Task { Id = 100 };
+            var comment = new Comment { Task = task };
+            Assert.NotNull(comment.Task);
+            Assert.Equal(100, comment.Task.Id);
+        }
+
+        [Fact]
+        public void Comment_Content_CanBeSetAndRetrieved()
+        {
+            var comment = new Comment { Content = &quot;This is a sample comment&quot; };
+            Assert.Equal(&quot;This is a sample comment&quot;, comment.Content);
+        }
+
+        [Fact]
+        public void Comment_Timestamp_CanBeSetAndRetrieved()
+        {
+            var now = DateTime.Now;
+            var comment = new Comment { Timestamp = now };
+            Assert.Equal(now, comment.Timestamp);
+        }
+
+        [Fact]
+        public void Comment_ParentCommentId_CanBeSetAndRetrieved()
+        {
+            var comment = new Comment { ParentCommentId = 25 };
+            Assert.Equal(25, comment.ParentCommentId);
+        }
+
+        [Fact]
+        public void Comment_ParentComment_CanBeSetAndRetrieved()
+        {
+            var parentComment = new Comment { Id = 1, Content = &quot;Parent comment&quot; };
+            var comment = new Comment { ParentComment = parentComment };
+            Assert.NotNull(comment.ParentComment);
+            Assert.Equal(1, comment.ParentComment.Id);
+            Assert.Equal(&quot;Parent comment&quot;, comment.ParentComment.Content);
+        }
+
+        [Fact]
+        public void Comment_Replies_DefaultsToEmptyList()
+        {
+            var comment = new Comment();
+            Assert.NotNull(comment.Replies);
+            Assert.Empty(comment.Replies);
+        }
+
+        [Fact]
+        public void Comment_Replies_CanBeAssignedAndRetrieved()
+        {
+            // Arrange: Create a parent comment and two replies
+            var parentComment = new Comment { Id = 1, Content = &quot;Parent comment&quot; };
+
+            var reply1 = new Comment { Id = 2, Content = &quot;Reply 1&quot;, ParentComment = parentComment, ParentCommentId = parentComment.Id };
+            var reply2 = new Comment { Id = 3, Content = &quot;Reply 2&quot;, ParentComment = parentComment, ParentCommentId = parentComment.Id };
+
+            // Act: Add replies to the parent&#39;s Replies collection
+            parentComment.Replies.Add(reply1);
+            parentComment.Replies.Add(reply2);
+
+            // Assert
+            Assert.Equal(2, parentComment.Replies.Count);
+            Assert.Contains(parentComment.Replies, r =&gt; r.Id == 2 &amp;&amp; r.Content == &quot;Reply 1&quot;);
+            Assert.Contains(parentComment.Replies, r =&gt; r.Id == 3 &amp;&amp; r.Content == &quot;Reply 2&quot;);
+        }
+
+        [Fact]
+        public void Comment_NestedReplies_WorkCorrectly()
+        {
+            // Arrange: Create a hierarchy of comments: parent -&gt; reply -&gt; nested reply
+            var parentComment = new Comment { Id = 1, Content = &quot;Parent comment&quot; };
+            var reply = new Comment
+            {
+                Id = 2,
+                Content = &quot;First reply&quot;,
+                ParentComment = parentComment,
+                ParentCommentId = parentComment.Id
+            };
+            var nestedReply = new Comment
+            {
+                Id = 3,
+                Content = &quot;Nested reply&quot;,
+                ParentComment = reply,
+                ParentCommentId = reply.Id
+            };
+
+            // Act: Build the nested reply hierarchy
+            parentComment.Replies.Add(reply);
+            reply.Replies.Add(nestedReply);
+
+            // Assert hierarchy
+            Assert.Single(parentComment.Replies);
+            Assert.Equal(1, parentComment.Replies.Count);
+            Assert.Equal(&quot;First reply&quot;, parentComment.Replies.First().Content);
+
+            Assert.Single(reply.Replies);
+            Assert.Equal(&quot;Nested reply&quot;, reply.Replies.First().Content);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,9,13,10,1],[14,13,14,51,1],[15,13,15,42,1],[16,9,16,10,1],[20,9,20,10,1],[21,13,21,55,1],[22,13,22,46,1],[23,9,23,10,1],[27,9,27,10,1],[28,13,28,67,1],[29,13,29,55,1],[30,13,30,42,1],[31,13,31,61,1],[32,9,32,10,1],[36,9,36,10,1],[37,13,37,54,1],[38,13,38,45,1],[39,9,39,10,1],[43,9,43,10,1],[45,13,45,46,1],[46,13,46,55,1],[47,13,47,42,1],[48,13,48,48,1],[49,9,49,10,1],[53,9,53,10,1],[54,13,54,80,1],[55,13,55,71,1],[56,9,56,10,1],[60,9,60,10,1],[61,13,61,36,1],[62,13,62,59,1],[63,13,63,50,1],[64,9,64,10,1],[68,9,68,10,1],[69,13,69,64,1],[70,13,70,55,1],[71,9,71,10,1],[75,9,75,10,1],[76,13,76,84,1],[77,13,77,73,1],[78,13,78,51,1],[79,13,79,55,1],[80,13,80,75,1],[81,9,81,10,1],[85,9,85,10,1],[86,13,86,41,1],[87,13,87,45,1],[88,13,88,43,1],[89,9,89,10,1],[93,9,93,10,1],[95,13,95,84,1],[97,13,97,137,1],[98,13,98,137,1],[101,13,101,47,1],[102,13,102,47,1],[105,13,105,58,1],[106,13,106,57,1],[106,57,106,92,1],[106,92,106,94,1],[107,13,107,57,1],[107,57,107,92,1],[107,92,107,94,1],[108,9,108,10,1],[112,9,112,10,1],[114,13,114,84,1],[115,13,121,15,1],[122,13,128,15,1],[131,13,131,46,1],[132,13,132,44,1],[135,13,135,50,1],[136,13,136,58,1],[137,13,137,80,1],[139,13,139,42,1],[140,13,140,73,1],[141,9,141,10,1]]);
+    </script>
+  </body>
+</html>

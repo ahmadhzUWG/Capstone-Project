@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestComponents\ManagerSearchTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using TaskManagerData.Models;
+using TaskManagerWebsite.Components;
+
+namespace TaskManager.Tests.WebsiteTests.TestComponents
+{
+    public class ManagerSearchTests : TestContext
+    {
+        [Fact]
+        public void RendersAllManagersWhenSearchIsEmpty()
+        {
+            // Arrange
+            var managers = new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;Alice&quot;, Email = &quot;alice@example.com&quot; },
+                new User { Id = 2, UserName = &quot;Bob&quot;, Email = &quot;bob@example.com&quot; }
+            };
+
+            // Act: Render the component with no selected manager.
+            var cut = RenderComponent&lt;ManagerSearch&gt;(parameters =&gt; parameters
+                .Add(p =&gt; p.Managers, managers)
+                .Add(p =&gt; p.SelectedManagerId, null)
+            );
+
+            // Assert: There should be the default option plus an option for each manager.
+            var options = cut.FindAll(&quot;select option&quot;);
+            Assert.Equal(managers.Count + 1, options.Count);
+            Assert.Contains(options, option =&gt; option.TextContent.Contains(&quot;Alice&quot;));
+            Assert.Contains(options, option =&gt; option.TextContent.Contains(&quot;Bob&quot;));
+        }
+
+        [Fact]
+        public void FiltersManagersBasedOnSearchText()
+        {
+            // Arrange
+            var managers = new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;Alice&quot;, Email = &quot;alice@example.com&quot; },
+                new User { Id = 2, UserName = &quot;Bob&quot;, Email = &quot;bob@example.com&quot; }
+            };
+
+            var cut = RenderComponent&lt;ManagerSearch&gt;(parameters =&gt; parameters
+                .Add(p =&gt; p.Managers, managers)
+                .Add(p =&gt; p.SelectedManagerId, null)
+            );
+
+            // Act: Simulate typing &quot;alice&quot; in the search input.
+            var searchInput = cut.Find(&quot;input[type=&#39;text&#39;]&quot;);
+            searchInput.Input(&quot;alice&quot;);
+
+            // Assert: The select should now have only the default option and one matching option.
+            var options = cut.FindAll(&quot;select option&quot;);
+            Assert.Equal(2, options.Count); // default option + &quot;Alice&quot; option
+            Assert.Contains(options, option =&gt; option.TextContent.Contains(&quot;Alice&quot;));
+            Assert.DoesNotContain(options, option =&gt; option.TextContent.Contains(&quot;Bob&quot;));
+        }
+
+        [Fact]
+        public void InvokesSelectedManagerIdChangedWhenSelectionChanges()
+        {
+            // Arrange
+            var managers = new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;Alice&quot;, Email = &quot;alice@example.com&quot; },
+                new User { Id = 2, UserName = &quot;Bob&quot;, Email = &quot;bob@example.com&quot; }
+            };
+
+            int? callbackValue = null;
+            var cut = RenderComponent&lt;ManagerSearch&gt;(parameters =&gt; parameters
+                .Add(p =&gt; p.Managers, managers)
+                .Add(p =&gt; p.SelectedManagerId, null)
+                .Add(p =&gt; p.SelectedManagerIdChanged, EventCallback.Factory.Create&lt;int?&gt;(this, val =&gt; callbackValue = val))
+            );
+
+            // Act: Change the selection to manager with Id &quot;2&quot;.
+            var select = cut.Find(&quot;select&quot;);
+            select.Change(&quot;2&quot;);
+
+            // Assert: The callback should be triggered with value 2.
+            Assert.Equal(2, callbackValue);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,1],[14,13,18,15,1],[21,13,21,68,1],[21,68,23,53,1],[23,53,24,15,1],[27,13,27,56,1],[28,13,28,61,1],[29,13,29,48,1],[29,48,29,84,1],[29,84,29,86,1],[30,13,30,48,1],[30,48,30,82,1],[30,82,30,84,1],[31,9,31,10,1],[35,9,35,10,1],[37,13,41,15,1],[43,13,43,68,1],[43,68,45,53,1],[45,53,46,15,1],[49,13,49,62,1],[50,13,50,40,1],[53,13,53,56,1],[54,13,54,44,1],[55,13,55,48,1],[55,48,55,84,1],[55,84,55,86,1],[56,13,56,54,1],[56,54,56,88,1],[56,88,56,90,1],[57,9,57,10,1],[61,9,61,10,1],[63,13,67,15,1],[69,13,69,39,1],[70,13,70,68,1],[70,68,73,103,1],[73,103,73,122,1],[73,122,73,124,1],[73,124,74,15,1],[77,13,77,45,1],[78,13,78,32,1],[81,13,81,44,1],[82,9,82,10,1]]);
+    </script>
+  </body>
+</html>

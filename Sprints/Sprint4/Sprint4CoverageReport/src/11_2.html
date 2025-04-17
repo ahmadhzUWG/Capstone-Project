@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Views\TaskDetails.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TaskManagerData.Models;
+using TaskManagerDesktop.ViewModels;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManagerDesktop.Views
+{
+
+    /// &lt;summary&gt;
+    /// Represents the form for displaying the task details in the application.
+    /// &lt;/summary&gt;
+    public partial class TaskDetails : Form
+    {
+        private bool _isInitializing = true;
+        private bool _navigatedBack = false;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly Task _task;
+        private readonly TaskDetailsViewModel _viewModel;
+        private readonly BindingSource _bindingSource = new BindingSource();
+
+        /// &lt;summary&gt;
+        /// Gets a value indicating whether the user navigated back to the tasks form.
+        /// &lt;/summary&gt;
+        public bool NavigatedBack =&gt; _navigatedBack;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;TaskDetails&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;serviceProvider&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;task&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;tasksForm&quot;&gt;&lt;/param&gt;
+        public TaskDetails(IServiceProvider serviceProvider, Task task)
+        {
+            this._serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this._task = task ?? throw new ArgumentNullException(nameof(task));
+            this._viewModel = new TaskDetailsViewModel(serviceProvider, task);
+
+            InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+        }
+
+        private void setupComboBoxes()
+        {
+            assignedToComboBox.SelectedIndexChanged -= AssignedToComboBox_SelectedIndexChanged;
+            stageComboBox.SelectedIndexChanged -= StageComboBox_SelectedIndexChanged;
+
+            assignedToComboBox.SelectedIndexChanged += AssignedToComboBox_SelectedIndexChanged;
+            stageComboBox.SelectedIndexChanged += StageComboBox_SelectedIndexChanged;
+        }
+
+        private void AssignedToComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_isInitializing) return;
+            _viewModel.AssignedUser = (UserOption?)assignedToComboBox.SelectedItem;
+        }
+
+        private void StageComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_isInitializing) return;
+            _viewModel.SelectedStage = (Stage?)stageComboBox.SelectedItem;
+            _viewModel.UpdateAssignedToComboBox(this.assignedToComboBox);
+        }
+
+        private void bindToViewModel()
+        {
+            this._bindingSource.DataSource = this._viewModel;
+            this.stageComboBox.Items.Clear();
+
+            foreach (var stage in this._viewModel.Stages)
+            {
+                this.stageComboBox.Items.Add(stage);
+            }
+
+            var currentUserOption = new UserOption { User = Session.CurrentUser };
+            var nullUserOption = new UserOption { User = null };
+
+            assignedToComboBox.Items.Clear();
+
+            assignedToComboBox.Items.Add(currentUserOption);
+            assignedToComboBox.Items.Add(nullUserOption);
+
+            this.stageComboBox.DisplayMember = &quot;Name&quot;;
+            this.assignedToComboBox.DisplayMember = &quot;DisplayName&quot;;
+            this.assignedToComboBox.ValueMember = &quot;User&quot;;
+
+            if (this._viewModel.AssignedUser?.User == null)
+            {
+                assignedToComboBox.SelectedItem = nullUserOption;
+            }
+            else
+            {
+                assignedToComboBox.SelectedItem = currentUserOption;
+            }
+
+            this.nameLabel.DataBindings.Add(&quot;Text&quot;, this._bindingSource, nameof(this._viewModel.TaskName), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.descriptionTextBox.DataBindings.Add(&quot;Text&quot;, this._bindingSource, nameof(this._viewModel.TaskDescription), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.stageComboBox.DataBindings.Add(&quot;SelectedItem&quot;, this._bindingSource, nameof(this._viewModel.SelectedStage), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.projectLabel.DataBindings.Add(&quot;Text&quot;, this._bindingSource, nameof(this._viewModel.ProjectName), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.updateButton.DataBindings.Add(&quot;Enabled&quot;, this._bindingSource, nameof(this._viewModel.CanUpdate));
+        }
+
+        private void backButton_Click(object sender, EventArgs e)
+        {
+            _navigatedBack = true;
+            var newTasksForm = new Tasks(this._serviceProvider);
+            newTasksForm.FormClosed += (s, args) =&gt;
+            {
+                Application.Exit();
+            };
+            newTasksForm.Show();
+            this.Hide();
+        }
+
+        private void tasksLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var tasksForm = new Tasks(this._serviceProvider);
+            tasksForm.FormClosed += (s, args) =&gt; this.Close();
+            tasksForm.Show();
+            this.Hide();
+        }
+
+        private void signOutLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Session.CurrentUser = null;
+
+            var loginForm = new Login(this._serviceProvider);
+            loginForm.FormClosed += (s, args) =&gt; this.Close();
+            loginForm.Show();
+            this.Hide();
+        }
+
+        private async void updateButton_Click(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show(
+                &quot;Are you sure you want to update this task?\n\nWarning: Moving to a stage with an assigned group you’re not part of will remove your access to the task.&quot;,
+                &quot;Confirm Update&quot;,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                await this._viewModel.UpdateTask();
+
+                var context = _serviceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+                var updatedTask = await context.Tasks.FirstOrDefaultAsync(t =&gt; t.Id == this._task.Id);
+
+                if (this._viewModel.MovedTaskToUnreachableStage)
+                {
+                    var newTasksForm = new Tasks(_serviceProvider);
+                    newTasksForm.Show();
+                    newTasksForm.FormClosed += (s, args) =&gt;
+                    {
+                        this.Close();
+                    };
+                    this.Hide();
+                }
+                else
+                {
+                    var newForm = new TaskDetails(_serviceProvider, updatedTask);
+                    newForm.Show();
+                    newForm.FormClosed += (s, args) =&gt; this.Close();
+                    this.Hide();
+                }
+            }
+        }
+
+        private async void TaskDetails_Load(object sender, EventArgs e)
+        {
+            _isInitializing = true;
+
+            var context = _serviceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+            await this._viewModel.PopulateFields(this._task);
+            this.setupComboBoxes();
+            this.bindToViewModel();
+
+            _isInitializing = false;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,9,23,45,0],[24,9,24,45,0],[28,9,28,77,0],[33,38,33,52,0],[41,9,41,72,0],[42,9,42,10,0],[43,13,43,113,0],[44,13,44,80,0],[45,13,45,79,0],[47,13,47,35,0],[48,13,48,65,0],[50,9,50,10,0],[53,9,53,10,0],[54,13,54,96,0],[55,13,55,86,0],[57,13,57,96,0],[58,13,58,86,0],[59,9,59,10,0],[62,9,62,10,0],[63,13,63,33,0],[63,34,63,41,0],[64,13,64,84,0],[65,9,65,10,0],[68,9,68,10,0],[69,13,69,33,0],[69,34,69,41,0],[70,13,70,75,0],[71,13,71,74,0],[72,9,72,10,0],[75,9,75,10,0],[76,13,76,62,0],[77,13,77,46,0],[79,13,79,20,0],[79,22,79,31,0],[79,32,79,34,0],[79,35,79,57,0],[80,13,80,14,0],[81,17,81,53,0],[82,13,82,14,0],[84,13,84,83,0],[85,13,85,65,0],[87,13,87,46,0],[89,13,89,61,0],[90,13,90,58,0],[92,13,92,55,0],[93,13,93,67,0],[94,13,94,58,0],[96,13,96,60,0],[97,13,97,14,0],[98,17,98,66,0],[99,13,99,14,0],[101,13,101,14,0],[102,17,102,69,0],[103,13,103,14,0],[105,13,105,154,0],[106,13,106,170,0],[107,13,107,171,0],[108,13,108,160,0],[109,13,109,115,0],[110,9,110,10,0],[113,9,113,10,0],[114,13,114,35,0],[115,13,115,65,0],[116,13,117,13,0],[117,13,117,14,0],[117,14,118,17,0],[118,17,118,36,0],[118,36,119,13,0],[119,13,119,14,0],[119,14,119,15,0],[120,13,120,33,0],[121,13,121,25,0],[122,9,122,10,0],[125,9,125,10,0],[126,13,126,62,0],[127,13,127,50,0],[127,50,127,62,0],[127,62,127,63,0],[128,13,128,30,0],[129,13,129,25,0],[130,9,130,10,0],[133,9,133,10,0],[134,13,134,40,0],[136,13,136,62,0],[137,13,137,50,0],[137,50,137,62,0],[137,62,137,63,0],[138,13,138,30,0],[139,13,139,25,0],[140,9,140,10,0],[143,9,143,10,0],[144,13,149,15,0],[151,13,151,44,0],[152,13,152,14,0],[153,17,153,52,0],[155,17,155,91,0],[156,17,156,103,0],[158,17,158,65,0],[159,17,159,18,0],[160,21,160,68,0],[161,21,161,41,0],[162,21,163,21,0],[163,21,163,22,0],[163,22,164,25,0],[164,25,164,38,0],[164,38,165,21,0],[165,21,165,22,0],[165,22,165,23,0],[166,21,166,33,0],[167,17,167,18,0],[169,17,169,18,0],[170,21,170,82,0],[171,21,171,36,0],[172,21,172,56,0],[172,56,172,68,0],[172,68,172,69,0],[173,21,173,33,0],[174,17,174,18,0],[175,13,175,14,0],[176,9,176,10,0],[179,9,179,10,0],[180,13,180,36,0],[182,13,182,87,0],[183,13,183,62,0],[184,13,184,36,0],[185,13,185,36,0],[187,13,187,37,0],[188,9,188,10,0]]);
+    </script>
+  </body>
+</html>

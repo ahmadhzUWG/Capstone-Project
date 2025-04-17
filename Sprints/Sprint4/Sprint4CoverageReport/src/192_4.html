@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Models\DataSeeder.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace TaskManagerData.Models;
+
+/// &lt;summary&gt;
+/// Provides methods for seeding default roles, users, groups, and projects into the database.
+/// &lt;/summary&gt;
+public static class DataSeeder
+{
+    /// &lt;summary&gt;
+    /// Seeds predefined roles, users, groups, and projects into the database if they do not already exist.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;serviceProvider&quot;&gt;The service provider used to resolve dependencies.&lt;/param&gt;
+    /// &lt;returns&gt;
+    /// A task that represents the asynchronous operation.
+    /// &lt;/returns&gt;
+    public static async System.Threading.Tasks.Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService&lt;RoleManager&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+        var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;User&gt;&gt;();
+        var context = serviceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+
+        string[] roles = { &quot;Admin&quot;, &quot;Employee&quot; };
+
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole&lt;int&gt;(role));
+            }
+        }
+
+        var testUsers = new List&lt;(string UserName, string Email, string Role, string Password)&gt;
+        {
+            (&quot;Admin&quot;, &quot;admin@gmail.com&quot;, &quot;Admin&quot;, &quot;Admin1!&quot;),
+            (&quot;Manager1&quot;, &quot;manager1@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Manager2&quot;, &quot;manager2@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee1&quot;, &quot;employee1@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee2&quot;, &quot;employee2@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+            (&quot;Employee3&quot;, &quot;employee3@gmail.com&quot;, &quot;Employee&quot;, &quot;User1!&quot;),
+        };
+
+        foreach (var (userName, email, role, password) in testUsers)
+        {
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser == null)
+            {
+                var newUser = new User
+                {
+                    UserName = userName,
+                    Email = email,
+                    EmailConfirmed = true
+                };
+
+                var createUserResult = await userManager.CreateAsync(newUser, password);
+                if (createUserResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newUser, role);
+                }
+
+                if (role.Equals(&quot;Admin&quot;))
+                {
+                    var admin = new Admin
+                    {
+                        UserId = newUser.Id
+                    };
+
+                    context.Admins.Add(admin);
+                    await context.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                if (!await userManager.IsInRoleAsync(existingUser, role))
+                {
+                    await userManager.AddToRoleAsync(existingUser, role);
+                }
+
+                if (role.Equals(&quot;Admin&quot;) &amp;&amp; !context.Admins.Any(a =&gt; a.UserId == existingUser.Id))
+                {
+                    var admin = new Admin
+                    {
+                        UserId = existingUser.Id
+                    };
+
+                    context.Admins.Add(admin);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        if (!context.Groups.Any())
+        {
+            var groups = new List&lt;Group&gt;
+            {
+                new Group { Name = &quot;Development Team&quot;, Description = &quot;We develop really good stuff&quot; },
+                new Group { Name = &quot;Design Team&quot;, Description = &quot;We design really good stuff&quot; },
+                new Group { Name = &quot;QA Team&quot;, Description = &quot;We test really good stuff&quot; }
+            };
+
+            context.Groups.AddRange(groups);
+            await context.SaveChangesAsync();
+        }
+
+        if (!context.Projects.Any())
+        {
+            var adminUser = await userManager.FindByEmailAsync(&quot;admin@gmail.com&quot;);
+            if (adminUser != null)
+            {
+                var projects = new List&lt;Project&gt;
+                {
+                    new Project
+                    {
+                        Name = &quot;Website Revamp&quot;, Description = &quot;We revamp really good stuff&quot;,
+                        ProjectLeadId = adminUser.Id
+                    },
+                    new Project
+                    {
+                        Name = &quot;Mobile App Launch&quot;, Description = &quot;We launch really good stuff&quot;,
+                        ProjectLeadId = adminUser.Id
+                    }
+                };
+
+                context.Projects.AddRange(projects);
+                await context.SaveChangesAsync();
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,5,19,6,1],[20,9,20,96,1],[21,9,21,83,1],[22,9,22,82,1],[24,9,24,50,1],[26,9,26,16,1],[26,18,26,26,1],[26,27,26,29,1],[26,30,26,35,1],[27,9,27,10,1],[28,13,28,58,1],[29,13,29,14,1],[30,17,30,76,1],[31,13,31,14,1],[32,9,32,10,1],[34,9,42,11,1],[44,9,44,16,1],[44,18,44,55,1],[44,56,44,58,1],[44,59,44,68,1],[45,9,45,10,1],[46,13,46,74,1],[47,13,47,38,1],[48,13,48,14,1],[49,17,54,19,1],[56,17,56,89,1],[57,17,57,48,1],[58,17,58,18,1],[59,21,59,69,1],[60,17,60,18,1],[62,17,62,42,1],[63,17,63,18,1],[64,21,67,23,1],[69,21,69,47,1],[70,21,70,54,1],[71,17,71,18,1],[72,13,72,14,1],[74,13,74,14,1],[75,17,75,74,1],[76,17,76,18,1],[77,21,77,74,1],[78,17,78,18,1],[80,17,80,99,1],[81,17,81,18,0],[82,21,85,23,0],[87,21,87,47,0],[88,21,88,54,0],[89,17,89,18,0],[90,13,90,14,1],[91,9,91,10,1],[93,9,93,35,1],[94,9,94,10,1],[95,13,100,15,1],[102,13,102,45,1],[103,13,103,46,1],[104,9,104,10,1],[106,9,106,37,1],[107,9,107,10,1],[108,13,108,83,1],[109,13,109,35,1],[110,13,110,14,0],[111,17,123,19,0],[125,17,125,53,0],[126,17,126,50,0],[127,13,127,14,0],[128,9,128,10,1],[129,5,129,6,1]]);
+    </script>
+  </body>
+</html>

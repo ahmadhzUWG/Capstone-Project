@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestControllers\EmployeeControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using TaskManagerData.Models;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestControllers
+{
+    public class EmployeeControllerTests
+    {
+        private ApplicationDbContext CreateContext(string dbName)
+        {
+            var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+            return new ApplicationDbContext(options);
+        }
+
+        private UserManager&lt;User&gt; CreateUserManager(User user, bool isAdmin = false)
+        {
+            var store = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+            var mockUM = new Mock&lt;UserManager&lt;User&gt;&gt;(
+                store.Object, null, null, null, null, null, null, null, null);
+            mockUM.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;()))
+                .Returns(user.Id.ToString());
+            mockUM.Setup(um =&gt; um.FindByIdAsync(It.IsAny&lt;string&gt;()))
+                .ReturnsAsync(user);
+            mockUM.Setup(um =&gt; um.IsInRoleAsync(It.IsAny&lt;User&gt;(), &quot;Admin&quot;))
+                .ReturnsAsync(isAdmin);
+            mockUM.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;()))
+                .ReturnsAsync(user);
+            return mockUM.Object;
+        }
+
+        private RoleManager&lt;IdentityRole&lt;int&gt;&gt; CreateRoleManager()
+        {
+            var roleStore = new Mock&lt;IRoleStore&lt;IdentityRole&lt;int&gt;&gt;&gt;();
+            return new RoleManager&lt;IdentityRole&lt;int&gt;&gt;(roleStore.Object, null, null, null, null);
+        }
+
+        private ControllerContext CreateControllerContext(User user)
+        {
+            var identity = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            }, &quot;TestAuth&quot;);
+            return new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) }
+            };
+        }
+
+        private void InitializeTempData(Controller controller)
+        {
+            controller.TempData =
+                new TempDataDictionary(controller.ControllerContext.HttpContext, Mock.Of&lt;ITempDataProvider&gt;());
+        }
+
+        // ------------------- Users &amp; Groups -------------------
+
+        [Fact]
+        public async Task Users_ReturnsAllUsers()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.AddRange(new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;user1&quot; },
+                new User { Id = 2, UserName = &quot;user2&quot; }
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+            {
+                ControllerContext = CreateControllerContext(currentUser)
+            };
+            InitializeTempData(controller);
+
+            var result = await controller.Users() as ViewResult;
+            var model = result.Model as List&lt;User&gt;;
+            Assert.Equal(2, model.Count);
+        }
+
+        [Fact]
+        public async Task Groups_ReturnsAllGroups()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Groups.AddRange(new List&lt;Group&gt;
+            {
+                new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; },
+                new Group { Id = 2, Name = &quot;Group2&quot;, Description = &quot;Desc2&quot; }
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+            {
+                ControllerContext = CreateControllerContext(currentUser)
+            };
+            InitializeTempData(controller);
+
+            var result = await controller.Groups() as ViewResult;
+            var model = result.Model as List&lt;Group&gt;;
+            Assert.Equal(2, model.Count);
+        }
+
+        // ------------------- GroupDetails -------------------
+
+        [Fact]
+        public async Task GroupDetails_ReturnsNotFound_IfGroupMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.GroupDetails(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task GroupDetails_ReturnsView_WithViewBagValues()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var group = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot;, ManagerId = 2 };
+            context.Groups.Add(group);
+            context.UserGroups.AddRange(new List&lt;UserGroup&gt;
+            {
+                new UserGroup { GroupId = 1, UserId = 3, Role = &quot;Member&quot; },
+                new UserGroup { GroupId = 1, UserId = 4, Role = &quot;Member&quot; }
+            });
+            context.Users.AddRange(new List&lt;User&gt;
+            {
+                new User { Id = 2, UserName = &quot;manager&quot; },
+                new User { Id = 3, UserName = &quot;user3&quot; },
+                new User { Id = 4, UserName = &quot;user4&quot; },
+                new User { Id = 5, UserName = &quot;user5&quot; }
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 2, UserName = &quot;manager&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.GroupDetails(1) as ViewResult;
+            Assert.NotNull(result);
+            Assert.NotNull(result.ViewData[&quot;Users&quot;]);
+            Assert.NotNull(result.ViewData[&quot;AvailableManagers&quot;]);
+            Assert.NotNull(result.ViewData[&quot;GroupUsers&quot;]);
+        }
+
+        // ------------------- AddUserToGroup &amp; RemoveUserFromGroup -------------------
+
+        [Fact]
+        public async Task AddUserToGroup_ReturnsNotFound_IfGroupOrUserMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AddUserToGroup(1, 1);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task AddUserToGroup_AddsUser_IfNotAlreadyMember()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Groups.Add(new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; });
+            context.Users.AddRange(new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;user1&quot; },
+                new User { Id = 2, UserName = &quot;user2&quot; }
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AddUserToGroup(1, 2) as RedirectToActionResult;
+            Assert.Equal(&quot;GroupDetails&quot;, result.ActionName);
+            Assert.Single(context.UserGroups.Where(ug =&gt; ug.UserId == 2 &amp;&amp; ug.GroupId == 1));
+        }
+
+        [Fact]
+        public async Task RemoveUserFromGroup_RemovesMembership_IfExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.UserGroups.Add(new UserGroup { GroupId = 1, UserId = 1, Role = &quot;Member&quot; });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.RemoveUserFromGroup(1, 1) as RedirectToActionResult;
+            Assert.Equal(&quot;GroupDetails&quot;, result.ActionName);
+            Assert.Empty(context.UserGroups);
+        }
+
+        // ------------------- ChangeManager -------------------
+
+        [Fact]
+        public async Task ChangeManager_ReturnsNotFound_IfGroupMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.ChangeManager(999, 2);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ChangeManager_ReturnsNotFound_IfNewManagerMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Groups.Add(new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc&quot; });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.ChangeManager(1, 999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ChangeManager_UpdatesManager_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var group = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc&quot; };
+            context.Groups.Add(group);
+            context.Users.AddRange(new List&lt;User&gt;
+            {
+                new User { Id = 1, UserName = &quot;user1&quot; },
+                new User { Id = 2, UserName = &quot;user2&quot; }
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.ChangeManager(1, 2) as RedirectToActionResult;
+            Assert.Equal(&quot;GroupDetails&quot;, result.ActionName);
+            var updatedGroup = await context.Groups.FindAsync(1);
+            Assert.Equal(2, updatedGroup.ManagerId);
+        }
+
+        [Fact]
+        public async Task ChangeManager_ChangesManagerRoleAndDemotesPrevious_IfBothExist()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var group = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc&quot;, ManagerId = 1 };
+            context.Groups.Add(group);
+            context.Users.AddRange(
+                new User { Id = 1, UserName = &quot;OldManager&quot; },
+                new User { Id = 2, UserName = &quot;NewManager&quot; }
+            );
+            context.UserGroups.AddRange(
+                new UserGroup { GroupId = 1, UserId = 1, Role = &quot;Manager&quot; },
+                new UserGroup { GroupId = 1, UserId = 2, Role = &quot;Member&quot; }
+            );
+            await context.SaveChangesAsync();
+
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 2 }))
+            {
+                ControllerContext = CreateControllerContext(new User { Id = 2 })
+            };
+            InitializeTempData(controller);
+
+            var result = await controller.ChangeManager(1, 2);
+
+            Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            var updatedGroup = await context.Groups.FindAsync(1);
+            Assert.Equal(2, updatedGroup.ManagerId);
+
+            var oldManager = await context.UserGroups.FirstOrDefaultAsync(u =&gt; u.UserId == 1 &amp;&amp; u.GroupId == 1);
+            var newManager = await context.UserGroups.FirstOrDefaultAsync(u =&gt; u.UserId == 2 &amp;&amp; u.GroupId == 1);
+            Assert.Equal(&quot;Member&quot;, oldManager.Role);
+            Assert.Equal(&quot;Manager&quot;, newManager.Role);
+        }
+
+        // ------------------- CreateProject (GET &amp; POST) -------------------
+
+        [Fact]
+        public async Task CreateProject_Get_ReturnsView_WithProjectLeadsAndGroups()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            context.Groups.Add(new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc&quot; });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.CreateProject() as ViewResult;
+            Assert.NotNull(result.ViewData[&quot;ProjectLead&quot;]);
+            Assert.NotNull(result.ViewData[&quot;Groups&quot;]);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_ReturnsView_IfInvalid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            await context.SaveChangesAsync();
+
+            var model = new CreateProjectViewModel { Name = &quot;NewProj&quot;, Description = &quot;NewDesc&quot;, ProjectLeadId = 1 };
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            controller.ModelState.AddModelError(&quot;Error&quot;, &quot;Invalid&quot;);
+            InitializeTempData(controller);
+
+            var result = await controller.CreateProject(model) as ViewResult;
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_ReturnsError_IfUserNotAuthenticated()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            await context.SaveChangesAsync();
+
+            var model = new CreateProjectViewModel
+            {
+                Name = &quot;Test Project&quot;,
+                Description = &quot;Some description&quot;,
+                ProjectLeadId = 1
+            };
+
+            var user = new User { Id = 1, UserName = &quot;user1&quot; };
+
+            var mockUserManager = new Mock&lt;UserManager&lt;User&gt;&gt;(new Mock&lt;IUserStore&lt;User&gt;&gt;().Object,
+                null, null, null, null, null, null, null, null);
+
+            mockUserManager.Setup(m =&gt; m.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(string.Empty);
+            mockUserManager.Setup(m =&gt; m.FindByIdAsync(It.IsAny&lt;string&gt;())).ReturnsAsync((User)null);
+
+            var controller = new EmployeeController(context, mockUserManager.Object)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            controller.ModelState.Clear();
+
+            var result = await controller.CreateProject(model) as ViewResult;
+
+            Assert.NotNull(result);
+            Assert.True(controller.ModelState.ErrorCount &gt; 0);
+            Assert.Contains(controller.ModelState, m =&gt; m.Value.Errors.Any());
+        }
+
+        [Fact]
+        public async Task CreateProject_Post_CreatesProjectAndAssignsGroups_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = &quot;user1&quot; };
+            var group = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Test group&quot;, ManagerId = user.Id };
+
+            context.Users.Add(user);
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            var model = new CreateProjectViewModel
+            {
+                Name = &quot;Test Project&quot;,
+                Description = &quot;Test Desc&quot;,
+                ProjectLeadId = user.Id
+            };
+
+            var controller = new EmployeeController(context, CreateUserManager(user))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            var formCollection = new Mock&lt;IFormCollection&gt;();
+            formCollection.Setup(f =&gt; f[&quot;GroupId&quot;]).Returns(new Microsoft.Extensions.Primitives.StringValues(&quot;1&quot;));
+
+            var mockRequest = new Mock&lt;HttpRequest&gt;();
+            mockRequest.Setup(r =&gt; r.Form).Returns(formCollection.Object);
+
+            var mockContext = new Mock&lt;HttpContext&gt;();
+            mockContext.Setup(c =&gt; c.Request).Returns(mockRequest.Object);
+            controller.ControllerContext.HttpContext = mockContext.Object;
+
+            var result = await controller.CreateProject(model);
+
+            Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Single(context.Projects);
+            Assert.Single(context.GroupProjects);
+        }
+
+        // ------------------- ProjectDetails -------------------
+
+        [Fact]
+        public async Task ProjectDetails_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.ProjectDetails(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ProjectDetails_ReturnsView_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Groups.AddRange(new Group
+                    { Id = 1, Name = &quot;Group1&quot;, Description = &quot;D1&quot;, ManagerId = 2 },
+                new Group { Id = 2, Name = &quot;Group2&quot;, Description = &quot;D2&quot;, ManagerId = 3 });
+            context.Users.AddRange(new User { Id = 1, UserName = &quot;user1&quot; },
+                new User { Id = 2, UserName = &quot;manager1&quot; },
+                new User { Id = 3, UserName = &quot;manager2&quot; });
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;Proj1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;
+                {
+                    new GroupProject { GroupId = 1 }
+                }
+            };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.ProjectDetails(1) as ViewResult;
+            Assert.NotNull(result);
+        }
+
+        // ------------------- EditProject -------------------
+
+        [Fact]
+        public async Task EditProject_Get_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.EditProject(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditProject_Get_ReturnsView_IfFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Projects.Add(new Project { Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.EditProject(1) as ViewResult;
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task EditProject_Post_ReturnsBadRequest_IfIdMismatch()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Projects.Add(new Project { Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var proj = new Project { Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 };
+            var result = await controller.EditProject(2, proj);
+            Assert.IsType&lt;BadRequestResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditProject_Post_UpdatesProject_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project { Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            proj.Name = &quot;Updated&quot;;
+            var result = await controller.EditProject(1, proj) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+            Assert.Equal(&quot;Updated&quot;, (await context.Projects.FindAsync(1)).Name);
+        }
+
+        [Fact]
+        public async Task EditProject_Post_ReturnsView_IfModelStateInvalid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var project = new Project { Id = 1, Name = &quot;Project1&quot;, Description = &quot;Desc&quot;, ProjectLeadId = 1 };
+            context.Projects.Add(project);
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            await context.SaveChangesAsync();
+
+            var controller = new EmployeeController(context, CreateUserManager(new User { Id = 1 }))
+            {
+                ControllerContext = CreateControllerContext(new User { Id = 1 })
+            };
+            InitializeTempData(controller);
+            controller.ModelState.AddModelError(&quot;Error&quot;, &quot;Invalid&quot;);
+
+            var result = await controller.EditProject(1, project);
+
+            Assert.IsType&lt;ViewResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task DeleteProject_Post_DeletesProject_IfExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Projects.Add(new Project { Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.DeleteProject(1) as RedirectToActionResult;
+            Assert.Equal(&quot;Projects&quot;, result.ActionName);
+            Assert.Empty(context.Projects);
+        }
+
+        // ------------------- RequestGroupToProject -------------------
+
+        [Fact]
+        public async Task RequestGroupToProject_ReturnsUnauthorized_IfUserMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var umMock = new Mock&lt;UserManager&lt;User&gt;&gt;(new Mock&lt;IUserStore&lt;User&gt;&gt;().Object, null, null, null, null, null,
+                null, null, null);
+            umMock.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(&quot;&quot;);
+            var controller = new EmployeeController(context, umMock.Object);
+            var result = await controller.RequestGroupToProject(1, 1);
+            Assert.IsType&lt;UnauthorizedResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task RequestGroupToProject_ReturnsError_IfProjectOrGroupMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.RequestGroupToProject(999, 999) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+        }
+
+        [Fact]
+        public async Task RequestGroupToProject_CreatesRequest_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Users.Add(new User { Id = 1, UserName = &quot;user1&quot; });
+            var proj = new Project
+            {
+                Id = 1, Name = &quot;Proj1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1, ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            var grp = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; };
+            context.Projects.Add(proj);
+            context.Groups.Add(grp);
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.RequestGroupToProject(1, 1) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+            Assert.Single(context.GroupRequests);
+        }
+
+        // ------------------- AcceptRequest -------------------
+
+        [Fact]
+        public async Task AcceptRequest_ReturnsNotFound_IfRequestMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AcceptRequest(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task AcceptRequest_CreatesGroupAssignment_IfNotAlreadyAssigned()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;Proj1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            var grp = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; };
+            context.Projects.Add(proj);
+            context.Groups.Add(grp);
+            await context.SaveChangesAsync();
+
+            context.GroupRequests.Add(new GroupRequest
+            {
+                Id = 1,
+                SenderId = 1,
+                ProjectId = 1,
+                GroupId = 1,
+                Response = null
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AcceptRequest(1) as RedirectToActionResult;
+            Assert.Equal(&quot;Projects&quot;, result.ActionName);
+            Assert.Single(context.GroupProjects);
+            var request = await context.GroupRequests.FindAsync(1);
+            Assert.True(request.Response);
+        }
+
+        // ------------------- DenyRequest -------------------
+
+        [Fact]
+        public async Task DenyRequest_ReturnsNotFound_IfRequestMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))    
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.DenyRequest(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task DenyRequest_SetsResponseToFalse_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;Proj1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            var grp = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; };
+            context.Projects.Add(proj);
+            context.Groups.Add(grp);
+            await context.SaveChangesAsync();
+
+            context.GroupRequests.Add(new GroupRequest
+            {
+                Id = 1,
+                SenderId = 1,
+                ProjectId = 1,
+                GroupId = 1,
+                Response = null
+            });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.DenyRequest(1) as RedirectToActionResult;
+            Assert.Equal(&quot;Projects&quot;, result.ActionName);
+            var request = await context.GroupRequests.FindAsync(1);
+            Assert.False(request.Response);
+        }
+
+        // ------------------- DeleteGroupRequest -------------------
+
+        [Fact]
+        public async Task DeleteGroupRequest_DeletesRequest_IfFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.GroupRequests.Add(new GroupRequest
+                { Id = 1, SenderId = 1, ProjectId = 1, GroupId = 1, Response = null });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.DeleteGroupRequest(1) as RedirectToActionResult;
+            Assert.Equal(&quot;Projects&quot;, result.ActionName);
+            Assert.Empty(context.GroupRequests);
+        }
+
+        [Fact]
+        public async Task DeleteGroupRequest_Redirects_IfNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.DeleteGroupRequest(999) as RedirectToActionResult;
+            Assert.Equal(&quot;Projects&quot;, result.ActionName);
+        }
+
+        // ------------------- AssignGroupToProject -------------------
+
+        [Fact]
+        public async Task AssignGroupToProject_RedirectsWithError_IfProjectOrGroupMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AssignGroupToProject(999, 999) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+        }
+
+        [Fact]
+        public async Task AssignGroupToProject_AddsGroupToProject_IfNotAlreadyAssigned()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;Proj1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            context.Projects.Add(proj);
+            context.Groups.Add(new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Desc1&quot; });
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.AssignGroupToProject(1, 1) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+            Assert.Single(context.GroupProjects);
+        }
+
+        // ------------------- RemoveGroupFromProject -------------------
+
+        [Fact]
+        public async Task RemoveGroupFromProject_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.RemoveGroupFromProject(999, 1);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task RemoveGroupFromProject_RemovesAssignment_IfExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;Proj1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { GroupId = 1 } }
+            };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var currentUser = new User { Id = 1, UserName = &quot;user1&quot; };
+            var controller = new EmployeeController(context, CreateUserManager(currentUser))
+                { ControllerContext = CreateControllerContext(currentUser) };
+            InitializeTempData(controller);
+
+            var result = await controller.RemoveGroupFromProject(1, 1) as RedirectToActionResult;
+            Assert.Equal(&quot;ProjectDetails&quot;, result.ActionName);
+            Assert.Empty(proj.ProjectGroups);
+        }
+
+        // ------------------- Projects -------------------
+        [Fact]
+        public async Task Projects_ReturnsProjectsView_WithCorrectViewBags()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = &quot;manager&quot; };
+            var project1 = new Project { Id = 1, Name = &quot;P1&quot;, Description = &quot;D1&quot;, ProjectLeadId = 1 };
+            var project2 = new Project { Id = 2, Name = &quot;P2&quot;, Description = &quot;D2&quot;, ProjectLeadId = 1 };
+
+            var group = new Group { Id = 1, Name = &quot;Group1&quot;, Description = &quot;Some group&quot;, ManagerId = 1 };
+
+            var request1 = new GroupRequest { Id = 1, GroupId = 1, ProjectId = 1, SenderId = 1, Response = null };
+            var request2 = new GroupRequest { Id = 2, GroupId = 1, ProjectId = 2, SenderId = 1, Response = true };
+
+            context.Users.Add(user);
+            context.Groups.Add(group);
+            context.Projects.AddRange(project1, project2);
+            context.GroupRequests.AddRange(request1, request2);
+            await context.SaveChangesAsync();
+
+            var controller = new EmployeeController(context, CreateUserManager(user))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+            InitializeTempData(controller);
+
+            var result = await controller.Projects() as ViewResult;
+
+            Assert.NotNull(result);
+            Assert.IsType&lt;List&lt;Project&gt;&gt;(result.Model);
+            Assert.True((bool)controller.ViewData[&quot;IsManager&quot;]);
+            Assert.NotNull(controller.ViewData[&quot;GroupRequests&quot;]);
+            Assert.NotNull(controller.ViewData[&quot;SentGroupRequests&quot;]);
+        }
+
+        
+
+        
+
+
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,9,18,10,1],[19,13,21,26,1],[22,13,22,54,1],[23,9,23,10,1],[26,9,26,10,1],[27,13,27,54,1],[28,13,29,79,1],[30,13,31,46,1],[32,13,33,37,1],[34,13,35,40,1],[36,13,37,37,1],[38,13,38,34,1],[39,9,39,10,1],[42,9,42,10,0],[43,13,43,71,0],[44,13,44,97,0],[45,9,45,10,0],[48,9,48,10,1],[49,13,52,28,1],[53,13,56,15,1],[57,9,57,10,1],[60,9,60,10,1],[61,13,62,112,1],[63,9,63,10,1],[69,9,69,10,1],[70,13,70,74,1],[71,13,75,16,1],[76,13,76,46,1],[78,13,78,71,1],[79,13,82,15,1],[83,13,83,44,1],[85,13,85,65,1],[86,13,86,52,1],[87,13,87,42,1],[88,9,88,10,1],[92,9,92,10,1],[93,13,93,74,1],[94,13,98,16,1],[99,13,99,46,1],[101,13,101,71,1],[102,13,105,15,1],[106,13,106,44,1],[108,13,108,66,1],[109,13,109,53,1],[110,13,110,42,1],[111,9,111,10,1],[117,9,117,10,1],[118,13,118,74,1],[119,13,119,71,1],[120,13,121,78,1],[122,13,122,44,1],[124,13,124,61,1],[125,13,125,51,1],[126,9,126,10,1],[130,9,130,10,1],[131,13,131,74,1],[132,13,132,101,1],[133,13,133,39,1],[134,13,138,16,1],[139,13,145,16,1],[146,13,146,46,1],[148,13,148,73,1],[149,13,150,78,1],[151,13,151,44,1],[153,13,153,73,1],[154,13,154,36,1],[155,13,155,54,1],[156,13,156,66,1],[157,13,157,59,1],[158,9,158,10,1],[164,9,164,10,1],[165,13,165,74,1],[166,13,166,71,1],[167,13,168,78,1],[169,13,169,44,1],[171,13,171,64,1],[172,13,172,51,1],[173,9,173,10,1],[177,9,177,10,1],[178,13,178,74,1],[179,13,179,94,1],[180,13,184,16,1],[185,13,185,46,1],[187,13,187,71,1],[188,13,189,78,1],[190,13,190,44,1],[192,13,192,90,1],[193,13,193,61,1],[194,13,194,94,1],[195,9,195,10,1],[199,9,199,10,1],[200,13,200,74,1],[201,13,201,96,1],[202,13,202,46,1],[204,13,204,71,1],[205,13,206,78,1],[207,13,207,44,1],[209,13,209,95,1],[210,13,210,61,1],[211,13,211,46,1],[212,9,212,10,1],[218,9,218,10,1],[219,13,219,74,1],[220,13,220,71,1],[221,13,222,78,1],[223,13,223,44,1],[225,13,225,65,1],[226,13,226,51,1],[227,9,227,10,1],[231,9,231,10,1],[232,13,232,74,1],[233,13,233,93,1],[234,13,234,46,1],[236,13,236,71,1],[237,13,238,78,1],[239,13,239,44,1],[241,13,241,65,1],[242,13,242,51,1],[243,9,243,10,1],[247,9,247,10,1],[248,13,248,74,1],[249,13,249,85,1],[250,13,250,39,1],[251,13,255,16,1],[256,13,256,46,1],[258,13,258,71,1],[259,13,260,78,1],[261,13,261,44,1],[263,13,263,89,1],[264,13,264,61,1],[265,13,265,66,1],[266,13,266,53,1],[267,9,267,10,1],[271,9,271,10,1],[272,13,272,74,1],[273,13,273,100,1],[274,13,274,39,1],[275,13,278,15,1],[279,13,282,15,1],[283,13,283,46,1],[285,13,288,15,1],[289,13,289,44,1],[291,13,291,63,1],[293,13,293,59,1],[294,13,294,66,1],[295,13,295,53,1],[297,13,297,113,1],[298,13,298,113,1],[299,13,299,53,1],[300,13,300,54,1],[301,9,301,10,1],[307,9,307,10,1],[308,13,308,74,1],[309,13,309,72,1],[310,13,310,93,1],[311,13,311,46,1],[313,13,313,71,1],[314,13,315,78,1],[316,13,316,44,1],[318,13,318,73,1],[319,13,319,60,1],[320,13,320,55,1],[321,9,321,10,1],[325,9,325,10,1],[326,13,326,74,1],[327,13,327,72,1],[328,13,328,46,1],[330,13,330,117,1],[331,13,331,71,1],[332,13,333,78,1],[334,13,334,69,1],[335,13,335,44,1],[337,13,337,78,1],[338,13,338,36,1],[339,9,339,10,1],[343,9,343,10,1],[344,13,344,74,1],[345,13,345,72,1],[346,13,346,46,1],[348,13,353,15,1],[355,13,355,64,1],[357,13,358,65,1],[360,13,360,104,1],[361,13,361,102,1],[363,13,366,15,1],[367,13,367,44,1],[369,13,369,43,1],[371,13,371,78,1],[373,13,373,36,1],[374,13,374,63,1],[375,13,375,57,1],[375,57,375,77,1],[375,77,375,79,1],[376,9,376,10,1],[380,9,380,10,1],[381,13,381,74,1],[383,13,383,64,1],[384,13,384,112,1],[386,13,386,37,1],[387,13,387,39,1],[388,13,388,46,1],[390,13,395,15,1],[397,13,400,15,1],[401,13,401,44,1],[403,13,403,62,1],[404,13,404,116,1],[406,13,406,55,1],[407,13,407,75,1],[409,13,409,55,1],[410,13,410,75,1],[411,13,411,75,1],[413,13,413,64,1],[415,13,415,59,1],[416,13,416,45,1],[417,13,417,50,1],[418,9,418,10,1],[424,9,424,10,1],[425,13,425,74,1],[426,13,426,71,1],[427,13,428,78,1],[429,13,429,44,1],[431,13,431,63,1],[432,13,432,51,1],[433,9,433,10,1],[437,9,437,10,1],[438,13,438,74,1],[439,13,441,91,1],[442,13,444,61,1],[445,13,455,15,1],[456,13,456,40,1],[457,13,457,46,1],[459,13,459,71,1],[460,13,461,78,1],[462,13,462,44,1],[464,13,464,75,1],[465,13,465,36,1],[466,9,466,10,1],[472,9,472,10,1],[473,13,473,74,1],[474,13,474,71,1],[475,13,476,78,1],[477,13,477,44,1],[479,13,479,60,1],[480,13,480,51,1],[481,9,481,10,1],[485,9,485,10,1],[486,13,486,74,1],[487,13,487,113,1],[488,13,488,46,1],[490,13,490,71,1],[491,13,492,78,1],[493,13,493,44,1],[495,13,495,72,1],[496,13,496,36,1],[497,9,497,10,1],[501,9,501,10,1],[502,13,502,74,1],[503,13,503,113,1],[504,13,504,46,1],[506,13,506,71,1],[507,13,508,78,1],[509,13,509,44,1],[511,13,511,102,1],[512,13,512,64,1],[513,13,513,53,1],[514,9,514,10,1],[518,9,518,10,1],[519,13,519,74,1],[520,13,520,102,1],[521,13,521,40,1],[522,13,522,46,1],[524,13,524,71,1],[525,13,526,78,1],[527,13,527,44,1],[529,13,529,35,1],[530,13,530,90,1],[531,13,531,63,1],[532,13,532,81,1],[533,9,533,10,1],[537,9,537,10,1],[538,13,538,74,1],[539,13,539,110,1],[540,13,540,43,1],[541,13,541,72,1],[542,13,542,46,1],[544,13,547,15,1],[548,13,548,44,1],[549,13,549,69,1],[551,13,551,67,1],[553,13,553,47,1],[554,9,554,10,1],[558,9,558,10,1],[559,13,559,74,1],[560,13,560,113,1],[561,13,561,46,1],[563,13,563,71,1],[564,13,565,78,1],[566,13,566,44,1],[568,13,568,86,1],[569,13,569,57,1],[570,13,570,44,1],[571,9,571,10,1],[577,9,577,10,1],[578,13,578,74,1],[579,13,580,35,1],[581,13,581,87,1],[582,13,582,77,1],[583,13,583,71,1],[584,13,584,55,1],[585,9,585,10,1],[589,9,589,10,1],[590,13,590,74,1],[591,13,591,72,1],[592,13,592,46,1],[594,13,594,71,1],[595,13,596,78,1],[597,13,597,44,1],[599,13,599,101,1],[600,13,600,63,1],[601,9,601,10,1],[605,9,605,10,1],[606,13,606,74,1],[607,13,607,72,1],[608,13,611,15,1],[612,13,612,84,1],[613,13,613,40,1],[614,13,614,37,1],[615,13,615,46,1],[617,13,617,71,1],[618,13,619,78,1],[620,13,620,44,1],[622,13,622,97,1],[623,13,623,63,1],[624,13,624,50,1],[625,9,625,10,1],[631,9,631,10,1],[632,13,632,74,1],[633,13,633,71,1],[634,13,635,78,1],[636,13,636,44,1],[638,13,638,62,1],[639,13,639,51,1],[640,9,640,10,1],[644,9,644,10,1],[645,13,645,74,1],[646,13,653,15,1],[654,13,654,84,1],[655,13,655,40,1],[656,13,656,37,1],[657,13,657,46,1],[659,13,666,16,1],[667,13,667,46,1],[669,13,669,71,1],[670,13,671,78,1],[672,13,672,44,1],[674,13,674,86,1],[675,13,675,57,1],[676,13,676,50,1],[677,13,677,68,1],[678,13,678,43,1],[679,9,679,10,1],[685,9,685,10,1],[686,13,686,74,1],[687,13,687,71,1],[688,13,689,78,1],[690,13,690,44,1],[692,13,692,60,1],[693,13,693,51,1],[694,9,694,10,1],[698,9,698,10,1],[699,13,699,74,1],[700,13,707,15,1],[708,13,708,84,1],[709,13,709,40,1],[710,13,710,37,1],[711,13,711,46,1],[713,13,720,16,1],[721,13,721,46,1],[723,13,723,71,1],[724,13,725,78,1],[726,13,726,44,1],[728,13,728,84,1],[729,13,729,57,1],[730,13,730,68,1],[731,13,731,44,1],[732,9,732,10,1],[738,9,738,10,1],[739,13,739,74,1],[740,13,741,88,1],[742,13,742,46,1],[744,13,744,71,1],[745,13,746,78,1],[747,13,747,44,1],[749,13,749,91,1],[750,13,750,57,1],[751,13,751,49,1],[752,9,752,10,1],[756,9,756,10,1],[757,13,757,74,1],[758,13,758,71,1],[759,13,760,78,1],[761,13,761,44,1],[763,13,763,93,1],[764,13,764,57,1],[765,9,765,10,1],[771,9,771,10,1],[772,13,772,74,1],[773,13,773,71,1],[774,13,775,78,1],[776,13,776,44,1],[778,13,778,100,1],[779,13,779,63,1],[780,9,780,10,1],[784,9,784,10,1],[785,13,785,74,1],[786,13,793,15,1],[794,13,794,40,1],[795,13,795,94,1],[796,13,796,46,1],[798,13,798,71,1],[799,13,800,78,1],[801,13,801,44,1],[803,13,803,96,1],[804,13,804,63,1],[805,13,805,50,1],[806,9,806,10,1],[812,9,812,10,1],[813,13,813,74,1],[814,13,814,71,1],[815,13,816,78,1],[817,13,817,44,1],[819,13,819,74,1],[820,13,820,51,1],[821,9,821,10,1],[825,9,825,10,1],[826,13,826,74,1],[827,13,834,15,1],[835,13,835,40,1],[836,13,836,46,1],[838,13,838,71,1],[839,13,840,78,1],[841,13,841,44,1],[843,13,843,98,1],[844,13,844,63,1],[845,13,845,46,1],[846,9,846,10,1],[851,9,851,10,1],[852,13,852,74,1],[854,13,854,66,1],[855,13,855,103,1],[856,13,856,103,1],[858,13,858,106,1],[860,13,860,115,1],[861,13,861,115,1],[863,13,863,37,1],[864,13,864,39,1],[865,13,865,59,1],[866,13,866,64,1],[867,13,867,46,1],[869,13,872,15,1],[873,13,873,44,1],[875,13,875,68,1],[877,13,877,36,1],[878,13,878,56,1],[879,13,879,65,1],[880,13,880,66,1],[881,13,881,70,1],[882,9,882,10,1]]);
+    </script>
+  </body>
+</html>

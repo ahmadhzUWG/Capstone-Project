@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\FindUsername\Index.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.FindUsernameViewModel
+
+@{
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Login/login_index.css&quot; /&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+    &lt;h4&gt;Find Username associated with Email&lt;/h4&gt;
+&lt;/div&gt;
+
+&lt;form asp-action=&quot;Index&quot; method=&quot;post&quot;&gt;
+    &lt;div asp-validation-summary=&quot;All&quot; class=&quot;text-danger&quot;&gt;&lt;/div&gt;
+    
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Email&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Email&quot;/&gt;
+        &lt;span asp-validation-for=&quot;Email&quot;&gt;&lt;/span&gt;
+
+    &lt;/div&gt;
+    
+    &lt;button type=&quot;submit&quot;&gt;Find&lt;/button&gt;
+&lt;/form&gt;
+
+@if (TempData[&quot;SuccessMessage&quot;] != null)
+{
+    &lt;div class=&quot;alert alert-success&quot; style=&quot;margin-top: 15px; text-align: center&quot;&gt;
+        &lt;strong&gt;Success!&lt;/strong&gt; @TempData[&quot;SuccessMessage&quot;]
+    &lt;/div&gt;
+}
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+    &lt;a href=&quot;@Url.Action(&quot;Index&quot;, &quot;Login&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Login&lt;/a&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,24,0],[14,1,14,151,0],[17,1,17,142,0],[18,1,18,142,0],[19,1,19,154,0],[26,2,26,41,0],[27,1,27,2,0],[29,36,29,63,0],[31,1,31,2,0],[34,14,34,44,0]]);
+    </script>
+  </body>
+</html>

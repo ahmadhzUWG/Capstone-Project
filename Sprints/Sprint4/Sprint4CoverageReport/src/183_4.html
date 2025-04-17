@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Authorization\ProjectRoleHandler.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerData.Models;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManagerData.Authorization;
+
+/// &lt;summary&gt;
+/// Represents a handler for the &lt;see cref=&quot;ProjectRoleRequirement&quot;/&gt;.
+/// &lt;/summary&gt;
+/// &lt;seealso cref=&quot;Microsoft.AspNetCore.Authorization.AuthorizationHandler&amp;lt;TaskManagerWebsite.Authorization.ProjectRoleRequirement, System.Int32&amp;gt;&quot; /&gt;
+public class ProjectRoleHandler : AuthorizationHandler&lt;ProjectRoleRequirement, int&gt;
+{
+    /// &lt;summary&gt;
+    /// The context
+    /// &lt;/summary&gt;
+    private readonly ApplicationDbContext _context;
+
+    /// &lt;summary&gt;
+    /// Initializes a new instance of the &lt;see cref=&quot;ProjectRoleHandler&quot;/&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;context&quot;&gt;The context.&lt;/param&gt;
+    public ProjectRoleHandler(ApplicationDbContext context)
+    {
+        this._context = context;
+    }
+
+    /// &lt;summary&gt;
+    /// Handles the requirement asynchronous.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;context&quot;&gt;The context.&lt;/param&gt;
+    /// &lt;param name=&quot;requirement&quot;&gt;The requirement.&lt;/param&gt;
+    /// &lt;param name=&quot;projectId&quot;&gt;The project identifier.&lt;/param&gt;
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ProjectRoleRequirement requirement, int projectId)
+    {
+        if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return;
+        }
+
+        bool isProjectManager = await this._context.UserGroups
+            .Where(ug =&gt; ug.UserId == userId &amp;&amp; ug.Role == &quot;Manager&quot;)
+            .AnyAsync(ug =&gt; this._context.GroupProjects
+                .Any(gp =&gt; gp.GroupId == ug.GroupId &amp;&amp; gp.ProjectId == projectId));
+
+        if (isProjectManager)
+        {
+            context.Succeed(requirement);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[24,5,24,60,0],[25,5,25,6,0],[26,9,26,33,0],[27,5,27,6,0],[36,5,36,6,0],[37,9,37,99,0],[38,9,38,10,0],[39,13,39,20,0],[42,9,45,84,0],[47,9,47,30,0],[48,9,48,10,0],[49,13,49,42,0],[50,9,50,10,0],[51,5,51,6,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\CreateProject.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateProjectViewModel
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Admin/createProject.css&quot; asp-append-version=&quot;true&quot; /&gt;
+&lt;div asp-validation-summary=&quot;All&quot; class=&quot;text-danger&quot;&gt;&lt;/div&gt;
+
+&lt;h2 class=&quot;text-center&quot;&gt;Create New Project&lt;/h2&gt;
+
+&lt;div class=&quot;form-container&quot;&gt;
+    &lt;form asp-action=&quot;CreateProject&quot; method=&quot;post&quot;&gt;
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Name&quot;&gt;&lt;/label&gt;
+            &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; /&gt;
+            &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;Description&quot;&gt;&lt;/label&gt;
+            &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot;&gt;&lt;/textarea&gt;
+            &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label asp-for=&quot;ProjectLeadId&quot;&gt;Project Lead&lt;/label&gt;
+            &lt;select asp-for=&quot;ProjectLeadId&quot; asp-items=&quot;Model.ProjectLeads&quot; class=&quot;form-control&quot;&gt;&lt;/select&gt;
+            &lt;span asp-validation-for=&quot;ProjectLeadId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        
+        &lt;h4&gt;Assign Group to Project&lt;/h4&gt;
+        &lt;div class=&quot;form-group&quot;&gt;
+            &lt;label&gt;Group&lt;/label&gt;
+            &lt;div class=&quot;scrollable-checkbox-container&quot;&gt;
+                @foreach (var group in ViewBag.Groups)
+                {
+                    &lt;div class=&quot;form-check&quot;&gt;
+                        &lt;input type=&quot;checkbox&quot; name=&quot;GroupId&quot; value=&quot;@group.Id&quot; id=&quot;group_@group.Id&quot;&gt;
+                        &lt;label for=&quot;group_@group.Id&quot;&gt;@group.Name&lt;/label&gt;
+                    &lt;/div&gt;
+                }
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Create&lt;/button&gt;
+        &lt;a asp-action=&quot;Projects&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,1,4,74,0],[5,1,5,151,0],[12,1,12,141,0],[13,1,13,141,0],[14,1,14,153,0],[18,1,18,148,0],[19,1,19,151,0],[20,1,20,160,0],[24,1,24,150,0],[25,1,25,151,0],[26,1,26,162,0],[33,18,33,25,0],[33,27,33,36,0],[33,37,33,39,0],[33,40,33,54,0],[34,17,34,18,0],[36,70,36,80,0],[36,91,36,101,0],[37,43,37,53,0],[37,55,37,66,0],[39,17,39,18,0]]);
+    </script>
+  </body>
+</html>

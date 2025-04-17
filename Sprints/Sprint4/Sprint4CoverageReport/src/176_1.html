@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Shared\_ProjectGroupAssignmentPartial.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerData.Models.Project
+
+@{
+    Layout = null;
+}
+&lt;div id=&quot;group-assignment-container&quot;&gt;
+    &lt;div class=&quot;assigned-groups&quot;&gt;
+        &lt;h3&gt;Assigned Groups&lt;/h3&gt;
+        @if (Model.ProjectGroups != null &amp;&amp; Model.ProjectGroups.Any())
+        {
+            &lt;ul class=&quot;group-list&quot;&gt;
+                @foreach (var pg in Model.ProjectGroups)
+                {
+                    &lt;li class=&quot;group-item&quot;&gt;
+                        @pg.Group.Name
+                        &lt;form asp-action=&quot;RemoveGroupFromProject&quot;
+                              method=&quot;post&quot;
+                              data-ajax=&quot;true&quot;
+                              data-ajax-method=&quot;POST&quot;
+                              data-ajax-success=&quot;refreshGroupAssignment&quot;
+                              data-ajax-failure=&quot;groupActionFailed&quot;
+                              class=&quot;inline-form&quot;&gt;
+                            @Html.AntiForgeryToken()
+                            &lt;input type=&quot;hidden&quot; name=&quot;projectId&quot; value=&quot;@Model.Id&quot; /&gt;
+                            &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@pg.GroupId&quot; /&gt;
+                            &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot;&gt;Remove&lt;/button&gt;
+                        &lt;/form&gt;
+                    &lt;/li&gt;
+                }
+            &lt;/ul&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;no-groups&quot;&gt;No groups assigned to this project.&lt;/p&gt;
+        }
+    &lt;/div&gt;
+
+    &lt;div class=&quot;assign-group&quot;&gt;
+        &lt;h3&gt;Assign Group to Project&lt;/h3&gt;
+        &lt;form id=&quot;assignGroupForm&quot;
+              asp-action=&quot;AssignGroupToProject&quot;
+              method=&quot;post&quot;
+              data-ajax=&quot;true&quot;
+              data-ajax-method=&quot;POST&quot;
+              data-ajax-success=&quot;refreshGroupAssignment&quot;
+              data-ajax-failure=&quot;groupActionFailed&quot;&gt;
+            @Html.AntiForgeryToken()
+            &lt;input type=&quot;hidden&quot; name=&quot;projectId&quot; value=&quot;@Model.Id&quot; /&gt;
+            &lt;label for=&quot;groupId&quot;&gt;Select Group:&lt;/label&gt;
+            &lt;input type=&quot;text&quot; id=&quot;searchBoxAvailableGroups&quot; class=&quot;form-control mb-2&quot; placeholder=&quot;Search available groups...&quot;&gt;
+            &lt;select name=&quot;groupId&quot; class=&quot;form-control&quot; id=&quot;availableGroupsSelect&quot;&gt;
+                @if (ViewBag.Groups != null &amp;&amp; ViewBag.Groups.Count &gt; 0)
+                {
+                    @foreach (var group in ViewBag.Groups)
+                    {
+                        &lt;option value=&quot;@group.Id&quot;&gt;@group.Name&lt;/option&gt;
+                    }
+                }
+                else
+                {
+                    &lt;option value=&quot;&quot; disabled&gt;No available groups&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-success mt-2&quot;
+            @(ViewBag.Groups != null &amp;&amp; ViewBag.Groups.Count == 0 ? &quot;disabled&quot; : &quot;&quot;)&gt;
+                Assign Group
+            &lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,19,0],[9,10,9,71,0],[10,9,10,10,0],[12,18,12,25,0],[12,27,12,33,0],[12,34,12,36,0],[12,37,12,56,0],[13,17,13,18,0],[15,26,15,40,0],[23,30,23,54,0],[24,74,24,84,0],[25,72,25,84,0],[29,17,29,18,0],[31,9,31,10,0],[33,9,33,10,0],[35,9,35,10,0],[47,14,47,38,0],[48,58,48,68,0],[52,18,52,73,0],[53,17,53,18,0],[54,22,54,29,0],[54,31,54,40,0],[54,41,54,43,0],[54,44,54,58,0],[55,21,55,22,0],[56,41,56,50,0],[56,52,56,63,0],[57,21,57,22,0],[58,17,58,18,0],[60,17,60,18,0],[62,17,62,18,0],[65,15,65,85,0]]);
+    </script>
+  </body>
+</html>

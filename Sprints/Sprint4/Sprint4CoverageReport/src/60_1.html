@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250412231732_AddCommentsToTask.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddCommentsToTask : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn&lt;int&gt;(
+                name: &quot;ParentCommentId&quot;,
+                table: &quot;Comments&quot;,
+                type: &quot;int&quot;,
+                nullable: true);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Comments_ParentCommentId&quot;,
+                table: &quot;Comments&quot;,
+                column: &quot;ParentCommentId&quot;);
+
+            migrationBuilder.AddForeignKey(
+                name: &quot;FK_Comments_Comments_ParentCommentId&quot;,
+                table: &quot;Comments&quot;,
+                column: &quot;ParentCommentId&quot;,
+                principalTable: &quot;Comments&quot;,
+                principalColumn: &quot;Id&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: &quot;FK_Comments_Comments_ParentCommentId&quot;,
+                table: &quot;Comments&quot;);
+
+            migrationBuilder.DropIndex(
+                name: &quot;IX_Comments_ParentCommentId&quot;,
+                table: &quot;Comments&quot;);
+
+            migrationBuilder.DropColumn(
+                name: &quot;ParentCommentId&quot;,
+                table: &quot;Comments&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,0],[13,13,17,33,0],[19,13,22,44,0],[24,13,29,40,0],[30,9,30,10,0],[34,9,34,10,0],[35,13,37,36,0],[39,13,41,36,0],[43,13,45,36,0],[46,9,46,10,0]]);
+    </script>
+  </body>
+</html>

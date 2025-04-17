@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Authorization\UserRoleRequirement.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Authorization;
+
+namespace TaskManagerData.Authorization
+{
+    /// &lt;summary&gt;
+    /// Represents a requirement for a user role.
+    /// &lt;/summary&gt;
+    /// &lt;seealso cref=&quot;Microsoft.AspNetCore.Authorization.IAuthorizationRequirement&quot; /&gt;
+    public class UserRoleRequirement(string requiredRole) : IAuthorizationRequirement
+    {
+        /// &lt;summary&gt;
+        /// Gets the required role.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The required role.
+        /// &lt;/value&gt;
+        public string RequiredRole { get; } = requiredRole;
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,18,9,58,0],[17,38,17,42,0],[17,47,17,59,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\GroupViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagerWebsite.ViewModels;
+
+/// &lt;summary&gt;
+/// Represents the model used for creating a new group.
+/// &lt;/summary&gt;
+public class GroupViewModel
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the name.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The name.
+    /// &lt;/value&gt;
+    [Required(ErrorMessage = &quot;Group name is required. Please provide a unique and descriptive name for the group.&quot;)]
+    [StringLength(100, MinimumLength = 3,
+        ErrorMessage = &quot;Group name must be between 3 and 100 characters.&quot;)]
+    public required string Name { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the description.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The description.
+    /// &lt;/value&gt;
+    [Required(ErrorMessage = &quot;Group description is required. Provide details about the group&#39;s purpose and objectives.&quot;)]
+    [StringLength(255, MinimumLength = 10,
+        ErrorMessage = &quot;Description must be between 10 and 255 characters.&quot;)]
+    public required string Description { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the selected manager identifier.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The selected manager identifier.
+    /// &lt;/value&gt;
+    [Required(ErrorMessage = &quot;Please select a manager for this group. A group must have exactly one manager.&quot;)]
+    public required int SelectedManagerId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the selected user ids.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The selected user ids.
+    /// &lt;/value&gt;
+    public List&lt;int&gt; SelectedUserIds { get; set; } = new List&lt;int&gt;();
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,35,19,39,1],[19,40,19,44,1],[30,42,30,46,1],[30,47,30,51,1],[39,45,39,49,1],[39,50,39,54,1],[47,40,47,44,1],[47,45,47,49,1],[47,54,47,69,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestViewModels\UserDeleteViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerData.Models;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
+{
+    public class UserDeleteViewModelTests
+    {
+        [Fact]
+        public void DefaultConstructor_InitializesPropertiesAsNull()
+        {
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = null,
+                RelatedProjects = null
+            };
+
+            Assert.Null(viewModel.User);
+            Assert.Null(viewModel.RelatedGroups);
+            Assert.Null(viewModel.RelatedProjects);
+        }
+
+        [Fact]
+        public void SetAndGet_User_WorksCorrectly()
+        {
+            var viewModel = new UserDeleteViewModel
+            {
+                User = new User { Id = 1, UserName = string.Empty },
+                RelatedGroups = null,
+                RelatedProjects = null
+            };
+
+            var user = new User { Id = 2, UserName = &quot;TestUser&quot; };
+            viewModel.User = user;
+
+            Assert.NotNull(viewModel.User);
+            Assert.Equal(2, viewModel.User.Id);
+            Assert.Equal(&quot;TestUser&quot;, viewModel.User.UserName);
+        }
+
+        [Fact]
+        public void SetAndGet_RelatedGroups_WorksCorrectly()
+        {
+            var groups = new List&lt;Group&gt;
+            {
+                new Group { Id = 10, Name = &quot;GroupA&quot; },
+                new Group { Id = 11, Name = &quot;GroupB&quot; }
+            };
+
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = groups,
+                RelatedProjects = null
+            };
+
+            Assert.NotNull(viewModel.RelatedGroups);
+            Assert.Equal(2, viewModel.RelatedGroups.Count);
+            Assert.Contains(viewModel.RelatedGroups, g =&gt; g.Id == 10 &amp;&amp; g.Name == &quot;GroupA&quot;);
+            Assert.Contains(viewModel.RelatedGroups, g =&gt; g.Id == 11 &amp;&amp; g.Name == &quot;GroupB&quot;);
+        }
+
+        [Fact]
+        public void SetAndGet_RelatedProjects_WorksCorrectly()
+        {
+            var projects = new List&lt;Project&gt;
+            {
+                new Project { Id = 100, Name = &quot;ProjectA&quot; },
+                new Project { Id = 101, Name = &quot;ProjectB&quot; }
+            };
+
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = null,
+                RelatedProjects = projects
+            };
+
+            Assert.NotNull(viewModel.RelatedProjects);
+            Assert.Equal(2, viewModel.RelatedProjects.Count);
+            Assert.Contains(viewModel.RelatedProjects, p =&gt; p.Id == 100 &amp;&amp; p.Name == &quot;ProjectA&quot;);
+            Assert.Contains(viewModel.RelatedProjects, p =&gt; p.Id == 101 &amp;&amp; p.Name == &quot;ProjectB&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,1],[11,13,16,15,1],[18,13,18,41,1],[19,13,19,50,1],[20,13,20,52,1],[21,9,21,10,1],[25,9,25,10,1],[26,13,31,15,1],[33,13,33,67,1],[34,13,34,35,1],[36,13,36,44,1],[37,13,37,48,1],[38,13,38,63,1],[39,9,39,10,1],[43,9,43,10,1],[44,13,48,15,1],[50,13,55,15,1],[57,13,57,53,1],[58,13,58,60,1],[59,13,59,59,1],[59,59,59,91,1],[59,91,59,93,1],[60,13,60,59,1],[60,59,60,91,1],[60,91,60,93,1],[61,9,61,10,1],[65,9,65,10,1],[66,13,70,15,1],[72,13,77,15,1],[79,13,79,55,1],[80,13,80,62,1],[81,13,81,61,1],[81,61,81,96,1],[81,96,81,98,1],[82,13,82,61,1],[82,61,82,96,1],[82,96,82,98,1],[83,9,83,10,1]]);
+    </script>
+  </body>
+</html>

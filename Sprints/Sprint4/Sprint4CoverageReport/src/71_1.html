@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\ProjectViewModels\CreateTaskViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagerData.Models;
+
+namespace TaskManagerWebsite.ViewModels.ProjectViewModels
+{
+    /// &lt;summary&gt;
+    /// The ViewModel for creating a task
+    /// &lt;/summary&gt;
+    public class CreateTaskViewModel
+    {
+
+        /// &lt;summary&gt;
+        /// Gets or sets the name.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Name is required&quot;)]
+        public string Name { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the description.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Description is required&quot;)]
+        public string Description { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the selected stage identifier.
+        /// &lt;/summary&gt;
+        [Display(Name = &quot;Assign Employee&quot;)]
+        public int? SelectedEmployeeId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the available employees.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;SelectListItem&gt; AvailableEmployees { get; set; } = new List&lt;SelectListItem&gt;();
+
+        /// &lt;summary&gt;
+        /// Gets or sets the stage identifier.
+        /// &lt;/summary&gt;
+        public int StageId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the task identifier.
+        /// &lt;/summary&gt;
+        public int TaskId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the task history.
+        /// &lt;/summary&gt;
+        public List&lt;TaskHistory&gt; TaskHistory { get; set; } = new List&lt;TaskHistory&gt;();
+
+        /// &lt;summary&gt;
+        /// Gets or sets the comments.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The comments.
+        /// &lt;/value&gt;
+        public List&lt;Comment&gt;? Comments { get; set; }
+
+        /// &lt;summary&gt;
+        /// Creates new comment.
+        /// &lt;/summary&gt;
+        /// &lt;value&gt;
+        /// The new comment.
+        /// &lt;/value&gt;
+        public string? NewComment { get; set; }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,30,17,34,1],[17,35,17,39,1],[23,37,23,41,1],[23,42,23,46,1],[29,42,29,46,1],[29,47,29,51,1],[34,65,34,69,0],[34,70,34,74,1],[34,79,34,105,1],[39,30,39,34,1],[39,35,39,39,1],[44,29,44,33,1],[44,34,44,38,1],[49,48,49,52,0],[49,53,49,57,1],[49,62,49,85,1],[57,42,57,46,0],[57,47,57,51,1],[65,37,65,41,1],[65,42,65,46,1]]);
+    </script>
+  </body>
+</html>

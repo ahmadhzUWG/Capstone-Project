@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestControllers\ProjectControllerTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using TaskManagerData.Models;
+using TaskManagerWebsite.Controllers;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestControllers
+{
+    public class ProjectControllerTests
+    {
+        private ApplicationDbContext CreateContext(string dbName)
+        {
+            var options = new DbContextOptionsBuilder&lt;ApplicationDbContext&gt;()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+            return new ApplicationDbContext(options);
+        }
+
+        private UserManager&lt;User&gt; CreateUserManager(User user, bool isAdmin)
+        {
+            var store = new Mock&lt;IUserStore&lt;User&gt;&gt;();
+            var mockUM = new Mock&lt;UserManager&lt;User&gt;&gt;(store.Object, null, null, null, null, null, null, null, null);
+            mockUM.Setup(um =&gt; um.GetUserId(It.IsAny&lt;ClaimsPrincipal&gt;())).Returns(user.Id.ToString());
+            mockUM.Setup(um =&gt; um.FindByIdAsync(It.IsAny&lt;string&gt;())).ReturnsAsync(user);
+            mockUM.Setup(um =&gt; um.IsInRoleAsync(It.IsAny&lt;User&gt;(), &quot;Admin&quot;)).ReturnsAsync(isAdmin);
+            mockUM.Setup(um =&gt; um.GetUserAsync(It.IsAny&lt;ClaimsPrincipal&gt;())).ReturnsAsync(user); // &lt;--- Add this line
+            return mockUM.Object;
+        }
+
+
+        private ControllerContext CreateControllerContext(User user)
+        {
+            var identity = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            }, &quot;TestAuth&quot;);
+            return new ControllerContext
+                { HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) } };
+        }
+
+        // GET: ProjectBoard
+
+        [Fact]
+        public async Task ProjectBoard_Get_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var result = await controller.ProjectBoard(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Get_CreatesBoard_IfMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 1,
+                Name = &quot;P1&quot;,
+                Description = &quot;D1&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            await controller.ProjectBoard(1);
+            var updated = await context.Projects.Include(p =&gt; p.ProjectBoard).FirstOrDefaultAsync(p =&gt; p.Id == 1);
+            Assert.NotNull(updated.ProjectBoard);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Get_ReturnsAdminView_IfAdmin()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 2,
+                Name = &quot;P2&quot;,
+                Description = &quot;D2&quot;,
+                ProjectLeadId = 2,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            proj.ProjectBoard = new ProjectBoard
+                { Id = 10, ProjectId = 2, BoardCreatorId = 2, Stages = new List&lt;Stage&gt;() };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 2, UserName = &quot;admin&quot; };
+            var um = CreateUserManager(user, true);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var result = await controller.ProjectBoard(2) as ViewResult;
+            Assert.Equal(&quot;~/Views/Admin/ProjectBoard.cshtml&quot;, result?.ViewName);
+        }
+
+        // POST: ProjectBoard
+
+        [Fact]
+        public async Task ProjectBoard_Post_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var vm = new ProjectBoardViewModel();
+            var result = await controller.ProjectBoard(999, vm);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Post_ReturnsForbid_IfUnauthorized()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 4,
+                Name = &quot;P4&quot;,
+                Description = &quot;D4&quot;,
+                ProjectLeadId = 2,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            proj.ProjectBoard = new ProjectBoard
+                { Id = 20, ProjectId = 4, BoardCreatorId = 2, Stages = new List&lt;Stage&gt;() };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new ProjectBoardViewModel
+                { StageForm = new CreateStageViewModel { Name = &quot;S1&quot;, Position = 1, SelectedGroupId = 0 } };
+            var result = await controller.ProjectBoard(4, vm);
+            Assert.IsType&lt;ForbidResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Post_ReturnsView_IfModelStateInvalid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var proj = new Project
+            {
+                Id = 5,
+                Name = &quot;P5&quot;,
+                Description = &quot;D5&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            proj.ProjectBoard = new ProjectBoard
+            {
+                Id = 30,
+                ProjectId = 5,
+                BoardCreatorId = 1,
+                Stages = new List&lt;Stage&gt;
+                {
+                    new Stage
+                    {
+                        Id = 200,
+                        Name = &quot;Existing Stage&quot;,
+                        Position = 1,
+                        ProjectBoardId = 30
+                    }
+                }
+            };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;lead&quot; };
+            var um = CreateUserManager(user, isAdmin: true);
+
+            var identity = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            }, &quot;TestAuth&quot;);
+            var principal = new ClaimsPrincipal(identity);
+
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext { User = principal }
+                }
+            };
+
+            var vm = new ProjectBoardViewModel
+            {
+                StageForm = new CreateStageViewModel
+                {
+                    Name = &quot;S1&quot;,
+                    Position = 1,
+                    SelectedGroupId = 0
+                }
+            };
+
+            var result = await controller.ProjectBoard(5, vm) as ViewResult;
+
+            Assert.NotNull(result);
+
+            var model = result.Model as ProjectBoardViewModel;
+            Assert.NotNull(model);
+
+            Assert.Equal(5, model.Project.Id);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Post_ReturnsView_IfDuplicateStageExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var grp = new Group { Id = 1, Name = &quot;G1&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 6,
+                Name = &quot;P6&quot;,
+                Description = &quot;D6&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt;
+        {
+            new GroupProject { Group = grp, GroupId = grp.Id }
+        }
+            };
+
+            proj.ProjectBoard = new ProjectBoard
+            {
+                Id = 40,
+                ProjectId = 6,
+                BoardCreatorId = 1,
+                Stages = new List&lt;Stage&gt;()
+            };
+            context.Projects.Add(proj);
+
+            context.Stages.Add(new Stage
+            {
+                Id = 100,
+                Name = &quot;Duplicate&quot;,
+                Position = 1,
+                ProjectBoardId = 40,
+                AssignedGroup = grp
+            });
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;lead&quot; };
+            var um = CreateUserManager(user, isAdmin: true);
+            var controller = new ProjectController(context, um)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new ProjectBoardViewModel
+            {
+                StageForm = new CreateStageViewModel
+                {
+                    Name = &quot;Duplicate&quot;,
+                    Position = 2,
+                    SelectedGroupId = grp.Id
+                }
+            };
+
+            var result = await controller.ProjectBoard(6, vm);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            
+            Assert.Equal(&quot;~/Views/Admin/ProjectBoard.cshtml&quot;, viewResult.ViewName);
+
+            Assert.True(controller.ModelState.ErrorCount &gt; 0);
+        }
+
+        [Fact]
+        public async Task ProjectBoard_Post_AddsStage_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 2, Name = &quot;G2&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 7,
+                Name = &quot;P7&quot;,
+                Description = &quot;D7&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            proj.ProjectBoard = new ProjectBoard
+                { Id = 50, ProjectId = 7, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+            context.UserGroups.Add(new UserGroup { UserId = 1, GroupId = grp.Id, Role = &quot;Manager&quot; });
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var vm = new ProjectBoardViewModel
+                { StageForm = new CreateStageViewModel { Name = &quot;NewStage&quot;, Position = 1, SelectedGroupId = grp.Id } };
+            var result = await controller.ProjectBoard(7, vm) as RedirectToActionResult;
+            Assert.Equal(nameof(ProjectController.ProjectBoard), result.ActionName);
+            var stage = await context.Stages.FirstOrDefaultAsync(s =&gt; s.Name == &quot;NewStage&quot;);
+            Assert.NotNull(stage);
+        }
+
+        // GET: EditStage
+
+        [Fact]
+        public async Task EditStage_Get_ReturnsNotFound_IfStageMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var result = await controller.EditStage(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Get_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var board = new ProjectBoard { Id = 60, ProjectId = 100, Stages = new List&lt;Stage&gt;() };
+            var stage = new Stage
+            {
+                Id = 200, ProjectBoard = board, Position = 1, Name = &quot;S&quot;,
+                AssignedGroup = new Group { Id = 1, Name = &quot;Dummy&quot;, Description = &quot;Dummy&quot; }
+            };
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var result = await controller.EditStage(200);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Get_ReturnsView_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 3, Name = &quot;G3&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 8,
+                Name = &quot;P8&quot;,
+                Description = &quot;D8&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            var board = new ProjectBoard { Id = 70, ProjectId = 8, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            var stage = new Stage
+            {
+                Id = 300, ProjectBoard = board, Position = 1, Name = &quot;EditStage&quot;, AssignedGroup = grp,
+                AssignedGroupId = grp.Id
+            };
+            board.Stages = new List&lt;Stage&gt; { stage };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var result = await controller.EditStage(300) as ViewResult;
+            var vm = result.Model as StageEditViewModel;
+            Assert.NotNull(vm);
+            Assert.Equal(300, vm.StageId);
+        }
+
+        // POST: EditStage
+
+        [Fact]
+        public async Task EditStage_Post_ReturnsNotFound_IfStageMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var vm = new StageEditViewModel { StageId = 999 };
+            var result = await controller.EditStage(vm);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Post_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var board = new ProjectBoard { Id = 80, ProjectId = 500, Stages = new List&lt;Stage&gt;() };
+            var stage = new Stage
+            {
+                Id = 400, ProjectBoard = board, Position = 1, Name = &quot;S&quot;,
+                AssignedGroup = new Group { Id = 1, Name = &quot;Dummy&quot;, Description = &quot;Dummy&quot; }
+            };
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var vm = new StageEditViewModel { StageId = 400, Name = &quot;Updated&quot; };
+            var result = await controller.EditStage(vm);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Post_ReturnsForbid_IfUnauthorized()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 9, Name = &quot;P9&quot;, Description = &quot;D9&quot;, ProjectLeadId = 2, ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            var board = new ProjectBoard { Id = 90, ProjectId = 9, BoardCreatorId = 2, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            context.Projects.Add(proj);
+            var stage = new Stage
+            {
+                Id = 500, ProjectBoard = board, Position = 1, Name = &quot;S&quot;,
+                AssignedGroup = new Group { Id = 1, Name = &quot;Dummy&quot;, Description = &quot;Dummy&quot; }
+            };
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var vm = new StageEditViewModel { StageId = 500, Name = &quot;Updated&quot;, Position = 2, SelectedGroupId = 0 };
+            var result = await controller.EditStage(vm);
+            Assert.IsType&lt;ForbidResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Post_ReturnsView_IfModelStateInvalid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 10, Name = &quot;G10&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 10, Name = &quot;P10&quot;, Description = &quot;D10&quot;, ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            var board = new ProjectBoard { Id = 100, ProjectId = 10, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            var stage = new Stage { Id = 600, ProjectBoard = board, Position = 1, Name = &quot;S&quot;, AssignedGroup = grp };
+            board.Stages = new List&lt;Stage&gt; { stage };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            controller.ModelState.AddModelError(&quot;Error&quot;, &quot;Invalid&quot;);
+            var vm = new StageEditViewModel { StageId = 600, Name = &quot;Updated&quot;, Position = 2, SelectedGroupId = grp.Id };
+            var result = await controller.EditStage(vm) as ViewResult;
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task EditStage_Post_ReturnsView_IfDuplicateStageNameExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 11, Name = &quot;G11&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 11, Name = &quot;P11&quot;, Description = &quot;D11&quot;, ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            var board = new ProjectBoard { Id = 110, ProjectId = 11, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+
+            context.Stages.Add(new Stage
+                { Id = 700, Name = &quot;Duplicate&quot;, Position = 1, ProjectBoardId = 110, AssignedGroup = grp });
+            var stage = new Stage
+                { Id = 800, ProjectBoard = board, Position = 2, Name = &quot;Original&quot;, AssignedGroup = grp };
+            board.Stages = new List&lt;Stage&gt; { stage };
+            context.Stages.Add(stage);
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var vm = new StageEditViewModel
+                { StageId = 800, Name = &quot;Duplicate&quot;, Position = 3, SelectedGroupId = grp.Id };
+            var result = await controller.EditStage(vm) as ViewResult;
+            Assert.NotNull(result);
+            Assert.True(controller.ModelState.ErrorCount &gt; 0);
+        }
+
+        [Fact]
+        public async Task EditStage_Post_UpdatesStage_IfValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 12, Name = &quot;G12&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 12, Name = &quot;P12&quot;, Description = &quot;D12&quot;, ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            var board = new ProjectBoard { Id = 120, ProjectId = 12, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            var s1 = new Stage { Id = 900, ProjectBoard = board, Position = 1, Name = &quot;S1&quot;, AssignedGroup = grp };
+            var s2 = new Stage { Id = 901, ProjectBoard = board, Position = 2, Name = &quot;S2&quot;, AssignedGroup = grp };
+            board.Stages = new List&lt;Stage&gt; { s1, s2 };
+            context.Projects.Add(proj);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var vm = new StageEditViewModel
+                { StageId = 901, Name = &quot;S2 Updated&quot;, Position = 1, SelectedGroupId = grp.Id };
+            var result = await controller.EditStage(vm) as RedirectToActionResult;
+            Assert.Equal(nameof(ProjectController.ProjectBoard), result.ActionName);
+            var updated = await context.Stages.FindAsync(901);
+            Assert.Equal(&quot;S2 Updated&quot;, updated.Name);
+            Assert.Equal(1, updated.Position);
+            var swapped = await context.Stages.FindAsync(900);
+            Assert.Equal(2, swapped.Position);
+        }
+
+
+        [Fact]
+        public async Task EditTask_Get_TaskNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.EditTask(taskId: 999);
+
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_ProjectNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            context.Tasks.Add(new TaskManagerData.Models.Task { Id = 1, Name = &quot;Test&quot;, Description = &quot;Test Task&quot; });
+            await context.SaveChangesAsync();
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.EditTask(1);
+
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_UserNotAuthorized_ReturnsForbid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = &quot;Task&quot;, Description = &quot;Test Description&quot; };
+            var project = new Project { Id = 1, ProjectLeadId = 999, Name = &quot;Task&quot;, Description = &quot;Test Description&quot; };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = &quot;Test Stage&quot; };
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Stage = stage, Task = task };
+
+            context.Tasks.Add(task);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var userManager = this.CreateUserManager(new User { Id = 1, UserName = &quot;test&quot; }, false);
+            var controller = new ProjectController(context, userManager);
+
+            var result = await controller.EditTask(1);
+
+            Assert.IsType&lt;ForbidResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Get_Valid_ReturnsViewWithModel()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            // Arrange
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var group = new Group { Id = 1, Name = &quot;G1&quot;, Description = &quot;test&quot; };
+            var userGroup = new UserGroup { UserId = 1, GroupId = 1, Role = &quot;Member&quot;, User = user, Group = group };
+
+            var project = new Project { Id = 1, ProjectLeadId = 1, Name = &quot;Test Project&quot;, Description = &quot;Desc&quot; };
+            var projectGroup = new GroupProject { GroupId = 1, ProjectId = 1, Group = group, Project = project };
+
+            var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board, AssignedGroupId = 1, AssignedGroup = group };
+
+            var task = new TaskManagerData.Models.Task
+            {
+                Id = 2,
+                Name = &quot;My Task&quot;,
+                Description = &quot;Desc&quot;,
+                CreatorUserId = 1,
+                CreatorUser = user
+            };
+
+            var taskStage = new TaskStage
+            {
+                Id = 1,
+                TaskId = task.Id,
+                Task = task,
+                StageId = 1,
+                Stage = stage
+            };
+
+            var assignment = new TaskEmployee { TaskId = 2, EmployeeId = 1, Employee = user };
+
+            context.Users.Add(user);
+            context.Groups.Add(group);
+            context.UserGroups.Add(userGroup);
+            context.Projects.Add(project);
+            context.GroupProjects.Add(projectGroup);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            context.TaskEmployees.Add(assignment);
+            await context.SaveChangesAsync();
+
+            var userManager = CreateUserManager(user, isAdmin: true);
+            var controller = new ProjectController(context, userManager);
+
+            // Act
+            var result = await controller.EditTask(task.Id);
+
+            // Assert
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            var model = Assert.IsType&lt;CreateTaskViewModel&gt;(viewResult.Model);
+            Assert.Equal(&quot;My Task&quot;, model.Name);
+        }
+
+
+
+        [Fact]
+        public async Task EditTask_Post_InvalidModel_ReturnsView()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_InvalidModel_ReturnsView));
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+            controller.ModelState.AddModelError(&quot;Name&quot;, &quot;Required&quot;);
+
+            var vm = new CreateTaskViewModel { TaskId = 1 };
+
+            var result = await controller.EditTask(vm);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            var model = Assert.IsAssignableFrom&lt;CreateTaskViewModel&gt;(viewResult.Model);
+        }
+
+        [Fact]
+        public async Task EditTask_Post_DuplicateName_ReturnsModelError()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_DuplicateName_ReturnsModelError));
+
+            var user = new User { Id = 1 };
+            var project = new Project
+                { Id = 1, ProjectLeadId = user.Id, Name = &quot;Test Project&quot;, Description = &quot;Test Description&quot; };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = &quot;Test Stage&quot; };
+            var task1 = new TaskManagerData.Models.Task
+                { Id = 1, Name = &quot;Original Task&quot;, CreatorUserId = user.Id, Description = &quot;Task&quot; };
+            var task2 = new TaskManagerData.Models.Task
+                { Id = 2, Name = &quot;Duplicate Name&quot;, CreatorUserId = user.Id, Description = &quot;Task&quot; };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.AddRange(task1, task2);
+            context.TaskStages.AddRange(
+                new TaskStage { Task = task1, Stage = stage },
+                new TaskStage { Task = task2, Stage = stage }
+            );
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 1,
+                Name = &quot;Duplicate Name&quot; // Duplicate
+            };
+
+            var result = await controller.EditTask(vm);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.True(controller.ModelState.ContainsKey(&quot;Name&quot;));
+        }
+
+        [Fact]
+        public async Task EditTask_Post_TaskNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_TaskNotFound_ReturnsNotFound));
+            var user = new User { Id = 1 };
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 999, // Non-existent
+                Name = &quot;New Name&quot;
+            };
+
+            var result = await controller.EditTask(vm);
+
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task EditTask_Post_ValidUpdate_UpdatesTaskAndRedirects()
+        {
+            using var context = CreateContext(nameof(EditTask_Post_ValidUpdate_UpdatesTaskAndRedirects));
+
+            var user = new User { Id = 1, UserName = &quot;admin&quot; };
+            var project = new Project
+                { Id = 1, ProjectLeadId = user.Id, Name = &quot;Test Project&quot;, Description = &quot;Test Description&quot; };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, ProjectBoard = board, Name = &quot;Test&quot; };
+            var task = new TaskManagerData.Models.Task
+                { Id = 1, Name = &quot;Old Task&quot;, Description = &quot;Old Desc&quot;, CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Task = task, Stage = stage };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var userManager = CreateUserManager(user, false);
+            var controller = new ProjectController(context, userManager);
+
+            var vm = new CreateTaskViewModel
+            {
+                TaskId = 1,
+                Name = &quot;Updated Task&quot;,
+                Description = &quot;Updated Desc&quot;
+            };
+
+            var result = await controller.EditTask(vm);
+
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;ProjectBoard&quot;, redirect.ActionName);
+
+            var updatedTask = await context.Tasks.FindAsync(1);
+            Assert.Equal(&quot;Updated Task&quot;, updatedTask.Name);
+            Assert.Equal(&quot;Updated Desc&quot;, updatedTask.Description);
+        }
+
+
+        // DELETE: DeleteStage
+
+        [Fact]
+        public async Task DeleteStage_Post_ReturnsNotFound_IfStageMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var result = await controller.DeleteStage(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task DeleteStage_Post_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var board = new ProjectBoard { Id = 130, ProjectId = 600, Stages = new List&lt;Stage&gt;() };
+            var stage = new Stage
+            {
+                Id = 1000, ProjectBoard = board, Position = 1, Name = &quot;S&quot;,
+                AssignedGroup = new Group { Id = 1, Name = &quot;Dummy&quot;, Description = &quot;Dummy&quot; }
+            };
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var result = await controller.DeleteStage(1000);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task DeleteStage_Post_ReturnsForbid_IfUnauthorized()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var proj = new Project
+            {
+                Id = 13, Name = &quot;P13&quot;, Description = &quot;D13&quot;, ProjectLeadId = 2, ProjectGroups = new List&lt;GroupProject&gt;()
+            };
+            var board = new ProjectBoard { Id = 140, ProjectId = 13, BoardCreatorId = 2, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            context.Projects.Add(proj);
+            var stage = new Stage
+            {
+                Id = 1100, ProjectBoard = board, Position = 1, Name = &quot;S&quot;,
+                AssignedGroup = new Group { Id = 1, Name = &quot;Dummy&quot;, Description = &quot;Dummy&quot; }
+            };
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+            var result = await controller.DeleteStage(1100);
+            Assert.IsType&lt;ForbidResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task DeleteStage_Post_DeletesStage_IfAuthorized()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var grp = new Group { Id = 1, Name = &quot;G1&quot;, Description = &quot;Test&quot; };
+            var proj = new Project
+            {
+                Id = 14,
+                Name = &quot;P14&quot;,
+                Description = &quot;D14&quot;,
+                ProjectLeadId = 1,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = grp, GroupId = grp.Id } }
+            };
+            var board = new ProjectBoard { Id = 150, ProjectId = 14, BoardCreatorId = 1, Stages = new List&lt;Stage&gt;() };
+            proj.ProjectBoard = board;
+            var stage = new Stage { Id = 1200, ProjectBoard = board, Position = 1, Name = &quot;SDel&quot;, AssignedGroup = grp };
+            context.Projects.Add(proj);
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            context.UserGroups.Add(new UserGroup { UserId = 1, GroupId = grp.Id, Role = &quot;Manager&quot; });
+            await context.SaveChangesAsync();
+
+            var user = new User { Id = 1, UserName = &quot;user&quot; };
+            var um = CreateUserManager(user, false);
+            var controller = new ProjectController(context, um) { ControllerContext = CreateControllerContext(user) };
+
+            var result = await controller.DeleteStage(1200) as RedirectToActionResult;
+            Assert.Equal(nameof(ProjectController.ProjectBoard), result.ActionName);
+            Assert.Null(await context.Stages.FindAsync(1200));
+        }
+
+        [Fact]
+        public async Task DeleteTask_ValidId_DeletesTaskAndRedirects()
+        {
+            // Arrange
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = &quot;test&quot; };
+            var project = new Project { Id = 1, Name = &quot;Test&quot;, Description = &quot;Test Description&quot; };
+            var board = new ProjectBoard { Id = 1, ProjectId = 1, Project = project };
+            var stage = new Stage { Name = &quot;Stage1&quot;, Id = 1, ProjectBoardId = 1, ProjectBoard = board };
+            var task = new TaskManagerData.Models.Task
+                { Description = &quot;TestDescription&quot;, Id = 1, Name = &quot;Task1&quot;, CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 1, Stage = stage };
+            var taskEmployee = new TaskEmployee { TaskId = 1, EmployeeId = 2 };
+
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            context.TaskEmployees.Add(taskEmployee);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, true));
+
+            // Act
+            var result = await controller.DeleteTask(taskStage.Id);
+
+            // Assert
+            Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.False(context.Tasks.Any());
+            Assert.False(context.TaskStages.Any());
+            Assert.False(context.TaskEmployees.Any());
+        }
+
+        [Fact]
+        public async Task DeleteTask_StageNotFound_ReturnsNotFound()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1, UserName = &quot;test&quot; };
+            var task = new TaskManagerData.Models.Task
+                { Description = &quot;TestDescription&quot;, Id = 1, Name = &quot;Task1&quot;, CreatorUserId = 1 };
+            var taskStage = new TaskStage { Id = 1, TaskId = 1, Task = task, StageId = 42 }; // stageId 42 doesn&#39;t exist
+
+            context.Tasks.Add(task);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, this.CreateUserManager(user, false));
+
+            var result = await controller.DeleteTask(taskStage.Id);
+
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task CreateTask_Post_InvalidModelState_ReturnsView()
+        {
+            var controller = new ProjectController(CreateContext(Guid.NewGuid().ToString()),
+                CreateUserManager(new User { Id = 1 }, false));
+            controller.ModelState.AddModelError(&quot;Name&quot;, &quot;Required&quot;);
+
+            var vm = new CreateTaskViewModel { StageId = 1 };
+            var result = await controller.CreateTask(vm);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.Equal(vm, view.Model);
+        }
+
+        [Fact]
+        public async Task CreateTask_Post_ReturnsNotFound_IfStageMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var controller = new ProjectController(context, CreateUserManager(new User { Id = 1 }, false));
+            var result = await controller.CreateTask(new CreateTaskViewModel { StageId = 999 });
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task CreateTask_Post_ReturnsViewIfDuplicateNameExists()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1 };
+            var project = new Project { Id = 1, Name = &quot;Test Project&quot;, Description = &quot;Some description&quot;, ProjectLeadId = user.Id };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+            var existingTask = new TaskManagerData.Models.Task
+                { Id = 1, Name = &quot;Task1&quot;, Description = &quot;desc&quot;, CreatorUserId = user.Id };
+            var taskStage = new TaskStage { Task = existingTask, Stage = stage };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Tasks.Add(existingTask);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel { Name = &quot;Task1&quot;, Description = &quot;Duplicate&quot;, StageId = stage.Id };
+            var result = await controller.CreateTask(vm);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.True(controller.ModelState.ContainsKey(&quot;Name&quot;));
+        }
+
+        [Fact]
+        public async Task CreateTask_Post_CreatesTaskAndRedirects_WhenValid()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var project = new Project { Id = 1, Name = &quot;Test Project&quot;, Description = &quot;Some description&quot;, ProjectLeadId = user.Id };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel
+            {
+                Name = &quot;New Task&quot;,
+                Description = &quot;desc&quot;,
+                StageId = stage.Id
+            };
+
+            var result = await controller.CreateTask(vm);
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;ProjectBoard&quot;, redirect.ActionName);
+            Assert.True(context.Tasks.Any(t =&gt; t.Name == &quot;New Task&quot;));
+        }
+
+        [Fact]
+        public async Task CreateTask_Post_CreatesTaskWithEmployeeAssignment()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var assigned = new User { Id = 2 };
+            var project = new Project {Id = 1, Name = &quot;Test Project&quot;, Description = &quot;Some description&quot;, ProjectLeadId = user.Id };
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+
+            context.Users.AddRange(user, assigned);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var userManager = CreateUserManager(user, false);
+            Mock.Get(userManager).Setup(um =&gt; um.FindByIdAsync(&quot;2&quot;)).ReturnsAsync(assigned);
+
+            var controller = new ProjectController(context, userManager)
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel
+            {
+                Name = &quot;With Assignment&quot;,
+                Description = &quot;desc&quot;,
+                StageId = stage.Id,
+                SelectedEmployeeId = 2
+            };
+
+            var result = await controller.CreateTask(vm);
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;ProjectBoard&quot;, redirect.ActionName);
+
+            var created = await context.Tasks.FirstOrDefaultAsync(t =&gt; t.Name == &quot;With Assignment&quot;);
+            var assignment = await context.TaskEmployees.FirstOrDefaultAsync(te =&gt; te.TaskId == created.Id);
+            Assert.NotNull(assignment);
+            Assert.Equal(2, assignment.EmployeeId);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsNotFound_IfStageMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var controller = new ProjectController(context, CreateUserManager(new User { Id = 1 }, false));
+            var result = await controller.CreateTask(999);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsNotFound_IfProjectMissing()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var board = new ProjectBoard { Id = 1, ProjectId = 42 };
+            var stage = new Stage { Id = 1, Name = &quot;Stage 1&quot;, ProjectBoard = board };
+
+            context.Stages.Add(stage);
+            context.ProjectBoards.Add(board);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(new User { Id = 1 }, false));
+            var result = await controller.CreateTask(stage.Id);
+            Assert.IsType&lt;NotFoundResult&gt;(result);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsView_ForAdmin()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;admin&quot; };
+
+            var group = new Group { Id = 1, Name = &quot;G&quot;, Description = &quot;Desc&quot;};
+            var project = new Project
+            {
+                Id = 1,
+                Name = &quot;Project A&quot;,
+                Description = &quot;Test&quot;,
+                ProjectLeadId = user.Id,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = group, GroupId = group.Id } }
+            };
+
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+            project.ProjectBoard = board;
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, true))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.CreateTask(stage.Id);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.IsType&lt;CreateTaskViewModel&gt;(view.Model);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsView_ForProjectLead()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1, UserName = &quot;lead&quot; };
+
+            var group = new Group { Id = 1, Name = &quot;G&quot;, Description = &quot;Desc&quot; };
+            var project = new Project
+            {
+                Id = 1,
+                Name = &quot;Project B&quot;,
+                Description = &quot;Test B&quot;,
+                ProjectLeadId = user.Id,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { Group = group, GroupId = group.Id } }
+            };
+
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+            project.ProjectBoard = board;
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            context.Groups.Add(group);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.CreateTask(stage.Id);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.IsType&lt;CreateTaskViewModel&gt;(view.Model);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsView_ForGroupManager()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var group = new Group { Id = 1, Name = &quot;Group&quot;, Description = &quot;Desc&quot; };
+
+            context.UserGroups.Add(new UserGroup { UserId = 1, GroupId = 1, Role = &quot;Manager&quot; });
+
+            var project = new Project
+            {
+                Id = 1,
+                Name = &quot;Project C&quot;,
+                Description = &quot;Test C&quot;,
+                ProjectLeadId = 999,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { GroupId = group.Id, Group = group } }
+            };
+
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+            project.ProjectBoard = board;
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.Groups.Add(group);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.CreateTask(stage.Id);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.IsType&lt;CreateTaskViewModel&gt;(view.Model);
+        }
+
+        [Fact]
+        public async Task CreateTask_Get_ReturnsView_ForMember()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var group = new Group { Id = 1, Name = &quot;Group&quot;, Description = &quot;Desc&quot; };
+
+            context.UserGroups.Add(new UserGroup { UserId = 1, GroupId = 1, Role = &quot;Employee&quot; });
+
+            var project = new Project
+            {
+                Id = 1,
+                Name = &quot;Project D&quot;,
+                Description = &quot;Test D&quot;,
+                ProjectLeadId = 999,
+                ProjectGroups = new List&lt;GroupProject&gt; { new GroupProject { GroupId = group.Id, Group = group } }
+            };
+
+            var board = new ProjectBoard { Id = 1, Project = project };
+            var stage = new Stage { Id = 1, Name = &quot;Stage&quot;, ProjectBoard = board };
+            project.ProjectBoard = board;
+
+            context.Users.Add(user);
+            context.Projects.Add(project);
+            context.Groups.Add(group);
+            context.ProjectBoards.Add(board);
+            context.Stages.Add(stage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.CreateTask(stage.Id);
+            var view = Assert.IsType&lt;ViewResult&gt;(result);
+            Assert.IsType&lt;CreateTaskViewModel&gt;(view.Model);
+        }
+
+
+
+        [Fact]
+        public async Task MoveTask_Valid_MoveUpdatesStages()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+
+            var user = new User { Id = 1 };
+            var task = new TaskManagerData.Models.Task
+            {
+                Id = 1,
+                CreatorUserId = user.Id,
+                Name = &quot;Move Task&quot;,
+                Description = &quot;Test description&quot;
+            };
+
+            var board = new ProjectBoard { Id = 1, ProjectId = 1 };
+            var stage1 = new Stage { Id = 1, Name = &quot;To Do&quot;, ProjectBoard = board };
+            var stage2 = new Stage { Id = 2, Name = &quot;In Progress&quot;, ProjectBoard = board };
+
+            var taskStage = new TaskStage
+            {
+                Id = 1,
+                TaskId = task.Id,
+                StageId = stage1.Id,
+                CompletedDate = null
+            };
+
+            context.Users.Add(user);
+            context.Tasks.Add(task);
+            context.ProjectBoards.Add(board);
+            context.Stages.AddRange(stage1, stage2);
+            context.TaskStages.Add(taskStage);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false));
+            controller.ControllerContext = CreateControllerContext(user);
+
+            var result = await controller.MoveTask(task.Id, stage1.Id, stage2.Id);
+
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;ProjectBoard&quot;, redirect.ActionName);
+        }
+
+        [Fact]
+        public async Task AddComment_EmptyComment_ReturnsViewWithModelError()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = &quot;Task&quot;, Description = &quot;Task&quot; };
+            context.Users.Add(user);
+            context.Tasks.Add(task);
+            context.Comments.Add(new Comment { TaskId = 1, UserId = 1, Content = &quot;Old&quot;, Timestamp = DateTime.Now });
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel { TaskId = 1, NewComment = &quot;   &quot; };
+            var result = await controller.AddComment(vm);
+
+            var viewResult = Assert.IsType&lt;ViewResult&gt;(result);
+            var model = Assert.IsType&lt;CreateTaskViewModel&gt;(viewResult.Model);
+            Assert.True(controller.ModelState.ContainsKey(&quot;NewComment&quot;));
+        }
+
+        [Fact]
+        public async Task AddComment_ValidComment_AddsAndRedirects()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = &quot;Task&quot;, Description = &quot;Task&quot; };
+            context.Users.Add(user);
+            context.Tasks.Add(task);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel { TaskId = 1, NewComment = &quot;Nice task!&quot; };
+            var result = await controller.AddComment(vm);
+
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;EditTask&quot;, redirect.ActionName);
+            Assert.True(context.Comments.Any(c =&gt; c.Content == &quot;Nice task!&quot;));
+        }
+
+        [Fact]
+        public async Task ReplyToComment_Valid_AddsReplyAndRedirects()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var parentComment = new Comment
+            {
+                Id = 1,
+                TaskId = 1,
+                UserId = 1,
+                Content = &quot;Parent&quot;,
+                Timestamp = DateTime.Now
+            };
+            context.Users.Add(user);
+            context.Comments.Add(parentComment);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.ReplyToComment(1, 1, &quot;Reply message&quot;);
+
+            var redirect = Assert.IsType&lt;RedirectToActionResult&gt;(result);
+            Assert.Equal(&quot;EditTask&quot;, redirect.ActionName);
+            Assert.True(context.Comments.Any(c =&gt; c.Content == &quot;Reply message&quot; &amp;&amp; c.ParentCommentId == 1));
+        }
+
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,9,17,10,1],[18,13,20,26,1],[21,13,21,54,1],[22,9,22,10,1],[25,9,25,10,1],[26,13,26,54,1],[27,13,27,116,1],[28,13,28,103,1],[29,13,29,89,1],[30,13,30,99,1],[31,13,31,97,1],[32,13,32,34,1],[33,9,33,10,1],[37,9,37,10,1],[38,13,41,28,1],[42,13,43,99,1],[44,9,44,10,1],[50,9,50,10,1],[51,13,51,74,1],[52,13,52,63,1],[53,13,53,53,1],[54,13,54,119,1],[56,13,56,61,1],[57,13,57,51,1],[58,9,58,10,1],[62,9,62,10,1],[63,13,63,74,1],[64,13,71,15,1],[72,13,72,40,1],[73,13,73,46,1],[75,13,75,63,1],[76,13,76,53,1],[77,13,77,119,1],[79,13,79,46,1],[80,13,80,115,1],[81,13,81,50,1],[82,9,82,10,1],[86,9,86,10,1],[87,13,87,74,1],[88,13,95,15,1],[96,13,97,92,1],[98,13,98,40,1],[99,13,99,46,1],[101,13,101,64,1],[102,13,102,52,1],[103,13,103,119,1],[105,13,105,73,1],[106,13,106,81,1],[107,9,107,10,1],[113,9,113,10,1],[114,13,114,74,1],[115,13,115,63,1],[116,13,116,53,1],[117,13,117,119,1],[119,13,119,50,1],[120,13,120,65,1],[121,13,121,51,1],[122,9,122,10,1],[126,9,126,10,1],[127,13,127,74,1],[128,13,135,15,1],[136,13,137,92,1],[138,13,138,40,1],[139,13,139,46,1],[141,13,141,63,1],[142,13,142,53,1],[143,13,146,15,1],[148,13,149,109,1],[150,13,150,63,1],[151,13,151,49,1],[152,9,152,10,1],[156,9,156,10,1],[157,13,157,74,1],[159,13,166,15,1],[167,13,182,15,1],[183,13,183,40,1],[184,13,184,46,1],[186,13,186,63,1],[187,13,187,61,1],[189,13,193,28,1],[194,13,194,59,1],[196,13,202,15,1],[204,13,212,15,1],[214,13,214,77,1],[216,13,216,36,1],[218,13,218,63,1],[219,13,219,35,1],[221,13,221,47,1],[222,9,222,10,1],[226,9,226,10,1],[227,13,227,74,1],[229,13,229,79,1],[230,13,240,15,1],[242,13,248,15,1],[249,13,249,40,1],[251,13,258,16,1],[259,13,259,46,1],[261,13,261,63,1],[262,13,262,61,1],[263,13,266,15,1],[268,13,276,15,1],[278,13,278,63,1],[280,13,280,64,1],[282,13,282,84,1],[284,13,284,63,1],[285,9,285,10,1],[289,9,289,10,1],[290,13,290,74,1],[291,13,291,79,1],[292,13,299,15,1],[300,13,301,92,1],[302,13,302,40,1],[303,13,303,46,1],[304,13,304,102,1],[305,13,305,46,1],[307,13,307,63,1],[308,13,308,53,1],[309,13,309,119,1],[311,13,312,120,1],[313,13,313,89,1],[314,13,314,85,1],[315,13,315,93,1],[316,13,316,35,1],[317,9,317,10,1],[323,9,323,10,1],[324,13,324,74,1],[325,13,325,63,1],[326,13,326,53,1],[327,13,327,119,1],[328,13,328,58,1],[329,13,329,51,1],[330,9,330,10,1],[334,9,334,10,1],[335,13,335,74,1],[336,13,336,99,1],[337,13,341,15,1],[342,13,342,39,1],[343,13,343,46,1],[345,13,345,63,1],[346,13,346,53,1],[347,13,347,119,1],[348,13,348,58,1],[349,13,349,51,1],[350,9,350,10,1],[354,9,354,10,1],[355,13,355,74,1],[356,13,356,79,1],[357,13,364,15,1],[365,13,365,117,1],[366,13,366,39,1],[367,13,371,15,1],[372,13,372,54,1],[373,13,373,40,1],[374,13,374,46,1],[376,13,376,63,1],[377,13,377,53,1],[378,13,378,119,1],[380,13,380,72,1],[381,13,381,57,1],[382,13,382,32,1],[383,13,383,43,1],[384,9,384,10,1],[390,9,390,10,1],[391,13,391,74,1],[392,13,392,63,1],[393,13,393,53,1],[394,13,394,119,1],[395,13,395,63,1],[396,13,396,57,1],[397,13,397,51,1],[398,9,398,10,1],[402,9,402,10,1],[403,13,403,74,1],[404,13,404,99,1],[405,13,409,15,1],[410,13,410,39,1],[411,13,411,46,1],[413,13,413,63,1],[414,13,414,53,1],[415,13,415,119,1],[416,13,416,81,1],[417,13,417,57,1],[418,13,418,51,1],[419,9,419,10,1],[423,9,423,10,1],[424,13,424,74,1],[425,13,428,15,1],[429,13,429,117,1],[430,13,430,39,1],[431,13,431,40,1],[432,13,436,15,1],[437,13,437,39,1],[438,13,438,46,1],[440,13,440,63,1],[441,13,441,53,1],[442,13,442,119,1],[443,13,443,116,1],[444,13,444,57,1],[445,13,445,49,1],[446,9,446,10,1],[450,9,450,10,1],[451,13,451,74,1],[452,13,452,81,1],[453,13,457,15,1],[458,13,458,119,1],[459,13,459,39,1],[460,13,460,117,1],[461,13,461,54,1],[462,13,462,40,1],[463,13,463,46,1],[465,13,465,63,1],[466,13,466,53,1],[467,13,467,119,1],[468,13,468,69,1],[469,13,469,121,1],[470,13,470,71,1],[471,13,471,36,1],[472,9,472,10,1],[476,9,476,10,1],[477,13,477,74,1],[478,13,478,81,1],[479,13,483,15,1],[484,13,484,119,1],[485,13,485,39,1],[487,13,488,108,1],[489,13,490,106,1],[491,13,491,54,1],[492,13,492,39,1],[493,13,493,40,1],[494,13,494,46,1],[496,13,496,63,1],[497,13,497,53,1],[498,13,498,119,1],[499,13,500,95,1],[501,13,501,71,1],[502,13,502,36,1],[503,13,503,63,1],[504,9,504,10,1],[508,9,508,10,1],[509,13,509,74,1],[510,13,510,81,1],[511,13,515,15,1],[516,13,516,119,1],[517,13,517,39,1],[518,13,518,115,1],[519,13,519,115,1],[520,13,520,55,1],[521,13,521,40,1],[522,13,522,46,1],[524,13,524,63,1],[525,13,525,53,1],[526,13,526,119,1],[527,13,528,96,1],[529,13,529,83,1],[530,13,530,85,1],[531,13,531,63,1],[532,13,532,54,1],[533,13,533,47,1],[534,13,534,63,1],[535,13,535,47,1],[536,9,536,10,1],[541,9,541,10,1],[542,13,542,74,1],[543,13,543,63,1],[545,13,545,98,1],[547,13,547,65,1],[549,13,549,51,1],[550,9,550,10,1],[554,9,554,10,1],[555,13,555,74,1],[556,13,556,117,1],[557,13,557,46,1],[558,13,558,63,1],[560,13,560,98,1],[562,13,562,55,1],[564,13,564,51,1],[565,9,565,10,1],[569,9,569,10,1],[570,13,570,74,1],[571,13,571,116,1],[572,13,572,120,1],[573,13,573,72,1],[574,13,574,89,1],[575,13,575,94,1],[577,13,577,37,1],[578,13,578,43,1],[579,13,579,46,1],[580,13,580,39,1],[581,13,581,47,1],[582,13,582,46,1],[584,13,584,101,1],[585,13,585,74,1],[587,13,587,55,1],[589,13,589,49,1],[590,9,590,10,1],[594,9,594,10,1],[595,13,595,74,1],[598,13,598,63,1],[599,13,599,81,1],[600,13,600,116,1],[602,13,602,114,1],[603,13,603,114,1],[605,13,605,87,1],[606,13,606,128,1],[608,13,615,15,1],[617,13,624,15,1],[626,13,626,95,1],[628,13,628,37,1],[629,13,629,39,1],[630,13,630,47,1],[631,13,631,43,1],[632,13,632,53,1],[633,13,633,46,1],[634,13,634,39,1],[635,13,635,37,1],[636,13,636,47,1],[637,13,637,51,1],[638,13,638,46,1],[640,13,640,70,1],[641,13,641,74,1],[644,13,644,61,1],[647,13,647,64,1],[648,13,648,78,1],[649,13,649,49,1],[650,9,650,10,1],[656,9,656,10,1],[657,13,657,95,1],[658,13,658,63,1],[660,13,660,93,1],[661,13,661,69,1],[663,13,663,61,1],[665,13,665,56,1],[667,13,667,64,1],[668,13,668,88,1],[669,9,669,10,1],[673,9,673,10,1],[674,13,674,102,1],[676,13,676,44,1],[677,13,678,110,1],[679,13,679,72,1],[680,13,680,89,1],[681,13,682,99,1],[683,13,684,100,1],[686,13,686,37,1],[687,13,687,43,1],[688,13,688,46,1],[689,13,689,39,1],[690,13,690,50,1],[691,13,694,15,1],[695,13,695,46,1],[697,13,697,93,1],[699,13,703,15,1],[705,13,705,56,1],[707,13,707,64,1],[708,13,708,57,1],[709,13,709,68,1],[710,9,710,10,1],[714,9,714,10,1],[715,13,715,99,1],[716,13,716,44,1],[718,13,718,93,1],[720,13,724,15,1],[726,13,726,56,1],[728,13,728,51,1],[729,9,729,10,1],[733,9,733,10,1],[734,13,734,106,1],[736,13,736,64,1],[737,13,738,110,1],[739,13,739,72,1],[740,13,740,83,1],[741,13,742,98,1],[743,13,743,74,1],[745,13,745,37,1],[746,13,746,43,1],[747,13,747,46,1],[748,13,748,39,1],[749,13,749,37,1],[750,13,750,47,1],[751,13,751,46,1],[753,13,753,62,1],[754,13,754,74,1],[756,13,761,15,1],[763,13,763,56,1],[765,13,765,74,1],[766,13,766,63,1],[768,13,768,64,1],[769,13,769,60,1],[770,13,770,67,1],[771,9,771,10,1],[778,9,778,10,1],[779,13,779,74,1],[780,13,780,63,1],[781,13,781,53,1],[782,13,782,119,1],[783,13,783,60,1],[784,13,784,51,1],[785,9,785,10,1],[789,9,789,10,1],[790,13,790,74,1],[791,13,791,100,1],[792,13,796,15,1],[797,13,797,39,1],[798,13,798,46,1],[800,13,800,63,1],[801,13,801,53,1],[802,13,802,119,1],[803,13,803,61,1],[804,13,804,51,1],[805,9,805,10,1],[809,9,809,10,1],[810,13,810,74,1],[811,13,814,15,1],[815,13,815,119,1],[816,13,816,39,1],[817,13,817,40,1],[818,13,822,15,1],[823,13,823,39,1],[824,13,824,46,1],[826,13,826,63,1],[827,13,827,53,1],[828,13,828,119,1],[829,13,829,61,1],[830,13,830,49,1],[831,9,831,10,1],[835,9,835,10,1],[836,13,836,74,1],[837,13,837,79,1],[838,13,845,15,1],[846,13,846,119,1],[847,13,847,39,1],[848,13,848,121,1],[849,13,849,40,1],[850,13,850,39,1],[851,13,851,46,1],[853,13,853,102,1],[854,13,854,46,1],[856,13,856,63,1],[857,13,857,53,1],[858,13,858,119,1],[860,13,860,87,1],[861,13,861,85,1],[862,13,862,63,1],[863,9,863,10,1],[867,9,867,10,1],[869,13,869,74,1],[871,13,871,63,1],[872,13,872,99,1],[873,13,873,87,1],[874,13,874,105,1],[875,13,876,102,1],[877,13,877,107,1],[878,13,878,80,1],[880,13,880,43,1],[881,13,881,46,1],[882,13,882,39,1],[883,13,883,37,1],[884,13,884,47,1],[885,13,885,53,1],[886,13,886,46,1],[888,13,888,97,1],[891,13,891,68,1],[894,13,894,59,1],[895,13,895,47,1],[896,13,896,52,1],[897,13,897,55,1],[898,9,898,10,1],[902,9,902,10,1],[903,13,903,74,1],[905,13,905,63,1],[906,13,907,96,1],[908,13,908,93,1],[910,13,910,37,1],[911,13,911,47,1],[912,13,912,46,1],[914,13,914,98,1],[916,13,916,68,1],[918,13,918,51,1],[919,9,919,10,1],[923,9,923,10,1],[924,13,925,64,1],[926,13,926,69,1],[928,13,928,62,1],[929,13,929,58,1],[930,13,930,58,1],[931,13,931,42,1],[932,9,932,10,1],[936,9,936,10,1],[937,13,937,74,1],[938,13,938,108,1],[939,13,939,97,1],[940,13,940,51,1],[941,9,941,10,1],[945,9,945,10,1],[946,13,946,74,1],[948,13,948,44,1],[949,13,949,132,1],[950,13,950,72,1],[951,13,951,84,1],[952,13,953,91,1],[954,13,954,82,1],[956,13,956,37,1],[957,13,957,43,1],[958,13,958,46,1],[959,13,959,39,1],[960,13,960,45,1],[961,13,961,47,1],[962,13,962,46,1],[964,13,967,15,1],[969,13,969,112,1],[970,13,970,58,1],[971,13,971,58,1],[972,13,972,68,1],[973,9,973,10,1],[977,9,977,10,1],[978,13,978,74,1],[979,13,979,44,1],[980,13,980,132,1],[981,13,981,72,1],[982,13,982,84,1],[984,13,984,37,1],[985,13,985,43,1],[986,13,986,46,1],[987,13,987,39,1],[988,13,988,46,1],[990,13,993,15,1],[995,13,1000,15,1],[1002,13,1002,58,1],[1003,13,1003,74,1],[1004,13,1004,63,1],[1005,13,1005,71,1],[1006,9,1006,10,1],[1010,9,1010,10,1],[1011,13,1011,74,1],[1012,13,1012,44,1],[1013,13,1013,48,1],[1014,13,1014,131,1],[1015,13,1015,72,1],[1016,13,1016,84,1],[1018,13,1018,52,1],[1019,13,1019,43,1],[1020,13,1020,46,1],[1021,13,1021,39,1],[1022,13,1022,46,1],[1024,13,1024,62,1],[1025,13,1025,93,1],[1027,13,1030,15,1],[1032,13,1038,15,1],[1040,13,1040,58,1],[1041,13,1041,74,1],[1042,13,1042,63,1],[1044,13,1044,101,1],[1045,13,1045,109,1],[1046,13,1046,40,1],[1047,13,1047,52,1],[1048,9,1048,10,1],[1052,9,1052,10,1],[1053,13,1053,74,1],[1054,13,1054,108,1],[1055,13,1055,59,1],[1056,13,1056,51,1],[1057,9,1057,10,1],[1061,9,1061,10,1],[1062,13,1062,74,1],[1064,13,1064,69,1],[1065,13,1065,86,1],[1067,13,1067,39,1],[1068,13,1068,46,1],[1069,13,1069,46,1],[1071,13,1071,108,1],[1072,13,1072,64,1],[1073,13,1073,51,1],[1074,9,1074,10,1],[1078,9,1078,10,1],[1079,13,1079,74,1],[1080,13,1080,64,1],[1082,13,1082,79,1],[1083,13,1090,15,1],[1092,13,1092,72,1],[1093,13,1093,84,1],[1094,13,1094,42,1],[1096,13,1096,37,1],[1097,13,1097,43,1],[1098,13,1098,46,1],[1099,13,1099,39,1],[1100,13,1100,39,1],[1101,13,1101,46,1],[1103,13,1106,15,1],[1108,13,1108,64,1],[1109,13,1109,58,1],[1110,13,1110,60,1],[1111,9,1111,10,1],[1115,9,1115,10,1],[1116,13,1116,74,1],[1117,13,1117,63,1],[1119,13,1119,80,1],[1120,13,1127,15,1],[1129,13,1129,72,1],[1130,13,1130,84,1],[1131,13,1131,42,1],[1133,13,1133,37,1],[1134,13,1134,43,1],[1135,13,1135,46,1],[1136,13,1136,39,1],[1137,13,1137,39,1],[1138,13,1138,46,1],[1140,13,1143,15,1],[1145,13,1145,64,1],[1146,13,1146,58,1],[1147,13,1147,60,1],[1148,9,1148,10,1],[1152,9,1152,10,1],[1153,13,1153,74,1],[1154,13,1154,44,1],[1155,13,1155,84,1],[1157,13,1157,97,1],[1159,13,1166,15,1],[1168,13,1168,72,1],[1169,13,1169,84,1],[1170,13,1170,42,1],[1172,13,1172,37,1],[1173,13,1173,43,1],[1174,13,1174,39,1],[1175,13,1175,46,1],[1176,13,1176,39,1],[1177,13,1177,46,1],[1179,13,1182,15,1],[1184,13,1184,64,1],[1185,13,1185,58,1],[1186,13,1186,60,1],[1187,9,1187,10,1],[1191,9,1191,10,1],[1192,13,1192,74,1],[1193,13,1193,44,1],[1194,13,1194,84,1],[1196,13,1196,98,1],[1198,13,1205,15,1],[1207,13,1207,72,1],[1208,13,1208,84,1],[1209,13,1209,42,1],[1211,13,1211,37,1],[1212,13,1212,43,1],[1213,13,1213,39,1],[1214,13,1214,46,1],[1215,13,1215,39,1],[1216,13,1216,46,1],[1218,13,1221,15,1],[1223,13,1223,64,1],[1224,13,1224,58,1],[1225,13,1225,60,1],[1226,9,1226,10,1],[1232,9,1232,10,1],[1233,13,1233,74,1],[1235,13,1235,44,1],[1236,13,1242,15,1],[1244,13,1244,68,1],[1245,13,1245,85,1],[1246,13,1246,91,1],[1248,13,1254,15,1],[1256,13,1256,37,1],[1257,13,1257,37,1],[1258,13,1258,46,1],[1259,13,1259,53,1],[1260,13,1260,47,1],[1261,13,1261,46,1],[1263,13,1263,93,1],[1264,13,1264,74,1],[1266,13,1266,83,1],[1268,13,1268,74,1],[1269,13,1269,63,1],[1270,9,1270,10,1],[1274,9,1274,10,1],[1275,13,1275,74,1],[1276,13,1276,44,1],[1277,13,1277,104,1],[1278,13,1278,37,1],[1279,13,1279,37,1],[1280,13,1280,117,1],[1281,13,1281,46,1],[1283,13,1286,15,1],[1288,13,1288,81,1],[1289,13,1289,58,1],[1291,13,1291,64,1],[1292,13,1292,78,1],[1293,13,1293,74,1],[1294,9,1294,10,1],[1298,9,1298,10,1],[1299,13,1299,74,1],[1300,13,1300,44,1],[1301,13,1301,104,1],[1302,13,1302,37,1],[1303,13,1303,37,1],[1304,13,1304,46,1],[1306,13,1309,15,1],[1311,13,1311,88,1],[1312,13,1312,58,1],[1314,13,1314,74,1],[1315,13,1315,59,1],[1316,13,1316,79,1],[1317,9,1317,10,1],[1321,9,1321,10,1],[1322,13,1322,74,1],[1323,13,1323,44,1],[1324,13,1331,15,1],[1332,13,1332,37,1],[1333,13,1333,49,1],[1334,13,1334,46,1],[1336,13,1339,15,1],[1341,13,1341,81,1],[1343,13,1343,74,1],[1344,13,1344,59,1],[1345,13,1345,108,1],[1346,9,1346,10,1]]);
+    </script>
+  </body>
+</html>

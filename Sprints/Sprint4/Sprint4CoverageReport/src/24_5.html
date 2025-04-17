@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestViewModels\StageEditViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagerData.Models;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
+{
+    public class StageEditViewModelTests
+    {
+        [Fact]
+        public void DefaultConstructor_PropertiesAreInitialized()
+        {
+            var vm = new StageEditViewModel();
+
+            Assert.Equal(0, vm.StageId);
+            Assert.Equal(0, vm.ProjectId);
+            Assert.Null(vm.Name);
+            Assert.Equal(0, vm.Position);
+            Assert.Null(vm.SelectedGroupId);
+            Assert.NotNull(vm.AvailableGroups);
+            Assert.Empty(vm.AvailableGroups);
+            Assert.NotNull(vm.AllStages);
+            Assert.Empty(vm.AllStages);
+        }
+
+        [Fact]
+        public void StageId_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel { StageId = 123 };
+            Assert.Equal(123, vm.StageId);
+        }
+
+        [Fact]
+        public void ProjectId_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel { ProjectId = 999 };
+            Assert.Equal(999, vm.ProjectId);
+        }
+
+        [Fact]
+        public void Name_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel { Name = &quot;Edit Stage&quot; };
+            Assert.Equal(&quot;Edit Stage&quot;, vm.Name);
+        }
+
+        [Fact]
+        public void Position_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel { Position = 10 };
+            Assert.Equal(10, vm.Position);
+        }
+
+        [Fact]
+        public void SelectedGroupId_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel { SelectedGroupId = 5 };
+            Assert.Equal(5, vm.SelectedGroupId);
+        }
+
+        [Fact]
+        public void AvailableGroups_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel();
+            var groups = new List&lt;SelectListItem&gt;
+            {
+                new SelectListItem { Value = &quot;1&quot;, Text = &quot;Group X&quot; },
+                new SelectListItem { Value = &quot;2&quot;, Text = &quot;Group Y&quot; }
+            };
+
+            vm.AvailableGroups = groups;
+
+            Assert.NotNull(vm.AvailableGroups);
+            Assert.Equal(2, vm.AvailableGroups.Count);
+            Assert.Contains(vm.AvailableGroups, g =&gt; g.Value == &quot;1&quot; &amp;&amp; g.Text == &quot;Group X&quot;);
+        }
+
+        [Fact]
+        public void AllStages_CanBeSetAndRetrieved()
+        {
+            var vm = new StageEditViewModel();
+            var stages = new List&lt;Stage&gt;
+            {
+                new Stage { Id = 1, Name = &quot;Stage A&quot; },
+                new Stage { Id = 2, Name = &quot;Stage B&quot; }
+            };
+
+            vm.AllStages = stages;
+
+            Assert.NotNull(vm.AllStages);
+            Assert.Equal(2, vm.AllStages.Count);
+            Assert.Contains(vm.AllStages, s =&gt; s.Id == 1 &amp;&amp; s.Name == &quot;Stage A&quot;);
+        }
+
+        [Fact]
+        public void Name_ValidationFailsWhenMissing()
+        {
+            var vm = new StageEditViewModel
+            {
+                StageId = 1,
+                ProjectId = 100,
+                Name = null,
+                Position = 5
+            };
+
+            var results = ValidateModel(vm);
+
+            Assert.Contains(results, r =&gt; r.MemberNames.Contains(nameof(vm.Name)));
+        }
+
+        [Fact]
+        public void Position_ValidationFailsWhenZero()
+        {
+            var vm = new StageEditViewModel
+            {
+                StageId = 2,
+                ProjectId = 200,
+                Name = &quot;Valid Stage&quot;,
+                Position = 0
+            };
+
+            var results = ValidateModel(vm);
+
+            Assert.Contains(results, r =&gt; r.MemberNames.Contains(nameof(vm.Position)));
+        }
+
+        private static List&lt;ValidationResult&gt; ValidateModel(object model)
+        {
+            var results = new List&lt;ValidationResult&gt;();
+            var context = new ValidationContext(model, null, null);
+            Validator.TryValidateObject(model, context, results, true);
+            return results;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,1],[13,13,13,47,1],[15,13,15,41,1],[16,13,16,43,1],[17,13,17,34,1],[18,13,18,42,1],[19,13,19,45,1],[20,13,20,48,1],[21,13,21,46,1],[22,13,22,42,1],[23,13,23,40,1],[24,9,24,10,1],[28,9,28,10,1],[29,13,29,63,1],[30,13,30,43,1],[31,9,31,10,1],[35,9,35,10,1],[36,13,36,65,1],[37,13,37,45,1],[38,9,38,10,1],[42,9,42,10,1],[43,13,43,69,1],[44,13,44,49,1],[45,9,45,10,1],[49,9,49,10,1],[50,13,50,63,1],[51,13,51,43,1],[52,9,52,10,1],[56,9,56,10,1],[57,13,57,69,1],[58,13,58,49,1],[59,9,59,10,1],[63,9,63,10,1],[64,13,64,47,1],[65,13,69,15,1],[71,13,71,41,1],[73,13,73,48,1],[74,13,74,55,1],[75,13,75,54,1],[75,54,75,91,1],[75,91,75,93,1],[76,9,76,10,1],[80,9,80,10,1],[81,13,81,47,1],[82,13,86,15,1],[88,13,88,35,1],[90,13,90,42,1],[91,13,91,49,1],[92,13,92,48,1],[92,48,92,80,1],[92,80,92,82,1],[93,9,93,10,1],[97,9,97,10,1],[98,13,104,15,1],[106,13,106,45,1],[108,13,108,43,1],[108,43,108,82,1],[108,82,108,84,1],[109,9,109,10,1],[113,9,113,10,1],[114,13,120,15,1],[122,13,122,45,1],[124,13,124,43,1],[124,43,124,86,1],[124,86,124,88,1],[125,9,125,10,1],[128,9,128,10,1],[129,13,129,56,1],[130,13,130,68,1],[131,13,131,72,1],[132,13,132,28,1],[133,9,133,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Models\User.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+
+namespace TaskManagerData.Models;
+
+/// &lt;summary&gt;
+/// Represents a user in the task management system.
+/// Inherits from &lt;see cref=&quot;IdentityUser{TKey}&quot; /&gt; to integrate with ASP.NET Identity.
+/// &lt;/summary&gt;
+/// &lt;seealso cref=&quot;Microsoft.AspNetCore.Identity.IdentityUser&amp;lt;System.Int32&amp;gt;&quot; /&gt;
+public class User : IdentityUser&lt;int&gt;
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the collection of groups the user is a member of.
+    /// A user can belong to multiple groups.
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// The user groups.
+    /// &lt;/value&gt;
+    public ICollection&lt;UserGroup&gt; UserGroups { get; set; } = new List&lt;UserGroup&gt;();
+
+    /// &lt;summary&gt;
+    /// Gets or sets the collection of tasks the user is assigned to.
+    /// &lt;/summary&gt;
+    public ICollection&lt;TaskEmployee&gt; TaskEmployees { get; set; } = new List&lt;TaskEmployee&gt;();
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,48,19,52,1],[19,53,19,57,1],[19,62,19,83,1],[24,54,24,58,1],[24,59,24,63,1],[24,68,24,92,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestViewModels\FindUsernameViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using TaskManagerWebsite.ViewModels;
+
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
+{
+    public class FindUsernameViewModelTests
+    {
+        /// &lt;summary&gt;
+        /// Valid model should pass validation.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void FindUsernameViewModel_ValidData_PassesValidation()
+        {
+            // Arrange
+            var model = new FindUsernameViewModel
+            {
+                Email = &quot;user@example.com&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.True(isValid);
+            Assert.Empty(validationResults);
+        }
+
+        /// &lt;summary&gt;
+        /// Model should fail validation when email is missing.
+        /// &lt;/summary&gt;
+        [Fact]
+        public void FindUsernameViewModel_MissingEmail_FailsValidation()
+        {
+            // Arrange
+            var model = new FindUsernameViewModel
+            {
+                Email = &quot;&quot;
+            };
+
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var validationContext = new ValidationContext(model);
+
+            // Act
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Contains(validationResults, v =&gt; v.ErrorMessage == &quot;Email is required.&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,9,13,10,1],[15,13,18,15,1],[20,13,20,66,1],[21,13,21,66,1],[24,13,24,107,1],[27,13,27,34,1],[28,13,28,45,1],[29,9,29,10,1],[36,9,36,10,1],[38,13,41,15,1],[43,13,43,66,1],[44,13,44,66,1],[47,13,47,107,1],[50,13,50,35,1],[51,13,51,53,1],[51,53,51,91,1],[51,91,51,93,1],[52,9,52,10,1]]);
+    </script>
+  </body>
+</html>

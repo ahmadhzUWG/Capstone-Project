@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\GroupDetails.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerData.Models.Group
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/Admin/groupDetails.css&quot; /&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;group-header&quot;&gt;
+        &lt;h2&gt;@Model.Name&lt;/h2&gt;
+        &lt;p&gt;Description: @Model.Description&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Display the Current Manager --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Manager of this Group&lt;/h3&gt;
+        @if (Model.Manager != null)
+        {
+            &lt;p class=&quot;manager-info&quot;&gt;
+                &lt;strong&gt;@Model.Manager.UserName (@Model.Manager.Email)&lt;/strong&gt;
+            &lt;/p&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;manager-info&quot;&gt;&lt;strong&gt;No manager assigned.&lt;/strong&gt;&lt;/p&gt;
+        }
+    &lt;/div&gt;
+
+    &lt;!-- Change Manager Section --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Change Manager&lt;/h3&gt;
+        &lt;form asp-action=&quot;ChangeManager&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;&gt;
+            @Html.AntiForgeryToken()
+            &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+            &lt;label for=&quot;newManagerId&quot;&gt;Select New Manager:&lt;/label&gt;
+            &lt;select name=&quot;newManagerId&quot; class=&quot;form-control&quot;&gt;
+                @if (ViewBag.AvailableManagers != null &amp;&amp; ViewBag.AvailableManagers.Count &gt; 0)
+                {
+                    @foreach (var manager in ViewBag.AvailableManagers)
+                    {
+                        &lt;option value=&quot;@manager.Id&quot;&gt;@manager.UserName (@manager.Email)&lt;/option&gt;
+                    }
+                }
+                else
+                {
+                    &lt;option value=&quot;&quot; disabled&gt;No available employees to promote&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-warning mt-2&quot; @(ViewBag.AvailableManagers.Count == 0 ? &quot;disabled&quot; : &quot;&quot;)&gt;Change Manager&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Combined Employee Assignment Section (Partial View) --&gt;
+    &lt;div class=&quot;group-section&quot; id=&quot;group-assignment-section&quot;&gt;
+        @await Html.PartialAsync(&quot;_GroupUserAssignmentPartial&quot;, Model)
+    &lt;/div&gt;
+
+    &lt;!-- Back to Groups Button --&gt;
+    &lt;div class=&quot;back-button&quot;&gt;
+        &lt;a href=&quot;@Url.Action(&quot;Groups&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Groups&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;script src=&quot;~/lib/jquery.unobtrusive-ajax.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+        function refreshGroupAssignment(htmlSnippet) {
+            $(&quot;#group-assignment-section&quot;).html(htmlSnippet);
+        }
+        function groupActionFailed(xhr, status, error) {
+            alert(&quot;An error occurred while processing the group update.&quot;);
+            console.error(&quot;Error:&quot;, error);
+        }
+    &lt;/script&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,46,0],[11,14,11,25,0],[12,26,12,44,0],[18,10,18,36,0],[19,9,19,10,0],[21,26,21,49,0],[21,51,21,71,0],[23,9,23,10,0],[25,9,25,10,0],[27,9,27,10,0],[34,14,34,38,0],[35,56,35,66,0],[38,18,38,95,0],[39,17,39,18,0],[40,22,40,29,0],[40,31,40,42,0],[40,43,40,45,0],[40,46,40,71,0],[41,21,41,22,0],[42,41,42,52,0],[42,54,42,71,0],[42,73,42,87,0],[43,21,43,22,0],[44,17,44,18,0],[46,17,46,18,0],[48,17,48,18,0],[50,66,50,121,0],[56,10,56,72,0],[61,18,61,49,0]]);
+    </script>
+  </body>
+</html>

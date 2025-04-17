@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestModels\TaskEmployeeTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManager.Tests.WebsiteTests.TestModels
+{
+    public class TaskEmployeeTests
+    {
+        [Fact]
+        public void TaskEmployee_CanSetAndGetProperties()
+        {
+            // Arrange
+            var employee = new User { Id = 1, UserName = &quot;jdoe&quot; };
+            var task = new Task { Id = 42, Name = &quot;Test Task&quot; };
+            var assignedDate = new DateTime(2023, 1, 1);
+            var completedDate = new DateTime(2023, 1, 10);
+
+            // Act
+            var taskEmployee = new TaskEmployee
+            {
+                Id = 5,
+                EmployeeId = employee.Id,
+                Employee = employee,
+                TaskId = task.Id,
+                Task = task,
+                AssignedDate = assignedDate,
+                CompletedDate = completedDate
+            };
+
+            // Assert
+            Assert.Equal(5, taskEmployee.Id);
+            Assert.Equal(1, taskEmployee.EmployeeId);
+            Assert.Equal(employee, taskEmployee.Employee);
+            Assert.Equal(42, taskEmployee.TaskId);
+            Assert.Equal(task, taskEmployee.Task);
+            Assert.Equal(assignedDate, taskEmployee.AssignedDate);
+            Assert.Equal(completedDate, taskEmployee.CompletedDate);
+        }
+
+        [Fact]
+        public void TaskEmployee_CompletedDate_CanBeNull()
+        {
+            // Arrange
+            var taskEmployee = new TaskEmployee
+            {
+                CompletedDate = null
+            };
+
+            // Assert
+            Assert.Null(taskEmployee.CompletedDate);
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,1],[12,13,12,67,1],[13,13,13,65,1],[14,13,14,57,1],[15,13,15,59,1],[18,13,27,15,1],[30,13,30,46,1],[31,13,31,54,1],[32,13,32,59,1],[33,13,33,51,1],[34,13,34,51,1],[35,13,35,67,1],[36,13,36,69,1],[37,9,37,10,1],[41,9,41,10,1],[43,13,46,15,1],[49,13,49,53,1],[50,9,50,10,1]]);
+    </script>
+  </body>
+</html>

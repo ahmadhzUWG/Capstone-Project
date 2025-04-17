@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestViewModels\CreateStageViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
+{
+    public class CreateStageViewModelTests
+    {
+        [Fact]
+        public void DefaultConstructor_PropertiesAreInitialized()
+        {
+            var vm = new CreateStageViewModel();
+
+            Assert.Null(vm.Name);
+            Assert.Equal(0, vm.Position);
+            Assert.Null(vm.SelectedGroupId);
+            Assert.NotNull(vm.AvailableGroups);
+            Assert.Empty(vm.AvailableGroups);
+        }
+
+        [Fact]
+        public void Name_CanBeSetAndRetrieved()
+        {
+            var vm = new CreateStageViewModel { Name = &quot;Test Stage&quot; };
+            Assert.Equal(&quot;Test Stage&quot;, vm.Name);
+        }
+
+        [Fact]
+        public void Position_CanBeSetAndRetrieved()
+        {
+            var vm = new CreateStageViewModel { Position = 5 };
+            Assert.Equal(5, vm.Position);
+        }
+
+        [Fact]
+        public void SelectedGroupId_CanBeSetAndRetrieved()
+        {
+            var vm = new CreateStageViewModel { SelectedGroupId = 10 };
+            Assert.Equal(10, vm.SelectedGroupId);
+        }
+
+        [Fact]
+        public void AvailableGroups_CanBeSetAndRetrieved()
+        {
+            var vm = new CreateStageViewModel();
+            var groups = new List&lt;SelectListItem&gt;
+            {
+                new SelectListItem { Value = &quot;1&quot;, Text = &quot;Group A&quot; },
+                new SelectListItem { Value = &quot;2&quot;, Text = &quot;Group B&quot; }
+            };
+
+            vm.AvailableGroups = groups;
+
+            Assert.NotNull(vm.AvailableGroups);
+            Assert.Equal(2, vm.AvailableGroups.Count());
+            Assert.Contains(vm.AvailableGroups, g =&gt; g.Value == &quot;1&quot; &amp;&amp; g.Text == &quot;Group A&quot;);
+            Assert.Contains(vm.AvailableGroups, g =&gt; g.Value == &quot;2&quot; &amp;&amp; g.Text == &quot;Group B&quot;);
+        }
+
+        [Fact]
+        public void Name_ValidationFailsWhenMissing()
+        {
+            var vm = new CreateStageViewModel
+            {
+                Name = null,
+                Position = 1
+            };
+
+            var results = ValidateModel(vm);
+
+            Assert.Contains(results, r =&gt; r.MemberNames.Contains(nameof(vm.Name)));
+        }
+
+        [Fact]
+        public void Position_ValidationFailsWhenZero()
+        {
+            var vm = new CreateStageViewModel
+            {
+                Name = &quot;Stage&quot;,
+                Position = 0
+            };
+
+            var results = ValidateModel(vm);
+
+            Assert.Contains(results, r =&gt; r.MemberNames.Contains(nameof(vm.Position)));
+        }
+
+        private static List&lt;ValidationResult&gt; ValidateModel(object model)
+        {
+            var results = new List&lt;ValidationResult&gt;();
+            var context = new ValidationContext(model, null, null);
+            Validator.TryValidateObject(model, context, results, true);
+            return results;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[12,13,12,49,1],[14,13,14,34,1],[15,13,15,42,1],[16,13,16,45,1],[17,13,17,48,1],[18,13,18,46,1],[19,9,19,10,1],[23,9,23,10,1],[24,13,24,71,1],[25,13,25,49,1],[26,9,26,10,1],[30,9,30,10,1],[31,13,31,64,1],[32,13,32,42,1],[33,9,33,10,1],[37,9,37,10,1],[38,13,38,72,1],[39,13,39,50,1],[40,9,40,10,1],[44,9,44,10,1],[45,13,45,49,1],[46,13,50,15,1],[52,13,52,41,1],[54,13,54,48,1],[55,13,55,57,1],[56,13,56,54,1],[56,54,56,91,1],[56,91,56,93,1],[57,13,57,54,1],[57,54,57,91,1],[57,91,57,93,1],[58,9,58,10,1],[62,9,62,10,1],[63,13,67,15,1],[69,13,69,45,1],[71,13,71,43,1],[71,43,71,82,1],[71,82,71,84,1],[72,9,72,10,1],[76,9,76,10,1],[77,13,81,15,1],[83,13,83,45,1],[85,13,85,43,1],[85,43,85,86,1],[85,86,85,88,1],[86,9,86,10,1],[89,9,89,10,1],[90,13,90,56,1],[91,13,91,68,1],[92,13,92,72,1],[93,13,93,28,1],[94,9,94,10,1]]);
+    </script>
+  </body>
+</html>

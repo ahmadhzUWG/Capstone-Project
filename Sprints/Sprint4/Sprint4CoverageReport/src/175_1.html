@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Shared\_GroupUserAssignmentPartial.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerData.Models.Group
+@using System.Linq
+@using TaskManagerData.Models
+
+@{
+    Layout = null;
+    var groupUsers = ViewBag.GroupUsers as List&lt;UserGroup&gt;;
+}
+
+&lt;div id=&quot;group-assignment-container&quot;&gt;
+    &lt;!-- List of Employees in the Group --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Employees in this Group&lt;/h3&gt;
+        @if (groupUsers != null &amp;&amp; groupUsers.Any())
+        {
+            &lt;ul class=&quot;employee-list&quot;&gt;
+                @foreach (var userGroup in ViewBag.GroupUsers)
+                {
+                    &lt;li class=&quot;employee-item&quot;&gt;
+                        @userGroup.User.UserName (@userGroup.User.Email)
+                        @if (userGroup.Role != &quot;Manager&quot;)
+                        {
+                            &lt;form asp-action=&quot;RemoveUserFromGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;
+                                  data-ajax=&quot;true&quot;
+                                  data-ajax-method=&quot;POST&quot;
+                                  data-ajax-success=&quot;refreshGroupAssignment&quot;
+                                  data-ajax-failure=&quot;groupActionFailed&quot;
+                                  class=&quot;inline-form&quot;&gt;
+                                @Html.AntiForgeryToken()
+                                &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+                                &lt;input type=&quot;hidden&quot; name=&quot;userId&quot; value=&quot;@userGroup.UserId&quot; /&gt;
+                                &lt;button type=&quot;submit&quot; class=&quot;btn btn-danger btn-sm&quot;&gt;Remove&lt;/button&gt;
+                            &lt;/form&gt;
+                        }
+                        else
+                        {
+                            &lt;span class=&quot;badge badge-info&quot;&gt;Manager&lt;/span&gt;
+                        }
+                    &lt;/li&gt;
+                }
+            &lt;/ul&gt;
+        }
+        else
+        {
+            &lt;p class=&quot;no-employees&quot;&gt;No employees assigned to this group.&lt;/p&gt;
+        }
+    &lt;/div&gt;
+
+    &lt;!-- Form to Add Employees to the Group --&gt;
+    &lt;div class=&quot;group-section&quot;&gt;
+        &lt;h3&gt;Add Employee to Group&lt;/h3&gt;
+        &lt;form id=&quot;addEmployeeForm&quot; asp-action=&quot;AddUserToGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot;
+              data-ajax=&quot;true&quot;
+              data-ajax-method=&quot;POST&quot;
+              data-ajax-success=&quot;refreshGroupAssignment&quot;
+              data-ajax-failure=&quot;groupActionFailed&quot;&gt;
+            @Html.AntiForgeryToken()
+            &lt;input type=&quot;hidden&quot; name=&quot;groupId&quot; value=&quot;@Model.Id&quot; /&gt;
+            &lt;label for=&quot;userId&quot;&gt;Select Employee:&lt;/label&gt;
+            &lt;select name=&quot;userId&quot; class=&quot;form-control&quot;&gt;
+                @if (groupUsers != null)
+                {
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        &lt;option value=&quot;@user.Id&quot;&gt;@user.UserName (@user.Email)&lt;/option&gt;
+                    }
+                }
+                else
+                {
+                    &lt;option value=&quot;&quot; disabled&gt;No available employees&lt;/option&gt;
+                }
+            &lt;/select&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-success mt-2&quot;
+            @(ViewBag.Users != null &amp;&amp; ViewBag.Users.Count == 0 ? &quot;disabled&quot; : &quot;&quot;)&gt;
+                Add Employee
+            &lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[6,5,6,19,0],[7,5,7,60,0],[14,10,14,53,0],[15,9,15,10,0],[17,18,17,25,0],[17,27,17,40,0],[17,41,17,43,0],[17,44,17,62,0],[18,17,18,18,0],[20,26,20,50,0],[20,52,20,73,0],[21,26,21,58,0],[22,25,22,26,0],[29,34,29,58,0],[30,76,30,86,0],[31,75,31,93,0],[34,25,34,26,0],[36,25,36,26,0],[38,25,38,26,0],[40,17,40,18,0],[42,9,42,10,0],[44,9,44,10,0],[46,9,46,10,0],[57,14,57,38,0],[58,56,58,66,0],[61,18,61,41,0],[62,17,62,18,0],[63,22,63,29,0],[63,31,63,39,0],[63,40,63,42,0],[63,43,63,56,0],[64,21,64,22,0],[65,41,65,49,0],[65,51,65,65,0],[65,67,65,78,0],[66,21,66,22,0],[67,17,67,18,0],[69,17,69,18,0],[71,17,71,18,0],[74,15,74,83,0]]);
+    </script>
+  </body>
+</html>

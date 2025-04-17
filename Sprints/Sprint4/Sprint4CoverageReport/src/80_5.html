@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestModels\ProjectBoardTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using TaskManagerData.Models;
+
+namespace TaskManager.Tests.WebsiteTests.TestModels
+{
+    public class ProjectBoardTests
+    {
+        [Fact]
+        public void ProjectBoard_Id_CanBeSetAndRetrieved()
+        {
+            var board = new ProjectBoard { Id = 1 };
+            Assert.Equal(1, board.Id);
+        }
+
+        [Fact]
+        public void ProjectBoard_ProjectId_CanBeSetAndRetrieved()
+        {
+            var board = new ProjectBoard { ProjectId = 10 };
+            Assert.Equal(10, board.ProjectId);
+        }
+
+        [Fact]
+        public void ProjectBoard_BoardCreatorId_CanBeSetAndRetrieved()
+        {
+            var board = new ProjectBoard { BoardCreatorId = 5 };
+            Assert.Equal(5, board.BoardCreatorId);
+        }
+
+        [Fact]
+        public void ProjectBoard_Project_CanBeAssignedAndRetrieved()
+        {
+            var project = new Project { Id = 2, Name = &quot;Test Project&quot; };
+            var board = new ProjectBoard { Project = project };
+            Assert.NotNull(board.Project);
+            Assert.Equal(2, board.Project.Id);
+            Assert.Equal(&quot;Test Project&quot;, board.Project.Name);
+        }
+
+        [Fact]
+        public void ProjectBoard_BoardCreator_CanBeAssignedAndRetrieved()
+        {
+            var user = new User { Id = 3, UserName = &quot;BoardCreator&quot; };
+            var board = new ProjectBoard { BoardCreator = user };
+            Assert.NotNull(board.BoardCreator);
+            Assert.Equal(3, board.BoardCreator.Id);
+            Assert.Equal(&quot;BoardCreator&quot;, board.BoardCreator.UserName);
+        }
+
+        [Fact]
+        public void ProjectBoard_Stages_DefaultsToNull()
+        {
+            var board = new ProjectBoard();
+            Assert.Null(board.Stages);
+        }
+
+        [Fact]
+        public void ProjectBoard_Stages_CanBeAssignedAndRetrieved()
+        {
+            var stages = new List&lt;Stage&gt;
+            {
+                new Stage { Id = 1, Name = &quot;To Do&quot; },
+                new Stage { Id = 2, Name = &quot;Done&quot; }
+            };
+
+            var board = new ProjectBoard { Stages = stages };
+            Assert.NotNull(board.Stages);
+            Assert.Equal(2, board.Stages.Count);
+            Assert.Contains(board.Stages, s =&gt; s.Name == &quot;To Do&quot;);
+            Assert.Contains(board.Stages, s =&gt; s.Name == &quot;Done&quot;);
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,9,9,10,1],[10,13,10,53,1],[11,13,11,39,1],[12,9,12,10,1],[16,9,16,10,1],[17,13,17,61,1],[18,13,18,47,1],[19,9,19,10,1],[23,9,23,10,1],[24,13,24,65,1],[25,13,25,51,1],[26,9,26,10,1],[30,9,30,10,1],[31,13,31,73,1],[32,13,32,64,1],[33,13,33,43,1],[34,13,34,47,1],[35,13,35,62,1],[36,9,36,10,1],[40,9,40,10,1],[41,13,41,71,1],[42,13,42,66,1],[43,13,43,48,1],[44,13,44,52,1],[45,13,45,71,1],[46,9,46,10,1],[50,9,50,10,1],[51,13,51,44,1],[52,13,52,39,1],[53,9,53,10,1],[57,9,57,10,1],[58,13,62,15,1],[64,13,64,62,1],[65,13,65,42,1],[66,13,66,49,1],[67,13,67,48,1],[67,48,67,65,1],[67,65,67,67,1],[68,13,68,48,1],[68,48,68,64,1],[68,64,68,66,1],[69,9,69,10,1]]);
+    </script>
+  </body>
+</html>

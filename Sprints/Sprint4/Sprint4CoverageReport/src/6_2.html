@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\ViewModels\LoginViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Security.Policy;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using TaskManagerData.Models;
+
+namespace TaskManagerDesktop.ViewModels
+{
+    /// &lt;summary&gt;
+    /// Represents the data model for user login.
+    /// &lt;/summary&gt;
+    public class LoginViewModel : INotifyPropertyChanged
+    {
+        private UserManager&lt;User&gt; _userManager;
+
+        private string _username = string.Empty;
+        private string _password = string.Empty;
+        private bool _showErrorPassword = false;
+        private bool _showErrorUsername = false;
+        private bool _showErrorLogin = false;
+
+        /// &lt;summary&gt;
+        /// Gets or sets the username for login authentication.
+        /// &lt;/summary&gt;
+        public string Username
+        {
+            get =&gt; _username;
+            set
+            {
+                OnPropertyChanged(nameof(Username));
+                _username = value;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the password for login authentication.
+        /// &lt;/summary&gt;
+        public string Password
+        {
+            get =&gt; _password;
+            set
+            {
+                OnPropertyChanged(nameof(Password));
+                _password = value;
+            }
+
+        }
+
+        /// &lt;summary&gt;
+        /// Indicates whether to show an error message for the password field.
+        /// &lt;/summary&gt;
+        public bool ShowErrorPassword
+        {
+            get =&gt; _showErrorPassword;
+            set
+            {
+                _showErrorPassword = value;
+                OnPropertyChanged(nameof(ShowErrorPassword));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Indicates whether to show an error message for the username field.
+        /// &lt;/summary&gt;
+        public bool ShowErrorUsername
+        {
+            get =&gt; _showErrorUsername;
+            set
+            {
+                _showErrorUsername = value;
+                OnPropertyChanged(nameof(ShowErrorUsername));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Indicates whether to show an error message for the login attempt.
+        /// &lt;/summary&gt;
+        public bool ShowErrorLogin
+        {
+            get =&gt; _showErrorLogin;
+            set
+            {
+                _showErrorLogin = value;
+                OnPropertyChanged(nameof(ShowErrorLogin));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Raises the PropertyChanged event for the specified property.
+        /// &lt;/summary&gt;
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName) =&gt;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;LoginViewModel&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userManager&quot;&gt;&lt;/param&gt;
+        public LoginViewModel(UserManager&lt;User&gt; userManager)
+        {
+            this._userManager = userManager;
+        }
+
+        public async Task&lt;bool&gt; Login()
+        {
+            this.clearErrors();
+            var isErrors = false;
+
+            if (string.IsNullOrEmpty(this.Username))
+            {
+                this.ShowErrorUsername = true;
+                isErrors = true;
+            }
+
+            if (string.IsNullOrEmpty(this.Password))
+            {
+                this.ShowErrorPassword = true;
+                isErrors = true;
+            }
+
+            if (isErrors)
+            {
+                return false;
+            }
+
+            var user = await this._userManager.FindByNameAsync(this.Username);
+            if (user == null)
+            {
+                this.ShowErrorLogin = true;
+                return false;
+            }
+
+            var isPasswordValid = await this._userManager.CheckPasswordAsync(user, this.Password);
+            if (!isPasswordValid)
+            {
+                this.ShowErrorLogin = true;
+                return false;
+            }
+
+            this.clearErrors();
+            Session.CurrentUser = user;
+            return true;
+        }
+
+        private void clearErrors()
+        {
+            this.ShowErrorPassword = false;
+            this.ShowErrorUsername = false;
+            this.ShowErrorLogin = false;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[21,9,21,49,1],[22,9,22,49,1],[23,9,23,49,1],[24,9,24,49,1],[25,9,25,46,1],[32,20,32,29,1],[34,13,34,14,1],[35,17,35,53,1],[36,17,36,35,1],[37,13,37,14,1],[45,20,45,29,1],[47,13,47,14,1],[48,17,48,53,1],[49,17,49,35,1],[50,13,50,14,1],[59,20,59,38,1],[61,13,61,14,1],[62,17,62,44,1],[63,17,63,62,1],[64,13,64,14,1],[72,20,72,38,1],[74,13,74,14,1],[75,17,75,44,1],[76,17,76,62,1],[77,13,77,14,1],[85,20,85,35,1],[87,13,87,14,1],[88,17,88,41,1],[89,17,89,59,1],[90,13,90,14,1],[99,13,99,86,1],[105,9,105,61,1],[106,9,106,10,1],[107,13,107,45,1],[108,9,108,10,1],[111,9,111,10,1],[112,13,112,32,1],[113,13,113,34,1],[115,13,115,53,1],[116,13,116,14,1],[117,17,117,47,1],[118,17,118,33,1],[119,13,119,14,1],[121,13,121,53,1],[122,13,122,14,1],[123,17,123,47,1],[124,17,124,33,1],[125,13,125,14,1],[127,13,127,26,1],[128,13,128,14,1],[129,17,129,30,1],[132,13,132,79,1],[133,13,133,30,1],[134,13,134,14,1],[135,17,135,44,1],[136,17,136,30,1],[139,13,139,99,1],[140,13,140,34,1],[141,13,141,14,1],[142,17,142,44,1],[143,17,143,30,1],[146,13,146,32,1],[147,13,147,40,1],[148,13,148,25,1],[149,9,149,10,1],[152,9,152,10,1],[153,13,153,44,1],[154,13,154,44,1],[155,13,155,41,1],[156,9,156,10,1]]);
+    </script>
+  </body>
+</html>

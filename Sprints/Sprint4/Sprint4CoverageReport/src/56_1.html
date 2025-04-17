@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250412204611_AddTaskHistoryTable.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class AddTaskHistoryTable : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: &quot;TaskHistories&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    TaskId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    Timestamp = table.Column&lt;DateTime&gt;(type: &quot;datetime2&quot;, nullable: false),
+                    UserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    Action = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_TaskHistories&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskHistories_AspNetUsers_UserId&quot;,
+                        column: x =&gt; x.UserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskHistories_Tasks_TaskId&quot;,
+                        column: x =&gt; x.TaskId,
+                        principalTable: &quot;Tasks&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskHistories_TaskId&quot;,
+                table: &quot;TaskHistories&quot;,
+                column: &quot;TaskId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskHistories_UserId&quot;,
+                table: &quot;TaskHistories&quot;,
+                column: &quot;UserId&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;TaskHistories&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,9,13,10,0],[14,13,16,35,0],[16,35,24,18,0],[24,18,26,17,0],[26,17,26,18,0],[26,18,27,21,0],[27,21,27,69,0],[27,69,28,21,0],[28,21,33,63,0],[33,63,34,21,0],[34,21,39,63,0],[39,63,40,17,0],[40,17,40,18,0],[40,18,40,20,0],[42,13,45,35,0],[47,13,50,35,0],[51,9,51,10,0],[55,9,55,10,0],[56,13,57,40,0],[58,9,58,10,0]]);
+    </script>
+  </body>
+</html>

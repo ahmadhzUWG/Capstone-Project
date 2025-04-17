@@ -1268,5 +1268,82 @@ namespace TaskManager.Tests.WebsiteTests.TestControllers
             var redirect = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("ProjectBoard", redirect.ActionName);
         }
+
+        [Fact]
+        public async Task AddComment_EmptyComment_ReturnsViewWithModelError()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = "Task", Description = "Task" };
+            context.Users.Add(user);
+            context.Tasks.Add(task);
+            context.Comments.Add(new Comment { TaskId = 1, UserId = 1, Content = "Old", Timestamp = DateTime.Now });
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel { TaskId = 1, NewComment = "   " };
+            var result = await controller.AddComment(vm);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsType<CreateTaskViewModel>(viewResult.Model);
+            Assert.True(controller.ModelState.ContainsKey("NewComment"));
+        }
+
+        [Fact]
+        public async Task AddComment_ValidComment_AddsAndRedirects()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var task = new TaskManagerData.Models.Task { Id = 1, Name = "Task", Description = "Task" };
+            context.Users.Add(user);
+            context.Tasks.Add(task);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var vm = new CreateTaskViewModel { TaskId = 1, NewComment = "Nice task!" };
+            var result = await controller.AddComment(vm);
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("EditTask", redirect.ActionName);
+            Assert.True(context.Comments.Any(c => c.Content == "Nice task!"));
+        }
+
+        [Fact]
+        public async Task ReplyToComment_Valid_AddsReplyAndRedirects()
+        {
+            using var context = CreateContext(Guid.NewGuid().ToString());
+            var user = new User { Id = 1 };
+            var parentComment = new Comment
+            {
+                Id = 1,
+                TaskId = 1,
+                UserId = 1,
+                Content = "Parent",
+                Timestamp = DateTime.Now
+            };
+            context.Users.Add(user);
+            context.Comments.Add(parentComment);
+            await context.SaveChangesAsync();
+
+            var controller = new ProjectController(context, CreateUserManager(user, false))
+            {
+                ControllerContext = CreateControllerContext(user)
+            };
+
+            var result = await controller.ReplyToComment(1, 1, "Reply message");
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("EditTask", redirect.ActionName);
+            Assert.True(context.Comments.Any(c => c.Content == "Reply message" && c.ParentCommentId == 1));
+        }
+
     }
 }

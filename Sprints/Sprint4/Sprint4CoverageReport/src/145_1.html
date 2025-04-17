@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Project\EditTask.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using TaskManagerData.Models
+@model TaskManagerWebsite.ViewModels.ProjectViewModels.CreateTaskViewModel
+
+@{
+    ViewBag.Title = &quot;Edit Task&quot;;
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+@Html.ValidationSummary(true, &quot;&quot;, new { @class = &quot;text-danger&quot; })
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Project/editTask.css&quot; /&gt;
+
+&lt;div style=&quot;text-align:center;&quot;&gt;
+    &lt;h2&gt;Task @Model.Name&lt;/h2&gt;
+
+    &lt;!-- Task Edit Form --&gt;
+    &lt;form asp-action=&quot;EditTask&quot; method=&quot;post&quot;&gt;
+        @Html.AntiForgeryToken()
+        &lt;input type=&quot;hidden&quot; asp-for=&quot;TaskId&quot; /&gt;
+
+        &lt;div class=&quot;row mb-3&quot;&gt;
+            &lt;div class=&quot;col-md-3&quot;&gt;
+                &lt;label asp-for=&quot;Name&quot; class=&quot;form-label d-block text-center&quot;&gt;Name&lt;/label&gt;
+                &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; /&gt;
+                &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;col-md-6&quot;&gt;
+                &lt;label asp-for=&quot;Description&quot; class=&quot;form-label d-block text-center&quot;&gt;Description&lt;/label&gt;
+                &lt;textarea asp-for=&quot;Description&quot; class=&quot;form-control&quot; rows=&quot;4&quot;&gt;&lt;/textarea&gt;
+                &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;col-md-3&quot;&gt;
+                &lt;label asp-for=&quot;SelectedEmployeeId&quot; class=&quot;form-label d-block text-center&quot;&gt;Assign to&lt;/label&gt;
+                &lt;select asp-for=&quot;SelectedEmployeeId&quot; asp-items=&quot;Model.AvailableEmployees&quot; class=&quot;form-control&quot;&gt;
+                    &lt;option value=&quot;&quot;&gt;-- None --&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;d-flex justify-content-center gap-3 mt-3&quot;&gt;
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Save Changes&lt;/button&gt;
+            &lt;a asp-action=&quot;ProjectBoard&quot; asp-route-id=&quot;@ViewBag.ProjectId&quot; class=&quot;btn btn-secondary&quot;&gt;Cancel&lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/form&gt;
+
+    &lt;!-- Task History Accordion --&gt;
+    &lt;!-- Wrap accordions in a row container --&gt;
+    &lt;div class=&quot;row mt-5&quot;&gt;
+        &lt;!-- Task History Accordion in the first column --&gt;
+        &lt;div class=&quot;col-md-6&quot;&gt;
+            &lt;div class=&quot;accordion&quot; id=&quot;taskHistoryAccordion&quot;&gt;
+                &lt;div class=&quot;accordion-item&quot;&gt;
+                    &lt;h2 class=&quot;accordion-header&quot; id=&quot;historyHeader&quot;&gt;
+                        &lt;button class=&quot;accordion-button collapsed&quot; type=&quot;button&quot; data-bs-toggle=&quot;collapse&quot; data-bs-target=&quot;#collapseHistory&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;collapseHistory&quot;&gt;
+                            Task History
+                        &lt;/button&gt;
+                    &lt;/h2&gt;
+                    &lt;div id=&quot;collapseHistory&quot; class=&quot;accordion-collapse collapse&quot; aria-labelledby=&quot;historyHeader&quot; data-bs-parent=&quot;#taskHistoryAccordion&quot;&gt;
+                        &lt;div class=&quot;accordion-body&quot;&gt;
+                            @if (Model.TaskHistory != null &amp;&amp; Model.TaskHistory.Any())
+                            {
+                                &lt;ul class=&quot;list-group&quot;&gt;
+                                    @foreach (var item in Model.TaskHistory)
+                                    {
+                                        &lt;li class=&quot;list-group-item&quot;&gt;
+                                            &lt;strong&gt;@item.Timestamp.ToString(&quot;g&quot;)&lt;/strong&gt; — @item.User.UserName: @item.Action
+                                        &lt;/li&gt;
+                                    }
+                                &lt;/ul&gt;
+                            }
+                            else
+                            {
+                                &lt;p&gt;No history available for this task.&lt;/p&gt;
+                            }
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Comments Accordion in the second column --&gt;
+        &lt;div class=&quot;col-md-6&quot;&gt;
+            &lt;div class=&quot;accordion&quot; id=&quot;commentsAccordion&quot;&gt;
+                &lt;div class=&quot;accordion-item&quot;&gt;
+                    &lt;h2 class=&quot;accordion-header&quot; id=&quot;commentsHeader&quot;&gt;
+                        &lt;button class=&quot;accordion-button collapsed&quot; type=&quot;button&quot; data-bs-toggle=&quot;collapse&quot; data-bs-target=&quot;#collapseComments&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;collapseComments&quot;&gt;
+                            Comments
+                        &lt;/button&gt;
+                    &lt;/h2&gt;
+                    &lt;div id=&quot;collapseComments&quot; class=&quot;accordion-collapse collapse&quot; aria-labelledby=&quot;commentsHeader&quot; data-bs-parent=&quot;#commentsAccordion&quot;&gt;
+                        &lt;div class=&quot;accordion-body&quot;&gt;
+                            &lt;!-- Existing Comments &amp; Replies --&gt;
+                            @if (Model.Comments != null &amp;&amp; Model.Comments.Any())
+                            {
+                                foreach (var comment in Model.Comments.Where(c =&gt; c.ParentCommentId == null))
+                                {
+                                    &lt;div class=&quot;comment-item mb-2 border rounded p-2&quot;&gt;
+                                        &lt;p class=&quot;mb-0&quot;&gt;
+                                            &lt;strong&gt;@comment.Timestamp.ToString(&quot;g&quot;)&lt;/strong&gt; - &lt;strong&gt;@comment.User.UserName&lt;/strong&gt;: @comment.Content
+                                            &lt;a class=&quot;btn btn-link btn-sm reply-link d-inline ms-2&quot; data-bs-toggle=&quot;collapse&quot;
+                                               href=&quot;#replyCollapse_@comment.Id&quot; role=&quot;button&quot;
+                                               aria-expanded=&quot;false&quot; aria-controls=&quot;replyCollapse_@comment.Id&quot;
+                                               style=&quot;opacity: 1; color: inherit;&quot;&gt;Reply&lt;/a&gt;
+                                        &lt;/p&gt;
+                                        &lt;!-- Collapsible reply form --&gt;
+                                        &lt;div class=&quot;collapse mt-2&quot; id=&quot;replyCollapse_@comment.Id&quot;&gt;
+                                            &lt;div class=&quot;card card-body p-2&quot;&gt;
+                                                &lt;form asp-action=&quot;ReplyToComment&quot; method=&quot;post&quot;&gt;
+                                                    @Html.AntiForgeryToken()
+                                                    &lt;input type=&quot;hidden&quot; name=&quot;parentCommentId&quot; value=&quot;@comment.Id&quot; /&gt;
+                                                    &lt;input type=&quot;hidden&quot; name=&quot;taskId&quot; value=&quot;@Model.TaskId&quot; /&gt;
+                                                    &lt;div class=&quot;mb-2&quot;&gt;
+                                                        &lt;input type=&quot;text&quot; name=&quot;content&quot; class=&quot;form-control&quot; placeholder=&quot;Write a reply...&quot; /&gt;
+                                                    &lt;/div&gt;
+                                                    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary btn-sm&quot;&gt;Post Reply&lt;/button&gt;
+                                                &lt;/form&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                        &lt;!-- Render replies recursively if any --&gt;
+                                        @if (comment.Replies != null &amp;&amp; comment.Replies.Any())
+                                        {
+                                            &lt;div class=&quot;ps-4&quot;&gt;
+                                                @Html.Raw(RenderReplies(comment.Replies))
+                                            &lt;/div&gt;
+                                        }
+                                    &lt;/div&gt;
+                                }
+                            }
+                            else
+                            {
+                                &lt;p&gt;No comments have been added yet.&lt;/p&gt;
+                            }
+
+                            &lt;!-- Main Comment Submission Form --&gt;
+                            &lt;div class=&quot;mt-4&quot;&gt;
+                                &lt;form asp-action=&quot;AddComment&quot; method=&quot;post&quot;&gt;
+                                    @Html.AntiForgeryToken()
+                                    &lt;input type=&quot;hidden&quot; asp-for=&quot;TaskId&quot; /&gt;
+                                    &lt;div class=&quot;input-group&quot;&gt;
+                                        &lt;input type=&quot;text&quot; asp-for=&quot;NewComment&quot; class=&quot;form-control&quot; placeholder=&quot;Write a comment and press Enter…&quot; /&gt;
+                                        &lt;button class=&quot;btn btn-primary&quot; type=&quot;submit&quot;&gt;Post&lt;/button&gt;
+                                    &lt;/div&gt;
+                                    &lt;span asp-validation-for=&quot;NewComment&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+                                &lt;/form&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@functions {
+    string RenderReplies(IEnumerable&lt;Comment&gt; replies)
+    {
+        var output = new System.Text.StringBuilder();
+        foreach (var reply in replies)
+        {
+            output.Append($@&quot;
+                &lt;div class=&#39;comment-item mb-2 border rounded p-2&#39;&gt;
+                    &lt;p class=&#39;mb-0&#39;&gt;
+                        &lt;strong&gt;{reply.Timestamp:g}&lt;/strong&gt; - &lt;strong&gt;{reply.User.UserName}&lt;/strong&gt;: {reply.Content}
+                        &lt;a class=&#39;btn btn-link btn-sm reply-link d-inline ms-2&#39; data-bs-toggle=&#39;collapse&#39;
+                           href=&#39;#replyCollapse_{reply.Id}&#39; role=&#39;button&#39; aria-expanded=&#39;false&#39;
+                           aria-controls=&#39;replyCollapse_{reply.Id}&#39; style=&#39;opacity: 1; color: inherit;&#39;&gt;Reply&lt;/a&gt;
+                    &lt;/p&gt;
+                    &lt;div class=&#39;collapse&#39; id=&#39;replyCollapse_{reply.Id}&#39;&gt;
+                        &lt;div class=&#39;card card-body&#39;&gt;
+                            &lt;form asp-action=&#39;ReplyToComment&#39; method=&#39;post&#39;&gt;
+                                &quot; + Html.AntiForgeryToken().ToString() + @&quot;
+                                &lt;input type=&#39;hidden&#39; name=&#39;parentCommentId&#39; value=&#39;&quot; + reply.Id + @&quot;&#39; /&gt;
+                                &lt;input type=&#39;hidden&#39; name=&#39;taskId&#39; value=&#39;&quot; + Model.TaskId + @&quot;&#39; /&gt;
+                                &lt;div class=&#39;mb-2&#39;&gt;
+                                    &lt;input type=&#39;text&#39; name=&#39;content&#39; class=&#39;form-control&#39; placeholder=&#39;Write a reply...&#39; /&gt;
+                                &lt;/div&gt;
+                                &lt;button type=&#39;submit&#39; class=&#39;btn btn-primary btn-sm&#39;&gt;Post Reply&lt;/button&gt;
+                            &lt;/form&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;&quot;);
+            if (reply.Replies != null &amp;&amp; reply.Replies.Any())
+            {
+                output.Append(&quot;&lt;div class=&#39;ps-4&#39;&gt;&quot;);
+                output.Append(RenderReplies(reply.Replies));
+                output.Append(&quot;&lt;/div&gt;&quot;);
+            }
+            output.Append(&quot;&lt;/div&gt;&quot;);
+        }
+        return output.ToString();
+    }
+}
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[6,5,6,33,0],[7,5,7,46,0],[9,2,9,67,0],[14,15,14,26,0],[18,10,18,34,0],[19,1,19,143,0],[23,1,23,141,0],[24,1,24,141,0],[25,1,25,153,0],[29,1,29,148,0],[30,1,30,151,0],[31,1,31,160,0],[35,1,35,155,0],[36,1,36,156,0],[44,57,44,75,0],[62,30,62,87,0],[63,29,63,30,0],[65,38,65,45,0],[65,47,65,55,0],[65,56,65,58,0],[65,59,65,76,0],[66,37,66,38,0],[68,54,68,83,0],[68,95,68,114,0],[68,116,68,128,0],[70,37,70,38,0],[72,29,72,30,0],[74,29,74,30,0],[76,29,76,30,0],[95,30,95,81,0],[96,29,96,30,0],[97,33,97,40,0],[97,42,97,53,0],[97,54,97,56,0],[97,57,97,83,0],[97,83,97,108,0],[97,108,97,109,0],[98,33,98,34,0],[101,54,101,86,0],[101,106,101,128,0],[101,139,101,155,0],[103,69,103,81,0],[104,99,104,111,0],[108,86,108,98,0],[111,54,111,78,0],[112,104,112,116,0],[113,95,113,109,0],[122,42,122,95,0],[123,41,123,42,0],[125,50,125,91,0],[127,41,127,42,0],[129,33,129,34,0],[130,29,130,30,0],[132,29,132,30,0],[134,29,134,30,0],[139,38,139,62,0],[140,1,140,143,0],[142,1,142,147,0],[145,1,145,159,0],[158,5,158,6,0],[159,9,159,54,0],[160,9,160,16,0],[160,18,160,27,0],[160,28,160,30,0],[160,31,160,38,0],[161,9,161,10,0],[162,13,182,30,0],[183,13,183,62,0],[184,13,184,14,0],[185,17,185,53,0],[186,17,186,61,0],[187,17,187,41,0],[188,13,188,14,0],[189,13,189,37,0],[190,9,190,10,0],[191,9,191,34,0],[192,5,192,6,0]]);
+    </script>
+  </body>
+</html>

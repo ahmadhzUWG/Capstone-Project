@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\ViewModels\TaskDetailsViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.VisualBasic.ApplicationServices;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerData.Models;
+using TaskManagerDesktop.Views;
+using Task = TaskManagerData.Models.Task;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace TaskManagerDesktop.ViewModels
+{
+    /// &lt;summary&gt;
+    /// Represents the data model for displaying and managing task details in the application.
+    /// &lt;/summary&gt;
+    public class TaskDetailsViewModel : INotifyPropertyChanged
+    {
+        private bool _movedTaskToUnreachableStage = false;
+        private Task _task;
+        private string _taskName;
+        private string _taskDescription;
+        private Stage? _selectedStage;
+        private string _projectName;
+        private UserOption _assignedUser;
+        private Stage? _originalStage;
+        private UserOption? _originalAssignedUser;
+        private readonly IServiceProvider _serviceProvider;
+
+        /// &lt;summary&gt;
+        /// Boolean property to indicate if the task was moved to a stage where the user isn&#39;t in the assigned group.
+        /// &lt;/summary&gt;
+        public bool MovedTaskToUnreachableStage
+        {
+            get =&gt; _movedTaskToUnreachableStage;
+            set
+            {
+                _movedTaskToUnreachableStage = value;
+                OnPropertyChanged(nameof(MovedTaskToUnreachableStage));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the name of the task.
+        /// &lt;/summary&gt;
+        public string TaskName
+        {
+            get =&gt; _taskName;
+            set
+            {
+                _taskName = value;
+                OnPropertyChanged(nameof(TaskName));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the description of the task.
+        /// &lt;/summary&gt;
+        public string TaskDescription
+        {
+            get =&gt; _taskDescription;
+            set
+            {
+                _taskDescription = value;
+                OnPropertyChanged(nameof(TaskDescription));
+            }
+        }
+
+
+        /// &lt;summary&gt;
+        /// Gets or sets the stage.
+        /// &lt;/summary&gt;
+        public Stage? SelectedStage
+        {
+            get =&gt; _selectedStage;
+            set
+            {
+                _selectedStage = value;
+                OnPropertyChanged(nameof(SelectedStage));
+                OnPropertyChanged(nameof(CanUpdate));
+            }
+        }
+
+
+        /// &lt;summary&gt;
+        /// Gets or sets the name of the project.
+        /// &lt;/summary&gt;
+        public string ProjectName
+        {
+            get =&gt; _projectName;
+            set
+            {
+                _projectName = value;
+                OnPropertyChanged(nameof(ProjectName));
+            }
+        }
+
+
+        /// &lt;summary&gt;
+        /// Gets or sets the user assigned to the task.
+        /// &lt;/summary&gt;
+        public UserOption AssignedUser
+        {
+            get =&gt; _assignedUser;
+            set
+            {
+                _assignedUser = value;
+                OnPropertyChanged(nameof(AssignedUser));
+                OnPropertyChanged(nameof(CanUpdate));
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Determines if the task can be updated based on if the stage or assigned user has changed.
+        /// &lt;/summary&gt;
+        public bool CanUpdate =&gt;
+            _originalStage?.Id != SelectedStage?.Id ||
+            _originalAssignedUser?.User?.Id != AssignedUser?.User?.Id;
+
+
+        /// &lt;summary&gt;
+        /// Gets or sets the list of stages.
+        /// &lt;/summary&gt;
+        public BindingList&lt;Stage&gt; Stages { get; set; } = [];
+
+        /// &lt;summary&gt;
+        /// Gets or sets the list of users.
+        /// &lt;/summary&gt;
+        public BindingList&lt;UserOption&gt; Users { get; set; }
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;TaskDetailsViewModel&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName) =&gt;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;TaskDetailsViewModel&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;serviceProvider&quot;&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;task&quot;&gt;&lt;/param&gt;
+        public TaskDetailsViewModel(IServiceProvider serviceProvider, Task task)
+        {
+            this._serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this._task = task ?? throw new ArgumentNullException(nameof(task));
+        }
+
+        /// &lt;summary&gt;
+        /// Updates the stage and/or assigned user in the database.
+        /// &lt;/summary&gt;
+        public async System.Threading.Tasks.Task UpdateTask()
+        {
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+
+            if (this.SelectedStage != this._originalStage)
+            {
+                var previousTaskStage = await _context.TaskStages
+                    .FirstOrDefaultAsync(ts =&gt; ts.TaskId == this._task.Id &amp;&amp; ts.StageId == this._originalStage.Id &amp;&amp; ts.CompletedDate == null);
+
+                if (previousTaskStage != null)
+                {
+                    previousTaskStage.CompletedDate = DateTime.Now;
+                    previousTaskStage.UpdatedByUserId = Session.CurrentUser.Id;
+                }
+
+                var newTaskStage = new TaskStage
+                {
+                    TaskId = this._task.Id,
+                    StageId = this.SelectedStage.Id,
+                    EnteredDate = DateTime.Now,
+                    CompletedDate = null,
+                    UpdatedByUserId = Session.CurrentUser.Id
+                };
+
+                _context.TaskStages.Add(newTaskStage);
+
+                if (this.SelectedStage.AssignedGroupId.HasValue)
+                {
+                    var assignedGroupId = this.SelectedStage.AssignedGroupId.Value;
+                    var userId = Session.CurrentUser.Id;
+
+                    var userGroupIds = await _context.UserGroups
+                        .Where(ug =&gt; ug.UserId == userId)
+                        .Select(ug =&gt; ug.GroupId)
+                        .ToListAsync();
+
+                    if (!userGroupIds.Contains(assignedGroupId))
+                    {
+                        var taskEmployee = await _context.TaskEmployees
+                            .FirstOrDefaultAsync(te =&gt; te.TaskId == this._task.Id);
+
+                        if (taskEmployee != null)
+                        {
+                            _context.TaskEmployees.Remove(taskEmployee);
+                        }
+
+                        this.MovedTaskToUnreachableStage = true;
+                    }
+                }
+                _context.TaskHistories.Add(new TaskHistory
+                {
+                    TaskId = this._task.Id,
+                    UserId = Session.CurrentUser.Id,
+                    Timestamp = DateTime.Now,
+                    Action = $&quot;Moved task to stage \&quot;{SelectedStage.Name}\&quot;&quot;
+                });
+            }
+
+            if (this.AssignedUser != this._originalAssignedUser)
+            {
+                var previousTaskEmployee = await _context.TaskEmployees
+                    .FirstOrDefaultAsync(te =&gt; te.TaskId == this._task.Id);
+                if (previousTaskEmployee != null) _context.TaskEmployees.Remove(previousTaskEmployee);
+
+                if (this.AssignedUser.User != null)
+                {
+                    var newAssignment = new TaskEmployee
+                    {
+                        TaskId = this._task.Id,
+                        EmployeeId = this.AssignedUser.User.Id,
+                        AssignedDate = DateTime.Now,
+                        CompletedDate = null
+                    };
+
+                    _context.TaskEmployees.Add(newAssignment);
+
+                    _context.TaskHistories.Add(new TaskHistory
+                    {
+                        TaskId = this._task.Id,
+                        UserId = Session.CurrentUser.Id,
+                        Timestamp = DateTime.Now,
+                        Action = $&quot;Assigned task to {Session.CurrentUser.UserName}&quot;
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        /// &lt;summary&gt;
+        /// Updates the assigned user combo box based on the selected stage.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;assignedToComboBox&quot;&gt;&lt;/param&gt;
+        public async void UpdateAssignedToComboBox(ComboBox assignedToComboBox)
+        {
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+
+            if (this.SelectedStage.AssignedGroupId.HasValue)
+            {
+                var assignedGroupId = this.SelectedStage.AssignedGroupId.Value;
+                var userId = Session.CurrentUser.Id;
+
+                var userGroupIds = await _context.UserGroups
+                    .Where(ug =&gt; ug.UserId == userId)
+                    .Select(ug =&gt; ug.GroupId)
+                    .ToListAsync();
+
+                if (!userGroupIds.Contains(assignedGroupId))
+                {
+                    var taskEmployee = await _context.TaskEmployees
+                        .FirstOrDefaultAsync(te =&gt; te.TaskId == this._task.Id);
+
+                    if (taskEmployee != null)
+                    {
+                        _context.TaskEmployees.Remove(taskEmployee);
+                    }
+
+                    var itemToRemove = assignedToComboBox.Items
+                        .OfType&lt;UserOption&gt;()
+                        .FirstOrDefault(u =&gt; u.User != null &amp;&amp; u.User.Id == Session.CurrentUser.Id);
+
+                    if (itemToRemove != null)
+                    {
+                        assignedToComboBox.Items.Remove(itemToRemove);
+                        assignedToComboBox.SelectedIndex = 0;
+                    }
+                }
+                else
+                {
+                    assignedToComboBox.Items.Add(new UserOption { User = Session.CurrentUser });
+                }
+            }
+            else
+            {
+                assignedToComboBox.Items.Add(new UserOption { User = Session.CurrentUser });
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Populates the fields with the task details.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;task&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public async System.Threading.Tasks.Task PopulateFields(Task task)
+        {
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext&gt;();
+
+            this.Users = new BindingList&lt;UserOption&gt;(
+                new List&lt;UserOption&gt;
+                {
+                    new UserOption { User = Session.CurrentUser },
+                    new UserOption { User = null }
+                });
+
+            this.TaskName = task.Name;
+            this.TaskDescription = task.Description;
+
+            var taskStage = await _context.TaskStages
+                .FirstOrDefaultAsync(ts =&gt; ts.TaskId == task.Id &amp;&amp; ts.CompletedDate == null);
+
+            var stage = await _context.Stages
+                .FirstOrDefaultAsync(s =&gt; s.Id == taskStage.StageId);
+
+            var projectBoard = await _context.ProjectBoards
+                .FirstOrDefaultAsync(pb =&gt; pb.Id == stage.ProjectBoardId);
+
+            var project = await _context.Projects
+                .FirstOrDefaultAsync(p =&gt; p.Id == projectBoard.ProjectId);
+
+            var taskEmployee = await _context.TaskEmployees
+                .FirstOrDefaultAsync(te =&gt; te.TaskId == task.Id);
+
+            var employee = await _context.Users
+                .FirstOrDefaultAsync(u =&gt; taskEmployee != null &amp;&amp; u.Id == taskEmployee.EmployeeId);
+
+            this.ProjectName = project.Name;
+            this.Stages = new BindingList&lt;Stage&gt;(
+                await _context.Stages
+                    .Where(s =&gt; s.ProjectBoardId == projectBoard.Id)
+                    .ToListAsync()
+            );
+
+            this.SelectedStage = this.Stages.FirstOrDefault(s =&gt; s.Id == stage.Id);
+            if (employee == null)
+            {
+                this.AssignedUser = this.Users.FirstOrDefault(u =&gt; u.User == null);
+
+            }
+            else
+            {
+                this.AssignedUser = this.Users.FirstOrDefault(u =&gt; u.User != null &amp;&amp; u.User.Id == employee.Id);
+            }
+
+            this._originalAssignedUser = this.AssignedUser;
+            this._originalStage = this.SelectedStage;
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[21,9,21,59,1],[37,20,37,48,1],[39,13,39,14,1],[40,17,40,54,1],[41,17,41,72,1],[42,13,42,14,1],[50,20,50,29,0],[52,13,52,14,1],[53,17,53,35,1],[54,17,54,53,1],[55,13,55,14,1],[63,20,63,36,0],[65,13,65,14,1],[66,17,66,42,1],[67,17,67,60,1],[68,13,68,14,1],[77,20,77,34,1],[79,13,79,14,1],[80,17,80,40,1],[81,17,81,58,1],[82,17,82,54,1],[83,13,83,14,1],[92,20,92,32,0],[94,13,94,14,1],[95,17,95,38,1],[96,17,96,56,1],[97,13,97,14,1],[106,20,106,33,1],[108,13,108,14,1],[109,17,109,39,1],[110,17,110,57,1],[111,17,111,54,1],[112,13,112,14,1],[119,13,120,70,0],[126,44,126,48,1],[126,49,126,53,1],[126,58,126,60,1],[131,48,131,52,1],[131,53,131,57,1],[138,13,138,86,1],[145,9,145,81,1],[146,9,146,10,1],[147,13,147,113,1],[148,13,148,80,1],[149,9,149,10,1],[155,9,155,10,1],[156,13,156,67,1],[157,13,157,93,1],[159,13,159,59,1],[160,13,160,14,1],[161,17,162,144,1],[164,17,164,47,1],[165,17,165,18,1],[166,21,166,68,1],[167,21,167,80,1],[168,17,168,18,1],[170,17,177,19,1],[179,17,179,55,1],[181,17,181,65,1],[182,17,182,18,1],[183,21,183,84,1],[184,21,184,57,1],[186,21,189,40,1],[191,21,191,65,1],[192,21,192,22,1],[193,25,194,84,1],[196,25,196,50,1],[197,25,197,26,1],[198,29,198,73,1],[199,25,199,26,1],[201,25,201,65,1],[202,21,202,22,1],[203,17,203,18,1],[204,17,210,20,1],[211,13,211,14,1],[213,13,213,65,1],[214,13,214,14,1],[215,17,216,76,1],[217,17,217,50,1],[217,51,217,103,0],[219,17,219,52,1],[220,17,220,18,1],[221,21,227,23,1],[229,21,229,63,1],[231,21,237,24,1],[238,17,238,18,1],[239,13,239,14,1],[241,13,241,47,1],[242,9,242,10,1],[249,9,249,10,1],[250,13,250,67,1],[251,13,251,93,1],[253,13,253,61,1],[254,13,254,14,1],[255,17,255,80,1],[256,17,256,53,1],[258,17,261,36,1],[263,17,263,61,1],[264,17,264,18,1],[265,21,266,80,1],[268,21,268,46,1],[269,21,269,22,1],[270,25,270,69,1],[271,21,271,22,1],[273,21,275,46,1],[275,46,275,99,1],[275,99,275,101,1],[277,21,277,46,1],[278,21,278,22,1],[279,25,279,71,1],[280,25,280,62,1],[281,21,281,22,0],[282,17,282,18,0],[284,17,284,18,0],[285,21,285,97,0],[286,17,286,18,0],[287,13,287,14,0],[289,13,289,14,0],[290,17,290,93,0],[291,13,291,14,0],[292,9,292,10,0],[300,9,300,10,1],[301,13,301,67,1],[302,13,302,93,1],[304,13,309,20,1],[311,13,311,39,1],[312,13,312,53,1],[314,13,315,94,1],[317,13,318,70,1],[320,13,321,75,1],[323,13,324,75,1],[326,13,327,66,1],[329,13,330,100,1],[332,13,332,45,1],[333,13,337,15,1],[339,13,339,66,1],[339,66,339,82,1],[339,82,339,84,1],[340,13,340,34,1],[341,13,341,14,1],[342,17,342,68,1],[342,68,342,82,1],[342,82,342,84,1],[344,13,344,14,1],[346,13,346,14,1],[347,17,347,68,1],[347,68,347,110,1],[347,110,347,112,1],[348,13,348,14,1],[350,13,350,60,1],[351,13,351,54,1],[352,9,352,10,1]]);
+    </script>
+  </body>
+</html>

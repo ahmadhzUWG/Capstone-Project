@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestViewModels\CreateProjectViewModelTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using TaskManagerWebsite.ViewModels.ProjectViewModels;
+
+namespace TaskManager.Tests.WebsiteTests.TestViewModels
+{
+    public class CreateProjectViewModelTests
+    {
+        [Fact]
+        public void Name_ShouldBeRequired()
+        {
+            // Arrange
+            var model = new CreateProjectViewModel
+            {
+                Name = null // Set Name to null to trigger the Required validation
+            };
+
+            // Act
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+        }
+
+        [Fact]
+        public void Name_ShouldHaveValidLength()
+        {
+            // Arrange
+            var model = new CreateProjectViewModel
+            {
+                Name = &quot;A&quot; // Name too short to trigger length validation
+            };
+
+            // Act
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+
+            // Test for too long name
+            model.Name = new string(&#39;A&#39;, 101); // Name too long
+            validationResults.Clear();
+            isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+        }
+
+        [Fact]
+        public void Description_ShouldBeRequired()
+        {
+            // Arrange
+            var model = new CreateProjectViewModel
+            {
+                Description = null // Set Description to null to trigger the Required validation
+            };
+
+            // Act
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+        }
+
+        [Fact]
+        public void Description_ShouldNotExceedMaxLength()
+        {
+            // Arrange
+            var model = new CreateProjectViewModel
+            {
+                Description = new string(&#39;A&#39;, 501) // Description exceeds 500 characters
+            };
+
+            // Act
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+        }
+
+        [Fact]
+        public void ProjectLeadId_ShouldBeRequired()
+        {
+            // Arrange
+            var model = new CreateProjectViewModel
+            {
+                ProjectLeadId = 0 // Invalid selection for project lead
+            };
+
+            // Act
+            var validationResults = new List&lt;ValidationResult&gt;();
+            var isValid = Validator.TryValidateObject(model, new ValidationContext(model), validationResults, true);
+
+            // Assert
+            Assert.False(isValid);
+            Assert.Equal(2, validationResults.Count);
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,1],[12,13,15,15,1],[18,13,18,66,1],[19,13,19,117,1],[22,13,22,35,1],[23,13,23,54,1],[24,9,24,10,1],[28,9,28,10,1],[30,13,33,15,1],[36,13,36,66,1],[37,13,37,117,1],[40,13,40,35,1],[41,13,41,54,1],[44,13,44,47,1],[45,13,45,39,1],[46,13,46,113,1],[48,13,48,35,1],[49,13,49,54,1],[50,9,50,10,1],[54,9,54,10,1],[56,13,59,15,1],[62,13,62,66,1],[63,13,63,117,1],[66,13,66,35,1],[67,13,67,54,1],[68,9,68,10,1],[72,9,72,10,1],[74,13,77,15,1],[80,13,80,66,1],[81,13,81,117,1],[84,13,84,35,1],[85,13,85,54,1],[86,9,86,10,1],[90,9,90,10,1],[92,13,95,15,1],[98,13,98,66,1],[99,13,99,117,1],[102,13,102,35,1],[103,13,103,54,1],[104,9,104,10,1]]);
+    </script>
+  </body>
+</html>

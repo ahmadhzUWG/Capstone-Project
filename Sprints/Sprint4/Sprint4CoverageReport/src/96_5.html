@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\Mocks\TestApplicationDbContext.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore;
+using TaskManagerData.Models;
+
+namespace TaskManager.Tests.WebsiteTests.Mocks;
+
+public class TestApplicationDbContext : ApplicationDbContext
+{
+    // When true, SaveChangesAsync will throw a DbUpdateException.
+    public bool ThrowOnSaveChanges { get; set; } = false;
+
+    public TestApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+        : base(options)
+    {
+    }
+
+    public override async Task&lt;int&gt; SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (ThrowOnSaveChanges)
+        {
+            throw new DbUpdateException();
+        }
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,38,9,42,1],[9,43,9,47,1],[9,52,9,57,1],[12,11,12,24,1],[13,5,13,6,1],[14,5,14,6,1],[17,5,17,6,1],[18,9,18,32,1],[19,9,19,10,1],[20,13,20,43,1],[22,9,22,63,1],[23,5,23,6,1]]);
+    </script>
+  </body>
+</html>

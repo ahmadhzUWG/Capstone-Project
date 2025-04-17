@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Views\Login.Designer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerDesktop.Views
+{
+    partial class Login
+    {
+        /// &lt;summary&gt;
+        ///  Required designer variable.
+        /// &lt;/summary&gt;
+        private System.ComponentModel.IContainer components = null;
+
+        /// &lt;summary&gt;
+        ///  Clean up any resources being used.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;disposing&quot;&gt;true if managed resources should be disposed; otherwise, false.&lt;/param&gt;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing &amp;&amp; (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// &lt;summary&gt;
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
+        /// &lt;/summary&gt;
+        private void InitializeComponent()
+        {
+            panel1 = new Panel();
+            homeLinkLabel = new LinkLabel();
+            taskManagerLinkLabel = new LinkLabel();
+            label1 = new Label();
+            panel2 = new Panel();
+            errorLoginLabel = new Label();
+            loginButton = new Button();
+            errorPasswordLabel = new Label();
+            errorUsernameLabel = new Label();
+            passwordTextBox = new TextBox();
+            usernameTextBox = new TextBox();
+            label3 = new Label();
+            label2 = new Label();
+            panel1.SuspendLayout();
+            panel2.SuspendLayout();
+            SuspendLayout();
+            // 
+            // panel1
+            // 
+            panel1.BackColor = Color.FromArgb(0, 123, 255);
+            panel1.Controls.Add(homeLinkLabel);
+            panel1.Controls.Add(taskManagerLinkLabel);
+            panel1.Location = new Point(0, 0);
+            panel1.Name = &quot;panel1&quot;;
+            panel1.Size = new Size(1060, 78);
+            panel1.TabIndex = 0;
+            // 
+            // homeLinkLabel
+            // 
+            homeLinkLabel.ActiveLinkColor = Color.LightGray;
+            homeLinkLabel.AutoSize = true;
+            homeLinkLabel.Font = new Font(&quot;Segoe UI Black&quot;, 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            homeLinkLabel.ForeColor = Color.White;
+            homeLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            homeLinkLabel.LinkColor = Color.White;
+            homeLinkLabel.Location = new Point(265, 26);
+            homeLinkLabel.Name = &quot;homeLinkLabel&quot;;
+            homeLinkLabel.Size = new Size(78, 30);
+            homeLinkLabel.TabIndex = 1;
+            homeLinkLabel.TabStop = true;
+            homeLinkLabel.Text = &quot;Home&quot;;
+            homeLinkLabel.LinkClicked += homeLinkLabel_LinkClicked;
+            // 
+            // taskManagerLinkLabel
+            // 
+            taskManagerLinkLabel.ActiveLinkColor = Color.LightGray;
+            taskManagerLinkLabel.AutoSize = true;
+            taskManagerLinkLabel.Font = new Font(&quot;Segoe UI Black&quot;, 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            taskManagerLinkLabel.ForeColor = Color.White;
+            taskManagerLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            taskManagerLinkLabel.LinkColor = Color.White;
+            taskManagerLinkLabel.Location = new Point(50, 19);
+            taskManagerLinkLabel.Name = &quot;taskManagerLinkLabel&quot;;
+            taskManagerLinkLabel.Size = new Size(196, 37);
+            taskManagerLinkLabel.TabIndex = 0;
+            taskManagerLinkLabel.TabStop = true;
+            taskManagerLinkLabel.Text = &quot;TaskManager&quot;;
+            taskManagerLinkLabel.LinkClicked += homeLinkLabel_LinkClicked;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font(&quot;Segoe UI&quot;, 20F);
+            label1.Location = new Point(496, 134);
+            label1.Name = &quot;label1&quot;;
+            label1.Size = new Size(84, 37);
+            label1.TabIndex = 1;
+            label1.Text = &quot;Login&quot;;
+            // 
+            // panel2
+            // 
+            panel2.BackColor = Color.FromArgb(224, 224, 224);
+            panel2.Controls.Add(errorLoginLabel);
+            panel2.Controls.Add(loginButton);
+            panel2.Controls.Add(errorPasswordLabel);
+            panel2.Controls.Add(errorUsernameLabel);
+            panel2.Controls.Add(passwordTextBox);
+            panel2.Controls.Add(usernameTextBox);
+            panel2.Controls.Add(label3);
+            panel2.Controls.Add(label2);
+            panel2.Location = new Point(350, 192);
+            panel2.Name = &quot;panel2&quot;;
+            panel2.Size = new Size(371, 307);
+            panel2.TabIndex = 2;
+            // 
+            // errorLoginLabel
+            // 
+            errorLoginLabel.AutoSize = true;
+            errorLoginLabel.Font = new Font(&quot;Segoe UI&quot;, 9F);
+            errorLoginLabel.ForeColor = Color.Red;
+            errorLoginLabel.Location = new Point(34, 278);
+            errorLoginLabel.Name = &quot;errorLoginLabel&quot;;
+            errorLoginLabel.Size = new Size(117, 15);
+            errorLoginLabel.TabIndex = 7;
+            errorLoginLabel.Text = &quot;Invalid login attempt&quot;;
+            // 
+            // loginButton
+            // 
+            loginButton.BackColor = Color.FromArgb(0, 123, 255);
+            loginButton.FlatAppearance.BorderColor = Color.FromArgb(0, 123, 255);
+            loginButton.FlatStyle = FlatStyle.Flat;
+            loginButton.Font = new Font(&quot;Segoe UI&quot;, 11F);
+            loginButton.ForeColor = Color.White;
+            loginButton.Location = new Point(34, 227);
+            loginButton.Name = &quot;loginButton&quot;;
+            loginButton.Size = new Size(313, 37);
+            loginButton.TabIndex = 6;
+            loginButton.Text = &quot;Login&quot;;
+            loginButton.UseVisualStyleBackColor = false;
+            loginButton.Click += loginButton_Click;
+            // 
+            // errorPasswordLabel
+            // 
+            errorPasswordLabel.AutoSize = true;
+            errorPasswordLabel.Font = new Font(&quot;Segoe UI&quot;, 9F);
+            errorPasswordLabel.ForeColor = Color.Red;
+            errorPasswordLabel.Location = new Point(34, 193);
+            errorPasswordLabel.Name = &quot;errorPasswordLabel&quot;;
+            errorPasswordLabel.Size = new Size(141, 15);
+            errorPasswordLabel.TabIndex = 5;
+            errorPasswordLabel.Text = &quot;Password field is required&quot;;
+            // 
+            // errorUsernameLabel
+            // 
+            errorUsernameLabel.AutoSize = true;
+            errorUsernameLabel.Font = new Font(&quot;Segoe UI&quot;, 9F);
+            errorUsernameLabel.ForeColor = Color.Red;
+            errorUsernameLabel.Location = new Point(34, 92);
+            errorUsernameLabel.Name = &quot;errorUsernameLabel&quot;;
+            errorUsernameLabel.Size = new Size(144, 15);
+            errorUsernameLabel.TabIndex = 4;
+            errorUsernameLabel.Text = &quot;Username field is required&quot;;
+            // 
+            // passwordTextBox
+            // 
+            passwordTextBox.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            passwordTextBox.Location = new Point(33, 147);
+            passwordTextBox.Name = &quot;passwordTextBox&quot;;
+            passwordTextBox.Size = new Size(314, 32);
+            passwordTextBox.TabIndex = 3;
+            passwordTextBox.UseSystemPasswordChar = true;
+            // 
+            // usernameTextBox
+            // 
+            usernameTextBox.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            usernameTextBox.Location = new Point(33, 50);
+            usernameTextBox.Name = &quot;usernameTextBox&quot;;
+            usernameTextBox.Size = new Size(314, 32);
+            usernameTextBox.TabIndex = 2;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label3.Location = new Point(33, 119);
+            label3.Name = &quot;label3&quot;;
+            label3.Size = new Size(97, 25);
+            label3.TabIndex = 1;
+            label3.Text = &quot;Password&quot;;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label2.Location = new Point(29, 22);
+            label2.Name = &quot;label2&quot;;
+            label2.Size = new Size(101, 25);
+            label2.TabIndex = 0;
+            label2.Text = &quot;Username&quot;;
+            // 
+            // Login
+            // 
+            AcceptButton = loginButton;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1060, 665);
+            Controls.Add(panel2);
+            Controls.Add(label1);
+            Controls.Add(panel1);
+            Name = &quot;Login&quot;;
+            Text = &quot;Login&quot;;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+
+        private Panel panel1;
+        private LinkLabel taskManagerLinkLabel;
+        private LinkLabel homeLinkLabel;
+        private Label label1;
+        private Panel panel2;
+        private Label label3;
+        private Label label2;
+        private Button loginButton;
+        private Label errorPasswordLabel;
+        private Label errorUsernameLabel;
+        private TextBox passwordTextBox;
+        private TextBox usernameTextBox;
+        private Label errorLoginLabel;
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,9,8,68,0],[15,9,15,10,0],[16,13,16,51,0],[17,13,17,14,0],[18,17,18,38,0],[19,13,19,14,0],[20,13,20,37,0],[21,9,21,10,0],[30,9,30,10,0],[31,13,31,34,0],[32,13,32,45,0],[33,13,33,52,0],[34,13,34,34,0],[35,13,35,34,0],[36,13,36,43,0],[37,13,37,40,0],[38,13,38,46,0],[39,13,39,46,0],[40,13,40,45,0],[41,13,41,45,0],[42,13,42,34,0],[43,13,43,34,0],[44,13,44,36,0],[45,13,45,36,0],[46,13,46,29,0],[50,13,50,60,0],[51,13,51,48,0],[52,13,52,55,0],[53,13,53,47,0],[54,13,54,36,0],[55,13,55,46,0],[56,13,56,33,0],[60,13,60,61,0],[61,13,61,43,0],[62,13,62,105,0],[63,13,63,51,0],[64,13,64,70,0],[65,13,65,51,0],[66,13,66,57,0],[67,13,67,50,0],[68,13,68,51,0],[69,13,69,40,0],[70,13,70,42,0],[71,13,71,41,0],[72,13,72,68,0],[76,13,76,68,0],[77,13,77,50,0],[78,13,78,115,0],[79,13,79,58,0],[80,13,80,77,0],[81,13,81,58,0],[82,13,82,63,0],[83,13,83,64,0],[84,13,84,59,0],[85,13,85,47,0],[86,13,86,49,0],[87,13,87,55,0],[88,13,88,75,0],[92,13,92,36,0],[93,13,93,53,0],[94,13,94,51,0],[95,13,95,36,0],[96,13,96,44,0],[97,13,97,33,0],[98,13,98,35,0],[102,13,102,62,0],[103,13,103,50,0],[104,13,104,46,0],[105,13,105,53,0],[106,13,106,53,0],[107,13,107,50,0],[108,13,108,50,0],[109,13,109,41,0],[110,13,110,41,0],[111,13,111,51,0],[112,13,112,36,0],[113,13,113,46,0],[114,13,114,33,0],[118,13,118,45,0],[119,13,119,61,0],[120,13,120,51,0],[121,13,121,59,0],[122,13,122,54,0],[123,13,123,54,0],[124,13,124,42,0],[125,13,125,60,0],[129,13,129,65,0],[130,13,130,82,0],[131,13,131,52,0],[132,13,132,58,0],[133,13,133,49,0],[134,13,134,55,0],[135,13,135,46,0],[136,13,136,50,0],[137,13,137,38,0],[138,13,138,40,0],[139,13,139,57,0],[140,13,140,52,0],[144,13,144,48,0],[145,13,145,64,0],[146,13,146,54,0],[147,13,147,62,0],[148,13,148,60,0],[149,13,149,57,0],[150,13,150,45,0],[151,13,151,68,0],[155,13,155,48,0],[156,13,156,64,0],[157,13,157,54,0],[158,13,158,61,0],[159,13,159,60,0],[160,13,160,57,0],[161,13,161,45,0],[162,13,162,68,0],[166,13,166,62,0],[167,13,167,59,0],[168,13,168,54,0],[169,13,169,54,0],[170,13,170,42,0],[171,13,171,58,0],[175,13,175,62,0],[176,13,176,58,0],[177,13,177,54,0],[178,13,178,54,0],[179,13,179,42,0],[183,13,183,36,0],[184,13,184,69,0],[185,13,185,50,0],[186,13,186,36,0],[187,13,187,44,0],[188,13,188,33,0],[189,13,189,38,0],[193,13,193,36,0],[194,13,194,69,0],[195,13,195,49,0],[196,13,196,36,0],[197,13,197,45,0],[198,13,198,33,0],[199,13,199,38,0],[203,13,203,40,0],[204,13,204,54,0],[205,13,205,48,0],[206,13,206,46,0],[207,13,207,34,0],[208,13,208,34,0],[209,13,209,34,0],[210,13,210,28,0],[211,13,211,28,0],[212,13,212,40,0],[213,13,213,36,0],[214,13,214,40,0],[215,13,215,36,0],[216,13,216,33,0],[217,13,217,29,0],[218,9,218,10,0]]);
+    </script>
+  </body>
+</html>

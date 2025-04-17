@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Views\Login.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using TaskManagerData.Models;
+using TaskManagerDesktop.ViewModels;
+using Task = System.Threading.Tasks.Task;
+
+namespace TaskManagerDesktop.Views
+{
+    /// &lt;summary&gt;
+    /// Represents the login form for user authentication.
+    /// &lt;/summary&gt;
+    public partial class Login : Form
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly LoginViewModel _viewModel;
+        private readonly BindingSource _bindingSource = new BindingSource();
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;Login&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;serviceProvider&quot;&gt;&lt;/param&gt;
+        /// &lt;exception cref=&quot;ArgumentNullException&quot;&gt;&lt;/exception&gt;
+        public Login(IServiceProvider serviceProvider)
+        {
+            this._serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+            var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;User&gt;&gt;() ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+            this._viewModel = new LoginViewModel(userManager);
+
+            InitializeComponent();
+            this.usernameTextBox.Select();
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.bindControlsToViewModel();
+        }
+
+        private async void loginButton_Click(object? sender, EventArgs e)
+        {
+            var success = await this._viewModel.Login();
+
+            if (success)
+            {
+                var tasksForm = new Tasks(this._serviceProvider);
+                tasksForm.FormClosed += (s, args) =&gt; this.Close();
+                tasksForm.Show();
+                this.Hide();
+            }
+        }
+
+        private void bindControlsToViewModel()
+        {
+            this._bindingSource.DataSource = this._viewModel;
+            this.usernameTextBox.DataBindings.Add(&quot;Text&quot;, this._bindingSource, nameof(this._viewModel.Username), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.passwordTextBox.DataBindings.Add(&quot;Text&quot;, this._bindingSource, nameof(this._viewModel.Password), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.errorUsernameLabel.DataBindings.Add(&quot;Visible&quot;, this._bindingSource, nameof(this._viewModel.ShowErrorUsername), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.errorPasswordLabel.DataBindings.Add(&quot;Visible&quot;, this._bindingSource, nameof(this._viewModel.ShowErrorPassword), true, DataSourceUpdateMode.OnPropertyChanged);
+            this.errorLoginLabel.DataBindings.Add(&quot;Visible&quot;, this._bindingSource, nameof(this._viewModel.ShowErrorLogin), true, DataSourceUpdateMode.OnPropertyChanged);
+        }
+
+        private void homeLinkLabel_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var loginForm = new Login(this._serviceProvider);
+            loginForm.FormClosed += (s, args) =&gt; this.Close(); 
+            loginForm.Show();
+            this.Hide();
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,9,16,77,0],[23,9,23,55,0],[24,9,24,10,0],[25,13,25,113,0],[27,13,27,147,0],[29,13,29,63,0],[31,13,31,35,0],[32,13,32,43,0],[33,13,33,65,0],[34,13,34,44,0],[35,9,35,10,0],[38,9,38,10,0],[39,13,39,57,0],[41,13,41,25,0],[42,13,42,14,0],[43,17,43,66,0],[44,17,44,54,0],[44,54,44,66,0],[44,66,44,67,0],[45,17,45,34,0],[46,17,46,29,0],[47,13,47,14,0],[48,9,48,10,0],[51,9,51,10,0],[52,13,52,62,0],[53,13,53,160,0],[54,13,54,160,0],[55,13,55,175,0],[56,13,56,175,0],[57,13,57,169,0],[58,9,58,10,0],[61,9,61,10,0],[62,13,62,62,0],[63,13,63,50,0],[63,50,63,62,0],[63,62,63,63,0],[64,13,64,30,0],[65,13,65,25,0],[66,9,66,10,0]]);
+    </script>
+  </body>
+</html>

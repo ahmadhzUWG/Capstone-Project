@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerData\Models\GroupProject.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerData.Models;
+
+/// &lt;summary&gt;
+/// Represents the association between a project and a group.
+/// A project can be linked to multiple groups, and a group can have multiple projects.
+/// &lt;/summary&gt;
+public class GroupProject
+{
+    /// &lt;summary&gt;
+    /// Gets or sets the identifier of the project associated with the group.
+    /// &lt;/summary&gt;
+    public int ProjectId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the project entity associated with the group.
+    /// &lt;/summary&gt;
+    public Project? Project { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the identifier of the group associated with the project.
+    /// &lt;/summary&gt;
+    public int GroupId { get; set; }
+
+    /// &lt;summary&gt;
+    /// Gets or sets the group entity associated with the project.
+    /// &lt;/summary&gt;
+    public Group? Group { get; set; }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,28,12,32,1],[12,33,12,37,1],[17,31,17,35,1],[17,36,17,40,1],[22,26,22,30,1],[22,31,22,35,1],[27,27,27,31,1],[27,32,27,36,1]]);
+    </script>
+  </body>
+</html>

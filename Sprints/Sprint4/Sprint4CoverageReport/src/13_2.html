@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Views\Tasks.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using TaskManagerData.Models;
+using TaskManagerDesktop.ViewModels;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManagerDesktop.Views
+{
+    /// &lt;summary&gt;
+    /// Represents the form for displaying/managing tasks in the application.
+    /// &lt;/summary&gt;
+    public partial class Tasks : Form
+    {
+        private int _originalAccordionHeight;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly TasksViewModel _viewModel;
+
+        /// &lt;summary&gt;
+        /// Initializes a new instance of the &lt;see cref=&quot;Tasks&quot;/&gt; class.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;serviceProvider&quot;&gt;&lt;/param&gt;
+        public Tasks(IServiceProvider serviceProvider)
+        {
+            this._serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+            var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;User&gt;&gt;() ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+            this._viewModel = new TasksViewModel(serviceProvider);
+
+            InitializeComponent();
+            this.Text = &quot;Task Manager&quot;;
+            this.StartPosition = FormStartPosition.CenterScreen;
+        }
+
+        private void AddAccordionSection(string title, List&lt;Task&gt; tasks)
+        {
+            var header = new Button
+            {
+                Text = $&quot;▶ {title}&quot;,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Width = accordionPanel.Width - 25,
+                Height = 50,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(0, 123, 255),
+                ForeColor = Color.White,
+                Font = new Font(&quot;Segoe UI&quot;, 20, FontStyle.Bold),
+                Tag = false // true = expanded
+            };
+
+            var content = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                Visible = false,
+                BackColor = Control.DefaultBackColor,
+                Margin = new Padding(0, 0, 0, 10)
+            };
+
+            foreach (var task in tasks)
+            {
+                var label = new LinkLabel
+                {
+                    Text = &quot;• &quot; + task.Name,
+                    AutoSize = true,
+                    Width = accordionPanel.Width - 60,
+                    Height = 35,
+                    Padding = new Padding(10, 5, 0, 0),
+                    Font = new Font(&quot;Segoe UI&quot;, 14, FontStyle.Bold),
+                    LinkColor = Color.FromArgb(0, 123, 255),
+                    ActiveLinkColor = Color.FromArgb(0, 0, 255),
+                    LinkBehavior = LinkBehavior.NeverUnderline,
+                    Tag = task
+                };
+
+                label.LinkClicked += (s, e) =&gt;
+                {
+                    var taskDetailsForm = new TaskDetails(this._serviceProvider, (Task)label.Tag);
+                    taskDetailsForm.FormClosed += (s, args) =&gt;
+                    {
+                        if (!taskDetailsForm.NavigatedBack)
+                        {
+                            this.Close();
+                        }
+                    };
+                    taskDetailsForm.Show();
+                    this.Hide();
+                };
+
+                content.Controls.Add(label);
+            }
+
+            header.Click += (s, e) =&gt;
+            {
+                bool expanded = (bool)header.Tag;
+                content.Visible = !expanded;
+                header.Text = $&quot;{(expanded ? &quot;▶&quot; : &quot;▼&quot;)} {title}&quot;;
+                header.Tag = !expanded;
+
+                AdjustAccordionAndFormHeight();
+            };
+
+            accordionPanel.Controls.Add(header);
+            accordionPanel.Controls.Add(content);
+
+        }
+
+        private async void Tasks_Load(object sender, EventArgs e)
+        {
+            _originalAccordionHeight = accordionPanel.Height;
+
+            var assignedTasks = await this._viewModel.GetAssignedTasks();
+            var availableTasks = await this._viewModel.GetAvailableTasks();
+
+            AddAccordionSection(&quot;Assigned Tasks&quot;, assignedTasks);
+            AddAccordionSection(&quot;Available Tasks&quot;, availableTasks);
+        }
+
+        private void AdjustAccordionAndFormHeight()
+        {
+            int totalAccordionHeight = 0;
+            bool anyExpanded = false;
+
+            for (int i = 0; i &lt; accordionPanel.Controls.Count; i++)
+            {
+                var ctrl = accordionPanel.Controls[i];
+
+                if (ctrl.Visible)
+                {
+                    totalAccordionHeight += ctrl.Height + ctrl.Margin.Vertical;
+                }
+
+                if (ctrl is Button header &amp;&amp; header.Tag is bool expanded &amp;&amp; expanded)
+                {
+                    anyExpanded = true;
+                }
+            }
+
+            const int formPadding = 75;
+            const int padding = 5;
+
+            if (!anyExpanded)
+            {
+                accordionPanel.Height = _originalAccordionHeight;
+                this.Height = accordionPanel.Top + _originalAccordionHeight + formPadding;
+                accordionPanel.AutoScroll = false;
+                return;
+            }
+
+            int desiredFormHeight = accordionPanel.Top + totalAccordionHeight + formPadding;
+
+            if (desiredFormHeight &lt;= 800)
+            {
+                accordionPanel.Height = totalAccordionHeight + padding;
+                accordionPanel.AutoScroll = false;
+                this.Height = desiredFormHeight;
+            }
+            else
+            {
+                this.Height = 800;
+                accordionPanel.Height = 800 - accordionPanel.Top - formPadding;
+                accordionPanel.AutoScroll = true;
+            }
+        }
+
+        private void signOutLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Session.CurrentUser = null;
+
+            var loginForm = new Login(this._serviceProvider);
+            loginForm.FormClosed += (s, args) =&gt; this.Close();
+            loginForm.Show();
+            this.Hide();
+        }
+
+        private void tasksLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var tasksForm = new Tasks(this._serviceProvider);
+            tasksForm.FormClosed += (s, args) =&gt; this.Close();
+            tasksForm.Show();
+            this.Hide();
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[31,9,31,55,0],[32,9,32,10,0],[33,13,33,113,0],[35,13,35,147,0],[37,13,37,67,0],[39,13,39,35,0],[40,13,40,40,0],[41,13,41,65,0],[42,9,42,10,0],[45,9,45,10,0],[46,13,57,15,0],[59,13,68,15,0],[70,13,70,20,0],[70,22,70,30,0],[70,31,70,33,0],[70,34,70,39,0],[71,13,71,14,0],[72,17,84,19,0],[86,17,87,17,0],[87,17,87,18,0],[87,18,88,21,0],[88,21,88,99,0],[88,99,89,21,0],[89,21,90,21,0],[90,21,90,22,0],[90,22,91,25,0],[91,25,91,60,0],[91,60,92,25,0],[92,25,92,26,0],[92,26,93,29,0],[93,29,93,42,0],[93,42,94,25,0],[94,25,94,26,0],[94,26,95,21,0],[95,21,95,22,0],[95,22,95,23,0],[95,23,96,21,0],[96,21,96,44,0],[96,44,97,21,0],[97,21,97,33,0],[97,33,98,17,0],[98,17,98,18,0],[98,18,98,19,0],[100,17,100,45,0],[101,13,101,14,0],[103,13,104,13,0],[104,13,104,14,0],[104,14,105,17,0],[105,17,105,50,0],[105,50,106,17,0],[106,17,106,45,0],[106,45,107,17,0],[107,17,107,67,0],[107,67,108,17,0],[108,17,108,40,0],[108,40,110,17,0],[110,17,110,48,0],[110,48,111,13,0],[111,13,111,14,0],[111,14,111,15,0],[113,13,113,49,0],[114,13,114,50,0],[116,9,116,10,0],[119,9,119,10,0],[120,13,120,62,0],[122,13,122,74,0],[123,13,123,76,0],[125,13,125,66,0],[126,13,126,68,0],[127,9,127,10,0],[130,9,130,10,0],[131,13,131,42,0],[132,13,132,38,0],[134,18,134,27,0],[134,29,134,62,0],[134,64,134,67,0],[135,13,135,14,0],[136,17,136,55,0],[138,17,138,34,0],[139,17,139,18,0],[140,21,140,80,0],[141,17,141,18,0],[143,17,143,86,0],[144,17,144,18,0],[145,21,145,40,0],[146,17,146,18,0],[147,13,147,14,0],[152,13,152,30,0],[153,13,153,14,0],[154,17,154,66,0],[155,17,155,91,0],[156,17,156,51,0],[157,17,157,24,0],[160,13,160,93,0],[162,13,162,42,0],[163,13,163,14,0],[164,17,164,72,0],[165,17,165,51,0],[166,17,166,49,0],[167,13,167,14,0],[169,13,169,14,0],[170,17,170,35,0],[171,17,171,80,0],[172,17,172,50,0],[173,13,173,14,0],[174,9,174,10,0],[177,9,177,10,0],[178,13,178,40,0],[180,13,180,62,0],[181,13,181,50,0],[181,50,181,62,0],[181,62,181,63,0],[182,13,182,30,0],[183,13,183,25,0],[184,9,184,10,0],[187,9,187,10,0],[188,13,188,62,0],[189,13,189,50,0],[189,50,189,62,0],[189,62,189,63,0],[190,13,190,30,0],[191,13,191,25,0],[192,9,192,10,0]]);
+    </script>
+  </body>
+</html>

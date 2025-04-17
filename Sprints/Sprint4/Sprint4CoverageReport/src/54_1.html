@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Migrations\20250331055946_CreateTaskRelatedTables.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TaskManagerWebsite.Migrations
+{
+    /// &lt;inheritdoc /&gt;
+    public partial class CreateTaskRelatedTables : Migration
+    {
+        /// &lt;inheritdoc /&gt;
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: &quot;Tasks&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    Name = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false),
+                    Description = table.Column&lt;string&gt;(type: &quot;nvarchar(max)&quot;, nullable: false),
+                    CreatorUserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_Tasks&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_Tasks_AspNetUsers_CreatorUserId&quot;,
+                        column: x =&gt; x.CreatorUserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;TaskEmployees&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    EmployeeId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    TaskId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    AssignedDate = table.Column&lt;DateTime&gt;(type: &quot;datetime2&quot;, nullable: false),
+                    CompletedDate = table.Column&lt;DateTime&gt;(type: &quot;datetime2&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_TaskEmployees&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskEmployees_AspNetUsers_EmployeeId&quot;,
+                        column: x =&gt; x.EmployeeId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskEmployees_Tasks_TaskId&quot;,
+                        column: x =&gt; x.TaskId,
+                        principalTable: &quot;Tasks&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: &quot;TaskStages&quot;,
+                columns: table =&gt; new
+                {
+                    Id = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false)
+                        .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;),
+                    StageId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    TaskId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: false),
+                    EnteredDate = table.Column&lt;DateTime&gt;(type: &quot;datetime2&quot;, nullable: false),
+                    CompletedDate = table.Column&lt;DateTime&gt;(type: &quot;datetime2&quot;, nullable: true),
+                    UpdatedByUserId = table.Column&lt;int&gt;(type: &quot;int&quot;, nullable: true)
+                },
+                constraints: table =&gt;
+                {
+                    table.PrimaryKey(&quot;PK_TaskStages&quot;, x =&gt; x.Id);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskStages_AspNetUsers_UpdatedByUserId&quot;,
+                        column: x =&gt; x.UpdatedByUserId,
+                        principalTable: &quot;AspNetUsers&quot;,
+                        principalColumn: &quot;Id&quot;);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskStages_Stages_StageId&quot;,
+                        column: x =&gt; x.StageId,
+                        principalTable: &quot;Stages&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: &quot;FK_TaskStages_Tasks_TaskId&quot;,
+                        column: x =&gt; x.TaskId,
+                        principalTable: &quot;Tasks&quot;,
+                        principalColumn: &quot;Id&quot;,
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskEmployees_EmployeeId&quot;,
+                table: &quot;TaskEmployees&quot;,
+                column: &quot;EmployeeId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskEmployees_TaskId&quot;,
+                table: &quot;TaskEmployees&quot;,
+                column: &quot;TaskId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_Tasks_CreatorUserId&quot;,
+                table: &quot;Tasks&quot;,
+                column: &quot;CreatorUserId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskStages_StageId&quot;,
+                table: &quot;TaskStages&quot;,
+                column: &quot;StageId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskStages_TaskId&quot;,
+                table: &quot;TaskStages&quot;,
+                column: &quot;TaskId&quot;);
+
+            migrationBuilder.CreateIndex(
+                name: &quot;IX_TaskStages_UpdatedByUserId&quot;,
+                table: &quot;TaskStages&quot;,
+                column: &quot;UpdatedByUserId&quot;);
+        }
+
+        /// &lt;inheritdoc /&gt;
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: &quot;TaskEmployees&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;TaskStages&quot;);
+
+            migrationBuilder.DropTable(
+                name: &quot;Tasks&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,9,13,10,0],[14,13,16,35,0],[16,35,23,18,0],[23,18,25,17,0],[25,17,25,18,0],[25,18,26,21,0],[26,21,26,61,0],[26,61,27,21,0],[27,21,32,62,0],[32,62,33,17,0],[33,17,33,18,0],[33,18,33,20,0],[35,13,37,35,0],[37,35,45,18,0],[45,18,47,17,0],[47,17,47,18,0],[47,18,48,21,0],[48,21,48,69,0],[48,69,49,21,0],[49,21,54,62,0],[54,62,55,21,0],[55,21,60,63,0],[60,63,61,17,0],[61,17,61,18,0],[61,18,61,20,0],[63,13,65,35,0],[65,35,74,18,0],[74,18,76,17,0],[76,17,76,18,0],[76,18,77,21,0],[77,21,77,66,0],[77,66,78,21,0],[78,21,82,48,0],[82,48,83,21,0],[83,21,88,62,0],[88,62,89,21,0],[89,21,94,62,0],[94,62,95,17,0],[95,17,95,18,0],[95,18,95,20,0],[97,13,100,39,0],[102,13,105,35,0],[107,13,110,42,0],[112,13,115,36,0],[117,13,120,35,0],[122,13,125,44,0],[126,9,126,10,0],[130,9,130,10,0],[131,13,132,40,0],[134,13,135,37,0],[137,13,138,32,0],[139,9,139,10,0]]);
+    </script>
+  </body>
+</html>

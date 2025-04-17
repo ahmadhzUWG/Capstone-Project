@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManagerDesktop\Views\TaskDetails.Designer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace TaskManagerDesktop.Views
+{
+    partial class TaskDetails
+    {
+        /// &lt;summary&gt;
+        /// Required designer variable.
+        /// &lt;/summary&gt;
+        private System.ComponentModel.IContainer components = null;
+
+        /// &lt;summary&gt;
+        /// Clean up any resources being used.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;disposing&quot;&gt;true if managed resources should be disposed; otherwise, false.&lt;/param&gt;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing &amp;&amp; (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// &lt;summary&gt;
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// &lt;/summary&gt;
+        private void InitializeComponent()
+        {
+            backButton = new Button();
+            panel1 = new Panel();
+            signOutLinkLabel = new LinkLabel();
+            tasksLinkLabel = new LinkLabel();
+            taskManagerLinkLabel = new LinkLabel();
+            label2 = new Label();
+            label1 = new Label();
+            label3 = new Label();
+            label4 = new Label();
+            updateButton = new Button();
+            descriptionTextBox = new TextBox();
+            stageComboBox = new ComboBox();
+            label5 = new Label();
+            assignedToComboBox = new ComboBox();
+            nameLabel = new Label();
+            projectLabel = new Label();
+            panel1.SuspendLayout();
+            SuspendLayout();
+            // 
+            // backButton
+            // 
+            backButton.BackColor = Color.FromArgb(0, 123, 255);
+            backButton.FlatAppearance.BorderColor = Color.FromArgb(0, 123, 255);
+            backButton.FlatStyle = FlatStyle.Flat;
+            backButton.Font = new Font(&quot;Segoe UI&quot;, 11F);
+            backButton.ForeColor = Color.White;
+            backButton.Location = new Point(556, 507);
+            backButton.Name = &quot;backButton&quot;;
+            backButton.Size = new Size(128, 37);
+            backButton.TabIndex = 7;
+            backButton.Text = &quot;Back to Tasks&quot;;
+            backButton.UseVisualStyleBackColor = false;
+            backButton.Click += backButton_Click;
+            // 
+            // panel1
+            // 
+            panel1.BackColor = Color.FromArgb(0, 123, 255);
+            panel1.Controls.Add(signOutLinkLabel);
+            panel1.Controls.Add(tasksLinkLabel);
+            panel1.Controls.Add(taskManagerLinkLabel);
+            panel1.Location = new Point(0, 0);
+            panel1.Name = &quot;panel1&quot;;
+            panel1.Size = new Size(1060, 78);
+            panel1.TabIndex = 8;
+            // 
+            // signOutLinkLabel
+            // 
+            signOutLinkLabel.ActiveLinkColor = Color.LightGray;
+            signOutLinkLabel.AutoSize = true;
+            signOutLinkLabel.Font = new Font(&quot;Segoe UI Black&quot;, 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            signOutLinkLabel.ForeColor = Color.White;
+            signOutLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            signOutLinkLabel.LinkColor = Color.White;
+            signOutLinkLabel.Location = new Point(358, 26);
+            signOutLinkLabel.Name = &quot;signOutLinkLabel&quot;;
+            signOutLinkLabel.Size = new Size(107, 30);
+            signOutLinkLabel.TabIndex = 2;
+            signOutLinkLabel.TabStop = true;
+            signOutLinkLabel.Text = &quot;Sign Out&quot;;
+            signOutLinkLabel.LinkClicked += signOutLinkLabel_LinkClicked;
+            // 
+            // tasksLinkLabel
+            // 
+            tasksLinkLabel.ActiveLinkColor = Color.LightGray;
+            tasksLinkLabel.AutoSize = true;
+            tasksLinkLabel.Font = new Font(&quot;Segoe UI Black&quot;, 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            tasksLinkLabel.ForeColor = Color.White;
+            tasksLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            tasksLinkLabel.LinkColor = Color.White;
+            tasksLinkLabel.Location = new Point(265, 26);
+            tasksLinkLabel.Name = &quot;tasksLinkLabel&quot;;
+            tasksLinkLabel.Size = new Size(74, 30);
+            tasksLinkLabel.TabIndex = 1;
+            tasksLinkLabel.TabStop = true;
+            tasksLinkLabel.Text = &quot;Tasks&quot;;
+            tasksLinkLabel.LinkClicked += tasksLinkLabel_LinkClicked;
+            // 
+            // taskManagerLinkLabel
+            // 
+            taskManagerLinkLabel.ActiveLinkColor = Color.LightGray;
+            taskManagerLinkLabel.AutoSize = true;
+            taskManagerLinkLabel.Font = new Font(&quot;Segoe UI Black&quot;, 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            taskManagerLinkLabel.ForeColor = Color.White;
+            taskManagerLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            taskManagerLinkLabel.LinkColor = Color.White;
+            taskManagerLinkLabel.Location = new Point(50, 19);
+            taskManagerLinkLabel.Name = &quot;taskManagerLinkLabel&quot;;
+            taskManagerLinkLabel.Size = new Size(196, 37);
+            taskManagerLinkLabel.TabIndex = 0;
+            taskManagerLinkLabel.TabStop = true;
+            taskManagerLinkLabel.Text = &quot;TaskManager&quot;;
+            taskManagerLinkLabel.LinkClicked += tasksLinkLabel_LinkClicked;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label2.Location = new Point(375, 139);
+            label2.Name = &quot;label2&quot;;
+            label2.Size = new Size(64, 25);
+            label2.TabIndex = 9;
+            label2.Text = &quot;Name&quot;;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label1.Location = new Point(609, 132);
+            label1.Name = &quot;label1&quot;;
+            label1.Size = new Size(114, 25);
+            label1.TabIndex = 10;
+            label1.Text = &quot;Description&quot;;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label3.Location = new Point(375, 230);
+            label3.Name = &quot;label3&quot;;
+            label3.Size = new Size(75, 25);
+            label3.TabIndex = 11;
+            label3.Text = &quot;Project&quot;;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label4.Location = new Point(375, 303);
+            label4.Name = &quot;label4&quot;;
+            label4.Size = new Size(62, 25);
+            label4.TabIndex = 12;
+            label4.Text = &quot;Stage&quot;;
+            // 
+            // updateButton
+            // 
+            updateButton.BackColor = Color.FromArgb(0, 123, 255);
+            updateButton.FlatAppearance.BorderColor = Color.FromArgb(0, 123, 255);
+            updateButton.FlatStyle = FlatStyle.Flat;
+            updateButton.Font = new Font(&quot;Segoe UI&quot;, 11F);
+            updateButton.ForeColor = Color.White;
+            updateButton.Location = new Point(390, 507);
+            updateButton.Name = &quot;updateButton&quot;;
+            updateButton.Size = new Size(128, 37);
+            updateButton.TabIndex = 13;
+            updateButton.Text = &quot;Update&quot;;
+            updateButton.UseVisualStyleBackColor = false;
+            updateButton.Click += updateButton_Click;
+            // 
+            // descriptionTextBox
+            // 
+            descriptionTextBox.Enabled = false;
+            descriptionTextBox.Font = new Font(&quot;Segoe UI&quot;, 12F);
+            descriptionTextBox.Location = new Point(541, 167);
+            descriptionTextBox.Multiline = true;
+            descriptionTextBox.Name = &quot;descriptionTextBox&quot;;
+            descriptionTextBox.ReadOnly = true;
+            descriptionTextBox.Size = new Size(290, 197);
+            descriptionTextBox.TabIndex = 17;
+            // 
+            // stageComboBox
+            // 
+            stageComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            stageComboBox.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            stageComboBox.FormattingEnabled = true;
+            stageComboBox.Location = new Point(283, 331);
+            stageComboBox.Name = &quot;stageComboBox&quot;;
+            stageComboBox.Size = new Size(235, 33);
+            stageComboBox.TabIndex = 18;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font(&quot;Segoe UI&quot;, 14F, FontStyle.Bold);
+            label5.Location = new Point(471, 399);
+            label5.Name = &quot;label5&quot;;
+            label5.Size = new Size(118, 25);
+            label5.TabIndex = 19;
+            label5.Text = &quot;Assigned To&quot;;
+            // 
+            // assignedToComboBox
+            // 
+            assignedToComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            assignedToComboBox.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            assignedToComboBox.FormattingEnabled = true;
+            assignedToComboBox.Location = new Point(406, 427);
+            assignedToComboBox.Name = &quot;assignedToComboBox&quot;;
+            assignedToComboBox.Size = new Size(235, 33);
+            assignedToComboBox.TabIndex = 20;
+            // 
+            // nameLabel
+            // 
+            nameLabel.AutoEllipsis = true;
+            nameLabel.BorderStyle = BorderStyle.FixedSingle;
+            nameLabel.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            nameLabel.Location = new Point(283, 167);
+            nameLabel.Name = &quot;nameLabel&quot;;
+            nameLabel.Size = new Size(235, 33);
+            nameLabel.TabIndex = 21;
+            // 
+            // projectLabel
+            // 
+            projectLabel.AutoEllipsis = true;
+            projectLabel.BorderStyle = BorderStyle.FixedSingle;
+            projectLabel.Font = new Font(&quot;Segoe UI&quot;, 14F);
+            projectLabel.Location = new Point(283, 255);
+            projectLabel.Name = &quot;projectLabel&quot;;
+            projectLabel.Size = new Size(235, 33);
+            projectLabel.TabIndex = 22;
+            // 
+            // TaskDetails
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1060, 573);
+            Controls.Add(projectLabel);
+            Controls.Add(nameLabel);
+            Controls.Add(assignedToComboBox);
+            Controls.Add(label5);
+            Controls.Add(stageComboBox);
+            Controls.Add(descriptionTextBox);
+            Controls.Add(updateButton);
+            Controls.Add(label4);
+            Controls.Add(label3);
+            Controls.Add(label1);
+            Controls.Add(label2);
+            Controls.Add(panel1);
+            Controls.Add(backButton);
+            Name = &quot;TaskDetails&quot;;
+            Text = &quot;TaskDetails&quot;;
+            Load += TaskDetails_Load;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+
+        private Button backButton;
+        private Panel panel1;
+        private LinkLabel signOutLinkLabel;
+        private LinkLabel tasksLinkLabel;
+        private LinkLabel taskManagerLinkLabel;
+        private Label label2;
+        private Label label1;
+        private Label label3;
+        private Label label4;
+        private Button updateButton;
+        private TextBox descriptionTextBox;
+        private ComboBox stageComboBox;
+        private Label label5;
+        private ComboBox assignedToComboBox;
+        private Label nameLabel;
+        private Label projectLabel;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,9,8,68,0],[15,9,15,10,0],[16,13,16,51,0],[17,13,17,14,0],[18,17,18,38,0],[19,13,19,14,0],[20,13,20,37,0],[21,9,21,10,0],[30,9,30,10,0],[31,13,31,39,0],[32,13,32,34,0],[33,13,33,48,0],[34,13,34,46,0],[35,13,35,52,0],[36,13,36,34,0],[37,13,37,34,0],[38,13,38,34,0],[39,13,39,34,0],[40,13,40,41,0],[41,13,41,48,0],[42,13,42,44,0],[43,13,43,34,0],[44,13,44,49,0],[45,13,45,37,0],[46,13,46,40,0],[47,13,47,36,0],[48,13,48,29,0],[52,13,52,64,0],[53,13,53,81,0],[54,13,54,51,0],[55,13,55,57,0],[56,13,56,48,0],[57,13,57,55,0],[58,13,58,44,0],[59,13,59,49,0],[60,13,60,37,0],[61,13,61,47,0],[62,13,62,56,0],[63,13,63,50,0],[67,13,67,60,0],[68,13,68,51,0],[69,13,69,49,0],[70,13,70,55,0],[71,13,71,47,0],[72,13,72,36,0],[73,13,73,46,0],[74,13,74,33,0],[78,13,78,64,0],[79,13,79,46,0],[80,13,80,108,0],[81,13,81,54,0],[82,13,82,73,0],[83,13,83,54,0],[84,13,84,60,0],[85,13,85,56,0],[86,13,86,55,0],[87,13,87,43,0],[88,13,88,45,0],[89,13,89,48,0],[90,13,90,74,0],[94,13,94,62,0],[95,13,95,44,0],[96,13,96,106,0],[97,13,97,52,0],[98,13,98,71,0],[99,13,99,52,0],[100,13,100,58,0],[101,13,101,52,0],[102,13,102,52,0],[103,13,103,41,0],[104,13,104,43,0],[105,13,105,43,0],[106,13,106,70,0],[110,13,110,68,0],[111,13,111,50,0],[112,13,112,115,0],[113,13,113,58,0],[114,13,114,77,0],[115,13,115,58,0],[116,13,116,63,0],[117,13,117,64,0],[118,13,118,59,0],[119,13,119,47,0],[120,13,120,49,0],[121,13,121,55,0],[122,13,122,76,0],[126,13,126,36,0],[127,13,127,69,0],[128,13,128,51,0],[129,13,129,36,0],[130,13,130,44,0],[131,13,131,33,0],[132,13,132,34,0],[136,13,136,36,0],[137,13,137,69,0],[138,13,138,51,0],[139,13,139,36,0],[140,13,140,45,0],[141,13,141,34,0],[142,13,142,41,0],[146,13,146,36,0],[147,13,147,69,0],[148,13,148,51,0],[149,13,149,36,0],[150,13,150,44,0],[151,13,151,34,0],[152,13,152,37,0],[156,13,156,36,0],[157,13,157,69,0],[158,13,158,51,0],[159,13,159,36,0],[160,13,160,44,0],[161,13,161,34,0],[162,13,162,35,0],[166,13,166,66,0],[167,13,167,83,0],[168,13,168,53,0],[169,13,169,59,0],[170,13,170,50,0],[171,13,171,57,0],[172,13,172,48,0],[173,13,173,51,0],[174,13,174,40,0],[175,13,175,42,0],[176,13,176,58,0],[177,13,177,54,0],[181,13,181,48,0],[182,13,182,65,0],[183,13,183,63,0],[184,13,184,49,0],[185,13,185,60,0],[186,13,186,48,0],[187,13,187,58,0],[188,13,188,46,0],[192,13,192,70,0],[193,13,193,60,0],[194,13,194,52,0],[195,13,195,58,0],[196,13,196,50,0],[197,13,197,52,0],[198,13,198,41,0],[202,13,202,36,0],[203,13,203,69,0],[204,13,204,51,0],[205,13,205,36,0],[206,13,206,45,0],[207,13,207,34,0],[208,13,208,41,0],[212,13,212,75,0],[213,13,213,65,0],[214,13,214,57,0],[215,13,215,63,0],[216,13,216,60,0],[217,13,217,57,0],[218,13,218,46,0],[222,13,222,43,0],[223,13,223,61,0],[224,13,224,56,0],[225,13,225,54,0],[226,13,226,42,0],[227,13,227,48,0],[228,13,228,37,0],[232,13,232,46,0],[233,13,233,64,0],[234,13,234,59,0],[235,13,235,57,0],[236,13,236,48,0],[237,13,237,51,0],[238,13,238,40,0],[242,13,242,54,0],[243,13,243,48,0],[244,13,244,46,0],[245,13,245,40,0],[246,13,246,37,0],[247,13,247,46,0],[248,13,248,34,0],[249,13,249,41,0],[250,13,250,46,0],[251,13,251,40,0],[252,13,252,34,0],[253,13,253,34,0],[254,13,254,34,0],[255,13,255,34,0],[256,13,256,34,0],[257,13,257,38,0],[258,13,258,34,0],[259,13,259,34,0],[260,13,260,38,0],[261,13,261,40,0],[262,13,262,36,0],[263,13,263,33,0],[264,13,264,29,0],[265,9,265,10,0]]);
+    </script>
+  </body>
+</html>

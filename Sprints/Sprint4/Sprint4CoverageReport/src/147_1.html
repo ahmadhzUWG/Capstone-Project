@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\Admin\CreateGroup.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.GroupViewModel
+@using TaskManagerData.Models
+@using TaskManagerWebsite.Components
+
+
+@{
+    Layout = &quot;~/Views/Shared/_Layout.cshtml&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/Admin/createGroups.css&quot; /&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;form-container&quot;&gt;
+        &lt;h1 class=&quot;text-center&quot;&gt;Create Group&lt;/h1&gt;
+
+        &lt;form id=&quot;createGroupForm&quot; asp-action=&quot;CreateGroup&quot; asp-controller=&quot;Admin&quot; method=&quot;post&quot; class=&quot;needs-validation&quot; novalidate&gt;
+            &lt;div class=&quot;form-group&quot;&gt;
+                &lt;label asp-for=&quot;Name&quot;&gt;Group Name&lt;/label&gt;
+                &lt;input asp-for=&quot;Name&quot; class=&quot;form-control&quot; required /&gt;
+                &lt;span asp-validation-for=&quot;Name&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;form-group&quot;&gt;
+                &lt;label asp-for=&quot;Description&quot;&gt;Group Description&lt;/label&gt;
+                &lt;input asp-for=&quot;Description&quot; class=&quot;form-control&quot; required /&gt;
+                &lt;span asp-validation-for=&quot;Description&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;form-group&quot;&gt;
+                &lt;label&gt;Select Manager&lt;/label&gt;
+                &lt;component type=&quot;typeof(ManagerSearch)&quot;
+                           render-mode=&quot;ServerPrerendered&quot;
+                           param-Managers=&quot;@(ViewBag.Employees ?? new List&lt;User&gt;())&quot;
+                           param-SelectedManagerId=&quot;@(Model?.SelectedManagerId ?? 0)&quot; /&gt;
+                &lt;span asp-validation-for=&quot;SelectedManagerId&quot; class=&quot;text-danger&quot;&gt;&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;form-group&quot;&gt;
+                &lt;label&gt;Select Employees&lt;/label&gt;
+
+                &lt;input type=&quot;text&quot; id=&quot;searchBoxEmployees&quot; class=&quot;form-control mb-2&quot; placeholder=&quot;Search employees...&quot;&gt;
+                &lt;div id=&quot;employeeContainer&quot; class=&quot;employee-list&quot;&gt;
+                    @foreach (var user in ViewBag.Employees ?? new List&lt;User&gt;())
+                    {
+                        &lt;div class=&quot;form-check employee-box&quot; data-user-id=&quot;@user.Id&quot;&gt;
+                            &lt;input type=&quot;checkbox&quot; name=&quot;SelectedUserIds&quot; value=&quot;@user.Id&quot; class=&quot;form-check-input employee-checkbox&quot;
+                            @(Model?.SelectedUserIds != null &amp;&amp; Model.SelectedUserIds.Contains(user.Id) ? &quot;checked&quot; : &quot;&quot;) /&gt;
+                            &lt;label class=&quot;form-check-label&quot;&gt;@user.UserName (@user.Email)&lt;/label&gt;
+                        &lt;/div&gt;
+                    }
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;button type=&quot;submit&quot; class=&quot;btn btn-success btn-block mt-3&quot;&gt;Create&lt;/button&gt;
+        &lt;/form&gt;
+
+        &lt;a href=&quot;@Url.Action(&quot;Groups&quot;, &quot;Admin&quot;)&quot; class=&quot;btn btn-secondary btn-block mt-2&quot;&gt;Back to Groups&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+    &lt;script src=&quot;~/lib/groupFunctions.js&quot;&gt;&lt;/script&gt;
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,5,7,46,0],[18,1,18,141,0],[19,1,19,141,0],[20,1,20,153,0],[24,1,24,148,0],[25,1,25,148,0],[26,1,26,160,0],[31,1,31,96,0],[32,1,32,143,0],[33,1,33,123,0],[34,1,34,124,0],[35,1,35,166,0],[43,22,43,29,0],[43,31,43,39,0],[43,40,43,42,0],[43,43,43,80,0],[44,21,44,22,0],[45,77,45,85,0],[46,82,46,91,0],[47,31,47,122,0],[48,62,48,76,0],[48,78,48,89,0],[50,21,50,22,0],[57,18,57,49,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\ViewModels\ProjectViewModels\CreateProjectViewModel.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace TaskManagerWebsite.ViewModels.ProjectViewModels
+{
+    /// &lt;summary&gt;
+    /// ViewModel used for creating a new project.
+    /// Contains validation rules and any data needed for the form.
+    /// &lt;/summary&gt;
+    public class CreateProjectViewModel
+    {
+        /// &lt;summary&gt;
+        /// Name of the project.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Project name is required. Please provide a brief, descriptive name.&quot;)]
+        [StringLength(100, MinimumLength = 3,
+            ErrorMessage = &quot;Project name must be between 3 and 100 characters.&quot;)]
+        public string Name { get; set; }
+
+        /// &lt;summary&gt;
+        /// Description or overview of the project.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;A project description is required.&quot;)]
+        [StringLength(500, ErrorMessage = &quot;Description cannot exceed 500 characters. Please summarize succinctly.&quot;)]
+        public string Description { get; set; }
+
+        /// &lt;summary&gt;
+        /// The user ID of the project lead.
+        /// &lt;/summary&gt;
+        [Required(ErrorMessage = &quot;Please select a project lead.&quot;)]
+        public int ProjectLeadId { get; set; }
+
+        /// &lt;summary&gt;
+        /// Drop-down list items for potential project leads.
+        /// &lt;/summary&gt;
+        public List&lt;SelectListItem&gt; ProjectLeads { get; set; } = new();
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,30,18,34,1],[18,35,18,39,1],[25,37,25,41,1],[25,42,25,46,1],[31,36,31,40,1],[31,41,31,45,1],[36,52,36,56,1],[36,57,36,61,1],[36,66,36,71,1]]);
+    </script>
+  </body>
+</html>

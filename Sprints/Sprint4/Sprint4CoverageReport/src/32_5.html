@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestServices\EmailServiceTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.Extensions.Configuration;
+using TaskManagerData.Services;
+
+namespace TaskManager.Tests.WebsiteTests.TestServices
+{
+    public class EmailServiceTests
+    {
+        [Fact]
+        public async Task SendEmailAsync_WhenSmtpConnectionFails_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var inMemorySettings = new Dictionary&lt;string, string&gt;
+            {
+                {&quot;EmailSettings:SenderEmail&quot;, &quot;sender@example.com&quot;},
+                {&quot;EmailSettings:SmtpServer&quot;, &quot;invalid.smtp.server&quot;},
+                {&quot;EmailSettings:SmtpPort&quot;, &quot;25&quot;},
+                {&quot;EmailSettings:SenderPassword&quot;, &quot;password&quot;}
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+
+            var emailService = new EmailService(configuration);
+
+            // Act &amp; Assert
+            var exception = await Assert.ThrowsAsync&lt;InvalidOperationException&gt;(async () =&gt;
+                await emailService.SendEmailAsync(&quot;recipient@example.com&quot;, &quot;Test Subject&quot;, &quot;Test Body&quot;));
+
+            Assert.Equal(&quot;Error sending email&quot;, exception.Message);
+            Assert.NotNull(exception.InnerException);
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_WithNoConfiguration_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var inMemorySettings = new Dictionary&lt;string, string&gt;
+            {
+                {&quot;EmailSettings:SenderEmail&quot;, &quot;sender@example.com&quot;},
+                {&quot;EmailSettings:SmtpServer&quot;, &quot;invalid.smtp.server&quot;},
+                {&quot;EmailSettings:SmtpPort&quot;, &quot;25&quot;},
+                {&quot;EmailSettings:SenderPassword&quot;, &quot;password&quot;}
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+
+            var emailService = new EmailService(configuration);
+
+            // Act &amp; Assert
+            await Assert.ThrowsAsync&lt;InvalidOperationException&gt;(async () =&gt;
+                await emailService.SendEmailAsync(&quot;recipient@example.com&quot;, &quot;Test Subject&quot;, &quot;Test Body&quot;));
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,1],[12,13,18,15,1],[20,13,22,26,1],[24,13,24,64,1],[27,13,28,17,1],[28,17,28,104,1],[28,104,28,106,1],[30,13,30,68,1],[31,13,31,54,1],[32,9,32,10,1],[36,9,36,10,1],[38,13,44,15,1],[46,13,48,26,1],[50,13,50,64,1],[53,13,54,17,1],[54,17,54,104,1],[54,104,54,106,1],[55,9,55,10,1]]);
+    </script>
+  </body>
+</html>

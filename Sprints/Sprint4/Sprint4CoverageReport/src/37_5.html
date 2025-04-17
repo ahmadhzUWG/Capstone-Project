@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager.Tests\WebsiteTests\TestModels\TaskHistoryTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Xunit;
+using TaskManagerData.Models;
+using Task = TaskManagerData.Models.Task;
+
+namespace TaskManager.Tests.Models
+{
+    public class TaskHistoryTests
+    {
+        [Fact]
+        public void TaskHistory_Id_CanBeSetAndRetrieved()
+        {
+            var history = new TaskHistory { Id = 123 };
+            Assert.Equal(123, history.Id);
+        }
+
+        [Fact]
+        public void TaskHistory_TaskId_CanBeSetAndRetrieved()
+        {
+            var history = new TaskHistory { TaskId = 10 };
+            Assert.Equal(10, history.TaskId);
+        }
+
+        [Fact]
+        public void TaskHistory_Task_CanBeSetAndRetrieved()
+        {
+            // Assuming Task has an Id property
+            var task = new Task { Id = 99 };
+            var history = new TaskHistory { Task = task };
+            Assert.NotNull(history.Task);
+            Assert.Equal(99, history.Task.Id);
+        }
+
+        [Fact]
+        public void TaskHistory_Timestamp_CanBeSetAndRetrieved()
+        {
+            var timeStamp = DateTime.Now;
+            var history = new TaskHistory { Timestamp = timeStamp };
+            Assert.Equal(timeStamp, history.Timestamp);
+        }
+
+        [Fact]
+        public void TaskHistory_UserId_CanBeSetAndRetrieved()
+        {
+            var history = new TaskHistory { UserId = 15 };
+            Assert.Equal(15, history.UserId);
+        }
+
+        [Fact]
+        public void TaskHistory_User_CanBeSetAndRetrieved()
+        {
+            var user = new User { Id = 7, UserName = &quot;TaskOwner&quot; };
+            var history = new TaskHistory { User = user };
+            Assert.NotNull(history.User);
+            Assert.Equal(&quot;TaskOwner&quot;, history.User.UserName);
+        }
+
+        [Fact]
+        public void TaskHistory_Action_CanBeSetAndRetrieved()
+        {
+            var history = new TaskHistory { Action = &quot;Task Created&quot; };
+            Assert.Equal(&quot;Task Created&quot;, history.Action);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,1],[13,13,13,56,1],[14,13,14,43,1],[15,9,15,10,1],[19,9,19,10,1],[20,13,20,59,1],[21,13,21,46,1],[22,9,22,10,1],[26,9,26,10,1],[28,13,28,45,1],[29,13,29,59,1],[30,13,30,42,1],[31,13,31,47,1],[32,9,32,10,1],[36,9,36,10,1],[37,13,37,42,1],[38,13,38,69,1],[39,13,39,56,1],[40,9,40,10,1],[44,9,44,10,1],[45,13,45,59,1],[46,13,46,46,1],[47,9,47,10,1],[51,9,51,10,1],[52,13,52,68,1],[53,13,53,59,1],[54,13,54,42,1],[55,13,55,62,1],[56,9,56,10,1],[60,9,60,10,1],[61,13,61,71,1],[62,13,62,58,1],[63,9,63,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Nick\Desktop\Capstone-Project\code\TaskManager\Views\ForgotPassword\Index.cshtml</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+@model TaskManagerWebsite.ViewModels.ForgotPasswordViewModel
+
+@{
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;link rel=&quot;stylesheet&quot; href=&quot;~/css/Login/login_index.css&quot; /&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+    &lt;h4&gt;Forgot Password&lt;/h4&gt;
+&lt;/div&gt;
+
+&lt;form asp-action=&quot;Index&quot; method=&quot;post&quot;&gt;
+    &lt;div asp-validation-summary=&quot;All&quot; class=&quot;text-danger&quot;&gt;&lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Username&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Username&quot; /&gt;
+        &lt;span asp-validation-for=&quot;Username&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;div&gt;
+        &lt;label asp-for=&quot;Password&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;Password&quot; /&gt;
+        &lt;span asp-validation-for=&quot;Password&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;div&gt;
+        &lt;label asp-for=&quot;ConfirmPassword&quot;&gt;&lt;/label&gt;
+        &lt;input asp-for=&quot;ConfirmPassword&quot; /&gt;
+        &lt;span asp-validation-for=&quot;ConfirmPassword&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot;&gt;Change Password&lt;/button&gt;
+&lt;/form&gt;
+
+@if (TempData[&quot;SuccessMessage&quot;] != null)
+{
+    &lt;div class=&quot;alert alert-success&quot; style=&quot;margin-top: 15px; text-align: center&quot;&gt;
+        &lt;strong&gt;Success!&lt;/strong&gt; @TempData[&quot;SuccessMessage&quot;]
+    &lt;/div&gt;
+}
+
+@if (TempData[&quot;ErrorMessage&quot;] != null)
+{
+    &lt;div class=&quot;alert alert-danger&quot; style=&quot;margin-top: 15px; text-align: center&quot;&gt;
+        &lt;strong&gt;Error!&lt;/strong&gt; @TempData[&quot;ErrorMessage&quot;]
+    &lt;/div&gt;
+}
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+    &lt;a href=&quot;@Url.Action(&quot;Index&quot;, &quot;Login&quot;)&quot; class=&quot;btn btn-secondary&quot;&gt;Back to Login&lt;/a&gt;
+&lt;/div&gt;
+
+@section Scripts {
+    &lt;partial name=&quot;_ValidationScriptsPartial&quot; /&gt;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[4,5,4,24,0],[14,1,14,151,0],[17,1,17,145,0],[18,1,18,145,0],[19,1,19,157,0],[23,1,23,145,0],[24,1,24,145,0],[25,1,25,157,0],[29,1,29,152,0],[30,1,30,152,0],[31,1,31,164,0],[37,2,37,41,0],[38,1,38,2,0],[40,36,40,63,0],[42,1,42,2,0],[44,2,44,39,0],[45,1,45,2,0],[47,34,47,59,0],[49,1,49,2,0],[52,14,52,44,0]]);
+    </script>
+  </body>
+</html>
