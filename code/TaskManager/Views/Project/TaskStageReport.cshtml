@@ -1,0 +1,52 @@
+﻿@model TaskManagerWebsite.ViewModels.ProjectViewModels.TaskStageReportViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h1>@Model.ReportTitle</h1>
+    @if (!Model.ReportItems.Any())
+    {
+        <p>No tasks found for this criteria.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Task</th>
+                <th>Stage</th>
+                <th>Entered Date</th>
+                <th>Completed Date</th>
+                <th>Updated By</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.ReportItems)
+            {
+                <tr>
+                    <td>@item.TaskName</td>
+                    <td>@item.StageName</td>
+                    <td>@item.EnteredDate.ToShortDateString()</td>
+                    <td>@(item.CompletedDate.HasValue ? item.CompletedDate.Value.ToShortDateString() : "In Progress")</td>
+                    <td>@item.UpdatedBy</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <!-- Back button for navigation. Optionally check which parameter (ProjectId or GroupId) is available -->
+    @if (Model.ProjectId.HasValue)
+    {
+        <a asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@Model.ProjectId.Value" class="btn btn-secondary">
+            Back to Project Board
+        </a>
+    }
+    else
+    {
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+            Back to Home
+        </a>
+    }
+</div>

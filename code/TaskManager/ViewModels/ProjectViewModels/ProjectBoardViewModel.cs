@@ -29,5 +29,21 @@ namespace TaskManagerWebsite.ViewModels.ProjectViewModels
         /// Gets or sets a value indicating whether this instance can delete any task.
         /// </summary>
         public bool CanDeleteAnyTask { get; set; }
+
+        /// <summary>
+        /// Gets or sets the logged in employee identifier.
+        /// </summary>
+        /// <value>
+        /// The logged in employee identifier.
+        /// </value>
+        public int LoggedInEmployeeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the logged in user group identifier.
+        /// </summary>
+        /// <value>
+        /// The logged in user group identifier.
+        /// </value>
+        public int LoggedInUserGroupId { get; set; }
     }
 }

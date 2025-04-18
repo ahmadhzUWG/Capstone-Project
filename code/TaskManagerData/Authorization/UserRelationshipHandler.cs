@@ -33,13 +33,11 @@ public class UserRelationshipHandler : AuthorizationHandler<UserRelationshipRequ
     /// <param name="targetUser">The target user.</param>
     protected override async System.Threading.Tasks.Task HandleRequirementAsync(AuthorizationHandlerContext context, UserRelationshipRequirement requirement, User targetUser)
     {
-        // Convert userId from string to int
         if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
         {
-            return; // Exit if conversion fails
+            return;
         }
 
-        // ✅ Check if the user is a "Manager" of the same group as the targetUser
         bool isManager = await this._context.UserGroups
             .AnyAsync(ug => ug.UserId == userId && ug.Role == "Manager" && this._context.UserGroups.Any(ug2 => ug2.UserId == targetUser.Id && ug2.GroupId == ug.GroupId));
 
