@@ -31,7 +31,6 @@
             backButton = new Button();
             panel1 = new Panel();
             signOutLinkLabel = new LinkLabel();
-            tasksLinkLabel = new LinkLabel();
             taskManagerLinkLabel = new LinkLabel();
             label2 = new Label();
             label1 = new Label();
@@ -44,6 +43,7 @@
             assignedToComboBox = new ComboBox();
             nameLabel = new Label();
             projectLabel = new Label();
+            accordionPanel = new FlowLayoutPanel();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -54,7 +54,7 @@
             backButton.FlatStyle = FlatStyle.Flat;
             backButton.Font = new Font("Segoe UI", 11F);
             backButton.ForeColor = Color.White;
-            backButton.Location = new Point(556, 507);
+            backButton.Location = new Point(265, 470);
             backButton.Name = "backButton";
             backButton.Size = new Size(128, 37);
             backButton.TabIndex = 7;
@@ -66,11 +66,10 @@
             // 
             panel1.BackColor = Color.FromArgb(0, 123, 255);
             panel1.Controls.Add(signOutLinkLabel);
-            panel1.Controls.Add(tasksLinkLabel);
             panel1.Controls.Add(taskManagerLinkLabel);
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1060, 78);
+            panel1.Size = new Size(486, 78);
             panel1.TabIndex = 8;
             // 
             // signOutLinkLabel
@@ -81,29 +80,13 @@
             signOutLinkLabel.ForeColor = Color.White;
             signOutLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
             signOutLinkLabel.LinkColor = Color.White;
-            signOutLinkLabel.Location = new Point(358, 26);
+            signOutLinkLabel.Location = new Point(322, 25);
             signOutLinkLabel.Name = "signOutLinkLabel";
             signOutLinkLabel.Size = new Size(107, 30);
             signOutLinkLabel.TabIndex = 2;
             signOutLinkLabel.TabStop = true;
             signOutLinkLabel.Text = "Sign Out";
             signOutLinkLabel.LinkClicked += signOutLinkLabel_LinkClicked;
-            // 
-            // tasksLinkLabel
-            // 
-            tasksLinkLabel.ActiveLinkColor = Color.LightGray;
-            tasksLinkLabel.AutoSize = true;
-            tasksLinkLabel.Font = new Font("Segoe UI Black", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            tasksLinkLabel.ForeColor = Color.White;
-            tasksLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
-            tasksLinkLabel.LinkColor = Color.White;
-            tasksLinkLabel.Location = new Point(265, 26);
-            tasksLinkLabel.Name = "tasksLinkLabel";
-            tasksLinkLabel.Size = new Size(74, 30);
-            tasksLinkLabel.TabIndex = 1;
-            tasksLinkLabel.TabStop = true;
-            tasksLinkLabel.Text = "Tasks";
-            tasksLinkLabel.LinkClicked += tasksLinkLabel_LinkClicked;
             // 
             // taskManagerLinkLabel
             // 
@@ -125,7 +108,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            label2.Location = new Point(375, 139);
+            label2.Location = new Point(98, 325);
             label2.Name = "label2";
             label2.Size = new Size(64, 25);
             label2.TabIndex = 9;
@@ -135,7 +118,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            label1.Location = new Point(609, 132);
+            label1.Location = new Point(183, 97);
             label1.Name = "label1";
             label1.Size = new Size(114, 25);
             label1.TabIndex = 10;
@@ -145,7 +128,7 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            label3.Location = new Point(375, 230);
+            label3.Location = new Point(345, 324);
             label3.Name = "label3";
             label3.Size = new Size(75, 25);
             label3.TabIndex = 11;
@@ -155,7 +138,7 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            label4.Location = new Point(375, 303);
+            label4.Location = new Point(345, 387);
             label4.Name = "label4";
             label4.Size = new Size(62, 25);
             label4.TabIndex = 12;
@@ -168,7 +151,7 @@
             updateButton.FlatStyle = FlatStyle.Flat;
             updateButton.Font = new Font("Segoe UI", 11F);
             updateButton.ForeColor = Color.White;
-            updateButton.Location = new Point(390, 507);
+            updateButton.Location = new Point(99, 470);
             updateButton.Name = "updateButton";
             updateButton.Size = new Size(128, 37);
             updateButton.TabIndex = 13;
@@ -180,7 +163,7 @@
             // 
             descriptionTextBox.Enabled = false;
             descriptionTextBox.Font = new Font("Segoe UI", 12F);
-            descriptionTextBox.Location = new Point(541, 167);
+            descriptionTextBox.Location = new Point(98, 125);
             descriptionTextBox.Multiline = true;
             descriptionTextBox.Name = "descriptionTextBox";
             descriptionTextBox.ReadOnly = true;
@@ -192,16 +175,16 @@
             stageComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             stageComboBox.Font = new Font("Segoe UI", 14F);
             stageComboBox.FormattingEnabled = true;
-            stageComboBox.Location = new Point(283, 331);
+            stageComboBox.Location = new Point(247, 415);
             stageComboBox.Name = "stageComboBox";
-            stageComboBox.Size = new Size(235, 33);
+            stageComboBox.Size = new Size(230, 33);
             stageComboBox.TabIndex = 18;
             // 
             // label5
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            label5.Location = new Point(471, 399);
+            label5.Location = new Point(71, 387);
             label5.Name = "label5";
             label5.Size = new Size(118, 25);
             label5.TabIndex = 19;
@@ -212,9 +195,9 @@
             assignedToComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             assignedToComboBox.Font = new Font("Segoe UI", 14F);
             assignedToComboBox.FormattingEnabled = true;
-            assignedToComboBox.Location = new Point(406, 427);
+            assignedToComboBox.Location = new Point(6, 415);
             assignedToComboBox.Name = "assignedToComboBox";
-            assignedToComboBox.Size = new Size(235, 33);
+            assignedToComboBox.Size = new Size(230, 33);
             assignedToComboBox.TabIndex = 20;
             // 
             // nameLabel
@@ -222,9 +205,9 @@
             nameLabel.AutoEllipsis = true;
             nameLabel.BorderStyle = BorderStyle.FixedSingle;
             nameLabel.Font = new Font("Segoe UI", 14F);
-            nameLabel.Location = new Point(283, 167);
+            nameLabel.Location = new Point(6, 353);
             nameLabel.Name = "nameLabel";
-            nameLabel.Size = new Size(235, 33);
+            nameLabel.Size = new Size(230, 33);
             nameLabel.TabIndex = 21;
             // 
             // projectLabel
@@ -232,16 +215,27 @@
             projectLabel.AutoEllipsis = true;
             projectLabel.BorderStyle = BorderStyle.FixedSingle;
             projectLabel.Font = new Font("Segoe UI", 14F);
-            projectLabel.Location = new Point(283, 255);
+            projectLabel.Location = new Point(247, 353);
             projectLabel.Name = "projectLabel";
-            projectLabel.Size = new Size(235, 33);
+            projectLabel.Size = new Size(230, 33);
             projectLabel.TabIndex = 22;
+            // 
+            // accordionPanel
+            // 
+            accordionPanel.BorderStyle = BorderStyle.Fixed3D;
+            accordionPanel.FlowDirection = FlowDirection.TopDown;
+            accordionPanel.Location = new Point(50, 525);
+            accordionPanel.Name = "accordionPanel";
+            accordionPanel.Size = new Size(387, 80);
+            accordionPanel.TabIndex = 23;
+            accordionPanel.WrapContents = false;
             // 
             // TaskDetails
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1060, 573);
+            ClientSize = new Size(484, 628);
+            Controls.Add(accordionPanel);
             Controls.Add(projectLabel);
             Controls.Add(nameLabel);
             Controls.Add(assignedToComboBox);
@@ -269,7 +263,6 @@
         private Button backButton;
         private Panel panel1;
         private LinkLabel signOutLinkLabel;
-        private LinkLabel tasksLinkLabel;
         private LinkLabel taskManagerLinkLabel;
         private Label label2;
         private Label label1;
@@ -282,5 +275,6 @@
         private ComboBox assignedToComboBox;
         private Label nameLabel;
         private Label projectLabel;
+        private FlowLayoutPanel accordionPanel;
     }
 }
