@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
-            homeLinkLabel = new LinkLabel();
             taskManagerLinkLabel = new LinkLabel();
             label1 = new Label();
             panel2 = new Panel();
@@ -48,28 +47,11 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(0, 123, 255);
-            panel1.Controls.Add(homeLinkLabel);
             panel1.Controls.Add(taskManagerLinkLabel);
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1060, 78);
+            panel1.Size = new Size(486, 78);
             panel1.TabIndex = 0;
-            // 
-            // homeLinkLabel
-            // 
-            homeLinkLabel.ActiveLinkColor = Color.LightGray;
-            homeLinkLabel.AutoSize = true;
-            homeLinkLabel.Font = new Font("Segoe UI Black", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            homeLinkLabel.ForeColor = Color.White;
-            homeLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
-            homeLinkLabel.LinkColor = Color.White;
-            homeLinkLabel.Location = new Point(265, 26);
-            homeLinkLabel.Name = "homeLinkLabel";
-            homeLinkLabel.Size = new Size(78, 30);
-            homeLinkLabel.TabIndex = 1;
-            homeLinkLabel.TabStop = true;
-            homeLinkLabel.Text = "Home";
-            homeLinkLabel.LinkClicked += homeLinkLabel_LinkClicked;
             // 
             // taskManagerLinkLabel
             // 
@@ -79,7 +61,7 @@
             taskManagerLinkLabel.ForeColor = Color.White;
             taskManagerLinkLabel.LinkBehavior = LinkBehavior.NeverUnderline;
             taskManagerLinkLabel.LinkColor = Color.White;
-            taskManagerLinkLabel.Location = new Point(50, 19);
+            taskManagerLinkLabel.Location = new Point(134, 20);
             taskManagerLinkLabel.Name = "taskManagerLinkLabel";
             taskManagerLinkLabel.Size = new Size(196, 37);
             taskManagerLinkLabel.TabIndex = 0;
@@ -91,7 +73,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 20F);
-            label1.Location = new Point(496, 134);
+            label1.Location = new Point(196, 96);
             label1.Name = "label1";
             label1.Size = new Size(84, 37);
             label1.TabIndex = 1;
@@ -108,7 +90,7 @@
             panel2.Controls.Add(usernameTextBox);
             panel2.Controls.Add(label3);
             panel2.Controls.Add(label2);
-            panel2.Location = new Point(350, 192);
+            panel2.Location = new Point(50, 154);
             panel2.Name = "panel2";
             panel2.Size = new Size(371, 307);
             panel2.TabIndex = 2;
@@ -203,7 +185,7 @@
             AcceptButton = loginButton;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1060, 665);
+            ClientSize = new Size(484, 492);
             Controls.Add(panel2);
             Controls.Add(label1);
             Controls.Add(panel1);
@@ -221,7 +203,6 @@
 
         private Panel panel1;
         private LinkLabel taskManagerLinkLabel;
-        private LinkLabel homeLinkLabel;
         private Label label1;
         private Panel panel2;
         private Label label3;

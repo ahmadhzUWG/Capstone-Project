@@ -18,8 +18,7 @@ namespace TaskManagerDesktop.ViewModels
     /// </summary>
     public class TaskDetailsViewModel : INotifyPropertyChanged
     {
-        private bool _movedTaskToUnreachableStage = false;
-        private Task _task;
+        private readonly Task _task;
         private string _taskName;
         private string _taskDescription;
         private Stage? _selectedStage;
@@ -30,17 +29,9 @@ namespace TaskManagerDesktop.ViewModels
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
-        /// Boolean property to indicate if the task was moved to a stage where the user isn't in the assigned group.
+        /// Gets the task associated with this view model.
         /// </summary>
-        public bool MovedTaskToUnreachableStage
-        {
-            get => _movedTaskToUnreachableStage;
-            set
-            {
-                _movedTaskToUnreachableStage = value;
-                OnPropertyChanged(nameof(MovedTaskToUnreachableStage));
-            }
-        }
+        public Task Task => _task; 
 
         /// <summary>
         /// Gets or sets the name of the task.
@@ -149,6 +140,97 @@ namespace TaskManagerDesktop.ViewModels
         }
 
         /// <summary>
+        /// Posts a comment to the task.
+        /// </summary>
+        /// <param name="commentText"></param>
+        /// <returns></returns>
+        public async System.Threading.Tasks.Task PostComment(string commentText)
+        {
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var userId = Session.CurrentUser.Id;
+            var comment = new Comment
+            {
+                TaskId = Task.Id,
+                UserId = userId,
+                Content = commentText,
+                Timestamp = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Retrieves the task histories from the database.
+        /// </summary>
+        /// <returns>The list of task histories associated with the current task</returns>
+        public async Task<List<TaskHistory>> GetTaskHistories()
+        {
+            var taskId = this._task.Id;
+
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var history = await _context.TaskHistories
+                .Where(h => h.TaskId == taskId)
+                .Include(h => h.User)
+                .OrderByDescending(h => h.Timestamp)
+                .ToListAsync();
+
+            return history;
+        }
+
+        /// <summary>
+        /// Retrieves the comments from the database.
+        /// </summary>
+        /// <returns>The list of comments associated with the current task</returns>
+        public async Task<List<Comment>> GetComments()
+        {
+            var taskId = this._task.Id;
+
+            using var scope = this._serviceProvider.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var comments = await _context.Comments
+                .Where(c => c.TaskId == taskId)
+                .Include(c => c.User)
+                .OrderByDescending(c => c.Timestamp)
+                .ToListAsync();
+
+            return comments;
+        }
+
+        /// <summary>
+        /// Checks if the task is being moved to a stage that is unreachable for the current user.
+        /// </summary>
+        /// <returns>true if moving to unreachable stage, false if not</returns>
+        public async Task<bool> IsMovingToUnreachableStage()
+        {
+            if (this.SelectedStage != this._originalStage && this.SelectedStage?.AssignedGroupId != null)
+            {
+                using var scope = this._serviceProvider.CreateScope();
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                var assignedGroupId = this.SelectedStage.AssignedGroupId.Value;
+                var userId = Session.CurrentUser.Id;
+
+                var userGroupIds = await _context.UserGroups
+                    .Where(ug => ug.UserId == userId)
+                    .Select(ug => ug.GroupId)
+                    .ToListAsync();
+
+                if (!userGroupIds.Contains(assignedGroupId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Updates the stage and/or assigned user in the database.
         /// </summary>
         public async System.Threading.Tasks.Task UpdateTask()
@@ -197,8 +279,6 @@ namespace TaskManagerDesktop.ViewModels
                         {
                             _context.TaskEmployees.Remove(taskEmployee);
                         }
-
-                        this.MovedTaskToUnreachableStage = true;
                     }
                 }
                 _context.TaskHistories.Add(new TaskHistory
@@ -250,6 +330,17 @@ namespace TaskManagerDesktop.ViewModels
             using var scope = this._serviceProvider.CreateScope();
             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+            var currentUserOption = new UserOption { User = Session.CurrentUser };
+
+            var duplicate = assignedToComboBox.Items
+                .OfType<UserOption>()
+                .FirstOrDefault(u => u.User != null && u.User.Id == Session.CurrentUser.Id);
+
+            if (duplicate != null)
+            {
+                assignedToComboBox.Items.Remove(duplicate);
+            }
+
             if (this.SelectedStage.AssignedGroupId.HasValue)
             {
                 var assignedGroupId = this.SelectedStage.AssignedGroupId.Value;
@@ -277,18 +368,19 @@ namespace TaskManagerDesktop.ViewModels
                     if (itemToRemove != null)
                     {
                         assignedToComboBox.Items.Remove(itemToRemove);
-                        assignedToComboBox.SelectedIndex = 0;
                     }
                 }
                 else
                 {
-                    assignedToComboBox.Items.Add(new UserOption { User = Session.CurrentUser });
+                    assignedToComboBox.Items.Add(currentUserOption);
                 }
             }
             else
             {
-                assignedToComboBox.Items.Add(new UserOption { User = Session.CurrentUser });
+                assignedToComboBox.Items.Add(currentUserOption);
             }
+
+            assignedToComboBox.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -351,5 +443,6 @@ namespace TaskManagerDesktop.ViewModels
             this._originalStage = this.SelectedStage;
         }
 
+      
     }
 }
