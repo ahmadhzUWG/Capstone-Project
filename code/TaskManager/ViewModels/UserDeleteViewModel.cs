@@ -30,5 +30,13 @@ namespace TaskManagerWebsite.ViewModels
         /// The related projects.
         /// </value>
         public required List<Project> RelatedProjects { get; set; }
+
+        /// <summary>
+        /// Gets or sets the related tasks.
+        /// </summary>
+        /// <value>
+        ///  The related stages.
+        /// </value>
+        public required List<Stage> RelatedStages { get; set; }
     }
 }

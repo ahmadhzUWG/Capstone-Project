@@ -903,11 +903,16 @@ namespace TaskManagerWebsite.Controllers
                 .Distinct()
                 .ToListAsync();
 
+            var createdStages = await context.Stages
+                .Where(s => s.CreatorUserId == id)
+                .ToListAsync();
+
             var viewModel = new UserDeleteViewModel
             {
                 User = user,
                 RelatedGroups = managedGroups,
-                RelatedProjects = projects
+                RelatedProjects = projects,
+                RelatedStages = createdStages
             };
 
             return View(viewModel);

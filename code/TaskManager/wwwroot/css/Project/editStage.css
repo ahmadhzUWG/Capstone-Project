@@ -1,0 +1,22 @@
+﻿/* Center the main container with a similar style */
+.container {
+    max-width: 500px;
+    text-align: center; /* Centers text inside the container */
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+/* Inputs (for text, email, password, etc.) */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+}

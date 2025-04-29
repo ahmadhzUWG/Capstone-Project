@@ -1,33 +1,37 @@
 ﻿@model TaskManagerData.Models.User
 
-<h2>Edit User</h2>
+<link rel="stylesheet" href="~/css/Admin/userEdit.css" />
 
-<form asp-action="UserEdit" asp-controller="Admin" method="post">
-    <input type="hidden" asp-for="Id" />
+<div class="container form-container">
+    <h2>Edit User</h2>
 
-    <div class="form-group">
-        <label asp-for="UserName">Username</label>
-        <input asp-for="UserName" class="form-control" />
-    </div>
+    <form asp-action="UserEdit" asp-controller="Admin" method="post">
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" class="form-control" />
-    </div>
+        <div class="form-group">
+            <label asp-for="UserName">Username</label>
+            <input asp-for="UserName" class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label>Role</label>
-        <select name="Role" class="form-control">
-            @foreach (var role in ViewBag.Roles)
-            {
-                <option value="@role" selected="@(role == ViewBag.CurrentRole ? "selected" : null)">
-                    @role
-                </option>
-            }
-        </select>
-    </div>
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Role</label>
+            <select name="Role" class="form-control">
+                @foreach (var role in ViewBag.Roles)
+                {
+                    <option value="@role" selected="@(role == ViewBag.CurrentRole ? "selected" : null)">
+                        @role
+                    </option>
+                }
+            </select>
+        </div>
 
 
-    <button type="submit" class="btn btn-success">Save Changes</button>
-    <a asp-action="Users" class="btn btn-secondary">Cancel</a>
-</form>
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a asp-action="Users" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

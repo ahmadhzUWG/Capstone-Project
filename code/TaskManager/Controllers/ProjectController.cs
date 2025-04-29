@@ -669,6 +669,7 @@ namespace TaskManagerWebsite.Controllers
                            ug.Role == "Member" && this.context.GroupProjects
                                .Any(pg => pg.GroupId == ug.GroupId && pg.ProjectId == project.Id));
 
+            vm.CanAddTask = isEmployeeApartOfProject || isAdmin || isGroupManager;
             vm.CanAddStage = (isAdmin || isGroupManager);
             vm.CanDeleteAnyTask = isAdmin;
 
@@ -1132,7 +1133,16 @@ namespace TaskManagerWebsite.Controllers
                 if (isAdmin)
                 {
                     var employees = this.context.Users.ToList();
-                    vm.AvailableEmployees = employees.Select(e => new SelectListItem
+                    var employeesApartOfProject = employees.Where(emp =>
+                        this.context.UserGroups.Any(ug =>
+                            ug.UserId == emp.Id &&
+                            this.context.GroupProjects.Any(gp =>
+                                gp.GroupId == ug.GroupId && gp.ProjectId == project.Id
+                            )
+                        )
+                    ).ToList();
+
+                    vm.AvailableEmployees = employeesApartOfProject.Select(e => new SelectListItem
                     {
                         Value = e.Id.ToString(),
                         Text = e.UserName
