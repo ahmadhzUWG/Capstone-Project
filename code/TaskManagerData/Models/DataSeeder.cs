@@ -94,12 +94,32 @@ public static class DataSeeder
         {
             var groups = new List<Group>
             {
-                new Group { Name = "Development Team", Description = "We develop really good stuff" },
-                new Group { Name = "Design Team", Description = "We design really good stuff" },
-                new Group { Name = "QA Team", Description = "We test really good stuff" }
+                new() { Name = "Development Team", Description = "We develop really good stuff", ManagerId = context.Users.First(user => user.UserName == "Manager1").Id},
+                new() { Name = "Design Team", Description = "We design really good stuff", ManagerId = context.Users.First(user => user.UserName == "Manager2").Id},
+                new() { Name = "QA Team", Description = "We test really good stuff", ManagerId = context.Users.First(user => user.UserName == "Manager1").Id}
             };
 
             context.Groups.AddRange(groups);
+            await context.SaveChangesAsync();
+
+            var userGroups = new List<UserGroup>
+            {
+                new() { GroupId = context.Groups.First(g => g.Name == "Development Team").Id, UserId = context.Users.First(user => user.UserName == "Manager1").Id, Role = "Manager"},
+                new() { GroupId = context.Groups.First(g => g.Name == "Design Team").Id, UserId = context.Users.First(user => user.UserName == "Manager2").Id, Role = "Manager" },
+                new() { GroupId = context.Groups.First(g => g.Name == "QA Team").Id, UserId = context.Users.First(user => user.UserName == "Manager1").Id, Role = "Manager" }
+            };
+
+            context.UserGroups.AddRange(userGroups);
+            await context.SaveChangesAsync();
+
+            var groupManagers = new List<GroupManager>
+            {
+                new() {GroupId = context.Groups.First(g => g.Name == "Development Team").Id, UserId = context.Users.First(user => user.UserName == "Manager1").Id},
+                new() {GroupId = context.Groups.First(g => g.Name == "Design Team").Id, UserId = context.Users.First(user => user.UserName == "Manager2").Id},
+                new() {GroupId = context.Groups.First(g => g.Name == "QA Team").Id, UserId = context.Users.First(user => user.UserName == "Manager1").Id}
+            };
+
+            context.GroupManagers.AddRange(groupManagers);
             await context.SaveChangesAsync();
         }
 
@@ -110,12 +130,12 @@ public static class DataSeeder
             {
                 var projects = new List<Project>
                 {
-                    new Project
+                    new()
                     {
                         Name = "Website Revamp", Description = "We revamp really good stuff",
                         ProjectLeadId = adminUser.Id
                     },
-                    new Project
+                    new()
                     {
                         Name = "Mobile App Launch", Description = "We launch really good stuff",
                         ProjectLeadId = adminUser.Id
