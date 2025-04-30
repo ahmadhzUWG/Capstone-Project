@@ -380,7 +380,18 @@ namespace TaskManagerDesktop.ViewModels
                 assignedToComboBox.Items.Add(currentUserOption);
             }
 
-            assignedToComboBox.SelectedIndex = 0;
+            var matchingItem = assignedToComboBox.Items
+                .Cast<UserOption>()
+                .FirstOrDefault(u => u.DisplayName == AssignedUser.DisplayName);
+
+            if (matchingItem != null)
+            {
+                assignedToComboBox.SelectedItem = matchingItem;
+            }
+            else
+            {
+                assignedToComboBox.SelectedIndex = 0;
+            }
         }
 
         /// <summary>
