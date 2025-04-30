@@ -86,7 +86,16 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     /// </summary>
     public DbSet<TaskHistory> TaskHistories { get; set; }
 
+    /// <summary>
+    /// Gets or sets the comments.
+    /// </summary>
     public DbSet<Comment> Comments { get; set; }
+
+    /// <summary>
+    /// Gets or sets the password resets.
+    /// </summary>
+    public DbSet<PasswordReset> PasswordResets { get; set; }
+
 
     /// <summary>
     /// Configures the entity relationships and database mappings.

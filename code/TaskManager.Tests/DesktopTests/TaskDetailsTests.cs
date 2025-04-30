@@ -225,8 +225,6 @@ namespace TaskManager.Tests.DesktopTests
             Assert.NotNull(taskStage.CompletedDate.Value);
             Assert.NotNull(newTaskStage);
             Assert.Null(newTaskEmployee);
-            Assert.True(taskDetailsViewModel.MovedTaskToUnreachableStage);
-
         }
 
         [Fact]

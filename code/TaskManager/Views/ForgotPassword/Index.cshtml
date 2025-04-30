@@ -1,4 +1,5 @@
-﻿@model TaskManagerWebsite.ViewModels.ForgotPasswordViewModel
+﻿@using Microsoft.EntityFrameworkCore
+@model TaskManagerWebsite.ViewModels.ForgotPasswordViewModel
 
 @{
     Layout = "_Layout";
@@ -10,42 +11,83 @@
     <h4>Forgot Password</h4>
 </div>
 
-<form asp-action="Index" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <div>
-        <label asp-for="Username"></label>
-        <input asp-for="Username" />
-        <span asp-validation-for="Username"></span>
+@if (TempData["FailedAttempts"] != null)
+{
+    <div class="alert alert-danger" style="margin-top: 35px; margin-bottom: 15px; text-align: center">
+        <strong>Error!</strong> @TempData["FailedAttempts"]
     </div>
-    
-    <div>
-        <label asp-for="Password"></label>
-        <input asp-for="Password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-    
-    <div>
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" />
-        <span asp-validation-for="ConfirmPassword"></span>
-    </div>
-
-    <button type="submit">Change Password</button>
-</form>
-
+}
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success" style="margin-top: 15px; text-align: center">
+    <div class="alert alert-success" style="margin-top: 35px; margin-bottom: 15px; text-align: center">
         <strong>Success!</strong> @TempData["SuccessMessage"]
+    </div>
+} 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" style="margin-top: 35px; margin-bottom: 15px; text-align: center">
+        <strong>Error!</strong> @TempData["ErrorMessage"]
     </div>
 }
 
-@if (TempData["ErrorMessage"] != null)
+@if (Model is not { SentOneTime: true })
 {
-    <div class="alert alert-danger" style="margin-top: 15px; text-align: center">
-        <strong>Error!</strong> @TempData["ErrorMessage"]
-    </div>
+    <form asp-action="SendOneTimeCode" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div>
+            <label asp-for="Username"></label>
+            <input asp-for="Username"/>
+            <span asp-validation-for="Username"></span>
+        </div>
+    
+        <button type="submit">Send One-Time Code</button>
+    </form>
+}
+
+@if (Model is { SentOneTime: true, VerifiedOneTime: false })
+{
+    <form asp-action="VerifyOneTimeCode" method="post">
+
+        <input type="hidden" asp-for="VerificationAttempts"/>
+        <input type="hidden" asp-for="Username"/>
+        <input type="hidden" asp-for="SentOneTime"/>
+        <input type="hidden" asp-for="VerifiedOneTime"/>
+
+        <div>
+            <label asp-for="OneTimeCode"></label>
+            <input asp-for="OneTimeCode"/>
+            <span asp-validation-for="OneTimeCode"></span>
+        </div>
+
+        <button type="submit">Verify</button>
+    </form>
+}
+
+@if (Model is { VerifiedOneTime: true })
+{
+    <form asp-action="Index" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <input type="hidden" asp-for="VerificationAttempts"/>
+        <input type="hidden" asp-for="Username"/>
+        <input type="hidden" asp-for="SentOneTime"/>
+        <input type="hidden" asp-for="VerifiedOneTime"/>
+
+        <div>
+            <label asp-for="Password"></label>
+            <input asp-for="Password"/>
+            <span asp-validation-for="Password"></span>
+        </div>
+
+        <div>
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword"/>
+            <span asp-validation-for="ConfirmPassword"></span>
+        </div>
+
+        <button type="submit">Change Password</button>
+    </form>
 }
 
 <div style="text-align: center">
