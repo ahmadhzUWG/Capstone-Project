@@ -32,6 +32,82 @@ namespace TaskManagerWebsite.Controllers
         }
 
         /// <summary>
+        ///    Displays the password recovery page.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        ///   Sends a one-time code to the user for password recovery.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendOneTimeCode(ForgotPasswordViewModel model)
+        {
+            ModelState.Remove(nameof(model.Password));
+            ModelState.Remove(nameof(model.ConfirmPassword));
+            ModelState.Remove(nameof(model.OneTimeCode));
+            ModelState.Remove(nameof(model.VerificationAttempts));
+
+            if (ModelState.IsValid)
+            {
+                var user = this.userManager.Users.FirstOrDefault(u => u.UserName == model.Username);
+                if (user != null)
+                {
+                    var lastSent = TempData.Peek("LastSent") as DateTime?;
+
+                    if (lastSent.HasValue && (DateTime.UtcNow - lastSent.Value).TotalSeconds < 30)
+                    {
+                        TempData.Keep("LastSent");
+                        ModelState.AddModelError("", $"Please wait {30 - (int)(DateTime.UtcNow - lastSent.Value).TotalSeconds}s before requesting again.");
+                        return View("Index", model);
+                    }
+
+                    var email = user.Email;
+                    var code = new Random().Next(100000, 1000000);
+                    var subject = "Task Manager - One-Time Code";
+                    var body = "Your One-Time Code is: " + code;
+
+                    await this.emailService.SendEmailAsync(email, subject, body);
+                    TempData["LastSent"] = DateTime.UtcNow;
+
+                    var previousPasswordReset = await this.context.PasswordResets
+                        .FirstOrDefaultAsync(p => p.Email == user.Email && p.Username == model.Username);
+                    if (previousPasswordReset != null)
+                    {
+                        this.context.PasswordResets.Remove(previousPasswordReset);
+                        await this.context.SaveChangesAsync();
+                    }
+                    
+                    var passwordReset = new PasswordReset
+                    {
+                        Code = code.ToString(),
+                        Email = email,
+                        Username = model.Username
+                    };
+
+                    this.context.PasswordResets.Add(passwordReset);
+                    await this.context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Successfully sent One-Time Code";
+                    model.SentOneTime = true;
+                }
+                else
+                {
+                    ModelState.AddModelError("Username", "There is no user with provided Username");
+                }
+                
+            }
+
+            return View("Index", model);
+        }
+
+        /// <summary>
         ///   Verifies the one-time code sent to the user for password recovery.
         /// </summary>
         /// <returns></returns>
@@ -85,72 +161,6 @@ namespace TaskManagerWebsite.Controllers
             }
 
             return View("Index", model);
-        }
-
-        /// <summary>
-        ///   Sends a one-time code to the user for password recovery.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendOneTimeCode(ForgotPasswordViewModel model)
-        {
-            ModelState.Remove(nameof(model.Password));
-            ModelState.Remove(nameof(model.ConfirmPassword));
-            ModelState.Remove(nameof(model.OneTimeCode));
-            ModelState.Remove(nameof(model.VerificationAttempts));
-
-            if (ModelState.IsValid)
-            {
-                var user = this.userManager.Users.FirstOrDefault(u => u.UserName == model.Username);
-                if (user != null)
-                {
-                    var email = user.Email;
-                    var code = new Random().Next(100000, 1000000);
-                    var subject = "Task Manager - One-Time Code";
-                    var body = "Your One-Time Code is: " + code;
-
-                    await this.emailService.SendEmailAsync(email, subject, body);
-
-                    var previousPasswordReset = await this.context.PasswordResets
-                        .FirstOrDefaultAsync(p => p.Email == user.Email && p.Username == model.Username);
-                    if (previousPasswordReset != null)
-                    {
-                        this.context.PasswordResets.Remove(previousPasswordReset);
-                        await this.context.SaveChangesAsync();
-                    }
-                    
-                    var passwordReset = new PasswordReset
-                    {
-                        Code = code.ToString(),
-                        Email = email,
-                        Username = model.Username
-                    };
-
-                    this.context.PasswordResets.Add(passwordReset);
-                    await this.context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Successfully sent One-Time Code";
-                    model.SentOneTime = true;
-                }
-                else
-                {
-                    ModelState.AddModelError("Username", "There is no user with provided Username");
-                }
-                
-            }
-
-            return View("Index", model);
-        }
-
-        /// <summary>
-        ///    Displays the password recovery page.
-        /// </summary>
-        /// <returns></returns>
-        public IActionResult Index()
-        {
-            return View();
         }
 
         /// <summary>
