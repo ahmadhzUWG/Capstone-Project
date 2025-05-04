@@ -34,7 +34,7 @@
         
         <input type="hidden" asp-for="StageId" />
 
-        <button type="submit" class="btn btn-primary" onclick="return confirm('Confirmation to create task');">Create Task</button>
+        <button type="submit" class="btn btn-primary">Create Task</button>
     </form>
     
     <a asp-controller="Project" asp-action="ProjectBoard" asp-route-id="@ViewBag.ProjectId" class="btn btn-secondary">Cancel</a>

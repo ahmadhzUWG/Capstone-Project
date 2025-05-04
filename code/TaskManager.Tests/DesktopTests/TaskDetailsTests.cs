@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -52,6 +52,300 @@ namespace TaskManager.Tests.DesktopTests
 
             return serviceProviderMock;
         }
+
+        [Fact]
+        public async Task IsMovingToUnreachableStage_ReturnsFalse_WhenUserInAssignedGroup()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+
+            var userId = 1;
+            Session.CurrentUser = new User { Id = userId };
+
+            var task = new TaskManagerData.Models.Task
+            {
+                Id = 100,
+                Name = "Test Task",
+                Description = "Test Description",
+                CreatorUserId = 1
+            };
+
+            var originalStage = new Stage { Id = 1, Name = "Original Stage", ProjectBoardId = 1 };
+            var newStage = new Stage { Id = 2, Name = "New Stage", ProjectBoardId = 1, AssignedGroupId = 10 };
+
+            var projectBoard = new ProjectBoard { Id = 1, ProjectId = 1 };
+            var project = new Project { Id = 1, Name = "Test Project", Description = "Test description"};
+            var taskStage = new TaskStage { TaskId = task.Id, StageId = originalStage.Id };
+
+            dbContext.Stages.AddRange(originalStage, newStage);
+            dbContext.ProjectBoards.Add(projectBoard);
+            dbContext.Projects.Add(project);
+            dbContext.TaskStages.Add(taskStage);
+            dbContext.Users.Add(Session.CurrentUser);
+            dbContext.UserGroups.Add(new UserGroup { UserId = userId, GroupId = 10, Role = "Member"}); 
+            await dbContext.SaveChangesAsync();
+
+            var sp = new ServiceCollection()
+                .AddSingleton(dbContext)
+                .BuildServiceProvider();
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            var scopeMock = new Mock<IServiceScope>();
+            var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            serviceProviderMock.Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+                .Returns(scopeFactoryMock.Object);
+            scopeFactoryMock.Setup(sf => sf.CreateScope())
+                .Returns(scopeMock.Object);
+            scopeMock.Setup(s => s.ServiceProvider).Returns(sp);
+
+            var viewModel = new TaskDetailsViewModel(serviceProviderMock.Object, task);
+
+            await viewModel.PopulateFields(task); // initializes _originalStage internally
+
+            viewModel.SelectedStage = newStage; 
+
+            // Act
+            var result = await viewModel.IsMovingToUnreachableStage();
+
+            // Assert
+            Assert.False(result);
+        }
+
+
+        [Fact]
+        public async Task IsMovingToUnreachableStage_ReturnsTrue_WhenUserNotInAssignedGroup()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+
+            var userId = 1;
+            Session.CurrentUser = new User { Id = userId };
+
+            var task = new TaskManagerData.Models.Task
+            {
+                Id = 300,
+                Name = "Test Task",
+                Description = "Test Description",
+                CreatorUserId = 1
+            };
+
+            var stageOriginal = new Stage { Id = 1, Name = "Original", ProjectBoardId = 1 };
+            var stageNew = new Stage { Id = 2, Name = "New Stage", ProjectBoardId = 1, AssignedGroupId = 10 };
+
+            var projectBoard = new ProjectBoard { Id = 1, ProjectId = 1 };
+            var project = new Project { Id = 1, Name = "Test Project", Description = "Test description"};
+            var taskStage = new TaskStage { TaskId = task.Id, StageId = stageOriginal.Id };
+
+            dbContext.Stages.AddRange(stageOriginal, stageNew);
+            dbContext.ProjectBoards.Add(projectBoard);
+            dbContext.Projects.Add(project);
+            dbContext.TaskStages.Add(taskStage);
+            dbContext.Users.Add(Session.CurrentUser);
+            dbContext.UserGroups.Add(new UserGroup { UserId = userId, GroupId = 99, Role = "Member"}); // user is NOT in group 10
+            await dbContext.SaveChangesAsync();
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            var scopeMock = new Mock<IServiceScope>();
+            var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            var sp = new ServiceCollection()
+                .AddSingleton(dbContext)
+                .BuildServiceProvider();
+
+            serviceProviderMock.Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+                .Returns(scopeFactoryMock.Object);
+            scopeFactoryMock.Setup(sf => sf.CreateScope())
+                .Returns(scopeMock.Object);
+            scopeMock.Setup(s => s.ServiceProvider).Returns(sp);
+
+            var viewModel = new TaskDetailsViewModel(serviceProviderMock.Object, task);
+
+            await viewModel.PopulateFields(task); 
+
+            viewModel.SelectedStage = stageNew; 
+
+            // Act
+            var result = await viewModel.IsMovingToUnreachableStage();
+
+            // Assert
+            Assert.True(result);
+        }
+
+
+
+        [Fact]
+        public async Task GetComments_ReturnsCommentsForTask_OrderedDescending()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+
+            var user = new User { Id = 1, UserName = "User1" };
+            var task = new TaskManagerData.Models.Task 
+            { 
+                Id = 200, 
+                Name = "Test Task",
+                Description = "Test Description",
+                CreatorUserId = 1
+            };
+            var comment1 = new Comment { Id = 1, TaskId = task.Id, User = user, Timestamp = DateTime.Now.AddMinutes(-5), Content = "Old comment" };
+            var comment2 = new Comment { Id = 2, TaskId = task.Id, User = user, Timestamp = DateTime.Now, Content = "New comment" };
+
+            dbContext.Users.Add(user);
+            dbContext.Tasks.Add(task);
+            dbContext.Comments.AddRange(comment1, comment2);
+            await dbContext.SaveChangesAsync();
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            var scopeMock = new Mock<IServiceScope>();
+            var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            serviceProviderMock.Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+                .Returns(scopeFactoryMock.Object);
+            scopeFactoryMock.Setup(sf => sf.CreateScope())
+                .Returns(scopeMock.Object);
+            scopeMock.Setup(s => s.ServiceProvider)
+                .Returns(new ServiceCollection().AddSingleton(dbContext).BuildServiceProvider());
+
+            var viewModel = new TaskDetailsViewModel(serviceProviderMock.Object, task);
+
+            // Act
+            var result = await viewModel.GetComments();
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(comment2.Id, result[0].Id); // newest first
+            Assert.Equal(comment1.Id, result[1].Id);
+            Assert.All(result, c => Assert.NotNull(c.User));
+        }
+
+
+        [Fact]
+        public async Task GetTaskHistories_ReturnsHistoriesForTask_OrderedDescending()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+
+            var user = new User { Id = 1, UserName = "User1" };
+            var task = new TaskManagerData.Models.Task {
+                Id = 100,
+                Name = "Test Task",
+                Description = "Test Description",
+                CreatorUserId = 1
+            };
+            var history1 = new TaskHistory { Id = 1, TaskId = task.Id, User = user, Timestamp = DateTime.Now.AddMinutes(-10), Action = "for test"};
+            var history2 = new TaskHistory { Id = 2, TaskId = task.Id, User = user, Timestamp = DateTime.Now, Action = "for test" };
+
+            dbContext.Users.Add(user);
+            dbContext.Tasks.Add(task);
+            dbContext.TaskHistories.AddRange(history1, history2);
+            await dbContext.SaveChangesAsync();
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            var scopeMock = new Mock<IServiceScope>();
+            var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            serviceProviderMock.Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+                .Returns(scopeFactoryMock.Object);
+            scopeFactoryMock.Setup(sf => sf.CreateScope())
+                .Returns(scopeMock.Object);
+            scopeMock.Setup(s => s.ServiceProvider)
+                .Returns(new ServiceCollection().AddSingleton(dbContext).BuildServiceProvider());
+
+            var viewModel = new TaskDetailsViewModel(serviceProviderMock.Object, task);
+
+            // Act
+            var result = await viewModel.GetTaskHistories();
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(history2.Id, result[0].Id); // most recent first
+            Assert.Equal(history1.Id, result[1].Id);
+            Assert.All(result, h => Assert.NotNull(h.User));
+        }
+
+
+        [Fact]
+        public async Task PostComment_AddsCommentToDatabase()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+
+            // Set current user
+            var user = new User { Id = 123 };
+            Session.CurrentUser = user;
+
+            // Add the user and task to db so foreign keys don’t break
+            var task = new TaskManagerData.Models.Task
+            {
+                Id = 1,
+                Name = "Test Task",
+                Description = "Test Description",
+                CreatorUserId = 1
+            };
+            dbContext.Users.Add(user);
+            dbContext.Tasks.Add(task);
+            await dbContext.SaveChangesAsync();
+
+            // Setup service provider to return our dbContext
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            var scopeMock = new Mock<IServiceScope>();
+            var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            serviceProviderMock
+                .Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+                .Returns(scopeFactoryMock.Object);
+
+            scopeFactoryMock
+                .Setup(sf => sf.CreateScope())
+                .Returns(scopeMock.Object);
+
+            scopeMock
+                .Setup(s => s.ServiceProvider)
+                .Returns(new ServiceCollection()
+                    .AddSingleton(dbContext)
+                    .BuildServiceProvider());
+
+            var viewModel = new TaskDetailsViewModel(serviceProviderMock.Object, task)
+            {
+            };
+
+            var commentText = "This is a test comment.";
+
+            // Act
+            await viewModel.PostComment(commentText);
+
+            // Assert
+            var savedComment = await dbContext.Comments.FirstOrDefaultAsync();
+            Assert.NotNull(savedComment);
+            Assert.Equal(task.Id, savedComment.TaskId);
+            Assert.Equal(user.Id, savedComment.UserId);
+            Assert.Equal(commentText, savedComment.Content);
+            Assert.True((DateTime.Now - savedComment.Timestamp).TotalSeconds < 5); // timestamp close to now
+        }
+
 
         [Fact]
         public async Task UpdateTask_NoChanges()
@@ -225,8 +519,6 @@ namespace TaskManager.Tests.DesktopTests
             Assert.NotNull(taskStage.CompletedDate.Value);
             Assert.NotNull(newTaskStage);
             Assert.Null(newTaskEmployee);
-            Assert.True(taskDetailsViewModel.MovedTaskToUnreachableStage);
-
         }
 
         [Fact]

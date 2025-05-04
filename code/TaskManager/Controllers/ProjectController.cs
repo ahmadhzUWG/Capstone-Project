@@ -678,17 +678,6 @@ namespace TaskManagerWebsite.Controllers
                 .Select(ug => ug.GroupId)
                 .ToList();
 
-            var stagesWithPermissions = project.ProjectBoard.Stages
-                .Select(stage => new StagePermissionViewModel
-                {
-                    Stage = stage,
-                    IsUserAssignedToGroup = stage.AssignedGroup?.Id != null && userGroupIds.Contains(stage.AssignedGroup.Id),
-                    IsAdmin = isAdmin 
-                })
-                .ToList();
-
-            ViewBag.StagesWithPermissions = stagesWithPermissions;
-
             await this.setViewBagManagedUsers(isGroupManager, currentUser, project);
 
             await this.addTaskStagesToStages(project.ProjectBoard.Id);

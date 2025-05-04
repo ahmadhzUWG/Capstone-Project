@@ -16,7 +16,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 Username = "adminUser",
                 Password = "StrongPass1!",
-                ConfirmPassword = "StrongPass1!"
+                ConfirmPassword = "StrongPass1!",
+                OneTimeCode = "123456"
             };
 
             var validationResults = new List<ValidationResult>();
@@ -41,7 +42,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 Username = "",
                 Password = "StrongPass1!",
-                ConfirmPassword = "StrongPass1!"
+                ConfirmPassword = "StrongPass1!",
+                OneTimeCode = "123456"
             };
 
             var validationResults = new List<ValidationResult>();
@@ -66,7 +68,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 Username = "adminUser",
                 Password = "",
-                ConfirmPassword = "StrongPass1!"
+                ConfirmPassword = "StrongPass1!",
+                OneTimeCode = "123456"
             };
 
             var validationResults = new List<ValidationResult>();
@@ -91,7 +94,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 Username = "adminUser",
                 Password = "StrongPass1!",
-                ConfirmPassword = ""
+                ConfirmPassword = "",
+                OneTimeCode = "123456"
             };
 
             var validationResults = new List<ValidationResult>();
@@ -116,7 +120,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 Username = "adminUser",
                 Password = "StrongPass1!",
-                ConfirmPassword = "WrongPass2!"
+                ConfirmPassword = "WrongPass2!",
+                OneTimeCode = "123456"
             };
 
             var validationResults = new List<ValidationResult>();

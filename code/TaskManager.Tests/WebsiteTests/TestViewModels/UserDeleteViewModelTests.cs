@@ -6,13 +6,33 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
     public class UserDeleteViewModelTests
     {
         [Fact]
+        public void SetAndGet_RelatedStages_WorksCorrectly()
+        {
+            var viewModel = new UserDeleteViewModel
+            {
+                User = null,
+                RelatedGroups = null,
+                RelatedProjects = null,
+                RelatedStages = null,
+            };
+
+            Stage stage1 = new Stage { Id = 1, Name = "Stage1" };
+            viewModel.RelatedStages = new List<Stage>{stage1};
+
+            Assert.NotNull(viewModel.RelatedStages);
+            Assert.Equal(1, viewModel.RelatedStages.Count);
+            Assert.Equal("Stage1", viewModel.RelatedStages[0].Name);
+        }
+
+        [Fact]
         public void DefaultConstructor_InitializesPropertiesAsNull()
         {
             var viewModel = new UserDeleteViewModel
             {
                 User = null,
                 RelatedGroups = null,
-                RelatedProjects = null
+                RelatedProjects = null,
+                RelatedStages = null
             };
 
             Assert.Null(viewModel.User);
@@ -27,7 +47,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 User = new User { Id = 1, UserName = string.Empty },
                 RelatedGroups = null,
-                RelatedProjects = null
+                RelatedProjects = null,
+                RelatedStages = null
             };
 
             var user = new User { Id = 2, UserName = "TestUser" };
@@ -51,7 +72,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 User = null,
                 RelatedGroups = groups,
-                RelatedProjects = null
+                RelatedProjects = null,
+                RelatedStages = null
             };
 
             Assert.NotNull(viewModel.RelatedGroups);
@@ -73,7 +95,8 @@ namespace TaskManager.Tests.WebsiteTests.TestViewModels
             {
                 User = null,
                 RelatedGroups = null,
-                RelatedProjects = projects
+                RelatedProjects = projects,
+                RelatedStages = null
             };
 
             Assert.NotNull(viewModel.RelatedProjects);

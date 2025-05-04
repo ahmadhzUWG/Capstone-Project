@@ -55,6 +55,14 @@ public class DataSeederTests
     [Fact]
     public async Task SeedRolesAndUsersAsync_CreatesManagerUser_WhenNotFound()
     {
+        var userManager1 = new User { UserName = "Manager1", Email = "manager1@gmail.com" };
+        var userManager2 = new User { UserName = "Manager2", Email = "manager2@gmail.com" };
+        var adminUser = new User { UserName = "Admin", Email = "admin@gmail.com" };
+
+        _dbContext.Users.AddRange(userManager1, userManager2, adminUser);
+        await _dbContext.SaveChangesAsync();
+
+
         // Arrange: Simulate that no user exists for any of the test emails.
         _mockUserManager.Setup(um => um.FindByEmailAsync("admin@gmail.com"))
             .ReturnsAsync((User)null);
@@ -97,6 +105,13 @@ public class DataSeederTests
     [Fact]
     public async Task SeedRolesAndUsersAsync_AddsEmployeeRole_WhenUserExists()
     {
+        var userManager1 = new User { UserName = "Manager1", Email = "manager1@gmail.com" };
+        var userManager2 = new User { UserName = "Manager2", Email = "manager2@gmail.com" };
+        var adminUser = new User { UserName = "Admin", Email = "admin@gmail.com" };
+
+        _dbContext.Users.AddRange(userManager1, userManager2, adminUser);
+        await _dbContext.SaveChangesAsync();
+
         // Arrange: Simulate that a user with "manager1@gmail.com" already exists and is not in the "Employee" role.
         var existingUser = new User { Email = "manager1@gmail.com" };
         _mockUserManager.Setup(um => um.FindByEmailAsync("manager1@gmail.com"))

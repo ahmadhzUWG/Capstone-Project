@@ -30,5 +30,28 @@ namespace TaskManagerWebsite.ViewModels
         [Compare("Password", ErrorMessage = "Passwords do not match. Make sure both fields are the same.")]
         [Display(Name = "Confirm Password")]
         public required string ConfirmPassword { get; set; }
+
+        /// <summary>
+        /// Gets or sets the one-time code sent to the user's email address.
+        /// </summary>
+        [Required(ErrorMessage = "Please enter the One-Time code sent to the email associated with the username.")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Enter One-Time Code")]
+        public required string OneTimeCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// /// Gets or sets the boolean indicating whether the one-time code has been sent.
+        /// </summary>
+        public bool SentOneTime { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the boolean indicating whether the one-time code has been verified.
+        /// </summary>
+        public bool VerifiedOneTime { get; set; } = false;
+
+        /// <summary>
+        /// /// Gets or sets the number of verification attempts made by the user.
+        /// </summary>
+        public int VerificationAttempts { get; set; } = 0;
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagerData.Models;
 
@@ -11,9 +12,11 @@ using TaskManagerData.Models;
 namespace TaskManagerWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430200313_AddPasswordResetTable")]
+    partial class AddPasswordResetTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,13 +313,17 @@ namespace TaskManagerWebsite.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("Username");
 
                     b.ToTable("PasswordResets");
                 });
@@ -551,6 +558,7 @@ namespace TaskManagerWebsite.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -587,6 +595,7 @@ namespace TaskManagerWebsite.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -773,6 +782,27 @@ namespace TaskManagerWebsite.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("TaskManagerData.Models.PasswordReset", b =>
+                {
+                    b.HasOne("TaskManagerData.Models.User", "UserByEmail")
+                        .WithMany()
+                        .HasForeignKey("Email")
+                        .HasPrincipalKey("Email")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagerData.Models.User", "UserByUsername")
+                        .WithMany()
+                        .HasForeignKey("Username")
+                        .HasPrincipalKey("UserName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserByEmail");
+
+                    b.Navigation("UserByUsername");
                 });
 
             modelBuilder.Entity("TaskManagerData.Models.Project", b =>

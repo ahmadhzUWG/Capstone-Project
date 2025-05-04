@@ -25,9 +25,6 @@
         <div class="d-flex flex-row justify-content-center">
             @foreach (var stage in Model.Project.ProjectBoard.Stages.OrderBy(s => s.Position))
             {
-                var stagePermission = ((List<StagePermissionViewModel>)ViewBag.StagesWithPermissions)
-                .FirstOrDefault(item => item.Stage.Id == stage.Id);
-
                 <div class="p-2 board-column" style="border: 1px solid #ccc; margin: 10px;">
                     <h5>
                         @if (Model.CanAddStage)
