@@ -174,58 +174,61 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeManager(int groupId, int newManagerId)
         {
-            var group = await this.context.Groups
-                .Include(g => g.Manager)
+            var group = await context.Groups
                 .FirstOrDefaultAsync(g => g.Id == groupId);
+            if (group == null) return NotFound();
 
-            if (group == null)
-            {
-                return NotFound();
-            }
+            var oldManagerId = group.ManagerId;
 
-            var newManager = await this.context.Users.FindAsync(newManagerId);
-            if (newManager == null)
-            {
-                return NotFound();
-            }
-
-            var newManagerEntry = await this.context.UserGroups
+            var newEntry = await context.UserGroups
                 .FirstOrDefaultAsync(ug => ug.GroupId == groupId && ug.UserId == newManagerId);
-
-            if (newManagerEntry == null)
+            if (newEntry == null)
             {
-                newManagerEntry = new UserGroup
+                context.UserGroups.Add(new UserGroup
                 {
                     GroupId = groupId,
                     UserId = newManagerId,
                     Role = "Manager"
-                };
-                this.context.UserGroups.Add(newManagerEntry);
+                });
             }
             else
             {
-                newManagerEntry.Role = "Manager";
-                this.context.UserGroups.Update(newManagerEntry);
+                newEntry.Role = "Manager";
+                context.UserGroups.Update(newEntry);
             }
 
-            if (group.ManagerId.HasValue)
+            if (oldManagerId.HasValue)
             {
-                var previousManagerEntry = await this.context.UserGroups
-                    .FirstOrDefaultAsync(ug => ug.GroupId == groupId && ug.UserId == group.ManagerId);
-
-                if (previousManagerEntry != null)
+                var oldEntry = await context.UserGroups
+                    .FirstOrDefaultAsync(ug => ug.GroupId == groupId && ug.UserId == oldManagerId);
+                if (oldEntry != null)
                 {
-                    previousManagerEntry.Role = "Member";
-                    this.context.UserGroups.Update(previousManagerEntry);
+                    oldEntry.Role = "Member";
+                    context.UserGroups.Update(oldEntry);
                 }
             }
 
             group.ManagerId = newManagerId;
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+
+            if (oldManagerId.HasValue)
+            {
+                var impactedProjects = await context.GroupProjects
+                    .Where(gp => gp.GroupId == groupId)
+                    .Select(gp => gp.Project)
+                    .Where(p => p.ProjectLeadId == oldManagerId.Value)
+                    .ToListAsync();
+
+                foreach (var proj in impactedProjects)
+                {
+                    proj.ProjectLeadId = newManagerId;
+                    context.Update(proj);
+                }
+                await context.SaveChangesAsync();
+            }
 
             return RedirectToAction("GroupDetails", new { id = groupId });
         }
-
         /// <summary>
         /// Retrieves a list of projects, including pending and sent group requests for the logged-in manager.
         /// </summary>
@@ -344,6 +347,26 @@ namespace TaskManagerWebsite.Controllers
                 }).ToList();
             }
 
+            var selected = Request.Form["GroupId"].ToList();
+            if (selected.Count == 0)
+            {
+                ModelState.AddModelError("", "A project must have at least one group.");
+            }
+            else
+            {
+                var managesOne = await context.Groups
+                    .Where(g => selected.Contains(g.Id.ToString()) && g.ManagerId == userId)
+                    .AnyAsync();
+                if (!managesOne)
+                {
+                    ModelState.AddModelError("",
+                        "You must be the manager of at least one of the selected groups.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+                return View(model);
+
             if (ModelState.IsValid)
             {
                 if (string.IsNullOrEmpty(currentUserId))
@@ -438,28 +461,25 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public async Task<IActionResult> EditProject(int id)
         {
-            var project = await this.context.Projects.FindAsync(id);
-            if (project == null)
-            {
-                return NotFound();
-            }
+            var project = await context.Projects.FindAsync(id);
+            if (project == null) return NotFound();
 
-            var users = await this.context.Users.ToListAsync();
-            var groupProjects = await this.context.GroupProjects.ToListAsync();
-
-            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+            var assigned = await context.GroupProjects
+                .Where(gp => gp.ProjectId == id)
                 .Select(gp => gp.GroupId)
-                .ToList();
+                .ToListAsync();
 
-            var possibleLeadsIds = await this.context.Groups
-                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
+            var leadIds = await context.Groups
+                .Where(g => assigned.Contains(g.Id))
                 .Select(g => g.ManagerId)
                 .Distinct()
                 .ToListAsync();
 
-            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+            var leads = await context.Users
+                .Where(u => leadIds.Contains(u.Id))
+                .ToListAsync();
 
-            ViewBag.ProjectLeads = possibleLeads;
+            ViewBag.ProjectLeads = leads;
             return View(project);
         }
 
@@ -477,56 +497,35 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProject(int id, Project project)
         {
-            if (id != project.Id)
-            {
-                return BadRequest();
-            }
+            if (id != project.Id) return BadRequest();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var currentUserId = this.userManager.GetUserId(User);
-
-                    if (string.IsNullOrEmpty(currentUserId))
-                    {
-                        ModelState.AddModelError("", "Unable to determine the logged-in user.");
-                        return View(project);
-                    }
-
-                    project.ProjectCreatorId = int.Parse(currentUserId);
-
-                    this.context.Update(project);
-                    await this.context.SaveChangesAsync();
-                    return RedirectToAction("ProjectDetails", new { id = project.Id });
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!this.context.Projects.Any(p => p.Id == project.Id))
-                    {
-                        return NotFound();
-                    }
-                    throw;
-                }
-            }
-
-            var users = await this.context.Users.ToListAsync();
-            var groupProjects = await this.context.GroupProjects.ToListAsync();
-
-            var groupIdsAssignedToProject = groupProjects.Where(gp => gp.ProjectId == id)
+            var assigned = await context.GroupProjects
+                .Where(gp => gp.ProjectId == id)
                 .Select(gp => gp.GroupId)
-                .ToList();
+                .ToListAsync();
 
-            var possibleLeadsIds = await this.context.Groups
-                .Where(g => groupIdsAssignedToProject.Contains(g.Id))
-                .Select(g => g.ManagerId) 
+            var validLeads = await context.Groups
+                .Where(g => assigned.Contains(g.Id))
+                .Select(g => g.ManagerId)
                 .Distinct()
                 .ToListAsync();
 
-            var possibleLeads = users.Where(u => possibleLeadsIds.Contains(u.Id)).ToList();
+            if (!validLeads.Contains(project.ProjectLeadId))
+                TempData["ErrorMessage"] =
+                    "The project lead must manage at least one of the assigned groups.";
 
-            ViewBag.ProjectLeads = possibleLeads;
-            return View(project);
+            if (!ModelState.IsValid)
+            {
+                var leads = await context.Users
+                    .Where(u => validLeads.Contains(u.Id))
+                    .ToListAsync();
+                ViewBag.ProjectLeads = leads;
+                return View(project);
+            }
+
+            context.Projects.Update(project);
+            await context.SaveChangesAsync();
+            return RedirectToAction(nameof(ProjectDetails), new { id = project.Id });
         }
 
         /// <summary>
@@ -665,21 +664,35 @@ namespace TaskManagerWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveGroupFromProject(int projectId, int groupId)
         {
-            var project = await this.context.Projects
+            var project = await context.Projects
                 .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
-
             if (project == null)
-            {
                 return NotFound();
+
+            var assignment = project.ProjectGroups
+                .FirstOrDefault(pg => pg.GroupId == groupId);
+
+            if (assignment != null
+                && assignment.Group.ManagerId == project.ProjectLeadId)
+            {
+                TempData["RemoveGroupMessage"] =
+                    "Cannot remove this group because its manager is the current project lead.";
+                return RedirectToAction("ProjectDetails", new { id = projectId });
             }
 
-            var projectGroup = project.ProjectGroups.FirstOrDefault(pg => pg.GroupId == groupId);
-
-            if (projectGroup != null)
+            if (project.ProjectGroups.Count <= 1)
             {
-                project.ProjectGroups.Remove(projectGroup);
-                await this.context.SaveChangesAsync();
+                TempData["RemoveGroupMessage"] =
+                    "A project must retain at least one group.";
+                return RedirectToAction("ProjectDetails", new { id = projectId });
+            }
+
+            if (assignment != null)
+            {
+                context.GroupProjects.Remove(assignment);
+                await context.SaveChangesAsync();
             }
 
             return RedirectToAction("ProjectDetails", new { id = projectId });

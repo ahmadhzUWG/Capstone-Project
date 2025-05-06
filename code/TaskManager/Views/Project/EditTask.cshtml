@@ -104,27 +104,6 @@
                                                aria-expanded="false" aria-controls="replyCollapse_@comment.Id"
                                                style="opacity: 1; color: inherit;">Reply</a>
                                         </p>
-                                        <!-- Collapsible reply form -->
-                                        <div class="collapse mt-2" id="replyCollapse_@comment.Id">
-                                            <div class="card card-body p-2">
-                                                <form asp-action="ReplyToComment" method="post">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="parentCommentId" value="@comment.Id" />
-                                                    <input type="hidden" name="taskId" value="@Model.TaskId" />
-                                                    <div class="mb-2">
-                                                        <input type="text" name="content" class="form-control" placeholder="Write a reply..." />
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary btn-sm">Post Reply</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <!-- Render replies recursively if any -->
-                                        @if (comment.Replies != null && comment.Replies.Any())
-                                        {
-                                            <div class="ps-4">
-                                                @Html.Raw(RenderReplies(comment.Replies))
-                                            </div>
-                                        }
                                     </div>
                                 }
                             }

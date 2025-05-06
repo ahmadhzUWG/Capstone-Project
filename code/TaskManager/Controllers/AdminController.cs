@@ -212,15 +212,23 @@ namespace TaskManagerWebsite.Controllers
                 return RedirectToAction(nameof(this.Groups));
             }
 
-            var isAssignedToProject = await context.GroupProjects
-                .AnyAsync(gp => gp.GroupId == id);
-
-            if (isAssignedToProject)
+            var isAssigned = await context.GroupProjects.AnyAsync(gp => gp.GroupId == id);
+            if (isAssigned)
             {
                 TempData["ErrorMessage"] = "This group is assigned to one or more projects and cannot be deleted.";
-                return RedirectToAction(nameof(this.Groups));
+                return RedirectToAction(nameof(Groups));
             }
 
+            if (group.ManagerId.HasValue)
+            {
+                var mgrId = group.ManagerId.Value;
+                var mgrIsLead = await context.Projects.AnyAsync(p => p.ProjectLeadId == mgrId);
+                if (mgrIsLead)
+                {
+                    TempData["ErrorMessage"] = "Cannot delete this group because its manager is currently serving as a project lead.";
+                    return RedirectToAction(nameof(Groups));
+                }
+            }
             try
             {
                 context.Groups.Remove(group);
@@ -428,6 +436,9 @@ namespace TaskManagerWebsite.Controllers
                 return NotFound();
             }
 
+            var previousManagerId = group.ManagerId;
+            group.ManagerId = newManagerId;
+
             var newManager = await context.Users.FindAsync(newManagerId);
             if (newManager == null)
             {
@@ -462,6 +473,21 @@ namespace TaskManagerWebsite.Controllers
                 {
                     previousManagerEntry.Role = "Member";
                     context.UserGroups.Update(previousManagerEntry);
+                }
+            }
+
+            if (previousManagerId.HasValue)
+            {
+                var projectsToFix = await context.GroupProjects
+                    .Where(gp => gp.GroupId == groupId)
+                    .Select(gp => gp.Project)
+                    .Where(p => p.ProjectLeadId == previousManagerId.Value)
+                    .ToListAsync();
+
+                foreach (var p in projectsToFix)
+                {
+                    p.ProjectLeadId = newManagerId;
+                    context.Update(p);
                 }
             }
 
@@ -568,6 +594,28 @@ namespace TaskManagerWebsite.Controllers
                 return View(model);
             }
 
+            var pickedGroupIds = Request.Form["GroupId"].ToList();
+            if (pickedGroupIds.Count == 0)
+            {
+                ModelState.AddModelError("", "A project must have at least one group.");
+            }
+
+            var managerIds = await context.Groups
+                .Where(g => pickedGroupIds.Contains(g.Id.ToString()))
+                .Select(g => g.ManagerId)
+                .ToListAsync();
+
+            if (!managerIds.Contains(model.ProjectLeadId))
+            {
+                ModelState.AddModelError("ProjectLeadId",
+                    "The selected lead must be the manager of at least one of the chosen groups.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var project = new Project
             {
                 Name = model.Name,
@@ -615,9 +663,18 @@ namespace TaskManagerWebsite.Controllers
             {
                 return NotFound();
             }
-            ViewBag.Groups = await context.Groups.ToListAsync();
+
+            var assignedGroupIds = project.ProjectGroups
+                .Select(pg => pg.GroupId)
+                .ToList();
+
+            ViewBag.Groups = await context.Groups
+                .Where(g => !assignedGroupIds.Contains(g.Id))
+                .ToListAsync();
+
             return View(project);
         }
+
 
         /// <summary>
         /// Assigns a group to a specified project if it is not already assigned.
@@ -682,13 +739,40 @@ namespace TaskManagerWebsite.Controllers
         {
             var project = await context.Projects
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
-
             if (project == null)
                 return NotFound();
 
-            var projectGroup = project.ProjectGroups.FirstOrDefault(pg => pg.GroupId == groupId);
+            var projectGroup = project.ProjectGroups
+                .FirstOrDefault(pg => pg.GroupId == groupId);
+
+            if (projectGroup != null
+                && projectGroup.Group.ManagerId == project.ProjectLeadId)
+            {
+                TempData["ErrorMessage"] =
+                    "Cannot remove this group because its manager is the current project lead.";
+
+                var assignedIds = project.ProjectGroups.Select(pg => pg.GroupId);
+                ViewBag.Groups = await context.Groups
+                    .Where(g => !assignedIds.Contains(g.Id))
+                    .ToListAsync();
+
+                return PartialView("_ProjectGroupAssignmentPartial", project);
+            }
+
+            if (project.ProjectGroups.Count <= 1)
+            {
+                TempData["ErrorMessage"] = "A project must retain at least one group.";
+
+                var assignedIds = project.ProjectGroups.Select(pg => pg.GroupId);
+                ViewBag.Groups = await context.Groups
+                    .Where(g => !assignedIds.Contains(g.Id))
+                    .ToListAsync();
+
+                return PartialView("_ProjectGroupAssignmentPartial", project);
+            }
+
             if (projectGroup != null)
             {
                 context.GroupProjects.Remove(projectGroup);
@@ -697,15 +781,17 @@ namespace TaskManagerWebsite.Controllers
 
             project = await context.Projects
                 .Include(p => p.ProjectGroups)
-                .ThenInclude(pg => pg.Group)
+                    .ThenInclude(pg => pg.Group)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
-            var allGroups = await context.Groups.ToListAsync();
-            var assignedGroupIds = project.ProjectGroups.Select(pg => pg.GroupId).ToList();
-            ViewBag.Groups = allGroups.Where(g => !assignedGroupIds.Contains(g.Id)).ToList();
+            var nowAssignedIds = project.ProjectGroups.Select(pg => pg.GroupId);
+            ViewBag.Groups = await context.Groups
+                .Where(g => !nowAssignedIds.Contains(g.Id))
+                .ToListAsync();
 
             return PartialView("_ProjectGroupAssignmentPartial", project);
         }
+
 
         /// <summary>
         /// Retrieves the project details for editing.
@@ -717,13 +803,27 @@ namespace TaskManagerWebsite.Controllers
         /// </returns>
         public async Task<IActionResult> EditProject(int id)
         {
-            var project = await context.Projects.FindAsync(id);
-            if (project == null)
-            {
-                return NotFound();
-            }
+            var project = await context.Projects
+                .Include(p => p.ProjectGroups)
+                .ThenInclude(pg => pg.Group).ThenInclude(group => group.Manager)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            ViewBag.ProjectLeads = await context.Users.ToListAsync();
+            if (project == null) return NotFound();
+
+            var leadOptions = project.ProjectGroups
+                .Select(pg => pg.Group.Manager)
+                .Where(u => u != null)
+                .Distinct()
+                .ToList();
+
+            ViewBag.ProjectLeads = leadOptions
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.UserName
+                })
+                .ToList();
+
             return View(project);
         }
 
@@ -745,6 +845,21 @@ namespace TaskManagerWebsite.Controllers
             if (id != project.Id)
             {
                 return BadRequest();
+            }
+
+            var assignedGroupIds = context.GroupProjects
+                .Where(gp => gp.ProjectId == id)
+                .Select(gp => gp.GroupId)
+                .ToList();
+            var validLeads = await context.Groups
+                .Where(g => assignedGroupIds.Contains(g.Id))
+                .Select(g => g.ManagerId)
+                .ToListAsync();
+
+            if (!validLeads.Contains(project.ProjectLeadId))
+            {
+                ModelState.AddModelError("ProjectLeadId",
+                    "The project lead must be a manager of one of this project’s groups.");
             }
 
             if (ModelState.IsValid)

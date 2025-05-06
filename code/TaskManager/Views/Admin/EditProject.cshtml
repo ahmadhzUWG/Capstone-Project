@@ -22,11 +22,8 @@
 
         <div class="form-group">
             <label asp-for="ProjectLeadId">Project Lead</label>
-            <select asp-for="ProjectLeadId" class="form-control">
-                @foreach (var user in ViewBag.ProjectLeads)
-                {
-                    <option value="@user.Id">@user.UserName</option>
-                }
+            <select asp-for="ProjectLeadId" asp-items="ViewBag.ProjectLeads" class="form-control">
+                <option value="">-- Select a Lead --</option>
             </select>
             <span asp-validation-for="ProjectLeadId" class="text-danger"></span>
         </div>
