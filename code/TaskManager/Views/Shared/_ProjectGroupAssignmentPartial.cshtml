@@ -3,6 +3,14 @@
 @{
     Layout = null;
 }
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
 <div id="group-assignment-container">
     <div class="assigned-groups">
         <h3>Assigned Groups</h3>

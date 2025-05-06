@@ -4,6 +4,13 @@
 
 <h2 class="text-center">Edit Project</h2>
 
+if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 <div class="form-container">
     <form asp-action="EditProject" method="post">
         <input type="hidden" asp-for="Id" />

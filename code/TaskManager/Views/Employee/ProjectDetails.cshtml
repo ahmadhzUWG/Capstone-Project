@@ -2,6 +2,13 @@
 
 <link rel="stylesheet" href="~/css/Manager/manager_projectDetails.css" asp-append-version="true" />
 
+@if (TempData["RemoveGroupMessage"] != null)
+{
+    <div class="alert alert-danger text-center">
+        @TempData["RemoveGroupMessage"]
+    </div>
+}
+
 <div class="center-content">
     <h2>Project Details</h2>
 
@@ -17,7 +24,7 @@
                 <li class="group-item">
                     <span class="group-name">@groupProject.Group.Name</span>
 
-                    @if (Model.ProjectCreatorId == int.Parse(ViewBag.UserId) || Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+                    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
                     {
                         <form asp-action="RemoveGroupFromProject" method="post" style="display:inline;">
                             <input type="hidden" name="projectId" value="@Model.Id" />
@@ -30,7 +37,7 @@
         </ul>
     </div>
 
-    @if (Model.ProjectCreatorId == int.Parse(ViewBag.UserId) || Model.ProjectLeadId == int.Parse(ViewBag.UserId))
+    @if (Model.ProjectLeadId == int.Parse(ViewBag.UserId))
     {
         <h4>Assign Group to Project</h4>
         <form asp-action="AssignGroupToProject" method="post">
