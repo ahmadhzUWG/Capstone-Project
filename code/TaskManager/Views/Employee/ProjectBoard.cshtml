@@ -87,7 +87,7 @@
                                     }
                                 </div>
 
-                                <form asp-controller="Project" asp-action="MoveTask" method="post" style="margin-top: 10px;" onsubmit="return confirm('Warning: If the current assigned employee is not part of the assigned group, moving to this stage will remove them from the task.');">
+                                <form asp-controller="Project" asp-action="MoveTask" method="post" style="margin-top: 10px;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="taskId" value="@taskStage.TaskId" />
                                     <input type="hidden" name="currentStageId" value="@taskStage.StageId" />
