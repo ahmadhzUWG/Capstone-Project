@@ -384,11 +384,6 @@ namespace TaskManagerWebsite.Controllers
                                     ug.GroupId == taskStage.Stage.AssignedGroupId &&
                                     ug.UserId == currentUser.Id);
 
-            var isProjectLead = project.ProjectLeadId == currentUser.Id;
-
-            if (!(isAdmin || isGroupManager || isGroupMember || isProjectLead))
-                return Forbid();
-
             var history = await this.context.TaskHistories
                 .Where(h => h.TaskId == taskId)
                 .Include(h => h.User)
