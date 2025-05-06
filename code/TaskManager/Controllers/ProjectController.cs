@@ -262,7 +262,7 @@ namespace TaskManagerWebsite.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId)
+        public async Task<IActionResult> MoveTask(int taskId, int currentStageId, int newStageId, bool confirmed = false)
         {
             var userId = int.Parse(this.userManager.GetUserId(User));
             var user = await this.userManager.FindByIdAsync(userId.ToString());
@@ -304,6 +304,8 @@ namespace TaskManagerWebsite.Controllers
             var isTaskAssignedEmployee = this.context.TaskEmployees
                 .Any(te => te.TaskId == taskId);
 
+            bool showWarning = false;
+
             // Remove the current assignee from task if the new stage has an assigned group and the assignee is not part of that group
             if (newStage.AssignedGroupId.HasValue && isTaskAssignedEmployee)
             {
@@ -320,20 +322,37 @@ namespace TaskManagerWebsite.Controllers
                 // Check if the current assignee is part of the assigned group
                 if (!assigneeGroupIds.Contains(assignedGroupId))
                 {
+                    showWarning = true;
                     var taskEmployee = await this.context.TaskEmployees
                         .FirstOrDefaultAsync(te => te.TaskId == taskId);
 
                     this.context.TaskEmployees.Remove(taskEmployee);
-                    
+
                 }
+            }
+
+            var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
+
+            if (showWarning && !confirmed)
+            {
+                return RedirectToAction("Confirmation", new { taskId, currentStageId, newStageId, projectId });
             }
 
             await this.context.SaveChangesAsync();
 
-            var projectId = newStage?.ProjectBoard?.ProjectId ?? 0;
             return RedirectToAction(nameof(ProjectBoard), new { id = projectId });
         }
 
+        public IActionResult Confirmation(int taskId, int currentStageId, int newStageId, int projectId)
+        {
+            // You can pass these values to the confirmation view if necessary
+            ViewBag.TaskId = taskId;
+            ViewBag.CurrentStageId = currentStageId;
+            ViewBag.NewStageId = newStageId;
+            ViewBag.ProjectId = projectId;
+
+            return View();
+        }
 
         /// <summary>
         /// Edits the task.
