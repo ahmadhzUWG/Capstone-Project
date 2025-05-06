@@ -43,6 +43,9 @@ namespace TaskManagerWebsite.Controllers
         /// <returns></returns>
         public async Task<IActionResult> DeleteTask(int taskStageId)
         {
+            var userId = int.Parse(this.userManager.GetUserId(User));
+            var currentUser = await this.userManager.FindByIdAsync(userId.ToString());
+
             var taskStage = await this.context.TaskStages
                 .Include(ts => ts.Task)
                 .FirstOrDefaultAsync(ts => ts.Id == taskStageId);
@@ -65,6 +68,19 @@ namespace TaskManagerWebsite.Controllers
 
             if (project == null)
                 return NotFound();
+
+            var isProjectLead = project.ProjectLeadId == currentUser.Id;
+            var isCreator = taskStage.Task.CreatorUserId == currentUser.Id;
+            var managedGroupIds = await this.context.UserGroups
+                .Where(ug => ug.UserId == currentUser.Id && ug.Role == "Manager")
+                .Select(ug => ug.GroupId)
+                .ToListAsync();
+            var managesAssignedGroup = stage.AssignedGroup != null && managedGroupIds.Contains(stage.AssignedGroup.Id);
+
+            var isAdmin = await this.userManager.IsInRoleAsync(currentUser, "Admin");
+
+            if (!(isCreator || isProjectLead || isAdmin || managesAssignedGroup))
+                return Forbid();
 
             this.context.TaskEmployees.RemoveRange(this.context.TaskEmployees.Where(te => te.TaskId == taskStage.TaskId));
             this.context.TaskStages.RemoveRange(this.context.TaskStages.Where(ts => ts.TaskId == taskStage.TaskId));

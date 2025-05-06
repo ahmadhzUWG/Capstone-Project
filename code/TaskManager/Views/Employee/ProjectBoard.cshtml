@@ -54,6 +54,7 @@
                     @{
                         var managedUsers = ViewBag.ManagedUsers as List<User> ?? new List<User>();
                         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                        bool isProjectLead = Model.Project.ProjectLeadId == userId;
                     }
 
                     @foreach (var taskStage in stage.TaskStages
@@ -71,9 +72,11 @@
                                         <i class="fas fa-edit"></i> View
                                     </a>
 
-                                    @if (taskStage.Task.CreatorUserId == userId
+                                    @if (isProjectLead
+                                         || taskStage.Task.CreatorUserId == userId
                                          || Model.CanDeleteAnyTask
                                          || managedUsers.Any(user => user.Id == taskStage.Task.CreatorUserId))
+
                                     {
                                         <a asp-controller="Project" asp-action="DeleteTask" asp-route-taskStageId="@taskStage.Id"
                                            onclick="return confirm('Are you sure you want to delete this task?');"
